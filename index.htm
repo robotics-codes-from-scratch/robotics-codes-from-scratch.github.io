@@ -1,0 +1,511 @@
+<html>
+<head>
+<title>Robotics codes from scratch (RCFS)</title>
+<link rel='stylesheet' href='css/main-template.css'>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Lobster|Raleway'> 
+<link rel='stylesheet' href='https://pyscript.net/latest/pyscript.css'>
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+<script defer src='https://pyscript.net/latest/pyscript.js'></script>
+<py-env>
+  - numpy
+</py-env>
+
+</head>
+
+<body>
+
+<div class='container'>
+
+<form>
+
+<div class='row'>
+<div class='col-md'><label>Object1 orientation</label><input id='object0_angle' type='range' min='-3.14159' max='3.14159' step='0.0001' value='0' class='w-72' oninput='this.nextElementSibling.value = this.value'>&nbsp;<output>0.0</output></div>
+<div class='col-md'><label>Object2 orientation</label><input id='object1_angle' type='range' min='-3.14159' max='3.14159' step='0.0001' value='0' class='w-72' oninput='this.nextElementSibling.value = this.value'>&nbsp;<output>0.0</output></div>
+</div>
+
+<div class='row'>
+<div class='col-md'><label>Objects width</label><input id='objects_width' type='range' min='0' max='200' step='0.1' value='40' class='w-72' oninput='this.nextElementSibling.value = this.value'>&nbsp;<output>40.0</output></div>
+<div class='col-md'><label>Objects height</label><input id='objects_height' type='range' min='0' max='200' step='0.1' value='20' class='w-72' oninput='this.nextElementSibling.value = this.value'>&nbsp;<output>20.0</output></div>
+</div>
+
+<div class='row'>
+<div class='col-md'><label>Simulation speed</label><input id='simulation_speed' type='range' min='0' max='20' step='0.01' value='10' class='w-72' oninput='this.nextElementSibling.value = this.value'>&nbsp;<output>10.0</output></div>
+<div class='col-md'><label>Track orientation</label><input id='track_orientation' type='checkbox' checked></div>
+</div>
+
+<div class='row'>
+<div class='col-md'><label>Cost</label><span id='cost'></span></div>
+<div class='col-md'><label>Bounding box</label><input id='use_boundingbox' type='checkbox'></div>
+</div>
+
+</form>
+
+<div><p id='debug'></p></div>
+
+<canvas id='canvas' width='1000px' height='750px'></canvas>
+
+</div>
+
+<py-script>
+from pyodide import create_proxy
+from js import Path2D
+import numpy as np
+
+objects_angle = [document.getElementById('object0_angle'), document.getElementById('object1_angle')]  # Objects angle
+objects_size = [document.getElementById('objects_width'), document.getElementById('objects_height')]  # Objects size
+simulation_speed = document.getElementById('simulation_speed') # Simulation speed
+track_orientation = document.getElementById('track_orientation')
+bounding_box = document.getElementById('use_boundingbox')
+selected_joint = -1
+selected_obj = -1
+
+#########################################################################################
+base1_svg = Path2D.new('m -40.741975,77.319831 c -0.47247,-4.03869 7.32825,-20.1653 10.1171,-22.57617 4.71807,-4.07862 14.00201,-4.3722 15.87822,-6.89366 1.16821,-1.06725 1.19306,-2.45846 1.19136,-4.984461 -0.005,-6.836939 0.0375,-38.9164375 -0.0588,-42.62054746 C -13.757555,-5.2728275 -9.8130348,-13.34661 -0.02248483,-13.67734 7.5903552,-13.93451 13.741895,-7.1292375 13.608255,-0.84839739 13.474625,5.4324325 13.073715,50.200081 13.741895,54.075491 c 0.66817,3.8754 3.0736,26.72695 3.0736,26.72695 l -53.47684,-0.23624 c -3.68777,-0.0163 -4.0806,-3.24637 -4.0806,-3.24637 z')
+base2_svg = Path2D.new('m -13.653647,45.770986 27.119789,-0.07088')
+
+seg11_svg = Path2D.new('M 1.1085815,-48.64595 C 2.8616565,-42.037584 12.141047,-7.3721658 13.181308,-3.8158258 14.730923,1.4818692 12.982058,10.29588 3.6015646,13.1191 -3.6924249,15.31437 -11.379603,10.30832 -12.856452,4.2020952 c -1.476846,-6.106188 -11.012844,-42.5297362 -12.082149,-45.6580692 -1.43181,-5.329295 -2.652606,-11.707828 -2.961653,-18.313541 -0.264086,-5.644652 2.111069,-7.347919 2.111069,-7.347919 2.624567,-3.183184 8.150604,-3.203987 10.333578,-6.275591 1.769697,-2.490098 1.823736,-5.627976 1.959877,-8.208118 0.347278,-6.581603 7.8818877,-11.888333 13.83865325,-11.31331 11.26196775,1.087146 13.17554475,9.678077 12.89920975,14.363762 -0.465778,7.897881 -5.8447437,11.223081 -10.8257944,12.5317 -4.0229212,1.0569 -4.0522977,5.558527 -3.6062254,8.077811 0.53206435,3.004955 1.69902315,6.035714 2.2984683,9.29523 z')
+seg12_svg = Path2D.new('m 0.05406256,-11.597507 c -6.39589386,0 -11.58398456,5.1988245 -11.58398456,11.60742169 0,6.40859681 5.1880907,11.60742231 11.58398456,11.60742231 6.39589414,0 11.58398444,-5.1988255 11.58398444,-11.60742231 0,-6.40859719 -5.1880903,-11.60742169 -11.58398444,-11.60742169 z')
+seg13_svg = Path2D.new('m 0.89874154,-90.983149 c -6.37570324,-0.50777 -11.96015354,4.262759 -12.46893054,10.651135 -0.508778,6.388373 4.2502031,11.982666 10.62590635,12.490434 6.37571205,0.507768 11.96015765,-4.262758 12.46893565,-10.65113 0.50878,-6.388376 -4.2501988,-11.982669 -10.62591146,-12.490439 z')
+seg14_svg = Path2D.new('M -24.784795,-41.659214 1.1085815,-48.64595')
+seg15_svg = Path2D.new('m -20.037453,-23.361462 c 0,0 0.150891,-2.736177 2.859936,-3.928038 2.698441,-1.058633 15.064238,-4.832856 18.5649072,-5.023273 3.4151981,-0.800461 4.5404475,1.903276 4.5404475,1.903276')
+
+seg21_svg = Path2D.new('m 1.0846146,-63.378335 c 0.2455591,-2.834423 3.4523451,-16.559449 4.0431711,-18.415736 1.4726648,-4.271726 5.7043363,-7.554682 6.9088533,-12.676592 0.896166,-8.180737 -5.5218419,-14.075707 -11.67006058,-13.690757 -5.14680322,0.32229 -11.25729142,3.07163 -11.71005642,12.988353 -0.245696,5.381384 2.1556935,6.934579 1.261502,10.892576 -1.067995,4.72731 -3.306673,16.43352 -4.123841,19.092346 -1.013352,3.297141 -2.321128,5.411066 -6.454795,11.635385 -4.133667,6.224321 -5.394419,14.031661 -6.200979,18.250843 -0.80656,4.219183 -2.639059,14.959257 -1.769749,20.046047 0.662189,3.874813 5.317911,7.0872532 8.194376,7.8656925 2.799342,0.6504765 3.517742,0.6405013 5.007603,2.5337107 1.489861,1.8932084 1.467073,4.13299795 2.141633,7.605938 0.4829,3.1674976 4.2207359,9.9421608 11.3304401,10.8558018 C 5.1524174,14.518915 14.875984,8.7881742 13.263942,-1.6038057 11.604726,-12.299883 3.6744317,-12.710682 0.92067775,-13.632854 -1.5420631,-15.114186 -2.6268693,-19.519275 -1.8747035,-22.72879 -1.1225409,-25.938308 1.196278,-37.889572 1.3340625,-40.676542 1.8762966,-51.644393 -0.30239687,-54.622686 1.0846146,-63.378335 Z')
+seg22_svg = Path2D.new('M -11.586565,0.93074939 C -11.083534,7.3068272 -5.4927791,12.069965 0.89597241,11.565935 7.284721,11.061904 12.059397,5.4810033 11.556367,-0.89507457 11.053335,-7.2711624 5.4625836,-12.034299 -0.92616504,-11.530269 -7.3149165,-11.02624 -12.089595,-5.4453385 -11.586565,0.93074939 Z')
+seg23_svg = Path2D.new('m -26.640574,-36.592971 c 5.304398,1.031726 26.42204728,5.61535 26.42204728,5.61535')
+seg24_svg = Path2D.new('m -18.97242,-7.0296766 c 0,0 5.357638,0.9161489 6.790283,-0.3224518 0,0 1.645529,-2.0773004 2.9224726,-3.1740806 1.2245317,-1.051764 3.0335173,-2.07985 3.0335173,-2.07985 1.9028326,-1.212528 2.2666634,-4.627153 3.1812597,-7.476594 1.7216337,-5.363774 1.9197573,-6.250728 1.9197573,-6.250728')
+
+seg31_svg = Path2D.new('m -28.6797,-26.841855 c -1.2675,3.57197 -1.218858,4.557009 -1.595581,8.234518 -0.376722,3.677509 -0.09415,6.442577 -0.0095,8.568278 -0.253944,2.7250156 1.116106,5.225167 1.12849,7.9985227 -0.113818,2.61245518 -0.732443,4.5287742 -1.461378,6.6813667 -0.049,4.0362406 -0.269163,8.1196006 0.283769,12.1263916 0.524743,2.889586 3.777418,3.398207 6.006756,4.487809 3.000431,1.151299 5.962802,2.459036 9.011639,3.446545 2.908512,0.626882 4.197412,-2.375507 4.231736,-4.87884 0.0854,-2.479073 0.335025,-4.760767 2.8765686,-5.44487 3.9560009,-1.216619 8.05245912,-1.946456 12.0010307,-2.99019 5.703849,-2.0129894 9.4239807,-8.5502843 7.7887937,-14.4529723 -1.270267,-5.5243102 -6.867591,-9.6714567 -12.54557065,-9.0219797 -3.01008665,0.221201 -5.63894195,1.895241 -8.24502045,3.5658663 -2.0818469,1.3351245 -1.6868669,-3.2534803 -1.7460679,-4.8326393 -0.0013,-3.276304 0.21006,-3.084655 0.0062,-4.979716 -0.203891,-1.895062 -0.264478,-4.611901 -1.494343,-8.479035 -5.412496,-0.0097 -15.221678,-0.05267 -15.221678,-0.05267 z')
+seg32_svg = Path2D.new('m -14.015345,-33.566241 c -1.232867,-1.390966 -2.465733,-2.781932 -3.698599,-4.172898 0.0038,-3.646334 0.02928,-7.293353 0.01923,-10.939249 -0.02501,-0.949144 -0.522837,-2.078703 -1.513796,-2.119205 -0.942425,0.01577 -1.897362,-0.08159 -2.832194,0.04493 -0.950302,0.333999 -1.133628,1.580185 -1.115778,2.522511 -0.04848,3.474219 -0.09695,6.948437 -0.145432,10.422655 -1.213181,1.407781 -2.426362,2.815561 -3.639543,4.223342 4.308705,0.006 8.617409,0.01194 12.926114,0.01791 z')
+seg33_svg = Path2D.new('m -12.412129,-26.867866 v -4.799995 c 0,-1.919999 -0.435344,-1.878396 -0.888867,-1.876655 -3.030562,0.01164 -14.262729,-0.07064 -14.523962,-0.04334 -0.467055,0 -0.934111,0 -0.883228,1.904343 0.01098,0.410814 0.0013,4.808677 0.0013,4.808677')
+seg34_svg = Path2D.new('M -10.345869,0.79321884 C -9.8879044,6.4881727 -4.8873495,10.735439 0.81892316,10.276563 6.5251942,9.8176865 10.782785,4.8259161 10.324819,-0.86903645 9.8668498,-6.5639995 4.8662942,-10.811265 -0.8399769,-10.35239 -6.5462504,-9.8935134 -10.803835,-4.901743 -10.345869,0.79321884 Z')
+seg35_svg = Path2D.new('m -10.926083,-10.640947 c -12.932836,-0.04585 -19.378158,-0.0931 -19.378158,-0.0931')
+seg36_svg = Path2D.new('M -9.9187154,15.300602 C -29.124234,15.272545 -30.475824,15.251842 -30.475824,15.251842')
+seg37_svg = Path2D.new('m -23.186087,-46.845579 h 5.542233 v 0')
+    
+# Logarithmic map for R^2 x S^1 manifold
+def logmap(f, f0):
+	position_error = f[:2,:] - f0[:2,:]
+	orientation_error = np.imag(np.log(np.exp(f0[-1,:]*1j).conj().T * np.exp(f[-1,:]*1j).T)).conj()
+	diff = np.vstack([position_error, orientation_error])
+	return diff
+
+# Apply angle offsets to match robot kinematic chain
+def emulate_DH_params(x):
+	xt = np.copy(x)
+	xt[0] = xt[0] - np.pi/2
+	orient = np.mod(np.sum(xt,0)+np.pi, 2*np.pi) - np.pi
+	xt[2] = xt[2] - np.arctan(20.5/51)
+	return xt, orient
+
+# Forward kinematics for end-effector (in robot coordinate system)
+def fkin(x, param):
+	xt, orient = emulate_DH_params(x)
+	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+	f = np.vstack([
+		param.l @ np.cos(L @ xt),
+		param.l @ np.sin(L @ xt),
+		orient
+	]) # f1,f2,f3, where f3 is the orientation (single Euler angle for planar robot)
+	f[1] += 81
+	return f
+
+# Forward kinematics for all joints (in robot coordinate system)
+def fkin0(x, param): 
+	xt, _ = emulate_DH_params(x)
+	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+	f = np.vstack([
+		L @ np.diag(param.l) @ np.cos(L @ xt),
+		L @ np.diag(param.l) @ np.sin(L @ xt)
+	])
+	f = np.hstack([np.zeros([2,1]), f])
+	f[1] += 81
+	return f
+
+# Jacobian with analytical computation (for single time step)
+def Jkin(xt, param):
+	xt, _ = emulate_DH_params(xt)
+	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+	J = np.vstack([
+		-np.sin(L @ xt).T @ np.diag(param.l) @ L,
+		 np.cos(L @ xt).T @ np.diag(param.l) @ L,
+		 np.ones([1,param.nbVarX])
+	])
+	return J
+
+# Residual and Jacobian for a viapoints reaching task (in object coordinate system)
+def f_reach(x, param):
+	f = logmap(fkin(x, param), param.Mu)
+	J = np.zeros([param.nbPoints * param.nbVarF, param.nbPoints * param.nbVarX])
+	for t in range(param.nbPoints):
+		f[:2,t] = param.A[:,:,t].T @ f[:2,t] # Object oriented residual
+		Jtmp = Jkin(x[:,t], param)
+		Jtmp[:2] = param.A[:,:,t].T @ Jtmp[:2] # Object centered Jacobian
+		
+		if param.useBoundingBox:
+			for i in range(2):
+				if abs(f[i,t]) < param.sz[i]/2:
+					f[i,t] = 0
+					Jtmp[i] = 0
+				else:
+					f[i,t] -= np.sign(f[i,t]) * param.sz[i]/2
+		
+		J[t*param.nbVarF:(t+1)*param.nbVarF, t*param.nbVarX:(t+1)*param.nbVarX] = Jtmp
+	return f, J
+
+# iLQR in batch form
+def iLQR(x0, u, param):
+	global Su, Sx0
+	for i in range(param.nbIter):
+		x = Su0 @ u + Sx0 @ x0 # System evolution
+		x = x.reshape([param.nbVarX, param.nbData], order='F')
+		f, J = f_reach(x[:,tl], param) # Residuals and Jacobians
+		du = np.linalg.inv(Su.T @ J.T @ Q @ J @ Su + R) @ (-Su.T @ J.T @ Q @ f.flatten('F') - u * param.r) # Gauss-Newton update
+		# Estimate step size with backtracking line search method
+		alpha = 1
+		cost0 = f.flatten('F').T @ Q @ f.flatten('F') + np.linalg.norm(u)**2 * param.r # Cost
+		while True:
+			utmp = u + du * alpha
+			xtmp = Su0 @ utmp + Sx0 @ x0 # System evolution
+			xtmp = xtmp.reshape([param.nbVarX, param.nbData], order='F')
+			ftmp, _ = f_reach(xtmp[:,tl], param) # Residuals 
+			cost = ftmp.flatten('F').T @ Q @ ftmp.flatten('F') + np.linalg.norm(utmp)**2 * param.r # Cost
+			if cost < cost0 or alpha < 1e-3:
+				u = utmp
+				#console.log("Iteration {}, cost: {}".format(i,cost))
+				break
+			alpha /= 2
+		if np.linalg.norm(du * alpha) < 1E-2:
+			break # Stop iLQR iterations when solution is reached
+	return x, cost
+	
+## Parameters
+# ===============================
+
+param = lambda: None # Lazy way to define an empty class in python
+param.dt = 1e-2 # Time step length
+param.nbData = 50 # Number of datapoints
+param.nbIter = 20 # Maximum number of iterations for iLQR
+param.nbPoints = 2 # Number of viapoints
+param.nbVarX = 3 # State space dimension (x1,x2,x3)
+param.nbVarU = 3 # Control space dimension (dx1,dx2,dx3)
+param.nbVarF = 3 # Objective function dimension (f1,f2,f3, with f3 as orientation)
+param.l = [79, 96, 55] # Robot links lengths
+param.sz = [(float)(objects_size[0].value), (float)(objects_size[1].value)] # Size of objects
+param.r = 1e-6 # Control weight term
+param.Mu = np.asarray([[100, 0, (float)(objects_angle[0].value)], [100, 100, (float)(objects_angle[1].value)]]).T # Viapoints 
+param.A = np.zeros([2, 2, param.nbPoints]) # Object orientation matrices
+param.useBoundingBox = False # Consider bounding boxes for reaching cost
+
+# Object rotation matrices
+#obj = [Path2D.new(), Path2D.new()]
+for t in range(param.nbPoints):
+#	obj[t].rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
+	orn_t = param.Mu[-1,t]
+	param.A[:,:,t] = np.asarray([
+		[np.cos(orn_t), -np.sin(orn_t)],
+		[np.sin(orn_t), np.cos(orn_t)]
+	])
+
+# Precision matrix
+Q = np.identity(param.nbVarF * param.nbPoints)
+
+# Control weight matrix
+R = np.identity((param.nbData-1) * param.nbVarU) * param.r
+
+# Time occurrence of viapoints
+tl = np.linspace(0, param.nbData, param.nbPoints+1)
+tl = np.rint(tl[1:]).astype(np.int64) - 1
+idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)]) 
+
+# Transfer matrices (for linear system as single integrator)
+Su0 = np.vstack([
+	np.zeros([param.nbVarX, param.nbVarX*(param.nbData-1)]), 
+	np.tril(np.kron(np.ones([param.nbData-1, param.nbData-1]), np.eye(param.nbVarX) * param.dt))
+]) 
+Sx0 = np.kron(np.ones(param.nbData), np.identity(param.nbVarX)).T
+Su = Su0[idx.flatten()] # We remove the lines that are out of interest
+
+#########################################################################################
+
+# GUI
+scaling_factor = 2 # General scaling factor for rendering 
+
+# Mouse events
+mouse0 = np.zeros(2)
+mouse = np.zeros(2)
+mousedown = 0
+needsUpdate = 0
+
+def onMouseMove(event):
+	global mouse, mouse0
+	mouse0[0] = event.offsetX
+	mouse0[1] = event.offsetY
+	mouse[0] = (event.offsetX - canvas.width * 0.5) / scaling_factor #(event.offsetX / (window.innerWidth*.5)) * 2 - 1
+	mouse[1] = (event.offsetY - canvas.height * 0.5) / scaling_factor #-(event.offsetY / (window.innerHeight*.5)) * 2 + 1
+
+def onTouchMove(event):
+	global mouse, mouse0
+	bcr = event.target.getBoundingClientRect()
+	x = event.touches.item(0).clientX - bcr.x
+	y = event.touches.item(0).clientY - bcr.y
+	mouse0[0] = x 
+	mouse0[1] = y
+	mouse[0] = (x - canvas.width * 0.5) / scaling_factor 
+	mouse[1] = (y - canvas.height * 0.5) / scaling_factor
+	
+def onMouseDown(event):
+	global mousedown
+	mousedown = 1
+#	console.log('Mouse down')
+
+def onMouseUp(event):
+	global mousedown, selected_obj, needsUpdate
+	mousedown = 0
+	selected_obj = -1
+	needsUpdate = 1
+#	console.log('Mouse up')
+
+def onWheel(event):
+	global needsUpdate, selected_joint, x0
+	#if mousedown==1:
+	#document.getElementById('object0_angle').value = str(param.Mu[2,0] + 0.2 * (event.deltaY/106))
+	if selected_joint >= 0:
+		x0[selected_joint] += 0.2 * (event.deltaY/106)
+		selected_joint = -1
+		needsUpdate = 1
+
+cost_el = document.getElementById('cost')
+debug_el = document.getElementById('debug')
+
+document.addEventListener('mousemove', create_proxy(onMouseMove)) #for standard mouse
+document.addEventListener('touchmove', create_proxy(onTouchMove)) #for mobile interfaces
+
+document.addEventListener('mousedown', create_proxy(onMouseDown)) #for standard mouse
+#document.addEventListener('pointerdown', create_proxy(onMouseDown)) #for mobile interfaces 
+document.addEventListener('touchstart', create_proxy(onMouseDown)) #for mobile interfaces 
+
+document.addEventListener('mouseup', create_proxy(onMouseUp)) #for standard mouse
+#document.addEventListener('pointerup', create_proxy(onMouseUp)) #for mobile interfaces 
+document.addEventListener('touchend', create_proxy(onMouseUp)) #for mobile interfaces 
+
+document.addEventListener('wheel', create_proxy(onWheel)) #for standard mouse
+
+#########################################################################################
+
+canvas = document.getElementById('canvas')
+ctx = canvas.getContext('2d')
+
+def clear_screen():
+	ctx.fillStyle = 'white'
+	ctx.fillRect(0, 0, canvas.width, canvas.height)
+	
+	
+def draw_ground():
+	ctx.translate(canvas.width*0.5, canvas.height*0.5)
+	ctx.scale(scaling_factor, scaling_factor)
+	
+	ctx.beginPath()
+	ctx.lineCap = 'round'
+	ctx.lineJoin = 'round'
+	ctx.lineWidth = '5'
+	ctx.strokeStyle = '#CCCCCC'
+	ctx.moveTo(-200, 164)
+	ctx.lineTo(200, 164)
+	ctx.stroke()
+	
+	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
+	
+	
+def draw_robot(xt, color1, color2, color3, color4, selectable):
+	global selected_joint
+	
+	ctx.translate(canvas.width*0.5, canvas.height*0.5)
+	ctx.scale(scaling_factor, scaling_factor)
+	
+	# Draw base
+	ctx.translate(0, 81)
+	ctx.lineWidth = '1'
+	ctx.strokeStyle = color3
+	ctx.fillStyle = color1
+	if selectable and ctx.isPointInPath(base1_svg, mouse0[0], mouse0[1]):
+		ctx.fillStyle = '#33FF99'
+	ctx.fill(base1_svg)
+	ctx.stroke(base1_svg) # Outline
+	ctx.stroke(base2_svg) 
+
+	# Draw seg1
+	ctx.rotate(xt[0])
+	ctx.fillStyle = color1
+	ctx.fill(seg11_svg)
+	ctx.stroke(seg11_svg) # Outline
+	ctx.fillStyle = color2
+	if selectable and ctx.isPointInPath(seg12_svg, mouse0[0], mouse0[1]):
+		ctx.fillStyle = '#3399FF'
+		selected_joint = 0
+	ctx.fill(seg12_svg)
+	ctx.stroke(seg12_svg)
+	ctx.stroke(seg13_svg)
+	ctx.stroke(seg14_svg)
+	ctx.stroke(seg15_svg)
+	
+	# Draw seg2
+	ctx.translate(0, -79)
+	ctx.rotate(xt[1])
+	ctx.fillStyle = color1
+	ctx.fill(seg21_svg) 
+	ctx.stroke(seg21_svg) # Outline
+	ctx.fillStyle = color2
+	if selectable and ctx.isPointInPath(seg22_svg, mouse0[0], mouse0[1]):
+		ctx.fillStyle = '#FF9933'
+		selected_joint = 1
+	ctx.fill(seg22_svg)
+	ctx.stroke(seg22_svg)
+	ctx.stroke(seg23_svg)
+	ctx.stroke(seg24_svg)
+
+	# Draw seg3
+	ctx.translate(0, -96)
+	ctx.rotate(xt[2])
+	ctx.fillStyle = color1
+	ctx.fill(seg31_svg)
+	ctx.stroke(seg31_svg) # Outline
+	ctx.fill(seg32_svg)
+	ctx.stroke(seg32_svg) # Outline
+	ctx.fill(seg33_svg)
+	ctx.stroke(seg33_svg) # Outline
+	ctx.fillStyle = color2
+	if selectable and ctx.isPointInPath(seg34_svg, mouse0[0], mouse0[1]):
+		ctx.fillStyle = '#99FF33'
+		selected_joint = 2
+	ctx.fill(seg34_svg)
+	ctx.stroke(seg34_svg)
+	ctx.stroke(seg35_svg)
+	ctx.stroke(seg36_svg)
+	ctx.stroke(seg37_svg)
+
+	# Draw end-effector point
+	ctx.translate(-20.5, -51)
+	ctx.beginPath()
+	ctx.arc(0, 0, 2, 0, 2 * np.pi)
+	ctx.fillStyle = color4
+	ctx.fill()
+#	ctx.linewidth = '1'
+#	ctx.stroke()
+	
+	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
+	
+#	# Draw skeleton of the kinematic chain
+#	ctx.translate(canvas.width*0.5, canvas.height*0.5)
+#	ctx.beginPath()
+#	ctx.lineCap = 'round'
+#	ctx.lineJoin = 'round'
+#	ctx.lineWidth = '2'
+#	ctx.strokeStyle = '#FF8888'
+#	ctx.moveTo(0, 81)
+#	for i in range(param.nbVarX+1):
+#		ctx.lineTo(f[0,i], f[1,i])
+#	ctx.stroke()
+#	
+#	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
+	
+
+def draw_obj(id, param, color, colortxt):
+	global selected_obj
+	
+	obj = Path2D.new()
+	obj.rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
+	
+	ctx.translate(canvas.width*0.5, canvas.height*0.5)
+	ctx.scale(scaling_factor, scaling_factor)
+	
+	ctx.translate(param.Mu[0,id], param.Mu[1,id])
+	ctx.rotate(param.Mu[2,id])
+	# Draw object
+	ctx.fillStyle = color
+	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
+		selected_obj = id
+	#debug_el.innerText = str(selected_obj)
+	ctx.fill(obj)
+	#ctx.fillRect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
+	if param.sz[0] > 39 and param.sz[1] > 19:
+		ctx.textAlign = 'center'
+		ctx.textBaseline = 'middle'
+		ctx.font = '10px Lobster'
+		ctx.fillStyle = colortxt
+		ctx.fillText('Move me!', 0, 0)
+	
+	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
+
+
+#########################################################################################
+
+x0 = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
+u = np.zeros(param.nbVarU * (param.nbData-1)) # Initial control commands
+x, cost = iLQR(x0, u, param)
+cost_el.textContent = '%.3f' % cost
+
+t0 = 0
+t = 0
+tf = 0
+while True:
+#	time = performance.now() * 0.0005;
+	t0 += (float)(simulation_speed.value)
+	if t0 > 19:
+		t0 = 0
+		if t > param.nbData-2:
+			tf += 1
+			if tf > 10: #Stay some iterations at the final point before starting again
+				t = 0
+				tf = 0
+		else:
+			t += 1
+	
+	# FK
+	f = fkin0(x[:,t], param)
+	
+	# Rendering
+	clear_screen()
+	draw_ground()
+	draw_robot(x[:,0], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', True)
+	selected_obj = -1
+	draw_obj(0, param, '#FF3399', '#DD1177')
+	draw_obj(1, param, '#33FF99', '#11DD77')
+	draw_robot(x[:,t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False)
+	# draw_obj(0, 'rgba(255,51,153,0.5)', 'rgba(221,17,119,0.5)')
+	# draw_obj(1, 'rgba(51,255,153,0.5)', 'rgba(17,221,119,0.5)')
+	
+	# debug_el.innerText = str(ctx.isPointInPath(seg11_svg, mouse0[0], mouse0[1])) + ' ' + str(mouse[0]) + ' ' + str(mouse[1])
+	
+	# Object selection
+	if mousedown==1 and selected_obj>= 0:
+		param.Mu[:2,selected_obj] = mouse
+
+	if needsUpdate==1:
+		# console.log("iLQR required")
+		param.useBoundingBox = bounding_box.checked
+		param.sz = [(float)(objects_size[0].value),(float)(objects_size[1].value)]
+		for i in range(param.nbPoints): 
+			#obj[i].rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
+			param.Mu[2,i] = (float)(objects_angle[i].value)
+			param.A[:,:,i] = np.asarray([
+				[np.cos(param.Mu[2,i]), -np.sin(param.Mu[2,i])],
+				[np.sin(param.Mu[2,i]), np.cos(param.Mu[2,i])]
+			])
+		if track_orientation.checked:
+			Q = np.identity(param.nbVarF * param.nbPoints)
+		else:
+			Q = np.kron(np.identity(param.nbPoints), np.diag([1, 1, 0]))
+		x, cost = iLQR(x0, u, param)
+		cost_el.textContent = '%.3f' % cost
+		needsUpdate = 0
+
+	await asyncio.sleep(0.0001)
+
+</py-script>
+</body>
+</html>
