@@ -6,13 +6,31 @@ html {
 h1, .h1,
 h2, .h2,
 h3, .h3 {
-	font-family: 'Lobster', cursive;
-	padding: 1rem 0rem;
+	font-family: 'Permanent Marker', cursive;
+	padding: 4rem 0rem 1rem 0rem;
+}
+
+h4, .h4 {
+	font-family: 'Permanent Marker', cursive;
+	color: #999999;
 }
 
 form label {
   display: inline-block; /* this is important */
   width: 200px;
+}
+
+.editor-box{
+	background: #EEEEEE;
+    box-sizing: border-box;
+    border-width: 0px;
+    border-style: solid;
+    border-color: rgb(209, 13, 19)
+}
+
+.py-overlay {
+    visibility: hidden;
+    opacity: 0;
 }
 
 /*
