@@ -1,6 +1,7 @@
 html {
   font-size: 125%;
   font-family: 'Raleway', sans-serif;
+  padding: 6rem 0rem 1rem 0rem;
 }
 
 h1, .h1,
@@ -12,7 +13,7 @@ h3, .h3 {
 
 h4, .h4 {
 	font-family: 'Permanent Marker', cursive;
-	color: #999999;
+	color: #666666;
 }
 
 form label {

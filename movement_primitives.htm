@@ -1,0 +1,251 @@
+﻿<!doctype html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<meta name='description' content=''>
+<meta name='author' content='Sylvain Calinon'>
+
+<head>
+<title>Robotics codes from scratch</title>
+<link rel='canonical' href='https://robotics-codes-from-scratch.github.io/'>
+
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css' integrity='sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi' crossorigin='anonymous'>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+
+<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Permanent+Marker|Raleway'> 
+<!-- default atom-one-light monokai-sublime base16/tomorrow -->
+<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/base16/papercolor-light.min.css'>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/languages/python.min.js'></script>
+<script>hljs.highlightAll();</script>
+
+<script defer src='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js' integrity='sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3' crossorigin='anonymous'></script>
+
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css' integrity='sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X' crossorigin='anonymous'>
+<script defer src='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js' integrity='sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz' crossorigin='anonymous'></script>
+<script defer src='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js' integrity='sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05' crossorigin='anonymous'></script>
+<script>
+    let macros = {
+		'\\tp': '\\text{\\tiny{#1}}',
+		'\\trsp' : '\\top',
+		'\\psin' : '\\dagger',
+		'\\eqref': '\\href{###1}{(\\text{#1})}',
+		'\\ref': '\\href{###1}{\\text{#1}}',
+		'\\label': '\\htmlId{#1}{}'
+    };
+    document.addEventListener('DOMContentLoaded', function() {
+        renderMathInElement(document.body, {
+          // customised options
+          trust: (context) => ['\\htmlId', '\\href'].includes(context.command),
+          macros: macros,
+          // • auto-render specific keys, e.g.:
+          delimiters: [
+  {left: '$$', right: '$$', display: true},
+  {left: '$', right: '$', display: false},
+  {left: '\\(', right: '\\)', display: false},
+  {left: '\\begin{equation}', right: '\\end{equation}', display: true},
+  {left: '\\begin{align}', right: '\\end{align}', display: true},
+  {left: '\\begin{align*}', right: '\\end{align*}', display: true},
+  {left: '\\begin{alignat}', right: '\\end{alignat}', display: true},
+  {left: '\\begin{gather}', right: '\\end{gather}', display: true},
+  {left: '\\begin{CD}', right: '\\end{CD}', display: true},
+  {left: '\\[', right: '\\]', display: true}
+],
+          // • rendering keys, e.g.:
+          throwOnError : false
+        });
+    });
+</script>
+
+<script defer src='https://pyscript.net/latest/pyscript.js'></script>
+<py-config type='toml'>
+	packages = ['numpy']
+</py-config>
+
+<link rel='stylesheet' href='https://pyscript.net/latest/pyscript.css'>
+<link rel='stylesheet' href='css/sidebars.css'>
+<link rel='stylesheet' href='css/main-template.css'>
+
+</head>
+
+<body>
+
+<nav class='navbar bg-light fixed-top' aria-label='Light offcanvas navbar'>
+<div class='container-fluid'>
+<a class='navbar-brand' href='#'><h4>Movement primitives</h4></a>  <button class='navbar-toggler' type='button' data-bs-toggle='offcanvas' data-bs-target='#offcanvasNavbarLight' aria-controls='offcanvasNavbarLight'>
+    <span class='navbar-toggler-icon'></span>
+  </button>
+  <div class='offcanvas offcanvas-end' tabindex='-1' id='offcanvasNavbarLight' aria-labelledby='offcanvasNavbarLightLabel'>
+    <div class='offcanvas-header'>
+      <a class='navbar-brand' href='index.htm'><h4 class='offcanvas-title' id='offcanvasNavbarLightLabel'><i class='bi bi-robot'></i> <i class='bi bi-code-slash'></i> RCFS</h4></A>
+      <button type='button' class='btn-close' data-bs-dismiss='offcanvas' aria-label='Close'></button>
+    </div>
+    
+    <div class='offcanvas-body'>
+	<ul class='list-unstyled ps-0'>
+	  
+	  <!--<li><a href='index.htm' class='link-dark d-inline-flex text-decoration-none rounded'>Home</a></li>-->
+	  
+	  <li class='border-top my-3'></li>
+	  <li class='mb-1'>
+		<button class='btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed' data-bs-toggle='collapse' data-bs-target='#exercises-collapse' aria-expanded='true'>
+		  Exercises
+		</button>
+		<div class='collapse show' id='exercises-collapse'>
+		  <ul class='btn-toggle-nav list-unstyled fw-normal pb-1 small'>
+		    <li><a href='exercise01.htm' class='link-dark d-inline-flex text-decoration-none rounded'>Exercise 01</a></li>
+		  </ul>
+		</div>
+	  </li>
+	  
+	  <li class='mb-1'>
+		<button class='btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed' data-bs-toggle='collapse' data-bs-target='#misc-collapse' aria-expanded='false'>
+		  Misc
+		</button>
+		<div class='collapse show' id='misc-collapse'>
+		  <ul class='btn-toggle-nav list-unstyled fw-normal pb-1 small'>
+		    <li><a href='sandbox.htm' class='link-dark d-inline-flex text-decoration-none rounded'>Sandbox</a></li>
+		    <li><a href='movement_primitives.htm' class='link-dark d-inline-flex text-decoration-none rounded'>Movement primitives</a></li>
+		  </ul>
+		</div>
+	  </li>
+	  
+	</ul>
+    </div>
+    
+  </div>
+</div>
+</nav>
+
+<div class='container'>
+
+
+<!--<h1>Movement primitives</h1>-->
+
+Topics:
+<ul>
+<li><a href="#piece" target="_self">Piecewise constant basis functions</a></li>
+<li><a href="#radial" target="_self">Gaussian radial basis functions</a></li>
+<li><a href="#bernstein" target="_self">Bernstein basis functions</a></li>
+<li><a href="#fourier" target="_self">Fourier basis functions</a></li>
+</ul>
+
+<p> The term <em>movement primitives</em> refers to an organization of continuous motion signals in the form of a superposition in parallel and in series of simpler signals, which can be viewed as ``building blocks'' to create more complex movements, see Fig.~\ref{fig:MP}. This principle, coined in the context of motor control~\cite{MussaIvaldi94}, remains valid for a wide range of continuous time signals (for both analysis and synthesis).
+
+A univariate trajectory $\bm{x}^\tp{1D}\in\mathbb{R}^T$ of $T$ datapoints can be represented as a weighted sum of $K$ basis functions with
+\begin{equation}
+	\bm{x}^\tp{1D} = \sum_{k=1}^{K} \bm{\phi}_{k} \; w^\tp{1D}_k = \bm{\phi} \; \bm{w}^\tp{1D}.
+\end{equation}
+
+A multivariate trajectory $\bm{x}\in\mathbb{R}^{DT}$ of $T$ datapoints of dimension $D$ can similarly be computed as
+\begin{equation}
+	\bm{x} = \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k = \bm{\Psi} \; \bm{w},
+	\quad\text{with}\quad \bm{\Psi} = \bm{\phi} \otimes \bm{C} = \left[\begin{matrix}
+	\bm{C}\phi_{1,1} & \bm{C}\phi_{2,1} & \cdots & \bm{C}\phi_{K,1} \\
+	\bm{C}\phi_{1,2} & \bm{C}\phi_{2,2} & \cdots & \bm{C}\phi_{K,2} \\
+	\vdots & \vdots & \ddots & \vdots \\
+	\bm{C}\phi_{1,T} & \bm{C}\phi_{2,T} & \cdots & \bm{C}\phi_{K,T}
+	\end{matrix}\right], \label{eq:Psi}
+\end{equation}
+where $\otimes$ the Kronecker product operator and $\bm{C}$ is a coordination matrix that can for example be set to identity.
+
+Such encoding aims at encoding the movement as a weighted superposition of simpler movements, whose compression aims at working in a subspace of reduced dimensionality, while denoising the signal and capturing the essential aspects of a movement. This can be illustrated as basic building blocks that can be differently assembled to form more elaborated movements, often referred to as <em>movement primitives</em> (MP).
+
+In $\eqref{eq:Psi}$, $\bm{\phi}$ can be any set of basis functions, including some common forms as presented below (see also \cite{Calinon19MM} for more details).
+</p>
+
+
+	<h2 id="piece">Piecewise constant basis functions</h2>
+	<p> Piecewise constant basis functions can be computed in matrix form as
+\begin{equation}
+	\bm{\phi} = \bm{I}_K \otimes \bm{1}_{\frac{T}{K}},
+\end{equation}
+where $\bm{I}_K$ is an identity matrix of size $K$ and $\bm{1}_{\frac{T}{K}}$ is a vector of length $\frac{T}{K}$ compose of unit elements, see Fig.~\ref{fig:MP}.</p>
+	<pre><code class='language-python'>
+def build_phi_piecewise(nb_data, nb_fct):
+    phi = np.kron( np.identity(nb_fct) , np.ones((int(np.ceil(nb_data/nb_fct)),1)) )
+    return phi[:nb_data]
+	</code></pre>
+
+
+
+
+
+<h2 id="radial">Gaussian radial basis functions</h2>
+	<p> Gaussian radial basis functions can be computed in matrix form as
+	\begin{equation}
+		\bm{\phi} = \exp(-\lambda \; \bm{E} \odot \bm{E}),
+		\quad\text{with}\quad \bm{E} = \bm{t} \; \bm{1}_K^\trsp - \bm{1}_T \; {\bm{\mu}^\tp{s}}^\trsp,
+	\end{equation}
+		where $\lambda$ is bandwidth parameter, $\odot$ is the elementwise (Hadamard) product operator, $\bm{t}\in\mathbb{R}^T$ is a vector
+		with entries linearly spaced between $0$ to $1$, $\bm{\mu}^\tp{s}\in\mathbb{R}^K$ is a vector containing the RBF centers linearly
+		spaced on the $[0,1]$ range, and the $\exp(\cdot)$ function is applied to each element of the matrix, see Fig.~\ref{fig:MP}.</p>
+
+		<pre><code class='language-python'>
+def build_phi_rbf(nb_data, nb_fct):
+    t = np.linspace(0,1,nb_data).reshape((-1,1))
+    tMu = np.linspace( t[0] , t[-1] , nb_fct )
+    phi = np.exp( -1e2 * (t.T - tMu)**2 )
+    return phi.T
+	</code></pre>
+
+
+<h2 id="bernstein">Bernstein basis functions</h2>
+<p>Bernstein basis functions (used for B\'ezier curves) can be computed as
+\begin{equation}
+	\bm{\phi}_k = \frac{(K-1)!}{(k-1)!(K-k)!} \; {(\bm{1}_T-\bm{t})}^{K-k} \;\odot\; \bm{t}^{k-1},
+\end{equation}
+$\forall k\in\{1,\ldots,K\}$, where $\bm{t}\in\mathbb{R}^T$ is a vector with entries linearly spaced between $0$ to $1$, and
+	$(\cdot)^d$ is applied elementwise, see Fig.~\ref{fig:MP}.</p>
+
+		<pre><code class='language-python'>
+def build_phi_bernstein(nb_data, nb_fct):
+    t = np.linspace(0,1,nb_data)
+    phi = np.zeros((nb_data,nb_fct))
+    for i in range(nb_fct):
+        phi[:,i] = factorial(nb_fct-1) / (factorial(i) * factorial(nb_fct-1-i)) * (1-t)**(nb_fct-1-i) * t**i
+    return phi
+	</code></pre>
+
+
+<h2 id="fourier">Fourier basis functions</h2>
+
+<p>Fourier basis functions can be computed in matrix form as
+\begin{equation}
+	\bm{\phi} = \exp(\bm{t} \, \bm{\tilde{k}}^\trsp \, 2\pi i),
+\end{equation}
+where the $\exp(\cdot)$ function is applied to each element of the matrix,
+	$\bm{t}\in\mathbb{R}^T$ is a vector with entries linearly spaced between $0$
+	to $1$, $\bm{\tilde{k}}={[-K\!+\!1,-K\!+\!2,\ldots,K\!-\!2,K\!-\!1]}^\trsp$, and $i$ is the imaginary unit ($i^2=-1$).
+
+If $\bm{x}$ is a real and even signal, the above formulation can be simplified to
+\begin{equation}
+	\bm{\phi} = \cos(\bm{t} \, \bm{k}^\trsp \, 2\pi i),
+	\label{eq:dct}
+\end{equation}
+with $\bm{k}={[0,1,\ldots,K\!-\!2,K\!-\!1]}^\trsp$, see Fig.~\ref{fig:MP}.
+
+	Indeed, we first note that $\exp(ai)$ is composed of a real part and an imaginary part with $\exp(ai)=\cos(a)+i\sin(a)$. We can see that for a given time step $t$, a real state $x_t$ can be constructed with the Fourier series
+\begin{align*}
+	x_t &= \sum_{k=-K+1}^{K-1} w_k \exp(t \, k \, 2\pi i)\\
+	&=\sum_{k=-K+1}^{K-1} w_k \cos(t \, k \, 2\pi)\\
+	&= w_0 + \sum_{k=1}^{K-1} 2 w_k \cos(t \, k \, 2\pi),
+\end{align*}
+where we used the properties $\cos(0)=1$ and $\cos(-a)=\cos(a)$ of the cosine function. Since we do not need direct correspondences between the Fourier transform and discrete cosine transform as in the above, we can omit the scaling factors for $w_k$ and directly write the decomposition as in $\eqref{eq:dct}$.
+</p>
+		<pre><code class='language-python'>
+def build_phi_fourier(nb_data, nb_fct):
+
+    t = np.linspace(0,1,nb_data).reshape((-1,1))
+
+    # Alternative computation for real and even signal
+    k = np.arange(0,nb_fct).reshape((-1,1))
+    phi = np.cos( t.T * k * 2 * np.pi )
+    return phi.T
+	</code></pre>
+
+</div>
+</body>
+</html>
+
