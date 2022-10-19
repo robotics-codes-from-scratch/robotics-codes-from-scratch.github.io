@@ -67,7 +67,7 @@
 
 <body>
 
-<nav class='navbar bg-light fixed-top' aria-label='Light offcanvas navbar'>
+<nav class='navbar fixed-top' aria-label='Light offcanvas navbar'>
 <div class='container-fluid'>
 <button class='navbar-toggler' type='button' data-bs-toggle='offcanvas' data-bs-target='#offcanvasNavbarLight' aria-controls='offcanvasNavbarLight'> 
 <span class='navbar-toggler-icon'></span>
@@ -118,7 +118,11 @@
 
 <iframe enable-annotation></iframe>
 
-<div class='container-sm'>
+<div class='container-fluid'>
+<div class='row'>
+<div class='col-1'></div>
+<div class="col-7">
+    
 
 <p> The term <em>movement primitives</em> refers to an organization of continuous motion signals in the form of a superposition in parallel and in series of simpler signals, which can be viewed as ``building blocks'' to create more complex movements, see Fig.~\ref{fig:MP}. This principle, coined in the context of motor control~\cite{MussaIvaldi94}, remains valid for a wide range of continuous time signals (for both analysis and synthesis).
 
@@ -229,6 +233,10 @@ def build_phi_fourier(nb_data, nb_fct):
     return phi.T
 	</code></pre>
 
+
+</div>
+<div class='col-4'></div>
+</div>
 
 </div>
 </body>
