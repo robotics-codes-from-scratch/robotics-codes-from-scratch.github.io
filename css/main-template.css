@@ -1,7 +1,10 @@
 html {
   font-size: 125%;
-  font-family: 'Raleway', sans-serif;
   padding: 6rem 0rem 1rem 0rem;
+}
+
+body {
+  font-family: 'Raleway', sans-serif;
 }
 
 h1, .h1,
