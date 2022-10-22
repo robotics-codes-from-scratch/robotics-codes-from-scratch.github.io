@@ -122,7 +122,7 @@
 
 
 <p>(press shift+enter or click on the green run button to run the code)</p>
-<py-repl output='repl-out' std-err='repl-errors'>
+<py-repl id='mycode' output='repl-out' std-out='repl-out' std-err='repl-errors'>
 x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
 fh = [150, 50, np.pi/6] # Initial object state
 def controlCommand(x, fh, param):
