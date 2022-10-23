@@ -20,9 +20,21 @@ h4, .h4 {
 	color: #666666;
 }
 
+.alert {
+   width:40%;    
+}
+
 form label {
   display: inline-block; /* this is important */
   width: 200px;
+}
+
+input {
+	cursor: pointer;
+}
+
+span {
+	cursor: default;
 }
 
 .editor-box{
