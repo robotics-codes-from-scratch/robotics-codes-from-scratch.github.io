@@ -15,62 +15,26 @@
 <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css' integrity='sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi' crossorigin='anonymous'>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
 
-<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Permanent+Marker|Raleway'> 
-<!-- default atom-one-light monokai-sublime base16/tomorrow -->
-<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/base16/papercolor-light.min.css'>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js'></script>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/languages/python.min.js'></script>
-<script>hljs.highlightAll();</script>
+<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Permanent+Marker|Raleway'>
+
 
 <script defer src='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js' integrity='sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3' crossorigin='anonymous'></script>
 
-<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css' integrity='sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X' crossorigin='anonymous'>
-<script defer src='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js' integrity='sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz' crossorigin='anonymous'></script>
-<script defer src='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js' integrity='sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05' crossorigin='anonymous'></script>
-<script>
-    let macros = {
-		'\\tp': '\\text{\\tiny{#1}}',
-		'\\trsp' : '\\top',
-		'\\psin' : '\\dagger',
-		'\\eqref': '\\href{###1}{(\\text{#1})}',
-		'\\ref': '\\href{###1}{\\text{#1}}',
-		'\\label': '\\htmlId{#1}{}'
-    };
-    document.addEventListener('DOMContentLoaded', function() {
-        renderMathInElement(document.body, {
-          // customised options
-          trust: (context) => ['\\htmlId', '\\href'].includes(context.command),
-          macros: macros,
-          // • auto-render specific keys, e.g.:
-          delimiters: [
-  {left: '$$', right: '$$', display: true},
-  {left: '$', right: '$', display: false},
-  {left: '\\(', right: '\\)', display: false},
-  {left: '\\begin{equation}', right: '\\end{equation}', display: true},
-  {left: '\\begin{align}', right: '\\end{align}', display: true},
-  {left: '\\begin{align*}', right: '\\end{align*}', display: true},
-  {left: '\\begin{alignat}', right: '\\end{alignat}', display: true},
-  {left: '\\begin{gather}', right: '\\end{gather}', display: true},
-  {left: '\\begin{CD}', right: '\\end{CD}', display: true},
-  {left: '\\[', right: '\\]', display: true}
-],
-          // • rendering keys, e.g.:
-          throwOnError : false
-        });
-    });
-</script>
+
+<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
+
+<!-- <script defer src='https://hypothes.is/embed.js' async></script> --> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
+
+
 
 <script defer src='https://pyscript.net/latest/pyscript.js'></script>
 <py-config type='toml'>
 	packages = ['numpy']
 </py-config>
 
-<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
-
-<!--<script defer src='https://hypothes.is/embed.js' async></script>--> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
-
 <link rel='stylesheet' href='https://pyscript.net/latest/pyscript.css'> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
-<link rel='stylesheet' href='css/sidebars.css'>
+	
+<link rel='stylesheet' href='css/sidebars.css'> <!-- main navigation menu -->
 <link rel='stylesheet' href='css/main-template.css'>
 
 </head>
@@ -180,21 +144,24 @@ clean your workspace.
 <h5>1. Write your first web-based python code</h5>
 <py-repl id='rep0' std-out='output' std-err='errors'>print('Hello world!')</py-repl>
 
-<h5>2. Create a random 3D vector:</h5>
+<h5>2. Create a random 3D vector</h5>
+
 <py-repl id='rep1' std-out='output' std-err='errors' output-mode='replace'>
 vec1 = np.array([3., 4.])
 vec2 = np.random.randn(3) # create a random vector
 vec1, vec2
 </py-repl>
 
-<h5>3. Create a random 3D matrix:</h5>
+<h5>3. Create a random 3D matrix</h5>
+
 <py-repl id='rep2' std-out='output' std-err='errors' output-mode='replace' >
 mat1 = np.array([[1.,2.],[2., 10.]])
 mat2 = np.random.randn(3,3) # create a random 3D matrix
 mat1, mat2
 </py-repl>
 
-<h5>4. Multiplication:</h5>
+<h5>4. Multiplication</h5>
+
 <py-repl id='rep3' std-out='output' std-err='errors' output-mode='replace' >
 prod1 = mat1.dot(mat1) # multiply mat1 and mat1
 prod2 = mat1.dot(vec1) # multiply mat1 and vec1
@@ -203,6 +170,7 @@ prod4 = np.outer(vec2, vec2) # Outer product of vec2 and vec2
 </py-repl>
 
 <h5>5. Stacking</h5>
+
 <py-repl id='rep4' std-out='output' std-err='errors'>
 vec3 = np.random.randn(3)
 # stack vec2 and vec3 to obtain a matrix of shape (2,3)
@@ -215,6 +183,7 @@ assert (stacked1.shape == (2,3))
 </py-repl>
 
 <h5>6. Inverse of a matrix</h5>
+
 <py-repl id='rep5' std-out='output' std-err='errors'>
   # Create a diagonal matrix using np.diag()
   mat = np.diag([1., 1., 1.])
@@ -235,7 +204,9 @@ assert (stacked1.shape == (2,3))
 </py-repl>
 
 <h5>7. Solve Ax = b using least-squares</h5>
-Compute the error of least-squares
+
+<p>Compute the error of least-squares</p>
+
 <py-repl id='rep6' std-out='output' std-err='errors'>
 A = np.random.randn(3,3)
 b = np.random.randn(3)
@@ -244,8 +215,18 @@ np.linalg.norm(A @ x - b)
 </py-repl>
 
 <h5>8. Implementing a function</h5>
-Implement a function fun(x) that takes x as input (matrix) and regularizes it until it is invertible.
+
+<p>Implement a function fun(x) that takes x as input (matrix) and regularizes it until it is invertible.</p>
+
 <py-repl id='rep7' std-out='output' std-err='errors'>
+def fun(x):
+  #...
+  return x
+
+x = np.diag([1., 2, 0.])
+fun(x)
+</py-repl>
+<!--
 def fun(x):
   i = 0
   while np.linalg.det(x) == 0.:
@@ -256,29 +237,43 @@ def fun(x):
 
 x = np.diag([1., 2, 0.])
 fun(x)
-</py-repl>
+-->
 
 <h5>9. Plotting</h5>
+
 <py-repl id='rep8' std-out='output' std-err='errors'>
 x = np.arange(5)
 plot(x, x**2)
 </py-repl>
+
 <br><br><br>
 
 </div> <!-- col-sm-7 -->
 
-<div class='col-sm-4' style='position: fixed; right: 50px; bottom: 150px; border: 2px solid green; padding: 10px; max-width:500px;
-max-height:500px; width:400px; overflow: scroll;resize:both; text-align: center; background-color:#d6eaf8' id='div1'>
 
-<h4 style='background: #85c1e9 ;text-align: center;vertical-align: middle;' id='workspace'>Workspace</h4>
+<div class='col-sm-4' id='div1'> 
 
-<b>Output <button class='button outputButton' onclick='clearMsgsOutput()'>Clear</button> </b><hr>
+<div class='sticky-sm-top' style='padding: 2rem 1rem 1rem 1rem;'>
+<hr>
+
+<div class='row justify-content-between'>
+<div class='col-auto'><button class='btn btn-light btn-sm' disabled>Output</button></div> 
+<div class='col-auto'><button class='btn btn-outline-secondary btn-sm float-right' onclick='clearMsgsOutput()'>Clear</button></div>
+</div>
 <div id='output'></div>
+<hr>
 
-<b>Errors <button class='button errorButton' onclick='clearMsgs()'>Clear</button> </b><hr>
+<div class='row justify-content-between'>
+<div class='col-auto'><button class='btn btn-light btn-sm' disabled>Error</button></div> 
+<div class='col-auto'><button class='btn btn-outline-secondary btn-sm float-right' onclick='clearMsgs()'>Clear</button></div>
+</div>
 <div id='errors'></div>
+<hr>
 
-<b>Plot  <button class='button outputButton' onclick='destroyChart()'>Clear</button> </b><hr>
+<div class='row justify-content-between'>
+<div class='col-auto'><button class='btn btn-light btn-sm' disabled>Plot</button></div> 
+<div class='col-auto'><button class='btn btn-outline-secondary btn-sm float-right' onclick='destroyChart()'>Clear</button></div>
+</div>
 <canvas id='chart'></canvas>
 
 <script>
@@ -287,27 +282,27 @@ var chart;
 function startChart() {
     // Code for chart initialization
     chart = new Chart('chart', {
-              type: 'line',
-              data: {
-                datasets: [{
-                    borderColor: colors[0],
-                    backgroundColor: colors[0],
-                    pointRadius: [0],
-                  }
-                ]
-              },
-              options: {
-                plugins: {
-                  legend: {display: false},
-                  tooltip: {enabled: false},
+      type: 'line',
+      data: {
+        datasets: [{
+            borderColor: colors[0],
+            backgroundColor: colors[0],
+            pointRadius: [0],
+          }
+        ]
+      },
+      options: {
+        plugins: {
+          legend: {display: false},
+          tooltip: {enabled: false},
 
-                },
-                scales: {
-                  x: {display: true},
-                  y: {display: true}
-                },
-              }
-            });
+        },
+        scales: {
+          x: {display: true},
+          y: {display: true}
+        },
+      }
+    });
 }
 
 function destroyChart() {
@@ -326,10 +321,7 @@ function jsPlot(xValues, yValues, i, color, scatter) {
     dataset = {};       //a single dataset is an object
     dataset.borderColor = colors[i%10];
     dataset.backgroundColor = colors[i%10];
-
     dataset.showLine = false;
-
-
     dataset.data = [];  //contains the 'Y; axis data
     chart.data.datasets.push(dataset);
     chart.data.datasets[i].data = yValues;

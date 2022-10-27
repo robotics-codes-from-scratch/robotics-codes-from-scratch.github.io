@@ -15,62 +15,61 @@
 <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css' integrity='sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi' crossorigin='anonymous'>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
 
-<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Permanent+Marker|Raleway'> 
+<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Permanent+Marker|Raleway'>
+
+
 <!-- default atom-one-light monokai-sublime base16/tomorrow -->
 <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/base16/papercolor-light.min.css'>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js'></script>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/languages/python.min.js'></script>
 <script>hljs.highlightAll();</script>
-
+	
 <script defer src='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js' integrity='sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3' crossorigin='anonymous'></script>
+
 
 <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css' integrity='sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X' crossorigin='anonymous'>
 <script defer src='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js' integrity='sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz' crossorigin='anonymous'></script>
 <script defer src='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js' integrity='sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05' crossorigin='anonymous'></script>
 <script>
-    let macros = {
-		'\\tp': '\\text{\\tiny{#1}}',
-		'\\trsp' : '\\top',
-		'\\psin' : '\\dagger',
-		'\\eqref': '\\href{###1}{(\\text{#1})}',
-		'\\ref': '\\href{###1}{\\text{#1}}',
-		'\\label': '\\htmlId{#1}{}'
-    };
-    document.addEventListener('DOMContentLoaded', function() {
-        renderMathInElement(document.body, {
-          // customised options
-          trust: (context) => ['\\htmlId', '\\href'].includes(context.command),
-          macros: macros,
-          // • auto-render specific keys, e.g.:
-          delimiters: [
-  {left: '$$', right: '$$', display: true},
-  {left: '$', right: '$', display: false},
-  {left: '\\(', right: '\\)', display: false},
-  {left: '\\begin{equation}', right: '\\end{equation}', display: true},
-  {left: '\\begin{align}', right: '\\end{align}', display: true},
-  {left: '\\begin{align*}', right: '\\end{align*}', display: true},
-  {left: '\\begin{alignat}', right: '\\end{alignat}', display: true},
-  {left: '\\begin{gather}', right: '\\end{gather}', display: true},
-  {left: '\\begin{CD}', right: '\\end{CD}', display: true},
-  {left: '\\[', right: '\\]', display: true}
-],
-          // • rendering keys, e.g.:
-          throwOnError : false
-        });
-    });
+let macros = {
+	'\\tp': '\\text{\\tiny{#1}}',
+	'\\trsp' : '\\top',
+	'\\psin' : '\\dagger',
+	'\\eqref': '\\href{###1}{(\\text{#1})}',
+	'\\ref': '\\href{###1}{\\text{#1}}',
+	'\\label': '\\htmlId{#1}{}'
+};
+document.addEventListener('DOMContentLoaded', function() {
+	renderMathInElement(document.body, {
+		// customised options
+		trust: (context) => ['\\htmlId', '\\href'].includes(context.command),
+		macros: macros,
+		// • auto-render specific keys, e.g.:
+		delimiters: [
+			{left: '$$', right: '$$', display: true},
+			{left: '$', right: '$', display: false},
+			{left: '\\(', right: '\\)', display: false},
+			{left: '\\begin{equation}', right: '\\end{equation}', display: true},
+			{left: '\\begin{align}', right: '\\end{align}', display: true},
+			{left: '\\begin{align*}', right: '\\end{align*}', display: true},
+			{left: '\\begin{alignat}', right: '\\end{alignat}', display: true},
+			{left: '\\begin{gather}', right: '\\end{gather}', display: true},
+			{left: '\\begin{CD}', right: '\\end{CD}', display: true},
+			{left: '\\[', right: '\\]', display: true}
+		],
+		// • rendering keys, e.g.:
+		throwOnError : false
+	});
+});
 </script>
-
-<script defer src='https://pyscript.net/latest/pyscript.js'></script>
-<py-config type='toml'>
-	packages = ['numpy']
-</py-config>
-
+	
 <script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
 
-<!--<script defer src='https://hypothes.is/embed.js' async></script>--> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
+<!-- <script defer src='https://hypothes.is/embed.js' async></script> --> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
 
-<link rel='stylesheet' href='https://pyscript.net/latest/pyscript.css'> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
-<link rel='stylesheet' href='css/sidebars.css'>
+
+
+<link rel='stylesheet' href='css/sidebars.css'> <!-- main navigation menu -->
 <link rel='stylesheet' href='css/main-template.css'>
 
 </head>
@@ -131,7 +130,9 @@
 <div class='container-fluid'>
 
 
-<!--<h1>Movement primitives</h1>-->
+<div class='container'>
+
+<h1>Movement primitives</h1>
 
 Topics:
 <ul>
@@ -141,7 +142,7 @@ Topics:
 <li><a href="#fourier" target="_self">Fourier basis functions</a></li>
 </ul>
 
-<p> The term <em>movement primitives</em> refers to an organization of continuous motion signals in the form of a superposition in parallel and in series of simpler signals, which can be viewed as ``building blocks'' to create more complex movements, see Fig.~\ref{fig:MP}. This principle, coined in the context of motor control~\cite{MussaIvaldi94}, remains valid for a wide range of continuous time signals (for both analysis and synthesis).
+<p>The term <em>movement primitives</em> refers to an organization of continuous motion signals in the form of a superposition in parallel and in series of simpler signals, which can be viewed as ``building blocks'' to create more complex movements, see Fig.~\ref{fig:MP}. This principle, coined in the context of motor control~\cite{MussaIvaldi94}, remains valid for a wide range of continuous time signals (for both analysis and synthesis).
 
 A univariate trajectory $\bm{x}^\tp{1D}\in\mathbb{R}^T$ of $T$ datapoints can be represented as a weighted sum of $K$ basis functions with
 \begin{equation}
@@ -254,6 +255,8 @@ def build_phi_fourier(nb_data, nb_fct):
     phi = np.cos( t.T * k * 2 * np.pi )
     return phi.T
 	</code></pre>
+	
+</div>
 
 </div> <!--container-->
 </body>
