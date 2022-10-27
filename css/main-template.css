@@ -1,6 +1,6 @@
 html {
   font-size: 125%;
-  padding: 6rem 0rem 1rem 0rem;
+  padding: 2rem 0rem 0rem 0rem;
 }
 
 body {
@@ -12,13 +12,18 @@ h1, .h1,
 h2, .h2,
 h3, .h3 {
 	font-family: 'Permanent Marker', cursive;
-	padding: 4rem 0rem 1rem 0rem;
+	padding: 0rem 0rem 1rem 0rem;
 }
 
 h4, .h4 {
 	font-family: 'Permanent Marker', cursive;
 	color: #666666;
 }
+
+h5, .h5 {
+	padding: 2rem 0rem 1rem 0rem;
+}
+
 
 .alert {
    width:40%;    
@@ -45,10 +50,12 @@ span {
     border-color: rgb(209, 13, 19)
 }
 
+/*
 .py-overlay {
     visibility: hidden;
     opacity: 0;
 }
+*/
 
 /*
 .py-overlay {

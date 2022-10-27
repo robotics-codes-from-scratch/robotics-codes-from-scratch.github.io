@@ -3,10 +3,12 @@
 <head>
 <meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'>
-<meta name='description' content=''>
+<meta name='description' content='Robotics codes from scratch (RCFS) is a collection of source codes to study and test learning and optimization problems in robotics through simple 2D examples.'>
+<meta name='keywords' content='robotics codes, robotics tutorial, rcfs, robotics from scratch'>
 <meta name='author' content='Sylvain Calinon'>
+<link rel='icon' href='images/favicon.ico' sizes='any'>
+<link rel='icon' href='images/favicon.svg' type='image/svg+xml'>
 
-<head>
 <title>Robotics codes from scratch</title>
 <link rel='canonical' href='https://robotics-codes-from-scratch.github.io/'>
 
@@ -63,7 +65,11 @@
 	packages = ['numpy']
 </py-config>
 
-<link rel='stylesheet' href='https://pyscript.net/latest/pyscript.css'>
+<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
+
+<!--<script defer src='https://hypothes.is/embed.js' async></script>--> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
+
+<link rel='stylesheet' href='https://pyscript.net/latest/pyscript.css'> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
 <link rel='stylesheet' href='css/sidebars.css'>
 <link rel='stylesheet' href='css/main-template.css'>
 
@@ -71,12 +77,14 @@
 
 <body>
 
-<nav class='navbar bg-light fixed-top' aria-label='Light offcanvas navbar'>
+<nav class='navbar fixed-top' aria-label='Light offcanvas navbar'>
 <div class='container-fluid'>
-<a class='navbar-brand' href='#'><h4>Robotics codes from scratch (RCFS)</h4></a>  <button class='navbar-toggler' type='button' data-bs-toggle='offcanvas' data-bs-target='#offcanvasNavbarLight' aria-controls='offcanvasNavbarLight'>
-    <span class='navbar-toggler-icon'></span>
-  </button>
-  <div class='offcanvas offcanvas-end' tabindex='-1' id='offcanvasNavbarLight' aria-labelledby='offcanvasNavbarLightLabel'>
+<button class='navbar-toggler' type='button' data-bs-toggle='offcanvas' data-bs-target='#offcanvasNavbarLight' aria-controls='offcanvasNavbarLight'> 
+<span class='navbar-toggler-icon'></span>
+</button>
+<!--<a class='navbar-brand' href='#'><h4>Movement primitives</h4></a>-->    
+  
+  <div class='offcanvas offcanvas-start' tabindex='-1' id='offcanvasNavbarLight' aria-labelledby='offcanvasNavbarLightLabel'>
     <div class='offcanvas-header'>
       <a class='navbar-brand' href='index.htm'><h4 class='offcanvas-title' id='offcanvasNavbarLightLabel'><i class='bi bi-robot'></i> <i class='bi bi-code-slash'></i> RCFS</h4></A>
       <button type='button' class='btn-close' data-bs-dismiss='offcanvas' aria-label='Close'></button>
@@ -99,7 +107,7 @@
 		</div>
 	  </li>
 	  
-	  <li class='mb-1'>
+	  <!--<li class='mb-1'>
 		<button class='btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed' data-bs-toggle='collapse' data-bs-target='#misc-collapse' aria-expanded='false'>
 		  Misc
 		</button>
@@ -109,7 +117,7 @@
 		    <li><a href='movement_primitives.htm' class='link-dark d-inline-flex text-decoration-none rounded'>Movement primitives</a></li>
 		  </ul>
 		</div>
-	  </li>
+	  </li>-->
 	  
 	</ul>
     </div>
@@ -118,12 +126,20 @@
 </div>
 </nav>
 
-<div class='container'>
+<!-- <iframe enable-annotation></iframe> -->
 
+<div class='container-fluid'>
+
+
+<center>
+<h1>Robotics codes from scratch (RCFS)</h1>
+</center>
+
+<div class='container'>
 
 <p>Robotics codes from scratch (RCFS) is a collection of source codes to study and test learning and optimization problems in robotics through simple 2D examples. Most examples are coded in Python and Matlab/Octave (full compatibility with GNU Octave). Some are also coded in C++ and Julia. The code examples have .m, .py, .cpp and .jl extensions that can be found in their respective folders matlab, python, cpp and julia.</p>
 
-<p>Use the menu on the top-right corner to see the available examples and exercises.</p>
+<p>Use the menu on the top-left corner to see the available examples and exercises.</p>
 
 <center>
 <img class='img-fluid' src='images/logo.png'>
@@ -133,8 +149,10 @@
 <a href='https://gitlab.idiap.ch/rli/robotics-codes-from-scratch' target='_blank'><button type='button' class='btn btn-primary btn-lg'><i class='bi bi-git'></i> git repo</button></a>
 <a href='https://calinon.ch/papers/rcfs.pdf' target='_blank'><button type='button' class='btn btn-danger btn-lg'><i class='bi bi-file-pdf-fill'></i> pdf</button></a>
 </center>
-      
+
 </div>
+
+</div> <!--container-->
 </body>
 </html>
 

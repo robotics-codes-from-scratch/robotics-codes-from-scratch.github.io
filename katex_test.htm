@@ -1,0 +1,150 @@
+﻿<!doctype html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<meta name='description' content=''>
+<meta name='author' content='Sylvain Calinon'>
+
+<title>Robotics codes from scratch</title>
+
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css' integrity='sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X' crossorigin='anonymous'>
+<script defer src='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js' integrity='sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz' crossorigin='anonymous'></script>
+<script defer src='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js' integrity='sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05' crossorigin='anonymous'></script>
+<script>
+    let macros = {
+		'\\tp': '\\text{\\tiny{#1}}',
+		'\\trsp' : '\\top',
+		'\\psin' : '\\dagger',
+		'\\eqref': '\\href{###1}{(\\text{#2})}',
+		'\\ref': '\\href{###1}{\\text{#2}}',
+		'\\label': '\\htmlId{#1}{}'
+    };
+    document.addEventListener('DOMContentLoaded', function() {
+        renderMathInElement(document.body, {
+          // customised options
+          trust: (context) => ['\\htmlId', '\\href'].includes(context.command),
+          macros: macros,
+          // • auto-render specific keys, e.g.:
+          delimiters: [
+  {left: '$$', right: '$$', display: true},
+  {left: '$', right: '$', display: false},
+  {left: '\\(', right: '\\)', display: false},
+  {left: '\\begin{equation}', right: '\\end{equation}', display: true},
+  {left: '\\[', right: '\\]', display: true}
+],
+          // • rendering keys, e.g.:
+          throwOnError : false
+        });
+    });
+</script>
+
+<style>
+a:link {
+  text-decoration: none;
+}
+</style>
+
+<!--.katex {-->
+<!--    overflow: auto hidden;-->
+<!--}-->
+
+<!--@media only screen and (max-width: 1000px) {-->
+<!--  .katex-display > .katex {-->
+<!--    max-width: 100%;-->
+<!--    overflow: auto hidden;-->
+<!--    overflow-x: auto;-->
+<!--    overflow-y: hidden;-->
+<!--  }-->
+<!--}-->
+
+<!--.katex > .katex-html {-->
+<!--	white-space: normal;-->
+<!--}-->
+<!--.katex .base {-->
+<!--	margin-top: 2px;-->
+<!--	margin-bottom: 2px;-->
+<!--}-->
+
+
+<!--.katex-display > .katex {-->
+<!--    max-width: 100%;-->
+<!--}-->
+<!--.katex-display > .katex > .katex-html {-->
+<!--    max-width: 100%;-->
+<!--    overflow-x: hidden;-->
+<!--    overflow-x: auto;-->
+<!--    overflow-y: hidden;-->
+<!--    padding-left: 2px;-->
+<!--    padding-right: 2px;-->
+<!--}-->
+
+<!--.katex-display > .katex {-->
+<!--  display: inline-block;-->
+<!--  white-space: nowrap;-->
+<!--  max-width: 100%;-->
+<!--  overflow-x: scroll;-->
+<!--  text-align: initial;-->
+<!--}-->
+<!--.katex {-->
+<!--  font: normal 1.21em KaTeX_Main, Times New Roman, serif;-->
+<!--  line-height: 1.2;-->
+<!--  white-space: normal;-->
+<!--  text-indent: 0;-->
+<!--}-->
+
+<!--.katex {-->
+<!--	font-size: 1.1em;-->
+<!--	overflow: auto;-->
+<!--    width: 100%;-->
+<!--}-->
+
+</head>
+
+<body>
+
+<!--<div style='width: 50%;'>-->
+<div id="demo">
+
+\begin{equation}
+	\bm{x} = \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k 
+\end{equation}
+
+<p> A multivariate trajectory $\bm{x}\in\mathbb{R}^{DT}$ of $T$ datapoints of dimension $D$ can similarly be computed as
+\begin{equation}
+	\bm{x} = \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k 
+\end{equation}
+\begin{equation}
+	\bm{x} = \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k = \bm{\Psi} \; \bm{w},
+	\quad\text{with}\quad \bm{\Psi} = \bm{\phi} \otimes \bm{C} = \left[\begin{matrix}
+	\bm{C}\phi_{1,1} & \bm{C}\phi_{2,1} & \cdots & \bm{C}\phi_{K,1} \\
+	\bm{C}\phi_{1,2} & \bm{C}\phi_{2,2} & \cdots & \bm{C}\phi_{K,2} \\
+	\vdots & \vdots & \ddots & \vdots \\
+	\bm{C}\phi_{1,T} & \bm{C}\phi_{2,T} & \cdots & \bm{C}\phi_{K,T}
+	\end{matrix}\right], \label{eq:Psi}
+\end{equation}
+where $\otimes$ the Kronecker product operator and $\bm{C}$ is a coordination matrix that can for example be set to identity.
+</p>
+
+$$ \bm{x} = \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k = \bm{\Psi} \; \bm{w},
+	\quad\text{with}\quad \bm{\Psi} = \bm{\phi} \otimes \bm{C} = \left[\begin{matrix}
+	\bm{C}\phi_{1,1} & \bm{C}\phi_{2,1} & \cdots & \bm{C}\phi_{K,1} \\
+	\bm{C}\phi_{1,2} & \bm{C}\phi_{2,2} & \cdots & \bm{C}\phi_{K,2} \\
+	\vdots & \vdots & \ddots & \vdots \\
+	\bm{C}\phi_{1,T} & \bm{C}\phi_{2,T} & \cdots & \bm{C}\phi_{K,T}
+	\end{matrix}\right] $$
+
+\[ \bm{x} = \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k = \bm{\Psi} \; \bm{w},
+	\quad\text{with}\quad \bm{\Psi} = \bm{\phi} \otimes \bm{C} = \left[\begin{matrix}
+	\bm{C}\phi_{1,1} & \bm{C}\phi_{2,1} & \cdots & \bm{C}\phi_{K,1} \\
+	\bm{C}\phi_{1,2} & \bm{C}\phi_{2,2} & \cdots & \bm{C}\phi_{K,2} \\
+	\vdots & \vdots & \ddots & \vdots \\
+	\bm{C}\phi_{1,T} & \bm{C}\phi_{2,T} & \cdots & \bm{C}\phi_{K,T}
+	\end{matrix}\right] \]
+
+Ref: $\eqref{eq:Psi}{3}$ 
+</div>
+
+</body>
+</html>
+

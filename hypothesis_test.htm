@@ -463,12 +463,12 @@ def draw_obj(param, color, colortxt):
 	# Draw object
 	ctx.fillStyle = color
 	ctx.fill(obj)
-	if param.sz[0] > 39 and param.sz[1] > 19:
-		ctx.textAlign = 'center'
-		ctx.textBaseline = 'middle'
-		ctx.font = '10px Permanent Marker'
-		ctx.fillStyle = colortxt
-		ctx.fillText('Move me!', 0, 0)
+#	if param.sz[0] > 39 and param.sz[1] > 19:
+#		ctx.textAlign = 'center'
+#		ctx.textBaseline = 'middle'
+#		ctx.font = '10px Permanent Marker'
+#		ctx.fillStyle = colortxt
+#		ctx.fillText('Move me!', 0, 0)
 	
 	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
 

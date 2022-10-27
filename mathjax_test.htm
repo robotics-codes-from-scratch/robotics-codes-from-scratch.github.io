@@ -1,0 +1,42 @@
+﻿<!doctype html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<meta name='description' content=''>
+<meta name='author' content='Sylvain Calinon'>
+
+<title>Robotics codes from scratch</title>
+
+<script>
+window.MathJax = {
+  options: {
+    ignoreHtmlClass: 'tex2jax_ignore',
+    processHtmlClass: 'tex2jax_process'
+  },
+  tex: {
+    packages: ['base', 'ams', 'boldmath', 'noerrors', 'noundefined']
+  },
+  loader: {
+    load: ['[tex]/noerrors']
+  }
+};
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+</head>
+
+<body>
+
+$$ \boldmath{x} = \sum_{k=1}^{K} \boldmath{\Psi}_{k} \; w_k = \boldmath{\Psi} \; \boldmath{w},
+	\quad\text{with}\quad \boldmath{\Psi} = \boldmath{\phi} \otimes \boldmath{C} = \left[\begin{matrix}
+	\boldmath{C}\phi_{1,1} & \boldmath{C}\phi_{2,1} & \cdots & \boldmath{C}\phi_{K,1} \\
+	\boldmath{C}\phi_{1,2} & \boldmath{C}\phi_{2,2} & \cdots & \boldmath{C}\phi_{K,2} \\
+	\vdots & \vdots & \ddots & \vdots \\
+	\boldmath{C}\phi_{1,T} & \boldmath{C}\phi_{2,T} & \cdots & \boldmath{C}\phi_{K,T}
+	\end{matrix}\right] $$
+
+</body>
+</html>
+
