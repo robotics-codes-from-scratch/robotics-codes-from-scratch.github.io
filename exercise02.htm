@@ -198,15 +198,15 @@ the matrix of basis functions. A slider called <em>Number of basis functions</em
 the changes below.
 <ol>
   <li>Visualize what happens when you change the parameter <code>nb_fct</code> using the slider. </li>
-  <li>Visualize what happens when you change the parameter <code>sigma</code>.   </li>
+  <li>Visualize what happens when you change the parameter <code>lambda</code>.   </li>
   <li>Change the function below to plot Bézier basis functions and verify from the Figure 1 of RCFS pdf.</li>
 </ol>
 <py-repl id="rep0" std-out="output" std-err="errors">
-  sigma = 1e2
+  lambda = 1e2
   def build_basis_function(nb_data, nb_fct):
     t = np.linspace(0,1,nb_data).reshape((-1,1))
     tMu = np.linspace( t[0] , t[-1] , nb_fct )
-    phi = np.exp( - sigma * (t.T - tMu)**2 ).T
+    phi = np.exp( - lambda * (t.T - tMu)**2 ).T
     return phi
   plot_basis()
 </py-repl>
