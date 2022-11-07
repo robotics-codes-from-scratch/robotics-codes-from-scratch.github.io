@@ -28,10 +28,11 @@
 
 
 <script defer src='https://pyscript.net/latest/pyscript.js'></script>
+	
 <py-config type='toml'>
 	packages = ['numpy']
 </py-config>
-
+		
 <link rel='stylesheet' href='https://pyscript.net/latest/pyscript.css'> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
 	
 <link rel='stylesheet' href='css/sidebars.css'> <!-- main navigation menu -->
@@ -44,13 +45,13 @@
 <nav class='navbar fixed-top' aria-label='Light offcanvas navbar'>
 <div class='container-fluid'>
 <button class='navbar-toggler' type='button' data-bs-toggle='offcanvas' data-bs-target='#offcanvasNavbarLight' aria-controls='offcanvasNavbarLight'> 
-<span class='navbar-toggler-icon'></span>
+<span class='navbar-toggler-icon' style='cursor: pointer;'></span>
 </button>
 <!--<a class='navbar-brand' href='#'><h4>Movement primitives</h4></a>-->    
   
-  <div class='offcanvas offcanvas-start' tabindex='-1' id='offcanvasNavbarLight' aria-labelledby='offcanvasNavbarLightLabel'>
-    <div class='offcanvas-header'>
-      <a class='navbar-brand' href='index.htm'><h4 class='offcanvas-title' id='offcanvasNavbarLightLabel'><i class='bi bi-robot'></i> <i class='bi bi-code-slash'></i> RCFS</h4></A>
+  <div class='offcanvas offcanvas-start' tabindex='-1' id='offcanvasNavbarLight' aria-labelledby='offcanvasNavbarLightLabel' style='width: 500px;'>
+    <div class='offcanvas-header'><!--style='height: 50px;'-->
+      <a class='navbar-brand' href='index.htm'><h4 class='offcanvas-title' id='offcanvasNavbarLightLabel'><i class='bi bi-robot'></i> <i class='bi bi-code-slash'></i> RCFS</h4></a>
       <button type='button' class='btn-close' data-bs-dismiss='offcanvas' aria-label='Close'></button>
     </div>
     
@@ -59,14 +60,19 @@
 	  
 	  <!--<li><a href='index.htm' class='link-dark d-inline-flex text-decoration-none rounded'>Home</a></li>-->
 	  
-	  <li class='border-top my-3'></li>
+	  <li class='border-top my-1'></li>
 	  <li class='mb-1'>
 		<button class='btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed' data-bs-toggle='collapse' data-bs-target='#exercises-collapse' aria-expanded='true'>
 		  Exercises
 		</button>
 		<div class='collapse show' id='exercises-collapse'>
 		  <ul class='btn-toggle-nav list-unstyled fw-normal pb-1 small'>
-		    <li><a href='exercise01.htm' class='link-dark d-inline-flex text-decoration-none rounded'>01 Linear algebra in Python</a></li>
+		    <li><a href='exercise01.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
+			<div class='p-1 mb-0 bg-dark text-white font-monospace'>01</div>
+			<div class='p-1 mb-0'>Linear algebra in Python</div></a></li>
+		    <li><a href='exercise02.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
+		    <div class='p-1 mb-0 bg-dark text-white font-monospace'>02</div>
+			<div class='p-1 mb-0'>Movement primitives and Newton's method</div></a></li>
 		  </ul>
 		</div>
 	  </li>

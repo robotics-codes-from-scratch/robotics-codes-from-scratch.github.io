@@ -1,0 +1,460 @@
+﻿<!doctype html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<meta name='description' content='Robotics codes from scratch (RCFS) is a collection of source codes to study and test learning and optimization problems in robotics through simple 2D examples.'>
+<meta name='keywords' content='robotics codes, robotics tutorial, rcfs, robotics from scratch'>
+<meta name='author' content='Sylvain Calinon'>
+<link rel='icon' href='images/favicon.ico' sizes='any'>
+<link rel='icon' href='images/favicon.svg' type='image/svg+xml'>
+
+<title>Robotics codes from scratch</title>
+<link rel='canonical' href='https://robotics-codes-from-scratch.github.io/'>
+
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css' integrity='sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi' crossorigin='anonymous'>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+
+<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Permanent+Marker|Raleway'>
+
+
+<script defer src='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js' integrity='sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3' crossorigin='anonymous'></script>
+
+
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css' integrity='sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X' crossorigin='anonymous'>
+<script defer src='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js' integrity='sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz' crossorigin='anonymous'></script>
+<script defer src='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js' integrity='sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05' crossorigin='anonymous'></script>
+<script>
+let macros = {
+	'\\tp': '\\text{\\tiny{#1}}',
+	'\\trsp' : '\\top',
+	'\\psin' : '\\dagger',
+	'\\eqref': '\\href{###1}{(\\text{#1})}',
+	'\\ref': '\\href{###1}{\\text{#1}}',
+	'\\label': '\\htmlId{#1}{}'
+};
+document.addEventListener('DOMContentLoaded', function() {
+	renderMathInElement(document.body, {
+		// customised options
+		trust: (context) => ['\\htmlId', '\\href'].includes(context.command),
+		macros: macros,
+		// • auto-render specific keys, e.g.:
+		delimiters: [
+			{left: '$$', right: '$$', display: true},
+			{left: '$', right: '$', display: false},
+			{left: '\\(', right: '\\)', display: false},
+			{left: '\\begin{equation}', right: '\\end{equation}', display: true},
+			{left: '\\begin{align}', right: '\\end{align}', display: true},
+			{left: '\\begin{align*}', right: '\\end{align*}', display: true},
+			{left: '\\begin{alignat}', right: '\\end{alignat}', display: true},
+			{left: '\\begin{gather}', right: '\\end{gather}', display: true},
+			{left: '\\begin{CD}', right: '\\end{CD}', display: true},
+			{left: '\\[', right: '\\]', display: true}
+		],
+		// • rendering keys, e.g.:
+		throwOnError : false
+	});
+});
+</script>
+	
+<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
+
+<!-- <script defer src='https://hypothes.is/embed.js' async></script> --> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
+
+
+
+<script defer src='https://pyscript.net/latest/pyscript.js'></script>
+	
+<py-config type='toml'>
+	packages = ['numpy', 'matplotlib']
+</py-config>
+		
+<link rel='stylesheet' href='https://pyscript.net/latest/pyscript.css'> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
+	
+<link rel='stylesheet' href='css/sidebars.css'> <!-- main navigation menu -->
+<link rel='stylesheet' href='css/main-template.css'>
+
+</head>
+
+<body>
+
+<nav class='navbar fixed-top' aria-label='Light offcanvas navbar'>
+<div class='container-fluid'>
+<button class='navbar-toggler' type='button' data-bs-toggle='offcanvas' data-bs-target='#offcanvasNavbarLight' aria-controls='offcanvasNavbarLight'> 
+<span class='navbar-toggler-icon' style='cursor: pointer;'></span>
+</button>
+<!--<a class='navbar-brand' href='#'><h4>Movement primitives</h4></a>-->    
+  
+  <div class='offcanvas offcanvas-start' tabindex='-1' id='offcanvasNavbarLight' aria-labelledby='offcanvasNavbarLightLabel' style='width: 500px;'>
+    <div class='offcanvas-header'><!--style='height: 50px;'-->
+      <a class='navbar-brand' href='index.htm'><h4 class='offcanvas-title' id='offcanvasNavbarLightLabel'><i class='bi bi-robot'></i> <i class='bi bi-code-slash'></i> RCFS</h4></a>
+      <button type='button' class='btn-close' data-bs-dismiss='offcanvas' aria-label='Close'></button>
+    </div>
+    
+    <div class='offcanvas-body'>
+	<ul class='list-unstyled ps-0'>
+	  
+	  <!--<li><a href='index.htm' class='link-dark d-inline-flex text-decoration-none rounded'>Home</a></li>-->
+	  
+	  <li class='border-top my-1'></li>
+	  <li class='mb-1'>
+		<button class='btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed' data-bs-toggle='collapse' data-bs-target='#exercises-collapse' aria-expanded='true'>
+		  Exercises
+		</button>
+		<div class='collapse show' id='exercises-collapse'>
+		  <ul class='btn-toggle-nav list-unstyled fw-normal pb-1 small'>
+		    <li><a href='exercise01.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
+			<div class='p-1 mb-0 bg-dark text-white font-monospace'>01</div>
+			<div class='p-1 mb-0'>Linear algebra in Python</div></a></li>
+		    <li><a href='exercise02.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
+		    <div class='p-1 mb-0 bg-dark text-white font-monospace'>02</div>
+			<div class='p-1 mb-0'>Movement primitives and Newton's method</div></a></li>
+		  </ul>
+		</div>
+	  </li>
+	  
+	  <!--<li class='mb-1'>
+		<button class='btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed' data-bs-toggle='collapse' data-bs-target='#misc-collapse' aria-expanded='false'>
+		  Misc
+		</button>
+		<div class='collapse show' id='misc-collapse'>
+		  <ul class='btn-toggle-nav list-unstyled fw-normal pb-1 small'>
+		    <li><a href='sandbox.htm' class='link-dark d-inline-flex text-decoration-none rounded'>Sandbox</a></li>
+		    <li><a href='movement_primitives.htm' class='link-dark d-inline-flex text-decoration-none rounded'>Movement primitives</a></li>
+		  </ul>
+		</div>
+	  </li>-->
+	  
+	</ul>
+    </div>
+    
+  </div>
+</div>
+</nav>
+
+<!-- <iframe enable-annotation></iframe> -->
+
+<div class='container-fluid'>
+
+
+<style>
+code {
+  font-family: Consolas,"courier new";
+  color: black;
+  background-color: #f1f1f1;
+  padding: 2px;
+  font-size: 105%;
+}
+</style>
+
+<script>
+function clearMsgs() {
+  const el = document.getElementById('errors');
+  el.innerText = '';
+  //console.log('event!');
+}
+function clearMsgsOutput() {
+  const el = document.getElementById('output');
+  el.innerText = '';
+  //console.log('event!');
+}
+function clearPlot() {
+  var chart = document.getElementById('chart');
+  chart.data.datasets[0].data = [];
+  chart.data.datasets[1].data = [];
+  //console.log('event!');
+}
+const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b','#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
+</script>
+
+<py-script>
+import numpy as np
+import matplotlib.pyplot as plt
+from js import document
+from pyodide.ffi import create_proxy, to_js
+</py-script>
+
+<py-script output="chart">
+def plot(*args, **kwargs):
+  fig,ax = plt.subplots()
+  #jsPlot(to_js(np.around(x,2)), to_js(np.around(y,2)), to_js(i), to_js(showLine))
+  ax.plot(*args, **kwargs)
+
+def plot_on_workspace(fig):
+  fig.show()
+</py-script>
+
+<div class='row'>
+<div class='col-sm-1'> </div>
+<div class='col-sm-7'>
+
+<h1>Exercise 2<br>Movement primitives, Newton's Method</h1>
+
+<h5>1. Understanding basis functions</h5>
+
+<p>You will find below a visualization of basis functions defined by the function <code>build_basis_function</code> which takes
+<code>nb_data</code> (number of timesteps) and <code>nb_fct</code> (number of basis functions) as arguments and returns <code>phi</code>
+the matrix of basis functions. A slider called <em>Number of basis functions</em> is provided to change the <code>nb_fct</code> automatically and plot
+the changes below.
+<ol>
+  <li>Visualize what happens when you change the parameter <code>nb_fct</code> using the slider. </li>
+  <li>Visualize what happens when you change the parameter <code>sigma</code>.   </li>
+  <li>Change the function below to plot Bézier basis functions and verify from the Figure 1 of RCFS pdf.</li>
+</ol>
+<py-repl id="rep0" std-out="output" std-err="errors">
+  sigma = 1e2
+  def build_basis_function(nb_data, nb_fct):
+    t = np.linspace(0,1,nb_data).reshape((-1,1))
+    tMu = np.linspace( t[0] , t[-1] , nb_fct )
+    phi = np.exp( - sigma * (t.T - tMu)**2 ).T
+    return phi
+  plot_basis()
+</py-repl>
+<br>
+
+<label>Number of basis functions</label>
+<input id='nb_basis' type='range' min='1' max='15' step='1' value='5' class='w-48' oninput='this.nextElementSibling.value = this.value'>
+<output>1</output>
+<div style="width:600px; vertical-align: middle;">
+  <canvas id="radial" style=" vertical-align: middle; z-index:1; border:1px solid #000000;"
+         ></canvas>
+</div>
+
+<h5>2. Regression with basis functions $\bm{x} = \bm{\Phi} \bm{w}$</h5>
+
+<p>We can use basis functions to encode trajectories in a compact way. Such encoding aims at encoding the movement as a weighted superposition of simpler movements, whose compression aims at working in a subspace of reduced dimensionality, while denoising the signal and capturing the essential aspects of a movement. We first generate a noisy time trajectory using the function <code>generate_data</code>.</p>
+
+<ol>
+  <li>Run the code below to plot the function below in your workspace by choosing an appropriate <code>noise_scale</code>.
+    We will use $\bm{x}$ as our dataset vector.</li><br>
+    
+<py-repl id="rep1" std-out="output" std-err="errors">
+  noise_scale = 1. # change this to the noise level you want
+  nb_data = 100
+  def generate_data(t):
+    return 10*np.sin(50*t+10)*np.cos(10*t)
+  t = np.linspace(0,1,nb_data)
+  x = generate_data(t) + np.random.randn(nb_data)*noise_scale
+</py-repl>
+<br>
+
+<py-repl id="rep1_plot" std-out="chart" std-err="errors">
+  fig,ax = plt.subplots(figsize=(5,5))
+  ax.plot(t,x)
+  fig
+</py-repl>
+<br>
+
+  <li>Using the implemented <code>build_basis_function</code>, write a function that takes the basis function matrix $\bm{\phi}$ and determines the Bézier curve
+    parameters $\bm{w}$ that represents the data the best in least-square sense.</li><br>
+    
+<!--w = np.linalg.pinv(psi) @ x # Estimation of superposition weights from data-->
+<py-repl id="rep2" std-out="output" std-err="errors">
+  nbFct = 30
+  psi = build_basis_function(nb_data,nbFct)
+  def estimate_w(psi):
+    # w =  # Implement here: Estimation of superposition weights from data
+    return w
+  w = estimate_w(psi)
+  print(w.shape) # verify the dimension of this to be equal to nbFct
+</py-repl>
+<br>
+
+  <li>Verify your estimation of $\bm{w}$ by reconstructing the data using $\bm{\hat{x}} = \bm{\Phi} \bm{w}$ and plot.</li><br>
+<!--    x_hat = psi @ w # Reconstruction data-->
+
+<py-repl id="rep3" std-out="chart" std-err="errors">
+  def reconstruct(w, psi):
+    # x_hat = # Implement here: Reconstruction data
+    return x_hat
+  x_hat = reconstruct(w, psi)
+  ax.plot(t,x_hat)
+  fig
+</py-repl>
+<br>
+
+  <li>Click on the clear button in the plot section. We would like to quantify how does the number of basis functions affect the reconstruction. Choose 5 different nb_fct and plot the errors between the original data $\bm{x}$ and the reconstructed data $\bm{\hat{x}}$.</li><br>
+<!--      errors.append(np.linalg.norm(x-x_hat))-->
+
+<py-repl id="rep4" std-out="chart" std-err="errors">
+  nbFcts = [] # Implement here: choose 5 different nbFct
+  errors = []
+  for nbFct in nbFcts:
+    psi = build_basis_function(nb_data,nbFct)
+    w = estimate_w(psi)
+    x_hat = reconstruct(w, psi)
+    # errors.append() # Implement here: compute the error between x and x_hat
+  fig,ax = plt.subplots(figsize=(5,5))
+  ax.plot(nbFcts,errors, "o")
+  fig
+</py-repl>
+
+</ol>
+
+
+<h5>3. Newton's Method</h5>
+
+<p>In this exercise, we will implement a Newton's method with a line search. For Newton's method, you can refer to the
+Section 3 of RCFS and for a backtracking line search algorithm, you can refer to the Section 8.4 of RCFS. The goal is to
+solve an unconstrained optimization problem using Newton's method and see how line search can affect the convergence. You are given
+an objective function $\bm{x}^2 + \bm{x}^3$, its first derivative $2\bm{x} + 3\bm{x}^2 $ and its second derivative $2+6\bm{x}$.</p>
+<ol>
+  <li>Implement Newton's method with a line search and solve the problem.</li>
+  <li>In how many iterations do you get convergence? Plot the cost functions obtained during the iterations and
+    discuss how does the line search affect the results.</li>
+  <li>Change the objective function and its first and second derivatives to solve for another problem.</li>
+</ol>
+<!--    search_direction = - first_derivative(x) / second_derivative(x)-->
+<!--  x_trial = x + alpha * search_direction-->
+<py-repl id="rep3" std-out="output" std-err="errors">
+  def objective_function(x):
+    return x**2 + x**3
+  def first_derivative(x):
+    return 2*x + 3*(x**2)
+  def second_derivative(x):
+    return 2 + 6*x
+  x = 1.
+  cost = objective_function(x)
+  x_log = [x]
+  cost_log = [cost]
+  for i in range(100):
+    # Implement Newton's method here (one line)
+    # search_direction =
+
+    # Implement line search here (output: alpha)
+    alpha = 1.
+    for j in range(10):
+      # x_trial =  # implement a trial x in the direction of search_direction
+      cost_trial = objective_function(x_trial)
+      if cost_trial < cost:
+        break
+      else:
+        alpha = alpha * 0.6
+
+    # Convergence check
+    prev_cost = np.copy(cost)
+    x = x + alpha * search_direction
+    cost = objective_function(x)
+    cost_log += [cost]
+    if np.abs(cost-prev_cost) < 1e-6:
+      break
+
+    x_log.append(x)
+  x_log = np.array(x_log)
+  cost_log = np.array(cost_log)
+  print(x_log)
+</py-repl>
+<br>
+
+<py-repl id="rep3_plot" std-out="chart" std-err="errors">
+fig,ax = plt.subplots(figsize=(5,5))
+ax.plot(np.arange(0,i+2), cost_log)
+fig
+</py-repl>
+<br>
+
+<py-script>
+from js import jsPlotBasis
+
+def build_basis_function(nb_data, nb_fct):
+  t = np.linspace(0,1,nb_data).reshape((-1,1))
+  tMu = np.linspace( t[0] , t[-1] , nb_fct )
+  phi = np.exp( -1e2 * (t.T - tMu)**2 )
+  return phi.T
+
+range1 = document.getElementById("nb_basis")
+param = lambda: None # Lazy way to define a struct
+param.nbVar = 2 # Dimension of position data
+param.nbData = 100 # Number of datapoints in a trajectory
+
+t = np.linspace(0,1,param.nbData)*10 # Time range
+
+def on_range_update(event):
+    label = event.currentTarget.nextElementSibling
+    label.innerText = event.currentTarget.value
+    plot_basis()
+
+def plot_basis():
+    param.nbFct = int(range1.value) # Number of basis functions
+    phi = build_basis_function(param.nbData,param.nbFct)
+
+    jsPlotBasis(to_js(np.around(t, 1)), to_js(phi.T))
+
+proxy = create_proxy(on_range_update)
+range1.addEventListener("input", proxy)
+plot_basis()
+</py-script>
+
+<script>
+const chartBasis = new Chart("radial", {
+    type: "line",
+    options: {
+      plugins: {
+        legend: {display: false},
+        tooltip: {enabled: false},
+      },
+      scales: {
+        x: {display: false},
+        y: {display: true}
+      },
+    }
+  })
+for (let i = 0; i < 21; i++){
+    dataset = {};       //a single dataset is an object
+    dataset.borderColor = colors[i%10];
+    dataset.backgroundColor = colors[i%10];
+    dataset.data = [];  //contains the 'Y; axis data
+    chartBasis.data.datasets.push(dataset);
+}
+
+function jsPlotBasis(xValues, yValues) {
+  chartBasis.data.labels = xValues
+  for (let i = 0; i < yValues.length+1; i++) {
+    chartBasis.data.datasets[i].data = yValues[i];
+  }
+  for (let i = yValues.length; i <15+1; i++) {
+    chartBasis.data.datasets[i].data = [];
+  }
+  chartBasis.update()
+}
+</script>
+
+
+</div>
+
+<div class='col-sm-4' id='div1'>
+
+<div class='sticky-sm-top' style='padding: 2rem 1rem 1rem 1rem;'>
+<hr>
+
+<div class='row justify-content-between'>
+<div class='col-auto'><button class='btn btn-light btn-sm' disabled>Output</button></div>
+<div class='col-auto'><button class='btn btn-outline-secondary btn-sm float-right' onclick='clearMsgsOutput()'>Clear</button></div>
+</div>
+<div id='output'></div>
+<hr>
+
+<div class='row justify-content-between'>
+<div class='col-auto'><button class='btn btn-light btn-sm' disabled>Error</button></div>
+<div class='col-auto'><button class='btn btn-outline-secondary btn-sm float-right' onclick='clearMsgs()'>Clear</button></div>
+</div>
+<div id='errors'></div>
+<hr>
+
+<div class='row justify-content-between'>
+<div  class='col-auto'><button class='btn btn-light btn-sm' disabled>Plot</button></div>
+<div class='col-auto'><button class='btn btn-outline-secondary btn-sm float-right' onclick='destroyChart()'>Clear</button></div>
+</div>
+<div id='chart'> </div>
+
+</div>
+
+
+</div> <!-- col-sm-4 -->
+</div> <!-- row -->
+</div> <!--container-->
+
+</div> <!--container-->
+</body>
+</html>
+
