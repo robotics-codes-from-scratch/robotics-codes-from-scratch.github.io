@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 	
-<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
+<!--<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>-->
 
 <!-- <script defer src='https://hypothes.is/embed.js' async></script> --> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
 
@@ -109,6 +109,9 @@ document.addEventListener('DOMContentLoaded', function() {
 		    <li><a href='exercise02.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
 		    <div class='p-1 mb-0 bg-dark text-white font-monospace'>02</div>
 			<div class='p-1 mb-0'>Movement primitives and Newton's method</div></a></li>
+			<li><a href='exercise03.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
+		    <div class='p-1 mb-0 bg-dark text-white font-monospace'>03</div>
+			<div class='p-1 mb-0'>Gaussian Distributions</div></a></li>
 		  </ul>
 		</div>
 	  </li>
@@ -139,11 +142,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <style>
 code {
-  font-family: Consolas,"courier new";
+  font-family: Consolas,'courier new';
   color: black;
   background-color: #f1f1f1;
   padding: 2px;
-  font-size: 105%;
+  font-size: 100%;
 }
 </style>
 
@@ -158,12 +161,6 @@ function clearMsgsOutput() {
   el.innerText = '';
   //console.log('event!');
 }
-function clearPlot() {
-  var chart = document.getElementById('chart');
-  chart.data.datasets[0].data = [];
-  chart.data.datasets[1].data = [];
-  //console.log('event!');
-}
 const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b','#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
 </script>
 
@@ -172,16 +169,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from js import document
 from pyodide.ffi import create_proxy, to_js
-</py-script>
-
-<py-script output="chart">
-def plot(*args, **kwargs):
-  fig,ax = plt.subplots()
-  #jsPlot(to_js(np.around(x,2)), to_js(np.around(y,2)), to_js(i), to_js(showLine))
-  ax.plot(*args, **kwargs)
-
-def plot_on_workspace(fig):
-  fig.show()
 </py-script>
 
 <div class='row'>
@@ -194,31 +181,32 @@ def plot_on_workspace(fig):
 
 <p>You will find below a visualization of basis functions defined by the function <code>build_basis_function</code> which takes
 <code>nb_data</code> (number of timesteps) and <code>nb_fct</code> (number of basis functions) as arguments and returns <code>phi</code>
-the matrix of basis functions. A slider called <em>Number of basis functions</em> is provided to change the <code>nb_fct</code> automatically and plot
-the changes below.
+the matrix of basis functions.</p> 
 <ol>
   <li>Visualize what happens when you change the parameter <code>nb_fct</code> using the slider.</li>
-  <li>Visualize what happens when you change the parameter <code>lambda_param</code>.</li>
-  <li>Change the function below to plot Bézier basis functions and verify from the Figure 1 of RCFS pdf.</li>
+  <li>Visualize what happens when you change the parameter <code>param_lambda</code>.</li>
+  <li>Change the function below to plot Bézier basis functions (you can compare your result to Figure 1 in the <a href='doc/rcfs.pdf' target='_blank'>RCFS documentation</a>).</li>
 </ol>
-<py-repl id="rep0" std-out="output" std-err="errors">
-lambda_param = 1e2
+
+<py-repl id='rep0' std-out='chart' std-err='errors'>
+param_lambda = 1e2
+nb_data = 100
+nb_fct = 10
 def build_basis_function(nb_data, nb_fct):
   t = np.linspace(0,1,nb_data).reshape((-1,1))
   tMu = np.linspace( t[0] , t[-1] , nb_fct )
-  phi = np.exp( - lambda_param * (t.T - tMu)**2 ).T
+  phi = np.exp( - param_lambda * (t.T - tMu)**2 ).T
   return phi
-plot_basis()
-</py-repl>
-<br>
 
-<label>Number of basis functions</label>
-<input id='nb_basis' type='range' min='1' max='15' step='1' value='5' class='w-48' oninput='this.nextElementSibling.value = this.value'>
-<output>5</output>
-<div style="width:600px; vertical-align: middle;">
-  <canvas id="radial" style=" vertical-align: middle; z-index:1; border:1px solid #000000;"
-         ></canvas>
-</div>
+phi = build_basis_function(nb_data, nb_fct)
+fig,ax = plt.subplots(figsize=(5,5))
+ax.plot(np.linspace(0,1,nb_data), phi)
+ax.set_xlabel('time(s)')
+ax.set_ylabel('basis functions')
+fig.tight_layout()
+fig
+</py-repl>
+
 
 <h5>2. Regression with basis functions $\bm{x} = \bm{\Phi} \bm{w}$</h5>
 
@@ -228,7 +216,7 @@ plot_basis()
   <li>Run the code below to plot the function below in your workspace by choosing an appropriate <code>noise_scale</code>.
     We will use $\bm{x}$ as our dataset vector.</li><br>
     
-<py-repl id="rep1" std-out="output" std-err="errors">
+<py-repl id='rep1' std-out='output' std-err='errors'>
   noise_scale = 1. # change this to the noise level you want
   nb_data = 100
   def generate_data(t):
@@ -238,7 +226,7 @@ plot_basis()
 </py-repl>
 <br>
 
-<py-repl id="rep1_plot" std-out="chart" std-err="errors">
+<py-repl id='rep1_plot' std-out='chart' std-err='errors'>
   fig,ax = plt.subplots(figsize=(5,5))
   ax.plot(t,x)
   fig
@@ -249,12 +237,13 @@ plot_basis()
     parameters $\bm{w}$ that represents the data the best in least-square sense.</li><br>
     
 <!--w = np.linalg.pinv(psi) @ x # Estimation of superposition weights from data-->
-<py-repl id="rep2" std-out="output" std-err="errors">
+<py-repl id='rep2' std-out='output' std-err='errors'>
   nbFct = 30
   psi = build_basis_function(nb_data,nbFct)
   def estimate_w(psi):
     # w =  # Implement here: Estimation of superposition weights from data
     return w
+  
   w = estimate_w(psi)
   print(w.shape) # verify the dimension of this to be equal to nbFct
 </py-repl>
@@ -263,20 +252,23 @@ plot_basis()
   <li>Verify your estimation of $\bm{w}$ by reconstructing the data using $\bm{\hat{x}} = \bm{\Phi} \bm{w}$ and plot.</li><br>
 <!--    x_hat = psi @ w # Reconstruction data-->
 
-<py-repl id="rep3" std-out="chart" std-err="errors">
+<py-repl id='rep3' std-out='chart' std-err='errors'>
   def reconstruct(w, psi):
     # x_hat = # Implement here: Reconstruction data
     return x_hat
+  
   x_hat = reconstruct(w, psi)
   ax.plot(t,x_hat)
   fig
 </py-repl>
+<div class='col-auto'><button class='btn btn-light btn-sm' data-bs-toggle='collapse' data-bs-target='#answer1' aria-expanded='false' aria-controls='answer1'>Show/hide answer</button></div>
+<div  class='collapse' id='answer1'><img src='images/Ex2-1.png'></div>
 <br>
 
-  <li>Click on the clear button in the plot section. We would like to quantify how does the number of basis functions affect the reconstruction. Choose 5 different nb_fct and plot the errors between the original data $\bm{x}$ and the reconstructed data $\bm{\hat{x}}$.</li><br>
+  <li>We would like to quantify how does the number of basis functions affect the reconstruction. Choose 5 different nb_fct and plot the errors between the original data $\bm{x}$ and the reconstructed data $\bm{\hat{x}}$.</li><br>
 <!--      errors.append(np.linalg.norm(x-x_hat))-->
 
-<py-repl id="rep4" std-out="chart" std-err="errors">
+<py-repl id='rep4' std-out='chart' std-err='errors'>
   nbFcts = [] # Implement here: choose 5 different nbFct
   errors = []
   for nbFct in nbFcts:
@@ -284,18 +276,21 @@ plot_basis()
     w = estimate_w(psi)
     x_hat = reconstruct(w, psi)
     # errors.append() # Implement here: compute the error between x and x_hat
+  
   fig,ax = plt.subplots(figsize=(5,5))
-  ax.plot(nbFcts,errors, "o")
+  ax.plot(nbFcts,errors, 'o')
   fig
 </py-repl>
+<div class='col-auto'><button class='btn btn-light btn-sm' data-bs-toggle='collapse' data-bs-target='#answer2' aria-expanded='false' aria-controls='answer2'>Show/hide answer</button></div>
+<div class='collapse' id='answer2'><img src='images/Ex2-2.png'></div>
 
 </ol>
 
 
 <h5>3. Newton's Method</h5>
 
-<p>In this exercise, we will implement a Newton's method with a line search. For Newton's method, you can refer to the
-Section 3 of RCFS and for a backtracking line search algorithm, you can refer to the Section 8.4 of RCFS. The goal is to
+<p>In this exercise, we will implement a Newton's method with a line search. For Newton's method, you can refer to
+Section 3 of the <a href='doc/rcfs.pdf' target='_blank'>RCFS documentation</a> and for a backtracking line search algorithm, you can refer to Section 8.4 of the <a href='doc/rcfs.pdf' target='_blank'>RCFS documentation</a>. The goal is to
 solve an unconstrained optimization problem using Newton's method and see how line search can affect the convergence. You are given
 an objective function $\bm{x}^2 + \bm{x}^3$, its first derivative $2\bm{x} + 3\bm{x}^2 $ and its second derivative $2+6\bm{x}$.</p>
 <ol>
@@ -306,13 +301,16 @@ an objective function $\bm{x}^2 + \bm{x}^3$, its first derivative $2\bm{x} + 3\b
 </ol>
 <!--    search_direction = - first_derivative(x) / second_derivative(x)-->
 <!--  x_trial = x + alpha * search_direction-->
-<py-repl id="rep3" std-out="output" std-err="errors">
+<py-repl id='rep3' std-out='output' std-err='errors'>
   def objective_function(x):
     return x**2 + x**3
+  
   def first_derivative(x):
     return 2*x + 3*(x**2)
+  
   def second_derivative(x):
     return 2 + 6*x
+  
   x = 1.
   cost = objective_function(x)
   x_log = [x]
@@ -329,7 +327,7 @@ an objective function $\bm{x}^2 + \bm{x}^3$, its first derivative $2\bm{x} + 3\b
       if cost_trial < cost:
         break
       else:
-        alpha = alpha * 0.6
+        alpha = alpha * 0.5
 
     # Convergence check
     prev_cost = np.copy(cost)
@@ -340,87 +338,27 @@ an objective function $\bm{x}^2 + \bm{x}^3$, its first derivative $2\bm{x} + 3\b
       break
 
     x_log.append(x)
+  
   x_log = np.array(x_log)
   cost_log = np.array(cost_log)
   print(x_log)
 </py-repl>
 <br>
 
-<py-repl id="rep3_plot" std-out="chart" std-err="errors">
+<py-repl id='rep3_plot' std-out='chart' std-err='errors'>
 fig,ax = plt.subplots(figsize=(5,5))
 ax.plot(np.arange(0,i+2), cost_log)
+ax.set_xlabel('Iteration number')
+ax.set_ylabel('Objective function')
+fig.tight_layout()
 fig
 </py-repl>
+<div class='col-auto'><button class='btn btn-light btn-sm' data-bs-toggle='collapse' data-bs-target='#answer3' aria-expanded='false' aria-controls='answer3'>Show/hide answer</button></div>
+<div class='collapse' id='answer3'><img src='images/Ex2-3.png'></div>
 <br>
 
-<py-script>
-from js import jsPlotBasis
 
-def build_basis_function(nb_data, nb_fct):
-  t = np.linspace(0,1,nb_data).reshape((-1,1))
-  tMu = np.linspace( t[0] , t[-1] , nb_fct )
-  phi = np.exp( -1e2 * (t.T - tMu)**2 )
-  return phi.T
-
-range1 = document.getElementById("nb_basis")
-param = lambda: None # Lazy way to define a struct
-param.nbVar = 2 # Dimension of position data
-param.nbData = 100 # Number of datapoints in a trajectory
-
-t = np.linspace(0,1,param.nbData)*10 # Time range
-
-def on_range_update(event):
-    label = event.currentTarget.nextElementSibling
-    label.innerText = event.currentTarget.value
-    plot_basis()
-
-def plot_basis():
-    param.nbFct = int(range1.value) # Number of basis functions
-    phi = build_basis_function(param.nbData,param.nbFct)
-
-    jsPlotBasis(to_js(np.around(t, 1)), to_js(phi.T))
-
-proxy = create_proxy(on_range_update)
-range1.addEventListener("input", proxy)
-plot_basis()
-</py-script>
-
-<script>
-const chartBasis = new Chart("radial", {
-    type: "line",
-    options: {
-      plugins: {
-        legend: {display: false},
-        tooltip: {enabled: false},
-      },
-      scales: {
-        x: {display: false},
-        y: {display: true}
-      },
-    }
-  })
-for (let i = 0; i < 21; i++){
-    dataset = {};       //a single dataset is an object
-    dataset.borderColor = colors[i%10];
-    dataset.backgroundColor = colors[i%10];
-    dataset.data = [];  //contains the 'Y; axis data
-    chartBasis.data.datasets.push(dataset);
-}
-
-function jsPlotBasis(xValues, yValues) {
-  chartBasis.data.labels = xValues
-  for (let i = 0; i < yValues.length+1; i++) {
-    chartBasis.data.datasets[i].data = yValues[i];
-  }
-  for (let i = yValues.length; i <15+1; i++) {
-    chartBasis.data.datasets[i].data = [];
-  }
-  chartBasis.update()
-}
-</script>
-
-
-</div>
+</div> <!-- col-sm-7 -->
 
 <div class='col-sm-4' id='div1'>
 
@@ -443,7 +381,6 @@ function jsPlotBasis(xValues, yValues) {
 
 <div class='row justify-content-between'>
 <div  class='col-auto'><button class='btn btn-light btn-sm' disabled>Plot</button></div>
-<div class='col-auto'><button class='btn btn-outline-secondary btn-sm float-right' onclick='destroyChart()'>Clear</button></div>
 </div>
 <div id='chart'> </div>
 
