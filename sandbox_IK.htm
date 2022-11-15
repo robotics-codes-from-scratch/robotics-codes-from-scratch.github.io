@@ -109,35 +109,35 @@
 <div class="col-sm-7">
 
 <br><br>
-<form>
 
-<div class='row'>
-<div class='col-md'><label>Object1 orientation</label><input id='object0_angle' type='range' min='-3.14159' max='3.14159' step='0.0001' value='0' class='w-72' oninput='this.nextElementSibling.value = this.value'>&nbsp;<output>0.0</output></div>
-<div class='col-md'><label>Object2 orientation</label><input id='object1_angle' type='range' min='-3.14159' max='3.14159' step='0.0001' value='0' class='w-72' oninput='this.nextElementSibling.value = this.value'>&nbsp;<output>0.0</output></div>
+<script>
+function clearMsgs() {
+  const el = document.getElementById('repl-err');
+  el.innerText = '';
+  //console.log('event!');
+}
+</script>
+
+<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
+<py-repl std-out='repl-out' std-err='repl-err'>
+x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
+def controlCommand(x, param):
+  f = fkin(x, param)
+  J = Jkin(x, param)
+  u = np.linalg.pinv(J) @ logmap(param.Mu, f) # Control command
+  #u = np.linalg.pinv(J[:2,:]) @ (param.Mu[:2] - f[:2]) # Control command
+  #u = J.T @ logmap(param.Mu, f) * 1E-4 # Control command
+  #u = np.zeros(param.nbVarX)  # Control command
+  return u
+</py-repl> <!--output='repl-out' std-out='repl-out'-->
 </div>
-
-<div class='row'>
-<div class='col-md'><label>Objects width</label><input id='objects_width' type='range' min='0' max='200' step='0.1' value='50' class='w-72' oninput='this.nextElementSibling.value = this.value'>&nbsp;<output>50.0</output></div>
-<div class='col-md'><label>Objects height</label><input id='objects_height' type='range' min='0' max='200' step='0.1' value='30' class='w-72' oninput='this.nextElementSibling.value = this.value'>&nbsp;<output>30.0</output></div>
-</div>
-
-<div class='row'>
-<div class='col-md'><label>Simulation speed</label><input id='simulation_speed' type='range' min='0' max='20' step='0.01' value='10' class='w-72' oninput='this.nextElementSibling.value = this.value'>&nbsp;<output>10.0</output></div>
-<div class='col-md'><label>Track orientation</label><input id='track_orientation' type='checkbox' checked></div>
-</div>
-
-<div class='row'>
-<div class='col-md'><label>Cost</label><span id='cost'></span></div>
-<div class='col-md'><label>Bounding box</label><input id='use_boundingbox' type='checkbox'></div>
-</div>
-
-</form>
-
-<div><p id='debug'></p></div>
+<p id='repl-out' style='font-size: 70%; color: #777777;'>(press shift+enter or click on the green run button to run the code)</p>
+<p id='repl-err' style='font-size: 70%; color: #880000;'></p>
 
 </div> <!--sm-7-->
 
 <div class='col-sm-4'>
+<br><br>
 <canvas id='canvas' style='width:90%;' width='900px' height='700px'></canvas>
 </div> <!--sm-4-->
 
@@ -148,11 +148,9 @@ from pyodide.ffi import create_proxy
 from js import Path2D
 import numpy as np
 
-objects_angle = [document.getElementById('object0_angle'), document.getElementById('object1_angle')]  # Objects angle
-objects_size = [document.getElementById('objects_width'), document.getElementById('objects_height')]  # Objects size
+object_angle = document.getElementById('object_angle')  # Objects angle
 simulation_speed = document.getElementById('simulation_speed') # Simulation speed
 track_orientation = document.getElementById('track_orientation')
-bounding_box = document.getElementById('use_boundingbox')
 selected_joint = -1
 selected_obj = -1
 
@@ -178,12 +176,12 @@ seg34_svg = Path2D.new('M -10.345869,0.79321884 C -9.8879044,6.4881727 -4.887349
 seg35_svg = Path2D.new('m -10.926083,-10.640947 c -12.932836,-0.04585 -19.378158,-0.0931 -19.378158,-0.0931')
 seg36_svg = Path2D.new('M -9.9187154,15.300602 C -29.124234,15.272545 -30.475824,15.251842 -30.475824,15.251842')
 seg37_svg = Path2D.new('m -23.186087,-46.845579 h 5.542233 v 0')
-
+    
 # Logarithmic map for R^2 x S^1 manifold
 def logmap(f, f0):
-	position_error = f[:2,:] - f0[:2,:]
-	orientation_error = np.imag(np.log(np.exp(f0[-1,:]*1j).conj().T * np.exp(f[-1,:]*1j).T)).conj()
-	diff = np.vstack([position_error, orientation_error])
+	diff = np.zeros(3)
+	diff[:2] = f[:2] - f0[:2]
+	diff[2] = np.imag(np.log(np.exp(f0[-1]*1j).conj().T * np.exp(f[-1]*1j).T)).conj()
 	return diff
 
 # Apply angle offsets to match robot kinematic chain
@@ -204,7 +202,7 @@ def fkin(x, param):
 		orient
 	]) # f1,f2,f3, where f3 is the orientation (single Euler angle for planar robot)
 	f[1] += 81
-	return f
+	return f.flatten()
 
 # Forward kinematics for all joints (in robot coordinate system)
 def fkin0(x, param): 
@@ -229,98 +227,15 @@ def Jkin(xt, param):
 	])
 	return J
 
-# Residual and Jacobian for a viapoints reaching task (in object coordinate system)
-def f_reach(x, param):
-	f = logmap(fkin(x, param), param.Mu)
-	J = np.zeros([param.nbPoints * param.nbVarF, param.nbPoints * param.nbVarX])
-	for t in range(param.nbPoints):
-		f[:2,t] = param.A[:,:,t].T @ f[:2,t] # Object oriented residual
-		Jtmp = Jkin(x[:,t], param)
-		Jtmp[:2] = param.A[:,:,t].T @ Jtmp[:2] # Object centered Jacobian
-		
-		if param.useBoundingBox:
-			for i in range(2):
-				if abs(f[i,t]) < param.sz[i]/2:
-					f[i,t] = 0
-					Jtmp[i] = 0
-				else:
-					f[i,t] -= np.sign(f[i,t]) * param.sz[i]/2
-		
-		J[t*param.nbVarF:(t+1)*param.nbVarF, t*param.nbVarX:(t+1)*param.nbVarX] = Jtmp
-	return f, J
-
-# iLQR in batch form
-def iLQR(x0, u, param):
-	global Su, Sx0
-	for i in range(param.nbIter):
-		x = Su0 @ u + Sx0 @ x0 # System evolution
-		x = x.reshape([param.nbVarX, param.nbData], order='F')
-		f, J = f_reach(x[:,tl], param) # Residuals and Jacobians
-		du = np.linalg.inv(Su.T @ J.T @ Q @ J @ Su + R) @ (-Su.T @ J.T @ Q @ f.flatten('F') - u * param.r) # Gauss-Newton update
-		# Estimate step size with backtracking line search method
-		alpha = 1
-		cost0 = f.flatten('F').T @ Q @ f.flatten('F') + np.linalg.norm(u)**2 * param.r # Cost
-		while True:
-			utmp = u + du * alpha
-			xtmp = Su0 @ utmp + Sx0 @ x0 # System evolution
-			xtmp = xtmp.reshape([param.nbVarX, param.nbData], order='F')
-			ftmp, _ = f_reach(xtmp[:,tl], param) # Residuals 
-			cost = ftmp.flatten('F').T @ Q @ ftmp.flatten('F') + np.linalg.norm(utmp)**2 * param.r # Cost
-			if cost < cost0 or alpha < 1e-3:
-				u = utmp
-				#console.log("Iteration {}, cost: {}".format(i,cost))
-				break
-			alpha /= 2
-		if np.linalg.norm(du * alpha) < 1E-2:
-			break # Stop iLQR iterations when solution is reached
-	return x, cost
-
 ## Parameters
 # ===============================
 
 param = lambda: None # Lazy way to define an empty class in python
-param.dt = 1e-2 # Time step length
-param.nbData = 50 # Number of datapoints
-param.nbIter = 20 # Maximum number of iterations for iLQR
-param.nbPoints = 2 # Number of viapoints
+param.dt = 1e-1 # Time step length
 param.nbVarX = 3 # State space dimension (x1,x2,x3)
-param.nbVarU = 3 # Control space dimension (dx1,dx2,dx3)
-param.nbVarF = 3 # Objective function dimension (f1,f2,f3, with f3 as orientation)
 param.l = [79, 96, 55] # Robot links lengths
-param.sz = [(float)(objects_size[0].value), (float)(objects_size[1].value)] # Size of objects
-param.r = 1e-6 # Control weight term
-param.Mu = np.asarray([[100, 0, (float)(objects_angle[0].value)], [100, 100, (float)(objects_angle[1].value)]]).T # Viapoints 
-param.A = np.zeros([2, 2, param.nbPoints]) # Object orientation matrices
-param.useBoundingBox = False # Consider bounding boxes for reaching cost
-
-# Object rotation matrices
-#obj = [Path2D.new(), Path2D.new()]
-for t in range(param.nbPoints):
-#	obj[t].rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
-	orn_t = param.Mu[-1,t]
-	param.A[:,:,t] = np.asarray([
-		[np.cos(orn_t), -np.sin(orn_t)],
-		[np.sin(orn_t), np.cos(orn_t)]
-	])
-
-# Precision matrix
-Q = np.identity(param.nbVarF * param.nbPoints)
-
-# Control weight matrix
-R = np.identity((param.nbData-1) * param.nbVarU) * param.r
-
-# Time occurrence of viapoints
-tl = np.linspace(0, param.nbData, param.nbPoints+1)
-tl = np.rint(tl[1:]).astype(np.int64) - 1
-idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)]) 
-
-# Transfer matrices (for linear system as single integrator)
-Su0 = np.vstack([
-	np.zeros([param.nbVarX, param.nbVarX*(param.nbData-1)]), 
-	np.tril(np.kron(np.ones([param.nbData-1, param.nbData-1]), np.eye(param.nbVarX) * param.dt))
-]) 
-Sx0 = np.kron(np.ones(param.nbData), np.identity(param.nbVarX)).T
-Su = Su0[idx.flatten()] # We remove the lines that are out of interest
+param.sz = [60, 40] # Size of objects
+param.Mu = [100, 0, 0] # Viapoints 
 
 #########################################################################################
 
@@ -332,13 +247,6 @@ mouse0 = np.zeros(2)
 mouse = np.zeros(2)
 mousedown = 0
 needsUpdate = 0
-
-#def onMouseMove(event):
-#	global mouse, mouse0
-#	mouse0[0] = event.offsetX
-#	mouse0[1] = event.offsetY
-#	mouse[0] = (event.offsetX - canvas.width * 0.5) / scaling_factor #(event.offsetX / (window.innerWidth*.5)) * 2 - 1
-#	mouse[1] = (event.offsetY - canvas.height * 0.5) / scaling_factor #-(event.offsetY / (window.innerHeight*.5)) * 2 + 1
 
 def onMouseMove(event):
 	global mouse, mouse0, canvas
@@ -369,11 +277,13 @@ def onMouseUp(event):
 #	console.log('Mouse up')
 
 def onWheel(event):
-	global needsUpdate, selected_joint, x0
+	global needsUpdate, selected_joint, selected_obj, x, param
 	#if mousedown==1:
 	#document.getElementById('object0_angle').value = str(param.Mu[2,0] + 0.2 * (event.deltaY/106))
+	if selected_obj == 0:
+		param.Mu[2] += 0.2 * (event.deltaY/106)
 	if selected_joint >= 0:
-		x0[selected_joint] += 0.2 * (event.deltaY/106)
+		x[selected_joint] += 0.2 * (event.deltaY/106)
 		selected_joint = -1
 		needsUpdate = 1
 
@@ -399,7 +309,7 @@ canvas = document.getElementById('canvas')
 ctx = canvas.getContext('2d')
 
 def clear_screen():
-	ctx.fillStyle = 'lightgrey'
+	ctx.fillStyle = 'white'
 	ctx.fillRect(0, 0, canvas.width, canvas.height)
 	
 	
@@ -512,7 +422,7 @@ def draw_robot(xt, color1, color2, color3, color4, selectable):
 #	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
 	
 
-def draw_obj(id, param, color, colortxt):
+def draw_obj(param, color, colortxt):
 	global selected_obj
 	
 	obj = Path2D.new()
@@ -521,12 +431,12 @@ def draw_obj(id, param, color, colortxt):
 	ctx.translate(canvas.width*0.5, canvas.height*0.5)
 	ctx.scale(scaling_factor, scaling_factor)
 	
-	ctx.translate(param.Mu[0,id], param.Mu[1,id])
-	ctx.rotate(param.Mu[2,id])
+	ctx.translate(param.Mu[0], param.Mu[1])
+	ctx.rotate(param.Mu[2])
 	# Draw object
 	ctx.fillStyle = color
 	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
-		selected_obj = id
+		selected_obj = 0
 	#debug_el.innerText = str(selected_obj)
 	ctx.fill(obj)
 	#ctx.fillRect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
@@ -540,67 +450,49 @@ def draw_obj(id, param, color, colortxt):
 	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
 
 
+def controlCommand(x, param):
+	#f_ee = fkin(x, param)
+	#J = Jkin(x, param)
+	#u = np.linalg.pinv(J) @ logmap(fh, f_ee) 
+	u = np.zeros(param.nbVarX)
+	return u
+	
 #########################################################################################
+ 
+def errorHandler(e):
+	msg = 'Error: ' + str(e)
+	console.error(msg)
+	el = document.getElementById('repl-err')
+	el.innerText = msg
+	#el.textContent = msg
+	
+#########################################################################################
+x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
+u = np.zeros(param.nbVarX)
 
-x0 = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
-u = np.zeros(param.nbVarU * (param.nbData-1)) # Initial control commands
-x, cost = iLQR(x0, u, param)
-cost_el.textContent = '%.3f' % cost
-
-t0 = 0
-t = 0
-tf = 0
 while True:
-#	time = performance.now() * 0.0005;
-	t0 += (float)(simulation_speed.value)
-	if t0 > 19:
-		t0 = 0
-		if t > param.nbData-2:
-			tf += 1
-			if tf > 10: #Stay some iterations at the final point before starting again
-				t = 0
-				tf = 0
-		else:
-			t += 1
 	
-	# FK
-	f = fkin0(x[:,t], param)
+	try:
+		u = controlCommand(x, param)
+	except Exception as e:
+		errorHandler(e)
+		#u = np.zeros(param.nbVarX)
+		def controlCommand(x, param):
+			u = np.zeros(param.nbVarX)
+			return u
 	
+	x += u * param.dt
+
 	# Rendering
 	clear_screen()
 	draw_ground()
-	draw_robot(x[:,0], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', True)
 	selected_obj = -1
-	draw_obj(0, param, '#FF3399', '#DD1177')
-	draw_obj(1, param, '#33FF99', '#11DD77')
-	draw_robot(x[:,t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False)
-	# draw_obj(0, 'rgba(255,51,153,0.5)', 'rgba(221,17,119,0.5)')
-	# draw_obj(1, 'rgba(51,255,153,0.5)', 'rgba(17,221,119,0.5)')
-	
-	# debug_el.innerText = str(ctx.isPointInPath(seg11_svg, mouse0[0], mouse0[1])) + ' ' + str(mouse[0]) + ' ' + str(mouse[1])
+	draw_obj(param, '#FF3399', '#DD1177')
+	draw_robot(x, '#CCCCCC', '#AAAAAA', '#222222', '#000000', True)
 	
 	# Object selection
-	if mousedown==1 and selected_obj>= 0:
-		param.Mu[:2,selected_obj] = mouse
-
-	if needsUpdate==1:
-		# console.log("iLQR required")
-		param.useBoundingBox = bounding_box.checked
-		param.sz = [(float)(objects_size[0].value),(float)(objects_size[1].value)]
-		for i in range(param.nbPoints): 
-			#obj[i].rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
-			param.Mu[2,i] = (float)(objects_angle[i].value)
-			param.A[:,:,i] = np.asarray([
-				[np.cos(param.Mu[2,i]), -np.sin(param.Mu[2,i])],
-				[np.sin(param.Mu[2,i]), np.cos(param.Mu[2,i])]
-			])
-		if track_orientation.checked:
-			Q = np.identity(param.nbVarF * param.nbPoints)
-		else:
-			Q = np.kron(np.identity(param.nbPoints), np.diag([1, 1, 0]))
-		x, cost = iLQR(x0, u, param)
-		cost_el.textContent = '%.3f' % cost
-		needsUpdate = 0
+	if mousedown==1 and selected_obj==0:
+		param.Mu[:2] = mouse
 
 	await asyncio.sleep(0.0001)
 

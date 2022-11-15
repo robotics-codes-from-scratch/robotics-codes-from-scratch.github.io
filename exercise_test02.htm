@@ -281,7 +281,7 @@ def errorHandler(e):
 	#el.textContent = msg
 	
 #########################################################################################        
-x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
+x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
 fh = [150, 50, np.pi/6] # Initial object state
 u = np.zeros(param.nbVarX)
 
@@ -310,6 +310,7 @@ while True:
 	# debug_el.innerText = str(ctx.isPointInPath(seg11_svg, mouse0[0], mouse0[1])) + ' ' + str(mouse[0]) + ' ' + str(mouse[1])
 
 	await asyncio.sleep(0.0001)
+
 </py-script>
 
 </div>
