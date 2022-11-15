@@ -252,15 +252,15 @@ def onMouseMove(event):
 	global mouse, mouse0, canvas
 	offset = canvas.getBoundingClientRect()
 	mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
-	mouse0[1] = (event.clientY - offset.y) * canvas.width / canvas.clientWidth
+	mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
 	mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
 	mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
 
 def onTouchMove(event):
 	global mouse, mouse0, canvas
-	bcr = event.target.getBoundingClientRect()
-	mouse0[0] = event.touches.item(0).clientX - bcr.x
-	mouse0[1] = event.touches.item(0).clientY - bcr.y
+	offset = event.target.getBoundingClientRect()
+	mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
+	mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
 	mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor 
 	mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
 	
