@@ -127,10 +127,13 @@ x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
 def controlCommand(x, param):
   f = fkin(x, param)
   J = Jkin(x, param)
-  u = np.linalg.pinv(J) @ logmap(param.Mu, f) # Control command
-  #u = np.linalg.pinv(J[:2,:]) @ (param.Mu[:2] - f[:2]) # Control command
-  #u = J.T @ logmap(param.Mu, f) * 1E-4 # Control command
-  #u = np.zeros(param.nbVarX)  # Control command
+  #u = np.linalg.pinv(J) @ logmap(param.Mu, f) # Position & orientation tracking
+  u = np.linalg.pinv(J[:2,:]) @ (param.Mu[:2] - f[:2]) # Position tracking
+  #u = np.linalg.pinv(J[2:,:]) @ (param.Mu[2:] - f[2:]) # Orientation tracking
+  #u = J.T @ logmap(param.Mu, f) * 1E-4 # Gradient-based tracking
+  #u = np.zeros(param.nbVarX) # Zero control commands
+  N = np.eye(param.nbVarX) - np.linalg.pinv(J[:2,:]) @ J[:2,:] # Nullspace projection matrix
+  u = u + N @ [1, 0, 0] # Prioritized tracking 
   return u
 </py-repl> <!--output='repl-out' std-out='repl-out'-->
 </div>
