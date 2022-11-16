@@ -27,6 +27,14 @@
 
 
 
+<script defer src='https://pyscript.net/latest/pyscript.js'></script>
+	
+<py-config type='toml'>
+	packages = ['numpy']
+</py-config>
+		
+<link rel='stylesheet' href='https://pyscript.net/latest/pyscript.css'> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
+	
 <link rel='stylesheet' href='css/sidebars.css'> <!-- main navigation menu -->
 <link rel='stylesheet' href='css/main-template.css'>
 
@@ -99,26 +107,172 @@
 <div class='container-fluid'>
 
 
-<center>
-<h1>Robotics codes from scratch (RCFS)</h1>
-</center>
+<div class='row'>
+<div class='col-sm-1'></div>
+<div class="col-sm-7">
 
-<div class='container'>
+<br><br>
 
-<p>Robotics codes from scratch (RCFS) is a collection of source codes to study and test learning and optimization problems in robotics through simple 2D examples. Most examples are coded in Python and Matlab/Octave (full compatibility with GNU Octave). Some are also coded in C++ and Julia. The code examples have .m, .py, .cpp and .jl extensions that can be found in their respective folders matlab, python, cpp and julia.</p>
+<script>
+function clearMsgs() {
+  const el = document.getElementById('repl-err');
+  el.innerText = '';
+  //console.log('event!');
+}
+</script>
 
-<p>Use the menu on the top-left corner to see the available examples and exercises.</p>
-
-<center>
-<img class='img-fluid' src='images/logo.png'>
-</center>
-
-<center>
-<a href='https://gitlab.idiap.ch/rli/robotics-codes-from-scratch' target='_blank'><button type='button' class='btn btn-primary btn-lg'><i class='bi bi-git'></i> git repo</button></a>
-<a href='doc/rcfs.pdf' target='_blank'><button type='button' class='btn btn-danger btn-lg'><i class='bi bi-file-pdf-fill'></i> pdf</button></a>
-</center>
-
+<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
+<py-repl std-out='repl-out' std-err='repl-err'>
+param.nbVarX = 3 # State space dimension (x1,x2,x3)
+param.l = [300, 300, 150] # Robot links lengths
+x = [-3*np.pi/4, np.pi/2, np.pi/4] # Initial robot state
+# Forward kinematics for end-effector (in robot coordinate system)
+def fkin(x, param):
+	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+	f = [param.l @ np.cos(L @ x), param.l @ np.sin(L @ x)] 
+	return f
+</py-repl> <!--output='repl-out' std-out='repl-out'-->
 </div>
+<p id='repl-out' style='font-size: 70%; color: #777777;'>(press shift+enter or click on the green run button to run the code)</p>
+<p id='repl-err' style='font-size: 70%; color: #880000;'></p>
+
+</div> <!--sm-7-->
+
+<div class='col-sm-4'>
+<canvas id='canvas' style='width:100%;' width='900px' height='700px'></canvas>
+</div> <!--sm-4-->
+
+</div> <!--row-->
+
+<py-script>
+from pyodide.ffi import create_proxy
+from js import Path2D
+import numpy as np
+
+# Forward kinematics for end-effector (in robot coordinate system)
+def fkin(x, param):
+	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+	f = [param.l @ np.cos(L @ x), param.l @ np.sin(L @ x)] 
+	return f
+
+# Forward kinematics for all joints (in robot coordinate system)
+def fkin0(x, param): 
+	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+	f = np.vstack([
+		L @ np.diag(param.l) @ np.cos(L @ x),
+		L @ np.diag(param.l) @ np.sin(L @ x)
+	])
+	f = np.hstack([np.zeros([2,1]), f])
+	return f
+
+## Parameters
+# ===============================
+
+param = lambda: None # Lazy way to define an empty class in python
+param.nbVarX = 3 # State space dimension (x1,x2,x3)
+param.l = [300, 300, 150] # Robot links lengths
+
+#########################################################################################
+
+canvas = document.getElementById('canvas')
+ctx = canvas.getContext('2d')
+
+def clear_screen():
+	ctx.fillStyle = 'white'
+	ctx.fillRect(0, 0, canvas.width, canvas.height)
+	
+	
+def draw_ground():
+	ctx.translate(canvas.width*0.5, canvas.height*0.5)
+	ctx.translate(0, 328)
+	
+	ctx.beginPath()
+	ctx.lineCap = 'round'
+	ctx.lineJoin = 'round'
+	ctx.lineWidth = '5'
+	ctx.strokeStyle = '#CCCCCC'
+	ctx.moveTo(-400, 0)
+	ctx.lineTo(400, 0)
+	ctx.stroke()
+	
+	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
+	
+	
+def draw_robot(x, color1, color2):
+	ctx.translate(canvas.width*0.5, canvas.height*0.5)
+	ctx.translate(0, 328)
+	
+	f = fkin0(x, param)
+	
+	# Draw links
+	ctx.beginPath()
+	ctx.lineCap = 'round'
+	ctx.lineJoin = 'round'
+	ctx.lineWidth = '24'
+	ctx.strokeStyle = color1
+	for i in range(param.nbVarX+1):
+		ctx.lineTo(f[0,i], f[1,i])
+	ctx.stroke()
+	
+	# Draw articulations
+	ctx.lineWidth = '1'
+	ctx.strokeStyle = color2
+	ctx.fillStyle = color2
+	for i in range(param.nbVarX+1):
+		ctx.beginPath()
+		ctx.arc(f[0,i], f[1,i], 8, 0, 2*np.pi)
+		ctx.fill()
+		ctx.stroke()
+	
+	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
+	
+
+def draw_tip(f, color):
+	obj = Path2D.new()
+	obj.arc(0, 0, 18, 0, 2*np.pi)
+	
+	ctx.translate(canvas.width*0.5, canvas.height*0.5)
+	ctx.translate(0, 328)
+	
+	ctx.translate(f[0], f[1])
+	# Draw object
+	ctx.fillStyle = color
+	ctx.fill(obj)
+	
+	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
+
+
+#########################################################################################
+ 
+def errorHandler(e):
+	msg = 'Error: ' + str(e)
+	console.error(msg)
+	el = document.getElementById('repl-err')
+	el.innerText = msg
+	#el.textContent = msg
+	
+#########################################################################################
+x = [-3*np.pi/4, np.pi/2, np.pi/4] # Initial robot state
+
+while True:
+	
+	try:
+		f = fkin(x, param)
+	except Exception as e:
+		errorHandler(e)
+		def fkin(x, param):
+			f = np.zeros(param.nbVarX)
+			return f
+
+	# Rendering
+	clear_screen()
+	draw_ground()
+	draw_tip(f, '#FF3399')
+	draw_robot(x, '#888888', '#222222')
+
+	await asyncio.sleep(0.01)
+
+</py-script>
 
 </div> <!--container-->
 </body>

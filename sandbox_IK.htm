@@ -66,6 +66,8 @@
 		<button class='btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed' data-bs-toggle='collapse' data-bs-target='#sandboxes-collapse' aria-expanded='true'>Sandboxes</button>
 		<div class='collapse show' id='sandboxes-collapse'>
 		  <ul class='btn-toggle-nav list-unstyled fw-normal pb-1 small'>
+		  	<li><a href='sandbox_FK.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
+			<div class='p-1 mb-0'>Forward kinematics (FK)</div></a></li>
 		    <li><a href='sandbox_IK.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
 			<div class='p-1 mb-0'>Inverse kinematics (IK)</div></a></li>
 		    <li><a href='sandbox_iLQR.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
@@ -277,11 +279,10 @@ def onMouseUp(event):
 #	console.log('Mouse up')
 
 def onWheel(event):
-	global needsUpdate, selected_joint, selected_obj, x, param
-	#if mousedown==1:
-	#document.getElementById('object0_angle').value = str(param.Mu[2,0] + 0.2 * (event.deltaY/106))
+	global needsUpdate, selected_joint, selected_obj, x, object_angle
 	if selected_obj == 0:
-		param.Mu[2] += 0.2 * (event.deltaY/106)
+		#param.Mu[2] += 0.2 * (event.deltaY/106)
+		object_angle.value = (float)(object_angle.value) + 0.2 * (event.deltaY/106)
 	if selected_joint >= 0:
 		x[selected_joint] += 0.2 * (event.deltaY/106)
 		selected_joint = -1
@@ -403,7 +404,11 @@ def draw_robot(xt, color1, color2, color3, color4, selectable):
 	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
 	
 #	# Draw skeleton of the kinematic chain
+#	f = fkin0(x, param)
+#	
 #	ctx.translate(canvas.width*0.5, canvas.height*0.5)
+#	ctx.scale(scaling_factor, scaling_factor)
+#	
 #	ctx.beginPath()
 #	ctx.lineCap = 'round'
 #	ctx.lineJoin = 'round'
