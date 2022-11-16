@@ -63,8 +63,8 @@
 	  <li class='border-top my-1'></li>
 	  
 	  <li class='mb-1'>
-		<button class='btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed' data-bs-toggle='collapse' data-bs-target='#exercises-collapse' aria-expanded='true'>Sandboxes</button>
-		<div class='collapse show' id='exercises-collapse'>
+		<button class='btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed' data-bs-toggle='collapse' data-bs-target='#sandboxes-collapse' aria-expanded='true'>Sandboxes</button>
+		<div class='collapse show' id='sandboxes-collapse'>
 		  <ul class='btn-toggle-nav list-unstyled fw-normal pb-1 small'>
 		    <li><a href='sandbox_IK.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
 			<div class='p-1 mb-0'>Inverse kinematics (IK)</div></a></li>
@@ -73,6 +73,8 @@
 		  </ul>
 		</div>
 	  </li>
+	  
+	  <li class='border-top my-1'></li>
 	  
 	  <li class='mb-1'>
 		<button class='btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed' data-bs-toggle='collapse' data-bs-target='#exercises-collapse' aria-expanded='true'>Exercises</button>
@@ -111,17 +113,17 @@
 <form>
 
 <div class='row'>
-<div class='col-md'><label>Object1 orientation</label><input id='object0_angle' type='range' min='-3.14159' max='3.14159' step='0.0001' value='0' class='w-72' oninput='this.nextElementSibling.value = this.value'>&nbsp;<output>0.0</output></div>
-<div class='col-md'><label>Object2 orientation</label><input id='object1_angle' type='range' min='-3.14159' max='3.14159' step='0.0001' value='0' class='w-72' oninput='this.nextElementSibling.value = this.value'>&nbsp;<output>0.0</output></div>
+<div class='col-md'><label>Object1 orientation</label><input id='object0_angle' type='range' min='-3.14159' max='3.14159' step='0.0001' value='0' class='w-72' oninput='this.nextElementSibling.value = this.value' style='vertical-align:middle;'>&nbsp;<output>0.0</output></div>
+<div class='col-md'><label>Object2 orientation</label><input id='object1_angle' type='range' min='-3.14159' max='3.14159' step='0.0001' value='0' class='w-72' oninput='this.nextElementSibling.value = this.value' style='vertical-align:middle;'>&nbsp;<output>0.0</output></div>
 </div>
 
 <div class='row'>
-<div class='col-md'><label>Objects width</label><input id='objects_width' type='range' min='0' max='200' step='0.1' value='50' class='w-72' oninput='this.nextElementSibling.value = this.value'>&nbsp;<output>50.0</output></div>
-<div class='col-md'><label>Objects height</label><input id='objects_height' type='range' min='0' max='200' step='0.1' value='30' class='w-72' oninput='this.nextElementSibling.value = this.value'>&nbsp;<output>30.0</output></div>
+<div class='col-md'><label>Objects width</label><input id='objects_width' type='range' min='0' max='200' step='0.1' value='50' class='w-72' oninput='this.nextElementSibling.value = this.value' style='vertical-align:middle;'>&nbsp;<output>50.0</output></div>
+<div class='col-md'><label>Objects height</label><input id='objects_height' type='range' min='0' max='200' step='0.1' value='30' class='w-72' oninput='this.nextElementSibling.value = this.value' style='vertical-align:middle;'>&nbsp;<output>30.0</output></div>
 </div>
 
 <div class='row'>
-<div class='col-md'><label>Simulation speed</label><input id='simulation_speed' type='range' min='0' max='20' step='0.01' value='10' class='w-72' oninput='this.nextElementSibling.value = this.value'>&nbsp;<output>10.0</output></div>
+<div class='col-md'><label>Simulation speed</label><input id='simulation_speed' type='range' min='0' max='20' step='0.01' value='10' class='w-72' oninput='this.nextElementSibling.value = this.value' style='vertical-align:middle;'>&nbsp;<output>10.0</output></div>
 <div class='col-md'><label>Track orientation</label><input id='track_orientation' type='checkbox' checked></div>
 </div>
 
@@ -137,7 +139,7 @@
 </div> <!--sm-7-->
 
 <div class='col-sm-4'>
-<canvas id='canvas' style='width:90%;' width='900px' height='700px'></canvas>
+<canvas id='canvas' style='width:100%;' width='900px' height='700px'></canvas>
 </div> <!--sm-4-->
 
 </div> <!--row-->
@@ -398,7 +400,7 @@ canvas = document.getElementById('canvas')
 ctx = canvas.getContext('2d')
 
 def clear_screen():
-	ctx.fillStyle = 'lightgrey'
+	ctx.fillStyle = 'white'
 	ctx.fillRect(0, 0, canvas.width, canvas.height)
 	
 	
