@@ -156,7 +156,7 @@ objects_size = [document.getElementById('objects_width'), document.getElementByI
 simulation_speed = document.getElementById('simulation_speed') # Simulation speed
 track_orientation = document.getElementById('track_orientation')
 bounding_box = document.getElementById('use_boundingbox')
-selected_joint = -1
+hover_joint = -1
 selected_obj = -1
 
 #########################################################################################
@@ -334,7 +334,6 @@ scaling_factor = 2 # General scaling factor for rendering
 mouse0 = np.zeros(2)
 mouse = np.zeros(2)
 mousedown = 0
-needsUpdate = 0
 
 #def onMouseMove(event):
 #	global mouse, mouse0
@@ -365,20 +364,23 @@ def onMouseDown(event):
 #	console.log('Mouse down')
 
 def onMouseUp(event):
-	global mousedown, selected_obj, needsUpdate
+	global mousedown, selected_obj
 	mousedown = 0
 	selected_obj = -1
-	needsUpdate = 1
+	update_iLQR()
 #	console.log('Mouse up')
 
 def onWheel(event):
-	global needsUpdate, selected_joint, x0
+	global hover_joint, hover_obj, x0, objects_angle
 	#if mousedown==1:
 	#document.getElementById('object0_angle').value = str(param.Mu[2,0] + 0.2 * (event.deltaY/106))
-	if selected_joint >= 0:
-		x0[selected_joint] += 0.2 * (event.deltaY/106)
-		selected_joint = -1
-		needsUpdate = 1
+	if hover_obj >= 0:
+		objects_angle[hover_obj].value = (float)(objects_angle[hover_obj].value) + 0.2 * (event.deltaY/106)
+		update_iLQR()
+	if hover_joint >= 0:
+		x0[hover_joint] += 0.2 * (event.deltaY/106)
+		console.log(x0[hover_joint])
+		update_iLQR()
 
 cost_el = document.getElementById('cost')
 debug_el = document.getElementById('debug')
@@ -423,7 +425,7 @@ def draw_ground():
 	
 	
 def draw_robot(xt, color1, color2, color3, color4, selectable):
-	global selected_joint
+	global hover_joint
 	
 	ctx.translate(canvas.width*0.5, canvas.height*0.5)
 	ctx.scale(scaling_factor, scaling_factor)
@@ -447,7 +449,7 @@ def draw_robot(xt, color1, color2, color3, color4, selectable):
 	ctx.fillStyle = color2
 	if selectable and ctx.isPointInPath(seg12_svg, mouse0[0], mouse0[1]):
 		ctx.fillStyle = '#3399FF'
-		selected_joint = 0
+		hover_joint = 0
 	ctx.fill(seg12_svg)
 	ctx.stroke(seg12_svg)
 	ctx.stroke(seg13_svg)
@@ -463,7 +465,7 @@ def draw_robot(xt, color1, color2, color3, color4, selectable):
 	ctx.fillStyle = color2
 	if selectable and ctx.isPointInPath(seg22_svg, mouse0[0], mouse0[1]):
 		ctx.fillStyle = '#FF9933'
-		selected_joint = 1
+		hover_joint = 1
 	ctx.fill(seg22_svg)
 	ctx.stroke(seg22_svg)
 	ctx.stroke(seg23_svg)
@@ -482,7 +484,7 @@ def draw_robot(xt, color1, color2, color3, color4, selectable):
 	ctx.fillStyle = color2
 	if selectable and ctx.isPointInPath(seg34_svg, mouse0[0], mouse0[1]):
 		ctx.fillStyle = '#99FF33'
-		selected_joint = 2
+		hover_joint = 2
 	ctx.fill(seg34_svg)
 	ctx.stroke(seg34_svg)
 	ctx.stroke(seg35_svg)
@@ -516,7 +518,7 @@ def draw_robot(xt, color1, color2, color3, color4, selectable):
 	
 
 def draw_obj(id, param, color, colortxt):
-	global selected_obj
+	global selected_obj, hover_obj
 	
 	obj = Path2D.new()
 	obj.rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
@@ -529,7 +531,10 @@ def draw_obj(id, param, color, colortxt):
 	# Draw object
 	ctx.fillStyle = color
 	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
+		hover_obj = id
+	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
 		selected_obj = id
+		
 	#debug_el.innerText = str(selected_obj)
 	ctx.fill(obj)
 	#ctx.fillRect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
@@ -541,6 +546,25 @@ def draw_obj(id, param, color, colortxt):
 		ctx.fillText('Move me!', 0, 0)
 	
 	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
+
+def update_iLQR():
+	global param, Q, x, cost_el
+	# console.log("iLQR required")
+	param.useBoundingBox = bounding_box.checked
+	param.sz = [(float)(objects_size[0].value),(float)(objects_size[1].value)]
+	for i in range(param.nbPoints): 
+		#obj[i].rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
+		param.Mu[2,i] = (float)(objects_angle[i].value)
+		param.A[:,:,i] = np.asarray([
+			[np.cos(param.Mu[2,i]), -np.sin(param.Mu[2,i])],
+			[np.sin(param.Mu[2,i]), np.cos(param.Mu[2,i])]
+		])
+	if track_orientation.checked:
+		Q = np.identity(param.nbVarF * param.nbPoints)
+	else:
+		Q = np.kron(np.identity(param.nbPoints), np.diag([1, 1, 0]))
+	x, cost = iLQR(x0, u, param)
+	cost_el.textContent = '%.3f' % cost
 
 
 #########################################################################################
@@ -569,11 +593,14 @@ while True:
 	# FK
 	f = fkin0(x[:,t], param)
 	
+	#Reinit hovering variables
+	hover_joint = -1
+	hover_obj = -1
+	
 	# Rendering
 	clear_screen()
 	draw_ground()
 	draw_robot(x[:,0], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', True)
-	selected_obj = -1
 	draw_obj(0, param, '#FF3399', '#DD1177')
 	draw_obj(1, param, '#33FF99', '#11DD77')
 	draw_robot(x[:,t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False)
@@ -583,27 +610,8 @@ while True:
 	# debug_el.innerText = str(ctx.isPointInPath(seg11_svg, mouse0[0], mouse0[1])) + ' ' + str(mouse[0]) + ' ' + str(mouse[1])
 	
 	# Object selection
-	if mousedown==1 and selected_obj>= 0:
+	if selected_obj>= 0:
 		param.Mu[:2,selected_obj] = mouse
-
-	if needsUpdate==1:
-		# console.log("iLQR required")
-		param.useBoundingBox = bounding_box.checked
-		param.sz = [(float)(objects_size[0].value),(float)(objects_size[1].value)]
-		for i in range(param.nbPoints): 
-			#obj[i].rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
-			param.Mu[2,i] = (float)(objects_angle[i].value)
-			param.A[:,:,i] = np.asarray([
-				[np.cos(param.Mu[2,i]), -np.sin(param.Mu[2,i])],
-				[np.sin(param.Mu[2,i]), np.cos(param.Mu[2,i])]
-			])
-		if track_orientation.checked:
-			Q = np.identity(param.nbVarF * param.nbPoints)
-		else:
-			Q = np.kron(np.identity(param.nbPoints), np.diag([1, 1, 0]))
-		x, cost = iLQR(x0, u, param)
-		cost_el.textContent = '%.3f' % cost
-		needsUpdate = 0
 
 	await asyncio.sleep(0.0001)
 

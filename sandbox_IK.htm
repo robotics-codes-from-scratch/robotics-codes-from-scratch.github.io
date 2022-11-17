@@ -127,13 +127,21 @@ x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
 def controlCommand(x, param):
   f = fkin(x, param)
   J = Jkin(x, param)
-  #u = np.linalg.pinv(J) @ logmap(param.Mu, f) # Position & orientation tracking
-  u = np.linalg.pinv(J[:2,:]) @ (param.Mu[:2] - f[:2]) # Position tracking
+  u = np.linalg.pinv(J) @ logmap(param.Mu, f) # Position & orientation tracking
+  
+  #Jinv = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E2) @ J.T # Damped pseudoinverse
+  #u = Jinv @ logmap(param.Mu, f) # Position & orientation tracking
+  
+  #u = np.linalg.pinv(J[:2,:]) @ (param.Mu[:2] - f[:2]) # Position tracking
   #u = np.linalg.pinv(J[2:,:]) @ (param.Mu[2:] - f[2:]) # Orientation tracking
+  
   #u = J.T @ logmap(param.Mu, f) * 1E-4 # Gradient-based tracking
+  
   #u = np.zeros(param.nbVarX) # Zero control commands
-  N = np.eye(param.nbVarX) - np.linalg.pinv(J[:2,:]) @ J[:2,:] # Nullspace projection matrix
-  u = u + N @ [1, 0, 0] # Prioritized tracking 
+  
+  #N = np.eye(param.nbVarX) - np.linalg.pinv(J[:2,:]) @ J[:2,:] # Nullspace projection matrix
+  #u = u + N @ [1, 0, 0] # Prioritized tracking 
+  
   return u
 </py-repl> <!--output='repl-out' std-out='repl-out'-->
 </div>
@@ -156,8 +164,6 @@ from js import Path2D
 import numpy as np
 
 object_angle = document.getElementById('object_angle')  # Objects angle
-selected_joint = -1
-selected_obj = -1
 
 #########################################################################################
 base1_svg = Path2D.new('m -40.741975,77.319831 c -0.47247,-4.03869 7.32825,-20.1653 10.1171,-22.57617 4.71807,-4.07862 14.00201,-4.3722 15.87822,-6.89366 1.16821,-1.06725 1.19306,-2.45846 1.19136,-4.984461 -0.005,-6.836939 0.0375,-38.9164375 -0.0588,-42.62054746 C -13.757555,-5.2728275 -9.8130348,-13.34661 -0.02248483,-13.67734 7.5903552,-13.93451 13.741895,-7.1292375 13.608255,-0.84839739 13.474625,5.4324325 13.073715,50.200081 13.741895,54.075491 c 0.66817,3.8754 3.0736,26.72695 3.0736,26.72695 l -53.47684,-0.23624 c -3.68777,-0.0163 -4.0806,-3.24637 -4.0806,-3.24637 z')
@@ -240,7 +246,7 @@ param.dt = 1e-1 # Time step length
 param.nbVarX = 3 # State space dimension (x1,x2,x3)
 param.l = [79, 96, 55] # Robot links lengths
 param.sz = [60, 40] # Size of objects
-param.Mu = [100, 0, 0] # Viapoints 
+param.Mu = [100, 0, 0] # Object position and orientation 
 
 #########################################################################################
 
@@ -251,7 +257,9 @@ scaling_factor = 2 # General scaling factor for rendering
 mouse0 = np.zeros(2)
 mouse = np.zeros(2)
 mousedown = 0
-needsUpdate = 0
+selected_obj = -1
+hover_obj = -1
+hover_joint = -1
 
 def onMouseMove(event):
 	global mouse, mouse0
@@ -275,21 +283,18 @@ def onMouseDown(event):
 #	console.log('Mouse down')
 
 def onMouseUp(event):
-	global mousedown, selected_obj, needsUpdate
+	global mousedown, selected_obj
 	mousedown = 0
 	selected_obj = -1
-	needsUpdate = 1
 #	console.log('Mouse up')
 
 def onWheel(event):
-	global needsUpdate, selected_joint, selected_obj, x, object_angle
-	if selected_obj == 0:
+	global hover_joint, hover_obj, x, object_angle
+	if hover_obj == 0:
 		#param.Mu[2] += 0.2 * (event.deltaY/106)
 		object_angle.value = (float)(object_angle.value) + 0.2 * (event.deltaY/106)
-	if selected_joint >= 0:
-		x[selected_joint] += 0.2 * (event.deltaY/106)
-		selected_joint = -1
-		needsUpdate = 1
+	if hover_joint >= 0:
+		x[hover_joint] += 0.2 * (event.deltaY/106)
 
 document.addEventListener('mousemove', create_proxy(onMouseMove)) #for standard mouse
 document.addEventListener('touchmove', create_proxy(onTouchMove)) #for mobile interfaces
@@ -331,7 +336,8 @@ def draw_ground():
 	
 	
 def draw_robot(xt, color1, color2, color3, color4, selectable):
-	global selected_joint
+	global hover_joint
+	hover_joint = -1
 	
 	ctx.translate(canvas.width*0.5, canvas.height*0.5)
 	ctx.scale(scaling_factor, scaling_factor)
@@ -353,7 +359,7 @@ def draw_robot(xt, color1, color2, color3, color4, selectable):
 	ctx.fillStyle = color2
 	if selectable and ctx.isPointInPath(seg12_svg, mouse0[0], mouse0[1]):
 		ctx.fillStyle = '#3399FF'
-		selected_joint = 0
+		hover_joint = 0
 	ctx.fill(seg12_svg)
 	ctx.stroke(seg12_svg)
 	ctx.stroke(seg13_svg)
@@ -369,7 +375,7 @@ def draw_robot(xt, color1, color2, color3, color4, selectable):
 	ctx.fillStyle = color2
 	if selectable and ctx.isPointInPath(seg22_svg, mouse0[0], mouse0[1]):
 		ctx.fillStyle = '#FF9933'
-		selected_joint = 1
+		hover_joint = 1
 	ctx.fill(seg22_svg)
 	ctx.stroke(seg22_svg)
 	ctx.stroke(seg23_svg)
@@ -388,7 +394,7 @@ def draw_robot(xt, color1, color2, color3, color4, selectable):
 	ctx.fillStyle = color2
 	if selectable and ctx.isPointInPath(seg34_svg, mouse0[0], mouse0[1]):
 		ctx.fillStyle = '#99FF33'
-		selected_joint = 2
+		hover_joint = 2
 	ctx.fill(seg34_svg)
 	ctx.stroke(seg34_svg)
 	ctx.stroke(seg35_svg)
@@ -426,7 +432,8 @@ def draw_robot(xt, color1, color2, color3, color4, selectable):
 	
 
 def draw_obj(param, color, colortxt):
-	global selected_obj
+	global selected_obj, hover_obj
+	hover_obj = -1
 	
 	obj = Path2D.new()
 	obj.rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
@@ -438,9 +445,11 @@ def draw_obj(param, color, colortxt):
 	ctx.rotate(param.Mu[2])
 	# Draw object
 	ctx.fillStyle = color
-	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
-		selected_obj = 0
 	ctx.fill(obj)
+	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
+		hover_obj = 0
+	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
+		selected_obj = 0
 	#ctx.fillRect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
 	if param.sz[0] > 39 and param.sz[1] > 19:
 		ctx.textAlign = 'center'
@@ -488,12 +497,11 @@ while True:
 	# Rendering
 	clear_screen()
 	draw_ground()
-	selected_obj = -1
 	draw_obj(param, '#FF3399', '#DD1177')
 	draw_robot(x, '#CCCCCC', '#AAAAAA', '#222222', '#000000', True)
 	
 	# Object selection
-	if mousedown==1 and selected_obj==0:
+	if selected_obj==0:
 		param.Mu[:2] = mouse
 	
 	param.Mu[2] = (float)(object_angle.value)
