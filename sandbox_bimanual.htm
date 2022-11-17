@@ -123,20 +123,12 @@ function clearMsgs() {
 
 <div onkeydown='clearMsgs()' onclick='clearMsgs()'>
 <py-repl std-out='repl-out' std-err='repl-err'>
-#param.nbVarX = 3 # State space dimension (x1,x2,x3)
-#param.l = [300, 300, 150] # Robot links lengths
-#x = [-3*np.pi/4, np.pi/2, np.pi/4] # Initial robot state
-
-param.nbVarX = 8 # State space dimension (x1,x2,x3)
-param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
-x = np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
-x[0] = x[0] + np.pi
-
-# Forward kinematics for end-effector (in robot coordinate system)
-def fkin(x, param):
-	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
-	f = [param.l @ np.cos(L @ x), param.l @ np.sin(L @ x)] 
-	return f
+def controlCommand(x, param):
+  f = fkin(x, param)
+  J = Jkin(x, param)
+  u = np.linalg.pinv(J) @ (param.Mu - f) * 5 
+  #u = np.zeros(param.nbVarX)
+  return u
 </py-repl> <!--output='repl-out' std-out='repl-out'-->
 </div>
 <p id='repl-out' style='font-size: 70%; color: #777777;'>(press shift+enter or click on the green run button to run the code)</p>
@@ -158,8 +150,9 @@ import numpy as np
 # Forward kinematics for end-effector (in robot coordinate system)
 def fkin(x, param):
 	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
-	f = [param.l @ np.cos(L @ x), param.l @ np.sin(L @ x)] 
-	return f
+	f = np.vstack([param.l @ np.cos(L @ x), 
+	               param.l @ np.sin(L @ x)])
+	return f.flatten()
 
 # Forward kinematics for all joints (in robot coordinate system)
 def fkin0(x, param): 
@@ -171,13 +164,23 @@ def fkin0(x, param):
 	f = np.hstack([np.zeros([2,1]), f])
 	return f
 
+# Jacobian with analytical computation (for single time step)
+def Jkin(x, param):
+	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+	J = np.vstack([
+		-np.sin(L @ x).T @ np.diag(param.l) @ L,
+		 np.cos(L @ x).T @ np.diag(param.l) @ L
+	])
+	return J
+
 ## Parameters
 # ===============================
 
 param = lambda: None # Lazy way to define an empty class in python
+param.dt = 1e-1 # Time step length
 param.nbVarX = 3 # State space dimension (x1,x2,x3)
 param.l = [300, 300, 150] # Robot links lengths
-
+param.Mu = [200, -200] # Object position
 
 #########################################################################################
 
@@ -186,6 +189,7 @@ mouse0 = np.zeros(2)
 mouse = np.zeros(2)
 mousedown = 0
 hover_joint = -1
+selected_obj = -1
 
 def onMouseMove(event):
 	global mouse, mouse0
@@ -193,7 +197,7 @@ def onMouseMove(event):
 	mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
 	mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
 	mouse[0] = (mouse0[0] - canvas.width * 0.5) 
-	mouse[1] = (mouse0[1] - canvas.height * 0.5) 
+	mouse[1] = (mouse0[1] - canvas.height * 0.9) 
 
 def onTouchMove(event):
 	global mouse, mouse0
@@ -201,15 +205,16 @@ def onTouchMove(event):
 	mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
 	mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
 	mouse[0] = (mouse0[0] - canvas.width * 0.5) 
-	mouse[1] = (mouse0[1] - canvas.height * 0.5) 
+	mouse[1] = (mouse0[1] - canvas.height * 0.9) 
 	
 def onMouseDown(event):
 	global mousedown
 	mousedown = 1
 
 def onMouseUp(event):
-	global mousedown
+	global mousedown, selected_obj
 	mousedown = 0
+	selected_obj = -1
 
 def onWheel(event):
 	global hover_joint, x
@@ -238,11 +243,10 @@ ctx = canvas.getContext('2d')
 def clear_screen():
 	ctx.fillStyle = 'white'
 	ctx.fillRect(0, 0, canvas.width, canvas.height)
-	
-	
+
+
 def draw_ground():
-	ctx.translate(canvas.width*0.5, canvas.height*0.5)
-	ctx.translate(0, 328)
+	ctx.translate(canvas.width*0.5, canvas.height*0.9)
 	
 	ctx.beginPath()
 	ctx.lineCap = 'round'
@@ -262,8 +266,7 @@ def draw_robot(x, color1, color2):
 	obj = Path2D.new()
 	obj.arc(0, 0, 16, 0, 2*np.pi)
 
-	ctx.translate(canvas.width*0.5, canvas.height*0.5)
-	ctx.translate(0, 328)
+	ctx.translate(canvas.width*0.5, canvas.height*0.9)
 	
 	f = fkin0(x, param)
 	
@@ -295,21 +298,32 @@ def draw_robot(x, color1, color2):
 	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
 
 
-def draw_tip(f, color):
+def draw_object(param, color):
+	global selected_obj
+	
 	obj = Path2D.new()
-	obj.arc(0, 0, 16, 0, 2*np.pi)
+	obj.arc(0, 0, 22, 0, 2*np.pi)
 	
-	ctx.translate(canvas.width*0.5, canvas.height*0.5)
-	ctx.translate(0, 328)
+	ctx.translate(canvas.width*0.5, canvas.height*0.9)
 	
-	ctx.translate(f[0], f[1])
+	ctx.translate(param.Mu[0], param.Mu[1])
 	# Draw object
 	ctx.fillStyle = color
 	ctx.fill(obj)
 	
+	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
+		selected_obj = 0
+	
 	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
 
 
+def controlCommand(x, param):
+	f = fkin(x, param)
+	J = Jkin(x, param)
+	u = np.linalg.pinv(J) @ (param.Mu - f) * 5 
+	#u = np.zeros(param.nbVarX)
+	return u
+	
 #########################################################################################
  
 def errorHandler(e):
@@ -321,27 +335,35 @@ def errorHandler(e):
 	
 #########################################################################################
 x = [-3*np.pi/4, np.pi/2, np.pi/4] # Initial robot state
+u = np.zeros(param.nbVarX)
 
 while True:
 	
 	try:
-		f = fkin(x, param)
+		u = controlCommand(x, param)
 	except Exception as e:
 		errorHandler(e)
-		def fkin(x, param):
-			f = np.zeros(param.nbVarX)
-			return f
+		#u = np.zeros(param.nbVarX)
+		def controlCommand(x, param):
+			u = np.zeros(param.nbVarX)
+			return u
 	
+	x += u * param.dt
+			
 	# Reinit hovering variables
 	hover_joint = -1
-	
+
 	# Rendering
 	clear_screen()
 	draw_ground()
 	draw_robot(x, '#AAAAAA', '#888888')
-	draw_tip(f, '#FF3399')
+	draw_object(param, '#FF3399')
+	
+	# Object selection
+	if selected_obj==0:
+		param.Mu[:2] = mouse[:2]
 
-	await asyncio.sleep(0.01)
+	await asyncio.sleep(0.0001)
 
 </py-script>
 
