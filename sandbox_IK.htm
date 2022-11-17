@@ -337,7 +337,6 @@ def draw_ground():
 	
 def draw_robot(xt, color1, color2, color3, color4, selectable):
 	global hover_joint
-	hover_joint = -1
 	
 	ctx.translate(canvas.width*0.5, canvas.height*0.5)
 	ctx.scale(scaling_factor, scaling_factor)
@@ -433,7 +432,6 @@ def draw_robot(xt, color1, color2, color3, color4, selectable):
 
 def draw_obj(param, color, colortxt):
 	global selected_obj, hover_obj
-	hover_obj = -1
 	
 	obj = Path2D.new()
 	obj.rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
@@ -493,6 +491,10 @@ while True:
 			return u
 	
 	x += u * param.dt
+	
+	# Reinit hovering variables
+	hover_joint = -1
+	hover_obj = -1
 
 	# Rendering
 	clear_screen()

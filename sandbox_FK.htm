@@ -123,9 +123,15 @@ function clearMsgs() {
 
 <div onkeydown='clearMsgs()' onclick='clearMsgs()'>
 <py-repl std-out='repl-out' std-err='repl-err'>
-param.nbVarX = 3 # State space dimension (x1,x2,x3)
-param.l = [300, 300, 150] # Robot links lengths
-x = [-3*np.pi/4, np.pi/2, np.pi/4] # Initial robot state
+#param.nbVarX = 3 # State space dimension (x1,x2,x3)
+#param.l = [300, 300, 150] # Robot links lengths
+#x = [-3*np.pi/4, np.pi/2, np.pi/4] # Initial robot state
+
+param.nbVarX = 8 # State space dimension (x1,x2,x3)
+param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
+x = np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
+x[0] = x[0] + np.pi
+
 # Forward kinematics for end-effector (in robot coordinate system)
 def fkin(x, param):
 	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
@@ -172,6 +178,59 @@ param = lambda: None # Lazy way to define an empty class in python
 param.nbVarX = 3 # State space dimension (x1,x2,x3)
 param.l = [300, 300, 150] # Robot links lengths
 
+
+#########################################################################################
+
+# Mouse events
+mouse0 = np.zeros(2)
+mouse = np.zeros(2)
+mousedown = 0
+hover_joint = -1
+
+def onMouseMove(event):
+	global mouse, mouse0
+	offset = canvas.getBoundingClientRect()
+	mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
+	mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
+	mouse[0] = (mouse0[0] - canvas.width * 0.5) 
+	mouse[1] = (mouse0[1] - canvas.height * 0.5) 
+
+def onTouchMove(event):
+	global mouse, mouse0
+	offset = event.target.getBoundingClientRect()
+	mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
+	mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
+	mouse[0] = (mouse0[0] - canvas.width * 0.5) 
+	mouse[1] = (mouse0[1] - canvas.height * 0.5) 
+	
+def onMouseDown(event):
+	global mousedown
+	mousedown = 1
+
+def onMouseUp(event):
+	global mousedown
+	mousedown = 0
+
+def onWheel(event):
+	global hover_joint, x
+	if hover_joint >= 0:
+		x[hover_joint] += 0.2 * (event.deltaY/106)
+		hover_joint = -1
+
+document.addEventListener('mousemove', create_proxy(onMouseMove)) #for standard mouse
+document.addEventListener('touchmove', create_proxy(onTouchMove)) #for mobile interfaces
+
+document.addEventListener('mousedown', create_proxy(onMouseDown)) #for standard mouse
+#document.addEventListener('pointerdown', create_proxy(onMouseDown)) #for mobile interfaces 
+document.addEventListener('touchstart', create_proxy(onMouseDown)) #for mobile interfaces 
+
+document.addEventListener('mouseup', create_proxy(onMouseUp)) #for standard mouse
+#document.addEventListener('pointerup', create_proxy(onMouseUp)) #for mobile interfaces 
+document.addEventListener('touchend', create_proxy(onMouseUp)) #for mobile interfaces 
+
+document.addEventListener('wheel', create_proxy(onWheel)) #for standard mouse
+
+
 #########################################################################################
 
 canvas = document.getElementById('canvas')
@@ -199,6 +258,11 @@ def draw_ground():
 	
 	
 def draw_robot(x, color1, color2):
+	global hover_joint
+	
+	obj = Path2D.new()
+	obj.arc(0, 0, 16, 0, 2*np.pi)
+
 	ctx.translate(canvas.width*0.5, canvas.height*0.5)
 	ctx.translate(0, 328)
 	
@@ -208,7 +272,7 @@ def draw_robot(x, color1, color2):
 	ctx.beginPath()
 	ctx.lineCap = 'round'
 	ctx.lineJoin = 'round'
-	ctx.lineWidth = '24'
+	ctx.lineWidth = '34'
 	ctx.strokeStyle = color1
 	for i in range(param.nbVarX+1):
 		ctx.lineTo(f[0,i], f[1,i])
@@ -219,17 +283,22 @@ def draw_robot(x, color1, color2):
 	ctx.strokeStyle = color2
 	ctx.fillStyle = color2
 	for i in range(param.nbVarX+1):
-		ctx.beginPath()
-		ctx.arc(f[0,i], f[1,i], 8, 0, 2*np.pi)
-		ctx.fill()
-		ctx.stroke()
+		#ctx.beginPath()
+		#ctx.arc(f[0,i], f[1,i], 8, 0, 2*np.pi)
+		#ctx.fill()
+		#ctx.stroke()
+		ctx.translate(f[0,i], f[1,i])
+		ctx.fill(obj)
+		if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
+			hover_joint = i
+		ctx.translate(-f[0,i], -f[1,i])
 	
 	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
 	
 
 def draw_tip(f, color):
 	obj = Path2D.new()
-	obj.arc(0, 0, 18, 0, 2*np.pi)
+	obj.arc(0, 0, 16, 0, 2*np.pi)
 	
 	ctx.translate(canvas.width*0.5, canvas.height*0.5)
 	ctx.translate(0, 328)
@@ -263,12 +332,15 @@ while True:
 		def fkin(x, param):
 			f = np.zeros(param.nbVarX)
 			return f
-
+	
+	# Reinit hovering variables
+	hover_joint = -1
+	
 	# Rendering
 	clear_screen()
 	draw_ground()
+	draw_robot(x, '#AAAAAA', '#888888')
 	draw_tip(f, '#FF3399')
-	draw_robot(x, '#888888', '#222222')
 
 	await asyncio.sleep(0.01)
 
