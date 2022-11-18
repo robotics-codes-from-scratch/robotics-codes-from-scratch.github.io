@@ -126,7 +126,7 @@ function clearMsgs() {
 def controlCommand(x, param):
   f = fkin(x, param)
   J = Jkin(x, param)
-  u = np.linalg.pinv(J) @ (param.Mu - f[:,0]) * 10 
+  u = np.linalg.pinv(J) @ (param.Mu - f) * 5 
   #u = np.zeros(param.nbVarX)
   return u
 </py-repl> <!--output='repl-out' std-out='repl-out'-->
@@ -149,53 +149,38 @@ import numpy as np
 
 # Forward kinematics for end-effector (in robot coordinate system)
 def fkin(x, param):
-    L = np.tril(np.ones(3))
-    f = np.vstack([
-        param.l[0:3].T @ np.cos(L @ x[0:3]),
-        param.l[0:3].T @ np.sin(L @ x[0:3]),
-        param.l[[0,3,4]].T @ np.cos(L @ x[[0,3,4]]),
-        param.l[[0,3,4]].T @ np.sin(L @ x[[0,3,4]])
-    ])  # f1,f2,f3,f4
-    return f
+	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+	f = np.vstack([param.l @ np.cos(L @ x), 
+	               param.l @ np.sin(L @ x)])
+	return f.flatten()
 
-# Forward kinematics for end-effector (in robot coordinate system)
+# Forward kinematics for all joints (in robot coordinate system)
 def fkin0(x, param): 
-    L = np.tril(np.ones(3))
-    fl = np.vstack([
-        L @ np.diag(param.l[0:3]) @ np.cos(L @ x[0:3]),
-        L @ np.diag(param.l[0:3]) @ np.sin(L @ x[0:3])
-    ])
-    fr = np.vstack([
-        L @ np.diag(param.l[[0,3,4]]) @ np.cos(L @ x[[0,3,4]]),
-        L @ np.diag(param.l[[0,3,4]]) @ np.sin(L @ x[[0,3,4]])
-    ])
-    f = np.hstack([fl[:,::-1], np.zeros([2,1]), fr])
-    return f
+	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+	f = np.vstack([
+		L @ np.diag(param.l) @ np.cos(L @ x),
+		L @ np.diag(param.l) @ np.sin(L @ x)
+	])
+	f = np.hstack([np.zeros([2,1]), f])
+	return f
 
-# Jacobian of the end-effector with analytical computation (for single time step)
+# Jacobian with analytical computation (for single time step)
 def Jkin(x, param):
-    L = np.tril(np.ones(3))
-    J = np.zeros((param.nbVarF, param.nbVarX))
-    Jl = np.vstack([-np.sin(L @ x[:3]).T @ np.diag(param.l[:3]) @ L,
-                    np.cos(L @ x[:3]).T @ np.diag(param.l[:3]) @ L
-                    ])
-    Jr = np.vstack([-np.sin(L @ x[[0,3,4]]).T @ np.diag(np.array(param.l)[[0,3,4]]) @ L,
-                    np.cos(L @ x[[0,3,4]]).T @ np.diag(np.array(param.l)[[0,3,4]]) @ L
-                    ])
-    J[:Jl.shape[0], :Jl.shape[1]] = Jl
-    J[2:, [0,3,4]] = Jr
-    return J
-
+	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+	J = np.vstack([
+		-np.sin(L @ x).T @ np.diag(param.l) @ L,
+		 np.cos(L @ x).T @ np.diag(param.l) @ L
+	])
+	return J
 
 ## Parameters
 # ===============================
 
 param = lambda: None # Lazy way to define an empty class in python
 param.dt = 1e-1 # Time step length
-param.nbVarX = 5 # State space dimension
-param.nbVarF = 4 # Task space dimension ([x1,x2] for left end-effector, [x3,x4] for right end-effector)
-param.l = np.array([200, 200, 150, 200, 150]) # Robot links lengths
-param.Mu = np.array([-200, -100, 200, -100]) # Objects position
+param.nbVarX = 3 # State space dimension (x1,x2,x3)
+param.l = [300, 300, 150] # Robot links lengths
+param.Mu = [200, -200] # Object position
 
 #########################################################################################
 
@@ -285,28 +270,21 @@ def draw_robot(x, color1, color2):
 	
 	f = fkin0(x, param)
 	
-	# Draw left and right arms
+	# Draw links
+	ctx.beginPath()
 	ctx.lineCap = 'round'
 	ctx.lineJoin = 'round'
 	ctx.lineWidth = '38'
 	ctx.strokeStyle = color1
-	ctx.beginPath()
-	for i in range(param.nbVarX+2):
+	for i in range(param.nbVarX+1):
 		ctx.lineTo(f[0,i], f[1,i])
 	ctx.stroke()
-	
-#	# Draw right arm
-#	ctx.moveTo(f[0,3], f[1,3])
-#	ctx.beginPath()
-#	for i in range(3):
-#		ctx.lineTo(f[0,i+3], f[1,i+3])
-#	ctx.stroke()
 	
 	# Draw articulations
 	ctx.lineWidth = '1'
 	ctx.strokeStyle = color2
 	ctx.fillStyle = color2
-	for i in range(param.nbVarX+2):
+	for i in range(param.nbVarX+1):
 		#ctx.beginPath()
 		#ctx.arc(f[0,i], f[1,i], 8, 0, 2*np.pi)
 		#ctx.fill()
@@ -320,7 +298,7 @@ def draw_robot(x, color1, color2):
 	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
 
 
-def draw_object(xobj, id, color):
+def draw_object(param, color):
 	global selected_obj
 	
 	obj = Path2D.new()
@@ -328,15 +306,13 @@ def draw_object(xobj, id, color):
 	
 	ctx.translate(canvas.width*0.5, canvas.height*0.9)
 	
-#	console.log(x)
-	
-	ctx.translate(xobj[0], xobj[1])
+	ctx.translate(param.Mu[0], param.Mu[1])
 	# Draw object
 	ctx.fillStyle = color
 	ctx.fill(obj)
 	
 	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
-		selected_obj = id
+		selected_obj = 0
 	
 	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
 
@@ -344,8 +320,8 @@ def draw_object(xobj, id, color):
 def controlCommand(x, param):
 	f = fkin(x, param)
 	J = Jkin(x, param)
-	u = np.linalg.pinv(J) @ (param.Mu - f[:,0]) * 10
-	u = np.zeros(param.nbVarX)
+	u = np.linalg.pinv(J) @ (param.Mu - f) * 5 
+	#u = np.zeros(param.nbVarX)
 	return u
 	
 #########################################################################################
@@ -358,7 +334,7 @@ def errorHandler(e):
 	#el.textContent = msg
 	
 #########################################################################################
-x = np.array([-np.pi/2, np.pi/2, np.pi/4, -np.pi/2, -np.pi/4]) # Initial robot state
+x = [-3*np.pi/4, np.pi/2, np.pi/4] # Initial robot state
 u = np.zeros(param.nbVarX)
 
 while True:
@@ -381,15 +357,11 @@ while True:
 	clear_screen()
 	draw_ground()
 	draw_robot(x, '#AAAAAA', '#888888')
-	
-	draw_object(param.Mu[:2], 0, '#FF3399')
-	draw_object(param.Mu[2:], 1, '#FF9933')
+	draw_object(param, '#FF3399')
 	
 	# Object selection
 	if selected_obj==0:
 		param.Mu[:2] = mouse[:2]
-	if selected_obj==1:
-		param.Mu[2:] = mouse[:2]
 
 	await asyncio.sleep(0.0001)
 
