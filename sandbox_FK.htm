@@ -70,8 +70,10 @@
 			<div class='p-1 mb-0'>Forward kinematics (FK)</div></a></li>
 		    <li><a href='sandbox_IK.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
 			<div class='p-1 mb-0'>Inverse kinematics (IK)</div></a></li>
+			<li><a href='sandbox_bimanual.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
+			<div class='p-1 mb-0'>Bimanual robot</div></a></li>
 		    <li><a href='sandbox_iLQR.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
-		    <div class='p-1 mb-0'>Iterative linear quadratic regugulator (iLQR)</div></a></li>
+		    <div class='p-1 mb-0'>Iterative linear quadratic regulator (iLQR)</div></a></li>
 		  </ul>
 		</div>
 	  </li>
@@ -231,32 +233,27 @@ canvas = document.getElementById('canvas')
 ctx = canvas.getContext('2d')
 
 def clear_screen():
+	ctx.setTransform(1, 0, 0, 1, 0, 0)
 	ctx.fillStyle = 'white'
 	ctx.fillRect(0, 0, canvas.width, canvas.height)
-	
+
 	
 def draw_ground():
-	ctx.scale(1, -1)
-	ctx.translate(canvas.width*0.5, -canvas.height*0.9)
-	ctx.translate(0, -40)
-	
-#	ctx.lineCap = 'round'
-#	ctx.lineJoin = 'round'
-#	ctx.lineWidth = '5'
+	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
+	ctx.translate(0, -40)	
+	ctx.lineCap = 'round'
+	ctx.lineJoin = 'round'
+	ctx.lineWidth = '5'
 	ctx.strokeStyle = '#CCCCCC'
 	ctx.beginPath()
 	ctx.moveTo(-400, 0)
 	ctx.lineTo(400, 0)
 	ctx.stroke()
-	
-	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
 
 
 def draw_robot(x, color):
 	global hover_joint
-
-	ctx.scale(1, -1)
-	ctx.translate(canvas.width*0.5, -canvas.height*0.9)
+	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
 	
 	f = fkin0(x, param)
 	
@@ -306,14 +303,10 @@ def draw_robot(x, color):
 		if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
 			hover_joint = i
 		ctx.translate(-f[0,i], -f[1,i])
-	
-	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
 
 
 def draw_tip(f, color):
-	ctx.scale(1, -1)
-	ctx.translate(canvas.width*0.5, -canvas.height*0.9)
-	
+	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
 	# Draw object
 	obj = Path2D.new()
 	obj.arc(0, 0, 16, 0, 2*np.pi)
@@ -321,8 +314,6 @@ def draw_tip(f, color):
 	ctx.fillStyle = color
 	ctx.fill(obj)
 	
-	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
-
 
 #########################################################################################
  
