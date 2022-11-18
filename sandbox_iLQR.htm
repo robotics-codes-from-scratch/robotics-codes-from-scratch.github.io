@@ -406,14 +406,13 @@ canvas = document.getElementById('canvas')
 ctx = canvas.getContext('2d')
 
 def clear_screen():
+	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
 	ctx.fillStyle = 'white'
 	ctx.fillRect(0, 0, canvas.width, canvas.height)
 	
 	
 def draw_ground():
-	ctx.translate(canvas.width*0.5, canvas.height*0.5)
-	ctx.scale(scaling_factor, scaling_factor)
-	
+	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation 	
 	ctx.beginPath()
 	ctx.lineCap = 'round'
 	ctx.lineJoin = 'round'
@@ -423,22 +422,15 @@ def draw_ground():
 	ctx.lineTo(200, 164)
 	ctx.stroke()
 	
-	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
-	
 	
 def draw_robot(xt, color1, color2, color3, color4, selectable):
 	global hover_joint
-	
-	ctx.translate(canvas.width*0.5, canvas.height*0.5)
-	ctx.scale(scaling_factor, scaling_factor)
-	
+	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation 
 	# Draw base
 	ctx.translate(0, 81)
 	ctx.lineWidth = '1'
 	ctx.strokeStyle = color3
 	ctx.fillStyle = color1
-	if selectable and ctx.isPointInPath(base1_svg, mouse0[0], mouse0[1]):
-		ctx.fillStyle = '#33FF99'
 	ctx.fill(base1_svg)
 	ctx.stroke(base1_svg) # Outline
 	ctx.stroke(base2_svg) 
@@ -499,46 +491,38 @@ def draw_robot(xt, color1, color2, color3, color4, selectable):
 	ctx.arc(0, 0, 2, 0, 2 * np.pi)
 	ctx.fillStyle = color4
 	ctx.fill()
-#	ctx.linewidth = '1'
-#	ctx.stroke()
-	
-	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
 	
 #	# Draw skeleton of the kinematic chain
-#	ctx.translate(canvas.width*0.5, canvas.height*0.5)
-#	ctx.beginPath()
+#	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
 #	ctx.lineCap = 'round'
 #	ctx.lineJoin = 'round'
 #	ctx.lineWidth = '2'
 #	ctx.strokeStyle = '#FF8888'
+#	f = fkin0(x, param)
+#	ctx.beginPath()
 #	ctx.moveTo(0, 81)
 #	for i in range(param.nbVarX+1):
 #		ctx.lineTo(f[0,i], f[1,i])
 #	ctx.stroke()
-#	
-#	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
-	
+
 
 def draw_obj(id, param, color, colortxt):
 	global selected_obj, hover_obj
-	
-	obj = Path2D.new()
-	obj.rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
-	
-	ctx.translate(canvas.width*0.5, canvas.height*0.5)
-	ctx.scale(scaling_factor, scaling_factor)
+	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
 	
 	ctx.translate(param.Mu[0,id], param.Mu[1,id])
 	ctx.rotate(param.Mu[2,id])
 	# Draw object
 	ctx.fillStyle = color
+	obj = Path2D.new()
+	obj.rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
+	ctx.fill(obj)
 	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
 		hover_obj = id
 	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
 		selected_obj = id
-		
 	#debug_el.innerText = str(selected_obj)
-	ctx.fill(obj)
+	
 	#ctx.fillRect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
 	if param.sz[0] > 39 and param.sz[1] > 19:
 		ctx.textAlign = 'center'
@@ -546,8 +530,7 @@ def draw_obj(id, param, color, colortxt):
 		ctx.font = '10px Permanent Marker'
 		ctx.fillStyle = colortxt
 		ctx.fillText('Move me!', 0, 0)
-	
-	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
+
 
 def update_iLQR():
 	global param, Q, x, cost_el
