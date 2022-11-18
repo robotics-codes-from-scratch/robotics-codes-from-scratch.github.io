@@ -324,8 +324,11 @@ def draw_robot(x, color):
 	for i in range(param.nbVarX+2):
 		ctx.translate(f[0,i], f[1,i])
 		ctx.stroke(obj)
-		if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
-			hover_joint = i
+		if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and i>0:
+			if i<4:
+				hover_joint = 3-i
+			else:
+				hover_joint = i-1
 		ctx.translate(-f[0,i], -f[1,i])
 
 
