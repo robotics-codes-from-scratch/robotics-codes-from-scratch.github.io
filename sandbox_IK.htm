@@ -129,7 +129,7 @@ x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
 def controlCommand(x, param):
   f = fkin(x, param)
   J = Jkin(x, param)
-  u = np.linalg.pinv(J) @ logmap(param.Mu, f) # Position & orientation tracking
+  #u = np.linalg.pinv(J) @ logmap(param.Mu, f) # Position & orientation tracking
   
   #pinvJ = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E2) @ J.T # Damped pseudoinverse
   #u = pinvJ @ logmap(param.Mu, f) # Position & orientation tracking
@@ -138,11 +138,23 @@ def controlCommand(x, param):
   #u = np.linalg.pinv(J[2:,:]) @ (param.Mu[2:] - f[2:]) # Orientation tracking
   
   #u = J.T @ logmap(param.Mu, f) * 1E-4 # Gradient-based tracking
-  
   #u = np.zeros(param.nbVarX) # Zero control commands
   
   #N = np.eye(param.nbVarX) - np.linalg.pinv(J[:2,:]) @ J[:2,:] # Nullspace projection matrix
   #u = u + N @ [1, 0, 0] # Prioritized tracking 
+  
+  # Prioritized control (position tracking prioritized over orientation tracking)
+  dfp = (param.Mu[:2] - f[:2]) * 10 # Position correction
+  dfo = (param.Mu[2:] - f[2:]) * 10 # Orientation correction
+  Jp = J[:2,:] # Jacobian for position 
+  Jo = J[2:,:] # Jacobian for orientation
+  pinvJp = np.linalg.inv(Jp.T @ Jp + np.eye(param.nbVarX) * 1e1) @ Jp.T # Damped pseudoinverse
+  Np = np.eye(param.nbVarX) - pinvJp @ Jp # Nullspace projection operator
+  up = pinvJp @ dfp # Command for position tracking
+  JoNp = Jo @ Np
+  pinvJoNp = JoNp.T @ np.linalg.inv(JoNp @ JoNp.T + np.eye(1) * 1e4) # Damped pseudoinverse
+  uo = pinvJoNp @ (dfo - Jo @ up) # Command for orientation tracking (with position tracking prioritized)
+  u = up + Np @ uo # Control commands
   
   return u
 </py-repl> <!--output='repl-out' std-out='repl-out'-->

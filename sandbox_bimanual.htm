@@ -128,10 +128,27 @@ function clearMsgs() {
 def controlCommand(x, param):
   f = fkin(x, param)
   J = Jkin(x, param)
+  
   #u = np.linalg.pinv(J) @ (param.Mu - f[:,0]) * 10 # Control commands
+  
   #u = np.zeros(param.nbVarX) # Control commands
-  pinvJ = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E4) @ J.T # Damped pseudoinverse
-  u = pinvJ @ (param.Mu - f[:,0]) * 10 # Control commands
+  
+  #pinvJ = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E4) @ J.T # Damped pseudoinverse
+  #u = pinvJ @ (param.Mu - f[:,0]) * 10 # Control commands
+  
+  # Prioritized control (left tracking as prioritized task)
+  dfl = (param.Mu[:2] - f[:2,0]) * 10 # Left hand correction
+  dfr = (param.Mu[2:] - f[2:,0]) * 10 # Right hand correction
+  Jl = J[:2,:] # Jacobian for left hand 
+  Jr = J[2:,:] # Jacobian for right hand
+  pinvJl = np.linalg.inv(Jl.T @ Jl + np.eye(param.nbVarX) * 1e1) @ Jl.T # Damped pseudoinverse
+  Nl = np.eye(param.nbVarX) - pinvJl @ Jl # Nullspace projection operator
+  ul = pinvJl @ dfl # Command for position tracking
+  JrNl = Jr @ Nl
+  pinvJrNl = JrNl.T @ np.linalg.inv(JrNl @ JrNl.T + np.eye(2) * 1e4) # Damped pseudoinverse
+  ur = pinvJrNl @ (dfr - Jr @ ul) # Command for right hand tracking (with left hand tracking prioritized)
+  u = ul + Nl @ ur # Control commands
+  
   return u
 </py-repl> <!--output='repl-out' std-out='repl-out'-->
 </div>
