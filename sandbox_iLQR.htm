@@ -597,6 +597,8 @@ while True:
 	# Object selection
 	if selected_obj>= 0:
 		param.Mu[:2,selected_obj] = mouse
+		param.Mu[0,selected_obj] = max(min(param.Mu[0,selected_obj],225), -225)
+		param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],175), -175)
 
 	await asyncio.sleep(0.0001)
 
