@@ -148,11 +148,11 @@ def controlCommand(x, param):
   dfo = (param.Mu[2:] - f[2:]) * 10 # Orientation correction
   Jp = J[:2,:] # Jacobian for position 
   Jo = J[2:,:] # Jacobian for orientation
-  pinvJp = np.linalg.inv(Jp.T @ Jp + np.eye(param.nbVarX) * 1e1) @ Jp.T # Damped pseudoinverse
+  pinvJp = np.linalg.inv(Jp.T @ Jp + np.eye(param.nbVarX) * 1e-2) @ Jp.T # Damped pseudoinverse
   Np = np.eye(param.nbVarX) - pinvJp @ Jp # Nullspace projection operator
   up = pinvJp @ dfp # Command for position tracking
   JoNp = Jo @ Np
-  pinvJoNp = JoNp.T @ np.linalg.inv(JoNp @ JoNp.T + np.eye(1) * 1e4) # Damped pseudoinverse
+  pinvJoNp = JoNp.T @ np.linalg.inv(JoNp @ JoNp.T + np.eye(1) * 1e1) # Damped pseudoinverse
   uo = pinvJoNp @ (dfo - Jo @ up) # Command for orientation tracking (with position tracking prioritized)
   u = up + Np @ uo # Control commands
   

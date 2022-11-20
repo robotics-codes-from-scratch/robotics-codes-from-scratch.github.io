@@ -114,6 +114,32 @@
 <div class="col-sm-7">
 
 <br><br>
+
+<script>
+function clearMsgs() {
+  const el = document.getElementById('repl-err');
+  el.innerText = '';
+  //console.log('event!');
+}
+</script>
+
+<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
+<py-repl std-out='repl-out' std-err='repl-err'>
+# Precision matrix
+Q = np.eye(param.nbVarF * param.nbPoints)
+
+# Consider only position tracking (no orientation)
+# Q = np.kron(np.eye(param.nbPoints), np.diag([1, 1, 0])) 
+
+# Consider only last keypoint
+# Q = np.kron(np.diag([0, 1]), np.eye(3))
+
+update_iLQR()
+</py-repl> <!--output='repl-out' std-out='repl-out'-->
+</div>
+<p id='repl-out' style='font-size: 70%; color: #777777;'>(press shift+enter or click on the green run button to run the code)</p>
+<p id='repl-err' style='font-size: 70%; color: #880000;'></p>
+
 <form>
 
 <div class='row'>
@@ -122,13 +148,13 @@
 </div>
 
 <div class='row'>
-<div class='col-md'><label>Objects width</label><input id='objects_width' type='range' min='0' max='200' step='0.1' value='50' class='w-72' oninput='this.nextElementSibling.value = this.value' style='vertical-align:middle;'>&nbsp;<output>50.0</output></div>
-<div class='col-md'><label>Objects height</label><input id='objects_height' type='range' min='0' max='200' step='0.1' value='30' class='w-72' oninput='this.nextElementSibling.value = this.value' style='vertical-align:middle;'>&nbsp;<output>30.0</output></div>
+<div class='col-md'><label>Objects width</label><input id='objects_width' type='range' min='3' max='200' step='0.1' value='50' class='w-72' oninput='this.nextElementSibling.value = this.value' style='vertical-align:middle;'>&nbsp;<output>50.0</output></div>
+<div class='col-md'><label>Objects height</label><input id='objects_height' type='range' min='3' max='200' step='0.1' value='30' class='w-72' oninput='this.nextElementSibling.value = this.value' style='vertical-align:middle;'>&nbsp;<output>30.0</output></div>
 </div>
 
 <div class='row'>
 <div class='col-md'><label>Simulation speed</label><input id='simulation_speed' type='range' min='0' max='20' step='0.01' value='10' class='w-72' oninput='this.nextElementSibling.value = this.value' style='vertical-align:middle;'>&nbsp;<output>10.0</output></div>
-<div class='col-md'><label>Track orientation</label><input id='track_orientation' type='checkbox' checked></div>
+<!--<div class='col-md'><label>Track orientation</label><input id='track_orientation' type='checkbox' checked></div>-->
 </div>
 
 <div class='row'>
@@ -156,7 +182,7 @@ import numpy as np
 objects_angle = [document.getElementById('object0_angle'), document.getElementById('object1_angle')]  # Objects angle
 objects_size = [document.getElementById('objects_width'), document.getElementById('objects_height')]  # Objects size
 simulation_speed = document.getElementById('simulation_speed') # Simulation speed
-track_orientation = document.getElementById('track_orientation')
+#track_orientation = document.getElementById('track_orientation')
 bounding_box = document.getElementById('use_boundingbox')
 hover_joint = -1
 selected_obj = -1
@@ -304,13 +330,12 @@ for t in range(param.nbPoints):
 #	obj[t].rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
 	orn_t = param.Mu[-1,t]
 	param.A[:,:,t] = np.asarray([
-		[np.cos(orn_t), -np.sin(orn_t)],
-		[np.sin(orn_t), np.cos(orn_t)]
+		[np.cos(orn_t), np.sin(orn_t)],
+		[-np.sin(orn_t), np.cos(orn_t)]
 	])
 
 # Precision matrix
 Q = np.identity(param.nbVarF * param.nbPoints)
-
 # Control weight matrix
 R = np.identity((param.nbData-1) * param.nbVarU) * param.r
 
@@ -544,10 +569,10 @@ def update_iLQR():
 			[np.cos(param.Mu[2,i]), -np.sin(param.Mu[2,i])],
 			[np.sin(param.Mu[2,i]), np.cos(param.Mu[2,i])]
 		])
-	if track_orientation.checked:
-		Q = np.identity(param.nbVarF * param.nbPoints)
-	else:
-		Q = np.kron(np.identity(param.nbPoints), np.diag([1, 1, 0]))
+#	if track_orientation.checked:
+#		Q = np.identity(param.nbVarF * param.nbPoints)
+#	else:
+#		Q = np.kron(np.identity(param.nbPoints), np.diag([1, 1, 0]))
 	x, cost = iLQR(x0, u, param)
 	cost_el.textContent = '%.3f' % cost
 
@@ -574,9 +599,6 @@ while True:
 				tf = 0
 		else:
 			t += 1
-	
-	# FK
-	f = fkin0(x[:,t], param)
 	
 	# Reinit hovering variables
 	hover_joint = -1
