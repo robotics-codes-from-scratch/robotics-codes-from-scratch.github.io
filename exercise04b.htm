@@ -115,83 +115,158 @@
 <div class='container-fluid'>
 
 
-<div class='row'>
-<div class='col-sm-1'></div>
-<div class="col-sm-7">
-
-<br><br>
-
 <script>
 function clearMsgs() {
-  const el = document.getElementById('repl-err');
+  const el = document.getElementById('errors');
   el.innerText = '';
   //console.log('event!');
 }
+function clearMsgsOutput() {
+  const el = document.getElementById('output');
+  el.innerText = '';
+  //console.log('event!');
+}
+const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b','#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
 </script>
 
-<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
-<py-repl std-out='repl-out' std-err='repl-err'>
-# Precision matrix
-Q = np.eye(param.nbVarF * param.nbPoints)
-
-# Consider only position tracking (no orientation)
-# Q = np.kron(np.eye(param.nbPoints), np.diag([1, 1, 0])) 
-
-# Consider only last keypoint
-# Q = np.kron(np.diag([0, 1]), np.eye(3))
-
-update_iLQR()
-</py-repl> <!--output='repl-out' std-out='repl-out'-->
-</div>
-<p id='repl-out' style='font-size: 70%; color: #777777;'>(press shift+enter or click on the green run button to run the code)</p>
-<p id='repl-err' style='font-size: 70%; color: #880000;'></p>
-
-<form>
-
 <div class='row'>
-<div class='col-md'><label>Object1 orientation</label><input id='object0_angle' type='range' min='-3.14159' max='3.14159' step='0.0001' value='0' class='w-72' oninput='this.nextElementSibling.value = this.value' style='vertical-align:middle;'>&nbsp;<output>0.0</output></div>
-<div class='col-md'><label>Object2 orientation</label><input id='object1_angle' type='range' min='-3.14159' max='3.14159' step='0.0001' value='0' class='w-72' oninput='this.nextElementSibling.value = this.value' style='vertical-align:middle;'>&nbsp;<output>0.0</output></div>
-</div>
+<div class='col-sm-1'></div>
+<div class='col-sm-7'>
 
-<div class='row'>
-<div class='col-md'><label>Objects width</label><input id='objects_width' type='range' min='3' max='200' step='0.1' value='50' class='w-72' oninput='this.nextElementSibling.value = this.value' style='vertical-align:middle;'>&nbsp;<output>50.0</output></div>
-<div class='col-md'><label>Objects height</label><input id='objects_height' type='range' min='3' max='200' step='0.1' value='30' class='w-72' oninput='this.nextElementSibling.value = this.value' style='vertical-align:middle;'>&nbsp;<output>30.0</output></div>
-</div>
+<h1>Exercise 4.b<br>Inverse Kinematics</h1>
 
-<div class='row'>
-<div class='col-md'><label>Simulation speed</label><input id='simulation_speed' type='range' min='0' max='20' step='0.01' value='10' class='w-72' oninput='this.nextElementSibling.value = this.value' style='vertical-align:middle;'>&nbsp;<output>10.0</output></div>
-<!--<div class='col-md'><label>Track orientation</label><input id='track_orientation' type='checkbox' checked></div>-->
-</div>
+<p>Inverse kinematics consists of finding a configuration (joint angles) that reaches a target pose (position and/or orientation) with the end-effector of the robot. You can read more about inverse kinematics in Section 5 of the <a href='doc/rcfs.pdf' target='_blank'>RCFS documentation</a>.</p>
+<p>The goal of this exercise is to implement an inverse kinematics function for the 3 degree-of-freedom manipulator shown on the right.
+We would like that this robot reaches the pink object continuously even if we move it, which can be done by clicking and dragging the object.</p>
+<p>The function <code>controlCommand</code> continuously sends joint velocity commands to the robot. Currently, the robot is still because <code>u=np.zeros(param.nbVarX)</code> sends zero commands to the robot.</p>
 
-<div class='row'>
-<div class='col-md'><label>Cost</label><span id='cost'></span></div>
-<div class='col-md'><label>Bounding box</label><input id='use_boundingbox' type='checkbox'></div>
-</div>
+<ul class='list-group list-group-numbered'>
 
-</form>
+<li class='list-group-item'>
+Change this function to send velocity commands <code>u</code> to reach the target position <code>target_position</code> using <code>current_ee_position</code>, <code>jacobian</code> and <code>target_position</code>.
+</li>
 
-<div><p id='debug'></p></div>
+<li class='list-group-item'>
+Change this function to send velocity commands <code>u</code> to reach the target position <code>target_position</code> as a <em>primary task</em>, by keeping the joint configuration the same as the initial one as a <em>secondary task</em>. You can do this by using nullspace control as presented in Section 5.2 of the <a href='doc/rcfs.pdf' target='_blank'>RCFS documentation</a>.
+</li>
+
+</ul><br>
+
+
+<ul class='nav nav-tabs' id='myTab' role='tablist'>
+	<li class='nav-item' role='presentation'>
+	  <button class='nav-link active' id='question4-tab' data-bs-toggle='tab' data-bs-target='#question4-tab-pane' type='button' role='tab' aria-controls='question4-tab-pane' aria-selected='true'>Question</button>
+	</li>
+	<li class='nav-item' role='presentation'>
+	  <button class='nav-link' id='answer4-tab' data-bs-toggle='tab' data-bs-target='#answer4-tab-pane' type='button' role='tab' aria-controls='answer4-tab-pane' aria-selected='false'>Answer 1</button>
+	</li>
+	<li class='nav-item' role='presentation'>
+		<button class='nav-link' id='answer2-tab' data-bs-toggle='tab' data-bs-target='#answer2-tab-pane' type='button' role='tab' aria-controls='answer2-tab-pane' aria-selected='false'>Answer 2</button>
+	</li>
+  </ul>
+  <div class='tab-content' id='myTabContent'>
+	<div class='tab-pane fade show active' id='question4-tab-pane' role='tabpanel' aria-labelledby='question2-tab' tabindex='0'>
+		<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
+			<py-repl std-out='output' std-err='errors'>
+			initial_state = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
+			x =  initial_state
+			def controlCommand(x, param):
+			  target_position = param.Mu[:2]
+			  current_ee_position = fkin(x, param)[:2]
+			  jacobian = Jkin(x, param)[:2]
+
+			  u = np.zeros(param.nbVarX) # Implement here
+
+			  return u
+			</py-repl> <!--output='repl-out' std-out='repl-out'-->
+		</div>
+	</div>
+	<div class='tab-pane fade' id='answer4-tab-pane' role='tabpanel' aria-labelledby='answer4-tab' tabindex='0'>
+		<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
+			<py-repl std-out='output' std-err='errors'>
+			initial_state = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
+			x =  initial_state
+			def controlCommand(x, param):
+			  # Answer 1:
+			  alpha = 10. # See how alpha changes the reaction of the robot. What is a good way to automatically adjust it?
+			  target_position = param.Mu[:2]
+			  current_ee_position = fkin(x, param)[:2]
+			  jacobian = Jkin(x, param)[:2]
+				
+			  u = alpha*np.linalg.pinv(jacobian) @ (target_position - current_ee_position) # Position tracking
+				
+			  return u
+			</py-repl> <!--output='repl-out' std-out='repl-out'-->
+		</div>
+	</div>
+	<div class='tab-pane fade' id='answer2-tab-pane' role='tabpanel' aria-labelledby='answer2-tab' tabindex='0'>
+		<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
+			<py-repl std-out='output' std-err='errors'>
+			initial_state = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
+			x =  initial_state
+			def controlCommand(x, param):
+			  target_position = param.Mu[:2]
+			  current_ee_position = fkin(x, param)[:2]
+			  jacobian = Jkin(x, param)[:2]
+				
+			  # Answer 2:
+			  jacobian_pinv = np.linalg.pinv(jacobian)
+			  nullspace_matrix = np.eye(param.nbVarX) - jacobian_pinv @ jacobian # Nullspace projection operator
+			  u = jacobian_pinv @ (target_position - current_ee_position) + nullspace_matrix @ initial_state
+				
+			  return u
+			</py-repl> <!--output='repl-out' std-out='repl-out'-->
+		</div>
+	</div>
+  </div> 
+
+<br><br>
+
+<!-- <p id='repl-out' style='font-size: 70%; color: #777777;'>(press shift+enter or click on the green run button to run the code)</p>
+<p id='repl-err' style='font-size: 70%; color: #880000;'></p> -->
+
+<!-- <input id='object_angle' type='range' min='-3.14159' max='3.14159' step='0.0001' value='0' class='w-72' style='vertical-align:middle;'> <label>Object orientation</label>  -->
 
 </div> <!--sm-7-->
 
 <div class='col-sm-4'>
-<canvas id='canvas' style='width:100%;' width='900px' height='700px'></canvas>
+	<div class='sticky-sm-top' style='padding: 2rem 1rem 1rem 1rem;'>
+		<hr>
+		
+		<div class='row justify-content-between'>
+		<div class='col-auto'><button class='btn btn-light btn-sm' disabled>Output</button></div>
+		<div class='col-auto'><button class='btn btn-outline-secondary btn-sm float-right' onclick='clearMsgsOutput()'>Clear</button></div>
+		</div>
+		<div id='output'></div>
+		<hr>
+		
+		<div class='row justify-content-between'>
+		<div class='col-auto'><button class='btn btn-light btn-sm' disabled>Error</button></div>
+		<div class='col-auto'><button class='btn btn-outline-secondary btn-sm float-right' onclick='clearMsgs()'>Clear</button></div>
+		</div>
+		<div id='errors'></div>
+		<hr>
+		
+		<div class='row justify-content-between'>
+		<div  class='col-auto'><button class='btn btn-light btn-sm' disabled>Plot</button></div>
+		</div>
+		<div id='chart'></div>
+		<canvas id='canvas' style='width:100%;' width='900px' height='700px'></canvas>
+		
+		</div>
+
 </div> <!--sm-4-->
 
 </div> <!--row-->
 
-<py-script>
+<py-script std-out='output' std-err='errors'>
 from pyodide.ffi import create_proxy
 from js import Path2D
 import numpy as np
 
-objects_angle = [document.getElementById('object0_angle'), document.getElementById('object1_angle')]  # Objects angle
-objects_size = [document.getElementById('objects_width'), document.getElementById('objects_height')]  # Objects size
-simulation_speed = document.getElementById('simulation_speed') # Simulation speed
-#track_orientation = document.getElementById('track_orientation')
-bounding_box = document.getElementById('use_boundingbox')
-hover_joint = -1
-selected_obj = -1
+object_angle = document.getElementById('object_angle')  # Objects angle
+object_angle = lambda: None
+object_angle.value = 0
 
 #########################################################################################
 base1_svg = Path2D.new('m -40.741975,77.319831 c -0.47247,-4.03869 7.32825,-20.1653 10.1171,-22.57617 4.71807,-4.07862 14.00201,-4.3722 15.87822,-6.89366 1.16821,-1.06725 1.19306,-2.45846 1.19136,-4.984461 -0.005,-6.836939 0.0375,-38.9164375 -0.0588,-42.62054746 C -13.757555,-5.2728275 -9.8130348,-13.34661 -0.02248483,-13.67734 7.5903552,-13.93451 13.741895,-7.1292375 13.608255,-0.84839739 13.474625,5.4324325 13.073715,50.200081 13.741895,54.075491 c 0.66817,3.8754 3.0736,26.72695 3.0736,26.72695 l -53.47684,-0.23624 c -3.68777,-0.0163 -4.0806,-3.24637 -4.0806,-3.24637 z')
@@ -215,12 +290,12 @@ seg34_svg = Path2D.new('M -10.345869,0.79321884 C -9.8879044,6.4881727 -4.887349
 seg35_svg = Path2D.new('m -10.926083,-10.640947 c -12.932836,-0.04585 -19.378158,-0.0931 -19.378158,-0.0931')
 seg36_svg = Path2D.new('M -9.9187154,15.300602 C -29.124234,15.272545 -30.475824,15.251842 -30.475824,15.251842')
 seg37_svg = Path2D.new('m -23.186087,-46.845579 h 5.542233 v 0')
-
+    
 # Logarithmic map for R^2 x S^1 manifold
 def logmap(f, f0):
-	position_error = f[:2,:] - f0[:2,:]
-	orientation_error = np.imag(np.log(np.exp(f0[-1,:]*1j).conj().T * np.exp(f[-1,:]*1j).T)).conj()
-	diff = np.vstack([position_error, orientation_error])
+	diff = np.zeros(3)
+	diff[:2] = f[:2] - f0[:2]
+	diff[2] = np.imag(np.log(np.exp(f0[-1]*1j).conj().T * np.exp(f[-1]*1j).T)).conj()
 	return diff
 
 # Apply angle offsets to match robot kinematic chain
@@ -241,7 +316,7 @@ def fkin(x, param):
 		orient
 	]) # f1,f2,f3, where f3 is the orientation (single Euler angle for planar robot)
 	f[1] += 81
-	return f
+	return f.flatten()
 
 # Forward kinematics for all joints (in robot coordinate system)
 def fkin0(x, param): 
@@ -266,97 +341,15 @@ def Jkin(xt, param):
 	])
 	return J
 
-# Residual and Jacobian for a viapoints reaching task (in object coordinate system)
-def f_reach(x, param):
-	f = logmap(fkin(x, param), param.Mu)
-	J = np.zeros([param.nbPoints * param.nbVarF, param.nbPoints * param.nbVarX])
-	for t in range(param.nbPoints):
-		f[:2,t] = param.A[:,:,t].T @ f[:2,t] # Object oriented residual
-		Jtmp = Jkin(x[:,t], param)
-		Jtmp[:2] = param.A[:,:,t].T @ Jtmp[:2] # Object centered Jacobian
-		
-		if param.useBoundingBox:
-			for i in range(2):
-				if abs(f[i,t]) < param.sz[i]/2:
-					f[i,t] = 0
-					Jtmp[i] = 0
-				else:
-					f[i,t] -= np.sign(f[i,t]) * param.sz[i]/2
-		
-		J[t*param.nbVarF:(t+1)*param.nbVarF, t*param.nbVarX:(t+1)*param.nbVarX] = Jtmp
-	return f, J
-
-# iLQR in batch form
-def iLQR(x0, u, param):
-	global Su, Sx0
-	for i in range(param.nbIter):
-		x = Su0 @ u + Sx0 @ x0 # System evolution
-		x = x.reshape([param.nbVarX, param.nbData], order='F')
-		f, J = f_reach(x[:,tl], param) # Residuals and Jacobians
-		du = np.linalg.inv(Su.T @ J.T @ Q @ J @ Su + R) @ (-Su.T @ J.T @ Q @ f.flatten('F') - u * param.r) # Gauss-Newton update
-		# Estimate step size with backtracking line search method
-		alpha = 1
-		cost0 = f.flatten('F').T @ Q @ f.flatten('F') + np.linalg.norm(u)**2 * param.r # Cost
-		while True:
-			utmp = u + du * alpha
-			xtmp = Su0 @ utmp + Sx0 @ x0 # System evolution
-			xtmp = xtmp.reshape([param.nbVarX, param.nbData], order='F')
-			ftmp, _ = f_reach(xtmp[:,tl], param) # Residuals 
-			cost = ftmp.flatten('F').T @ Q @ ftmp.flatten('F') + np.linalg.norm(utmp)**2 * param.r # Cost
-			if cost < cost0 or alpha < 1e-3:
-				u = utmp
-				#console.log("Iteration {}, cost: {}".format(i,cost))
-				break
-			alpha /= 2
-		if np.linalg.norm(du * alpha) < 1E-2:
-			break # Stop iLQR iterations when solution is reached
-	return x, cost
-
 ## Parameters
 # ===============================
 
 param = lambda: None # Lazy way to define an empty class in python
-param.dt = 1e-2 # Time step length
-param.nbData = 50 # Number of datapoints
-param.nbIter = 20 # Maximum number of iterations for iLQR
-param.nbPoints = 2 # Number of viapoints
+param.dt = 1e-1 # Time step length
 param.nbVarX = 3 # State space dimension (x1,x2,x3)
-param.nbVarU = 3 # Control space dimension (dx1,dx2,dx3)
-param.nbVarF = 3 # Objective function dimension (f1,f2,f3, with f3 as orientation)
 param.l = [79, 96, 55] # Robot links lengths
-param.sz = [(float)(objects_size[0].value), (float)(objects_size[1].value)] # Size of objects
-param.r = 1e-6 # Control weight term
-param.Mu = np.asarray([[100, 0, (float)(objects_angle[0].value)], [100, 100, (float)(objects_angle[1].value)]]).T # Viapoints 
-param.A = np.zeros([2, 2, param.nbPoints]) # Object orientation matrices
-param.useBoundingBox = False # Consider bounding boxes for reaching cost
-
-# Object rotation matrices
-#obj = [Path2D.new(), Path2D.new()]
-for t in range(param.nbPoints):
-#	obj[t].rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
-	orn_t = param.Mu[-1,t]
-	param.A[:,:,t] = np.asarray([
-		[np.cos(orn_t), np.sin(orn_t)],
-		[-np.sin(orn_t), np.cos(orn_t)]
-	])
-
-# Precision matrix
-Q = np.identity(param.nbVarF * param.nbPoints)
-# Control weight matrix
-R = np.identity((param.nbData-1) * param.nbVarU) * param.r
-
-# Time occurrence of viapoints
-tl = np.linspace(0, param.nbData, param.nbPoints+1)
-tl = np.rint(tl[1:]).astype(np.int64) - 1
-idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)]) 
-
-# Transfer matrices (for linear system as single integrator)
-Su0 = np.vstack([
-	np.zeros([param.nbVarX, param.nbVarX*(param.nbData-1)]), 
-	np.tril(np.kron(np.ones([param.nbData-1, param.nbData-1]), np.eye(param.nbVarX) * param.dt))
-]) 
-Sx0 = np.kron(np.ones(param.nbData), np.identity(param.nbVarX)).T
-Su = Su0[idx.flatten()] # We remove the lines that are out of interest
+param.sz = [50, 30] # Size of objects
+param.Mu = [100, 0, 0] # Object position and orientation 
 
 #########################################################################################
 
@@ -367,27 +360,23 @@ scaling_factor = 2 # General scaling factor for rendering
 mouse0 = np.zeros(2)
 mouse = np.zeros(2)
 mousedown = 0
-
-#def onMouseMove(event):
-#	global mouse, mouse0
-#	mouse0[0] = event.offsetX
-#	mouse0[1] = event.offsetY
-#	mouse[0] = (event.offsetX - canvas.width * 0.5) / scaling_factor #(event.offsetX / (window.innerWidth*.5)) * 2 - 1
-#	mouse[1] = (event.offsetY - canvas.height * 0.5) / scaling_factor #-(event.offsetY / (window.innerHeight*.5)) * 2 + 1
+selected_obj = -1
+hover_obj = -1
+hover_joint = -1
 
 def onMouseMove(event):
-	global mouse, mouse0, canvas
+	global mouse, mouse0
 	offset = canvas.getBoundingClientRect()
 	mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
-	mouse0[1] = (event.clientY - offset.y) * canvas.width / canvas.clientWidth
+	mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
 	mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
 	mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
 
 def onTouchMove(event):
-	global mouse, mouse0, canvas
-	bcr = event.target.getBoundingClientRect()
-	mouse0[0] = event.touches.item(0).clientX - bcr.x
-	mouse0[1] = event.touches.item(0).clientY - bcr.y
+	global mouse, mouse0
+	offset = event.target.getBoundingClientRect()
+	mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
+	mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
 	mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor 
 	mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
 	
@@ -400,23 +389,15 @@ def onMouseUp(event):
 	global mousedown, selected_obj
 	mousedown = 0
 	selected_obj = -1
-	update_iLQR()
 #	console.log('Mouse up')
 
 def onWheel(event):
-	global hover_joint, hover_obj, x0, objects_angle
-	#if mousedown==1:
-	#document.getElementById('object0_angle').value = str(param.Mu[2,0] + 0.2 * (event.deltaY/106))
-	if hover_obj >= 0:
-		objects_angle[hover_obj].value = (float)(objects_angle[hover_obj].value) + 0.2 * (event.deltaY/106)
-		update_iLQR()
+	global hover_joint, hover_obj, x, object_angle
+	#if hover_obj == 0:
+		#param.Mu[2] += 0.2 * (event.deltaY/106)
+	#	object_angle.value = (float)(object_angle.value) + 0.2 * (event.deltaY/106)
 	if hover_joint >= 0:
-		x0[hover_joint] += 0.2 * (event.deltaY/106)
-		console.log(x0[hover_joint])
-		update_iLQR()
-
-cost_el = document.getElementById('cost')
-debug_el = document.getElementById('debug')
+		x[hover_joint] += 0.2 * (event.deltaY/106)
 
 document.addEventListener('mousemove', create_proxy(onMouseMove)) #for standard mouse
 document.addEventListener('touchmove', create_proxy(onTouchMove)) #for mobile interfaces
@@ -537,23 +518,21 @@ def draw_robot(xt, color1, color2, color3, color4, selectable):
 #	ctx.stroke()
 
 
-def draw_obj(id, param, color, colortxt):
+def draw_obj(param, color, colortxt):
 	global selected_obj, hover_obj
 	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
 	
-	ctx.translate(param.Mu[0,id], param.Mu[1,id])
-	ctx.rotate(param.Mu[2,id])
+	ctx.translate(param.Mu[0], param.Mu[1])
+	ctx.rotate(param.Mu[2])
 	# Draw object
 	ctx.fillStyle = color
 	obj = Path2D.new()
 	obj.rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
 	ctx.fill(obj)
 	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
-		hover_obj = id
+		hover_obj = 0
 	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
-		selected_obj = id
-	#debug_el.innerText = str(selected_obj)
-	
+		selected_obj = 0
 	#ctx.fillRect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
 	if param.sz[0] > 39 and param.sz[1] > 19:
 		ctx.textAlign = 'center'
@@ -561,72 +540,57 @@ def draw_obj(id, param, color, colortxt):
 		ctx.font = '10px Permanent Marker'
 		ctx.fillStyle = colortxt
 		ctx.fillText('Move me!', 0, 0)
+	
 
-
-def update_iLQR():
-	global param, Q, x, cost_el
-	# console.log("iLQR required")
-	param.useBoundingBox = bounding_box.checked
-	param.sz = [(float)(objects_size[0].value),(float)(objects_size[1].value)]
-	for i in range(param.nbPoints): 
-		#obj[i].rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
-		param.Mu[2,i] = (float)(objects_angle[i].value)
-		param.A[:,:,i] = np.asarray([
-			[np.cos(param.Mu[2,i]), -np.sin(param.Mu[2,i])],
-			[np.sin(param.Mu[2,i]), np.cos(param.Mu[2,i])]
-		])
-#	if track_orientation.checked:
-#		Q = np.identity(param.nbVarF * param.nbPoints)
-#	else:
-#		Q = np.kron(np.identity(param.nbPoints), np.diag([1, 1, 0]))
-	x, cost = iLQR(x0, u, param)
-	cost_el.textContent = '%.3f' % cost
-
-
+def controlCommand(x, param):
+	#f_ee = fkin(x, param)
+	#J = Jkin(x, param)
+	#u = np.linalg.pinv(J) @ logmap(fh, f_ee) 
+	u = np.zeros(param.nbVarX)
+	return u
+	
 #########################################################################################
+ 
+def errorHandler(e):
+	msg = 'Error: ' + str(e)
+	console.error(msg)
+	el = document.getElementById('errors')
+	el.innerText = msg
+	#el.textContent = msg
+	
+#########################################################################################
+x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
+u = np.zeros(param.nbVarX)
 
-x0 = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
-u = np.zeros(param.nbVarU * (param.nbData-1)) # Initial control commands
-x, cost = iLQR(x0, u, param)
-cost_el.textContent = '%.3f' % cost
-
-t0 = 0
-t = 0
-tf = 0
 while True:
-#	time = performance.now() * 0.0005;
-	t0 += (float)(simulation_speed.value)
-	if t0 > 19:
-		t0 = 0
-		if t > param.nbData-2:
-			tf += 1
-			if tf > 10: #Stay some iterations at the final point before starting again
-				t = 0
-				tf = 0
-		else:
-			t += 1
+	
+	try:
+		u = controlCommand(x, param)
+	except Exception as e:
+		errorHandler(e)
+		#u = np.zeros(param.nbVarX)
+		def controlCommand(x, param):
+			u = np.zeros(param.nbVarX)
+			return u
+	
+	x += u * param.dt
 	
 	# Reinit hovering variables
 	hover_joint = -1
 	hover_obj = -1
-	
+
 	# Rendering
 	clear_screen()
 	draw_ground()
-	draw_robot(x[:,0], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', True)
-	draw_obj(0, param, '#FF3399', '#DD1177')
-	draw_obj(1, param, '#33FF99', '#11DD77')
-	draw_robot(x[:,t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False)
-	# draw_obj(0, 'rgba(255,51,153,0.5)', 'rgba(221,17,119,0.5)')
-	# draw_obj(1, 'rgba(51,255,153,0.5)', 'rgba(17,221,119,0.5)')
-	
-	# debug_el.innerText = str(ctx.isPointInPath(seg11_svg, mouse0[0], mouse0[1])) + ' ' + str(mouse[0]) + ' ' + str(mouse[1])
+	draw_obj(param, '#FF3399', '#DD1177')
+	draw_robot(x, '#CCCCCC', '#AAAAAA', '#222222', '#000000', True)
 	
 	# Object selection
-	if selected_obj>= 0:
-		param.Mu[:2,selected_obj] = mouse
-		param.Mu[0,selected_obj] = max(min(param.Mu[0,selected_obj],225), -225)
-		param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],175), -175)
+	if selected_obj==0:
+		param.Mu[:2] = mouse
+		param.Mu[0] = max(min(param.Mu[0],225), -225)
+		param.Mu[1] = max(min(param.Mu[1],175), -175)
+	param.Mu[2] = (float)(object_angle.value)
 
 	await asyncio.sleep(0.0001)
 
