@@ -129,19 +129,39 @@ function clearMsgs() {
 }
 </script>
 
+<ul class='nav nav-tabs' id='myTab' role='tablist'>
+
+<li class='nav-item' role='presentation'><button class='nav-link active' id='IK-tab' data-bs-toggle='tab' data-bs-target='#IK-tab-pane' type='button' role='tab' aria-controls='IK-tab-pane' aria-selected='true'>IK</button>
+</li>
+
+<li class='nav-item' role='presentation'><button class='nav-link' id='pIK-tab' data-bs-toggle='tab' data-bs-target='#pIK-tab-pane' type='button' role='tab' aria-controls='pIK-tab-pane' aria-selected='false'>Prioritized IK</button></li>
+
+</ul>
+
+
+<div class='tab-content' id='myTabContent'>
+
+<div class='tab-pane fade show active' id='IK-tab-pane' role='tabpanel' aria-labelledby='IK-tab' tabindex='0'>
 <div onkeydown='clearMsgs()' onclick='clearMsgs()'>
 <py-repl std-out='repl-out' std-err='repl-err'>
 def controlCommand(x, param):
   f = fkin(x, param)
   J = Jkin(x, param)
-  
   #u = np.linalg.pinv(J) @ (param.Mu - f[:,0]) * 10 # Control commands
-  
   #u = np.zeros(param.nbVarX) # Control commands
-  
-  #pinvJ = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E4) @ J.T # Damped pseudoinverse
-  #u = pinvJ @ (param.Mu - f[:,0]) * 10 # Control commands
-  
+  pinvJ = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E4) @ J.T # Damped pseudoinverse
+  u = pinvJ @ (param.Mu - f[:,0]) * 10 # Control commands
+  return u
+</py-repl> <!--output='repl-out' std-out='repl-out'-->
+</div>
+</div>
+
+<div class='tab-pane fade' id='pIK-tab-pane' role='tabpanel' aria-labelledby='pIK-tab' tabindex='0'>
+<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
+<py-repl std-out='repl-out' std-err='repl-err'>
+def controlCommand(x, param):
+  f = fkin(x, param)
+  J = Jkin(x, param)
   # Prioritized control (left tracking as main objective)
   dfl = (param.Mu[:2] - f[:2,0]) * 10 # Left hand correction
   dfr = (param.Mu[2:] - f[2:,0]) * 10 # Right hand correction
@@ -154,17 +174,22 @@ def controlCommand(x, param):
   pinvJrNl = JrNl.T @ np.linalg.inv(JrNl @ JrNl.T + np.eye(2) * 1e4) # Damped pseudoinverse
   ur = pinvJrNl @ (dfr - Jr @ ul) # Command for right hand tracking (with left hand tracking prioritized)
   u = ul + Nl @ ur # Control commands
-  
   return u
 </py-repl> <!--output='repl-out' std-out='repl-out'-->
 </div>
+</div>
+
+</div> <!--tab-content-->
+
 <p id='repl-out' style='font-size: 70%; color: #777777;'>(press shift+enter or click on the green run button to run the code)</p>
 <p id='repl-err' style='font-size: 70%; color: #880000;'></p>
 
 </div> <!--sm-7-->
 
 <div class='col-sm-4'>
+<div class='sticky-sm-top'>
 <canvas id='canvas' style='width:100%;' width='900px' height='700px'></canvas>
+</div>
 </div> <!--sm-4-->
 
 </div> <!--row-->
