@@ -168,8 +168,7 @@ Change this function to send velocity commands <code>u</code> to reach the targe
 	<div class='tab-pane fade show active' id='question4-tab-pane' role='tabpanel' aria-labelledby='question4-tab' tabindex='0'>
 		<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
 			<py-repl std-out='output' std-err='errors'>
-			initial_state = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
-			x =  initial_state
+			x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
 			def controlCommand(x, param):
 			  target_position = param.Mu[:2]
 			  current_ee_position = fkin(x, param)[:2]
@@ -182,41 +181,36 @@ Change this function to send velocity commands <code>u</code> to reach the targe
 		</div>
 	</div>
 	<div class='tab-pane fade' id='answer4-tab-pane' role='tabpanel' aria-labelledby='answer4-tab' tabindex='0'>
-		<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
-			<py-repl std-out='output' std-err='errors'>
-			initial_state = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
-			x =  initial_state
-			def controlCommand(x, param):
-			  # Answer 1:
-			  alpha = 10. # See how alpha changes the reaction of the robot. What is a good way to automatically adjust it?
-			  target_position = param.Mu[:2]
-			  current_ee_position = fkin(x, param)[:2]
-			  jacobian = Jkin(x, param)[:2]
-				
-			  u = alpha*np.linalg.pinv(jacobian) @ (target_position - current_ee_position) # Position tracking
-				
-			  return u
-			</py-repl> <!--output='repl-out' std-out='repl-out'-->
-		</div>
+		<py-repl std-out='output' std-err='errors'>
+		x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
+		def controlCommand(x, param):
+		  # Answer 1:
+		  alpha = 10. # See how alpha changes the reaction of the robot. What is a good way to automatically adjust it?
+		  target_position = param.Mu[:2]
+		  current_ee_position = fkin(x, param)[:2]
+		  jacobian = Jkin(x, param)[:2]
+		  
+		  u = alpha * np.linalg.pinv(jacobian) @ (target_position - current_ee_position) # Position tracking
+		  
+		  return u
+		</py-repl> <!--output='repl-out' std-out='repl-out'-->
 	</div>
 	<div class='tab-pane fade' id='answer2-tab-pane' role='tabpanel' aria-labelledby='answer2-tab' tabindex='0'>
-		<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
-			<py-repl std-out='output' std-err='errors'>
-			initial_state = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
-			x =  initial_state
-			def controlCommand(x, param):
-			  target_position = param.Mu[:2]
-			  current_ee_position = fkin(x, param)[:2]
-			  jacobian = Jkin(x, param)[:2]
-				
-			  # Answer 2:
-			  jacobian_pinv = np.linalg.pinv(jacobian)
-			  nullspace_matrix = np.eye(param.nbVarX) - jacobian_pinv @ jacobian # Nullspace projection operator
-			  u = jacobian_pinv @ (target_position - current_ee_position) + nullspace_matrix @ initial_state
-				
-			  return u
-			</py-repl> <!--output='repl-out' std-out='repl-out'-->
-		</div>
+		<py-repl std-out='output' std-err='errors'>
+		x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
+		x_hat = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Desired robot state
+		def controlCommand(x, param):
+		  target_position = param.Mu[:2]
+		  current_ee_position = fkin(x, param)[:2]
+		  jacobian = Jkin(x, param)[:2]
+		  
+		  # Answer 2:
+		  jacobian_pinv = np.linalg.pinv(jacobian)
+		  nullspace_matrix = np.eye(param.nbVarX) - jacobian_pinv @ jacobian # Nullspace projection operator
+		  u = jacobian_pinv @ (target_position - current_ee_position) + nullspace_matrix @ (x_hat - x)
+		  
+		  return u
+		</py-repl> <!--output='repl-out' std-out='repl-out'-->
 	</div>
   </div> 
 
@@ -247,10 +241,6 @@ Change this function to send velocity commands <code>u</code> to reach the targe
 		<div id='errors'></div>
 		<hr>
 		
-		<div class='row justify-content-between'>
-		<div  class='col-auto'><button class='btn btn-light btn-sm' disabled>Plot</button></div>
-		</div>
-		<div id='chart'></div>
 		<canvas id='canvas' style='width:100%;' width='900px' height='700px'></canvas>
 		
 		</div>
@@ -559,7 +549,7 @@ def errorHandler(e):
 	#el.textContent = msg
 	
 #########################################################################################
-x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
+x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
 u = np.zeros(param.nbVarX)
 
 while True:

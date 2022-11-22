@@ -162,35 +162,31 @@ Verify your code by changing the number of joints and the link lengths.
 </ul>
 <div class='tab-content' id='myTabContent'>
 <div class='tab-pane fade show active' id='question4-tab-pane' role='tabpanel' aria-labelledby='question4-tab' tabindex='0'>
-	<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
-		<py-repl std-out='output' std-err='errors'>
-		param.nbVarX = 3 # State space dimension (x1,x2,x3)
-		param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
-		x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
-		x[0] = x[0] + np.pi
-		
-		# Forward kinematics for end-effector (in robot coordinate system)
-		def fkin(x, param):
-		  f = np.zeros(2)
-		  return f
-		</py-repl> <!--output='repl-out' std-out='repl-out'-->
-	</div>
+	<py-repl std-out='output' std-err='errors'>
+	param.nbVarX = 3 # State space dimension (x1,x2,x3)
+	param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
+	x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
+	x[0] = x[0] + np.pi
+	
+	# Forward kinematics for end-effector (in robot coordinate system)
+	def fkin(x, param):
+	  f = np.zeros(2)
+	  return f
+	</py-repl> <!--output='repl-out' std-out='repl-out'-->
 </div>
 <div class='tab-pane fade' id='answer4-tab-pane' role='tabpanel' aria-labelledby='answer4-tab' tabindex='0'>
-	<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
-		<py-repl std-out='output' std-err='errors'>
-		param.nbVarX = 3 # State space dimension (x1,x2,x3)
-		param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
-		x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
-		x[0] = x[0] + np.pi
-		
-		# Forward kinematics for end-effector (in robot coordinate system)
-		def fkin(x, param):
-		  L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
-		  f = np.array([param.l @ np.cos(L @ x), param.l @ np.sin(L @ x)])
-		  return f
-		</py-repl> <!--output='repl-out' std-out='repl-out'-->
-	</div>
+	<py-repl std-out='output' std-err='errors'>
+	param.nbVarX = 3 # State space dimension (x1,x2,x3)
+	param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
+	x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
+	x[0] = x[0] + np.pi
+	
+	# Forward kinematics for end-effector (in robot coordinate system)
+	def fkin(x, param):
+	  L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+	  f = np.array([param.l @ np.cos(L @ x), param.l @ np.sin(L @ x)])
+	  return f
+	</py-repl> <!--output='repl-out' std-out='repl-out'-->
 </div>
 </div>
 
@@ -219,10 +215,6 @@ Verify your code by changing the number of joints and the link lengths.
 		<div id='errors'></div>
 		<hr>
 		
-		<div class='row justify-content-between'>
-		<div  class='col-auto'><button class='btn btn-light btn-sm' disabled>Plot</button></div>
-		</div>
-		<div id='chart'></div>
 		<canvas id='canvas' style='width:100%;' width='900px' height='700px'></canvas>
 		
 		</div>
