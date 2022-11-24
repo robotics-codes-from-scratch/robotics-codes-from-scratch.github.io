@@ -131,14 +131,14 @@ function clearMsgs() {
 
 <div onkeydown='clearMsgs()' onclick='clearMsgs()'>
 <py-repl std-out='repl-out' std-err='repl-err'>
-#param.nbVarX = 3 # State space dimension (x1,x2,x3)
-#param.l = [300, 300, 150] # Robot links lengths
-#x = [3*np.pi/4, -np.pi/2, -np.pi/4] # Initial robot state
+param.nbVarX = 3 # State space dimension (x1,x2,x3)
+param.l = [300, 300, 150] # Robot links lengths
+x = [3*np.pi/4, -np.pi/2, -np.pi/4] # Initial robot state
 
-param.nbVarX = 8 # State space dimension (x1,x2,x3)
-param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
-x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
-x[0] = x[0] + np.pi
+# param.nbVarX = 8 # State space dimension (x1,x2,x3)
+# param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
+# x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
+# x[0] = x[0] + np.pi
 
 # Forward kinematics for end-effector (in robot coordinate system)
 def fkin(x, param):
@@ -147,7 +147,7 @@ def fkin(x, param):
   return f
 </py-repl> <!--output='repl-out' std-out='repl-out'-->
 </div>
-<p id='repl-out' style='font-size: 70%; color: #777777;'>(press shift+enter or click on the green run button to run the code)</p>
+<p id='repl-out' style='font-size: 70%; color: #777777;'>(press shift+enter or click on the green run button to run the code; objects and joints can be moved with the mouse)</p>
 <p id='repl-err' style='font-size: 70%; color: #880000;'></p>
 
 </div> <!--sm-7-->
@@ -195,31 +195,43 @@ param.l = [300, 300, 150] # Robot links lengths
 mouse0 = np.zeros(2)
 mousedown = 0
 hover_joint = -1
+move_joint= -1
+hover0 = np.zeros(2)
 
 def onMouseMove(event):
-	global mouse, mouse0
+	global mouse, mouse0, hover0, x
 	offset = canvas.getBoundingClientRect()
 	mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
 	mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
-
+	if move_joint >= 0:
+		x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
+		hover0 = np.copy(mouse0)
+		
 def onTouchMove(event):
-	global mouse, mouse0
+	global mouse, mouse0, hover0, x
 	offset = event.target.getBoundingClientRect()
 	mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
 	mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
+	if move_joint >= 0:
+		x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
+		hover0 = np.copy(mouse0)
 	
 def onMouseDown(event):
-	global mousedown
+	global mousedown, move_joint, hover0
 	mousedown = 1
+	if hover_joint >= 0:
+		move_joint = hover_joint
+		hover0 = np.copy(mouse0)
 
 def onMouseUp(event):
-	global mousedown
+	global mousedown, move_joint
 	mousedown = 0
+	move_joint = -1
 
 def onWheel(event):
-	global hover_joint, x
+	global x
 	if hover_joint >= 0:
-		x[hover_joint] += 0.2 * (event.deltaY/106)
+		x[hover_joint] -= 0.2 * (event.deltaY/106)
 
 document.addEventListener('mousemove', create_proxy(onMouseMove)) #for standard mouse
 document.addEventListener('touchmove', create_proxy(onTouchMove)) #for mobile interfaces

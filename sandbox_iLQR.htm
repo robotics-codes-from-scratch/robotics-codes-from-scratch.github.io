@@ -143,7 +143,7 @@ Q = np.eye(param.nbVarF * param.nbPoints)
 update_iLQR()
 </py-repl> <!--output='repl-out' std-out='repl-out'-->
 </div>
-<p id='repl-out' style='font-size: 70%; color: #777777;'>(press shift+enter or click on the green run button to run the code)</p>
+<p id='repl-out' style='font-size: 70%; color: #777777;'>(press shift+enter or click on the green run button to run the code; objects and joints can be moved with the mouse)</p>
 <p id='repl-err' style='font-size: 70%; color: #880000;'></p>
 
 <form>
@@ -369,6 +369,8 @@ scaling_factor = 2 # General scaling factor for rendering
 mouse0 = np.zeros(2)
 mouse = np.zeros(2)
 mousedown = 0
+move_joint= -1
+hover0 = np.zeros(2)
 
 #def onMouseMove(event):
 #	global mouse, mouse0
@@ -378,32 +380,40 @@ mousedown = 0
 #	mouse[1] = (event.offsetY - canvas.height * 0.5) / scaling_factor #-(event.offsetY / (window.innerHeight*.5)) * 2 + 1
 
 def onMouseMove(event):
-	global mouse, mouse0, canvas
+	global mouse, mouse0, hover0, x
 	offset = canvas.getBoundingClientRect()
 	mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
 	mouse0[1] = (event.clientY - offset.y) * canvas.width / canvas.clientWidth
 	mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
 	mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
+	if move_joint >= 0:
+		x0[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
+		hover0 = np.copy(mouse0)
 
 def onTouchMove(event):
-	global mouse, mouse0, canvas
+	global mouse, mouse0, hover0, x
 	bcr = event.target.getBoundingClientRect()
 	mouse0[0] = event.touches.item(0).clientX - bcr.x
 	mouse0[1] = event.touches.item(0).clientY - bcr.y
 	mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor 
 	mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
+	if move_joint >= 0:
+		x0[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
+		hover0 = np.copy(mouse0)
 	
 def onMouseDown(event):
-	global mousedown
+	global mousedown, move_joint, hover0
 	mousedown = 1
-#	console.log('Mouse down')
+	if hover_joint >= 0:
+		move_joint = hover_joint
+		hover0 = np.copy(mouse0)
 
 def onMouseUp(event):
-	global mousedown, selected_obj
+	global mousedown, selected_obj, move_joint
 	mousedown = 0
 	selected_obj = -1
+	move_joint = -1
 	update_iLQR()
-#	console.log('Mouse up')
 
 def onWheel(event):
 	global hover_joint, hover_obj, x0, objects_angle
@@ -413,8 +423,7 @@ def onWheel(event):
 		objects_angle[hover_obj].value = (float)(objects_angle[hover_obj].value) + 0.2 * (event.deltaY/106)
 		update_iLQR()
 	if hover_joint >= 0:
-		x0[hover_joint] += 0.2 * (event.deltaY/106)
-		console.log(x0[hover_joint])
+		x0[hover_joint] -= 0.2 * (event.deltaY/106)
 		update_iLQR()
 
 cost_el = document.getElementById('cost')
@@ -615,7 +624,7 @@ while True:
 	# Rendering
 	clear_screen()
 	draw_ground()
-	draw_robot(x[:,0], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', True)
+	draw_robot(x0, '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', True)
 	draw_obj(0, param, '#FF3399', '#DD1177')
 	draw_obj(1, param, '#33FF99', '#11DD77')
 	draw_robot(x[:,t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False)

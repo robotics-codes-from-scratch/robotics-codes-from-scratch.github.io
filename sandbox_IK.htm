@@ -238,7 +238,7 @@ def controlCommand(x, param):
 
 </div> <!--tab-content-->
 
-<p id='repl-out' style='font-size: 70%; color: #777777;'>(press shift+enter or click on the green run button to run the code)</p>
+<p id='repl-out' style='font-size: 70%; color: #777777;'>(press shift+enter or click on the green run button to run the code; objects and joints can be moved with the mouse)</p>
 <p id='repl-err' style='font-size: 70%; color: #880000;'></p>
 
 <input id='object_angle' type='range' min='-3.14159' max='3.14159' step='0.0001' value='0' class='w-72' style='vertical-align:middle;'> <label>Object orientation</label> 
@@ -356,33 +356,43 @@ mousedown = 0
 selected_obj = -1
 hover_obj = -1
 hover_joint = -1
+move_joint= -1
+hover0 = np.zeros(2)
 
 def onMouseMove(event):
-	global mouse, mouse0
+	global mouse, mouse0, hover0, x
 	offset = canvas.getBoundingClientRect()
 	mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
 	mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
 	mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
 	mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
+	if move_joint >= 0:
+		x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
+		hover0 = np.copy(mouse0)
 
 def onTouchMove(event):
-	global mouse, mouse0
+	global mouse, mouse0, hover0, x
 	offset = event.target.getBoundingClientRect()
 	mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
 	mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
 	mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor 
 	mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
+	if move_joint >= 0:
+		x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
+		hover0 = np.copy(mouse0)
 	
 def onMouseDown(event):
-	global mousedown
+	global mousedown, move_joint, hover0
 	mousedown = 1
-#	console.log('Mouse down')
+	if hover_joint >= 0:
+		move_joint = hover_joint
+		hover0 = np.copy(mouse0)
 
 def onMouseUp(event):
-	global mousedown, selected_obj
+	global mousedown, selected_obj, move_joint
 	mousedown = 0
 	selected_obj = -1
-#	console.log('Mouse up')
+	move_joint = -1
 
 def onWheel(event):
 	global hover_joint, hover_obj, x, object_angle
@@ -390,7 +400,7 @@ def onWheel(event):
 		#param.Mu[2] += 0.2 * (event.deltaY/106)
 		object_angle.value = (float)(object_angle.value) + 0.2 * (event.deltaY/106)
 	if hover_joint >= 0:
-		x[hover_joint] += 0.2 * (event.deltaY/106)
+		x[hover_joint] -= 0.2 * (event.deltaY/106)
 
 document.addEventListener('mousemove', create_proxy(onMouseMove)) #for standard mouse
 document.addEventListener('touchmove', create_proxy(onTouchMove)) #for mobile interfaces
