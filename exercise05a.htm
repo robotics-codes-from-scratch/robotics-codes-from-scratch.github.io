@@ -121,81 +121,67 @@
 <div class='container-fluid'>
 
 
-<div class='row'>
-<div class='col-sm-1'></div>
-<div class="col-sm-7">
-
-<br><br>
-
 <script>
 function clearMsgs() {
-  const el = document.getElementById('repl-err');
+  const el = document.getElementById('errors');
   el.innerText = '';
   //console.log('event!');
 }
+function clearMsgsOutput() {
+  const el = document.getElementById('output');
+  el.innerText = '';
+  //console.log('event!');
+}
+const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b','#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
 </script>
 
-<ul class='nav nav-tabs' id='myTab' role='tablist'>
+<div class='row'>
+<div class='col-sm-1'></div>
+<div class='col-sm-7'>
 
-<li class='nav-item' role='presentation'><button class='nav-link active' id='IK-tab' data-bs-toggle='tab' data-bs-target='#IK-tab-pane' type='button' role='tab' aria-controls='IK-tab-pane' aria-selected='true'>IK</button>
-</li>
+<h1>Exercise 5.a<br>Forward dynamics</h1>
 
-<li class='nav-item' role='presentation'><button class='nav-link' id='pIK-tab' data-bs-toggle='tab' data-bs-target='#pIK-tab-pane' type='button' role='tab' aria-controls='pIK-tab-pane' aria-selected='false'>Prioritized IK</button></li>
+<p>Forward dynamics is the problem of computing the joint (angular) accelerations of a robot given the applied joint torques. This allows us to construct physical models that can predict the next steps of the motion when applying certain torques. You can read about forward dynamics in Section 6 of the <a href='doc/rcfs.pdf' target='_blank'>RCFS documentation</a>.</p>
+<p>The goal of this exercise is to familiarize with the dynamics of a 2D planar manipulator. You can move the robot by dragging its joints using the left mouse button.</p>  
 
-</ul>
+<ul class='list-group list-group-numbered'>
+	<li class='list-group-item'>
+		Use your mouse to perturb the robot and observe the effect of the dynamics.
+	</li>
+	<li class='list-group-item'>
+		Change <code>param.l</code>, <code>param.damping</code>, <code>param.l_m</code> to understand how these parameters affect the dynamics. Some parameters will yield instability (you can reload the page to restart from a stable initial state).
+	</li>
+</ul><br>
 
-
-<div class='tab-content' id='myTabContent'>
-
-<div class='tab-pane fade show active' id='IK-tab-pane' role='tabpanel' aria-labelledby='IK-tab' tabindex='0'>
 <div onkeydown='clearMsgs()' onclick='clearMsgs()'>
-<py-repl std-out='repl-out' std-err='repl-err'>
-def controlCommand(x, param):
-  f = fkin(x, param)
-  J = Jkin(x, param)
-  #u = np.linalg.pinv(J) @ (param.Mu - f[:,0]) * 10 # Control commands
-  #u = np.zeros(param.nbVarX) # Control commands
-  pinvJ = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E4) @ J.T # Damped pseudoinverse
-  u = pinvJ @ (param.Mu - f[:,0]) * 10 # Control commands
-  return u
+<py-repl std-out='output' std-err='errors'>
+param.l = [2, 2] # Robot links lengths
+param.l_m = [1, 1] # Link masses
+param.damping = 5 # Damping
 </py-repl> <!--output='repl-out' std-out='repl-out'-->
 </div>
-</div>
 
-<div class='tab-pane fade' id='pIK-tab-pane' role='tabpanel' aria-labelledby='pIK-tab' tabindex='0'>
-<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
-<py-repl std-out='repl-out' std-err='repl-err'>
-def controlCommand(x, param):
-  f = fkin(x, param)
-  J = Jkin(x, param)
-  # Prioritized control (left tracking as main objective)
-  dfl = (param.Mu[:2] - f[:2,0]) * 10 # Left hand correction
-  dfr = (param.Mu[2:] - f[2:,0]) * 10 # Right hand correction
-  Jl = J[:2,:] # Jacobian for left hand 
-  Jr = J[2:,:] # Jacobian for right hand
-  pinvJl = np.linalg.inv(Jl.T @ Jl + np.eye(param.nbVarX) * 1e1) @ Jl.T # Damped pseudoinverse
-  Nl = np.eye(param.nbVarX) - pinvJl @ Jl # Nullspace projection operator
-  ul = pinvJl @ dfl # Command for position tracking
-  JrNl = Jr @ Nl
-  pinvJrNl = JrNl.T @ np.linalg.inv(JrNl @ JrNl.T + np.eye(2) * 1e4) # Damped pseudoinverse
-  ur = pinvJrNl @ (dfr - Jr @ ul) # Command for right hand tracking (with left hand tracking prioritized)
-  u = ul + Nl @ ur # Control commands
-  return u
-</py-repl> <!--output='repl-out' std-out='repl-out'-->
-</div>
-</div>
-
-</div> <!--tab-content-->
-
-<p id='repl-out' style='font-size: 70%; color: #777777;'>(press shift+enter or click on the green run button to run the code; objects and joints can be moved with the mouse)</p>
-<p id='repl-err' style='font-size: 70%; color: #880000;'></p>
+<br><br>
 
 </div> <!--sm-7-->
 
 <div class='col-sm-4'>
-<div class='sticky-sm-top'>
-<canvas id='canvas' style='width:100%;' width='900px' height='700px'></canvas>
-</div>
+	<div class='sticky-sm-top' style='padding: 2rem 1rem 1rem 1rem;'>
+	<hr>
+	<div class='row justify-content-between'>
+	<div class='col-auto'><button class='btn btn-light btn-sm' disabled>Output</button></div>
+	<div class='col-auto'><button class='btn btn-outline-secondary btn-sm float-right' onclick='clearMsgsOutput()'>Clear</button></div>
+	</div>
+	<div id='output'></div>
+	<hr>
+	<div class='row justify-content-between'>
+	<div class='col-auto'><button class='btn btn-light btn-sm' disabled>Error</button></div>
+	<div class='col-auto'><button class='btn btn-outline-secondary btn-sm float-right' onclick='clearMsgs()'>Clear</button></div>
+	</div>
+	<div id='errors'></div>
+	<hr>
+	<canvas id='canvas' style='width:100%;' width='900px' height='1000px'></canvas>
+	</div>
 </div> <!--sm-4-->
 
 </div> <!--row-->
@@ -206,63 +192,73 @@ from js import Path2D
 import numpy as np
 
 # Forward kinematics for end-effector (in robot coordinate system)
-def fkin(x, param):
-    L = np.tril(np.ones(3))
-    f = np.vstack([
-        param.l[0:3].T @ np.cos(L @ x[0:3]),
-        param.l[0:3].T @ np.sin(L @ x[0:3]),
-        param.l[[0,3,4]].T @ np.cos(L @ x[[0,3,4]]),
-        param.l[[0,3,4]].T @ np.sin(L @ x[[0,3,4]])
-    ])  # f1,f2,f3,f4
-    return f
+def fdyn(x,u, param):	
+	l = np.reshape(param.l, [1,param.nbVarX])
+	m = np.reshape(param.l_m, [1,param.nbVarX])
+	T = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+	Tm = np.multiply(np.triu(np.ones([m.shape[1], m.shape[1]])), np.repeat(m, m.shape[1],0)) 
 
-# Forward kinematics for end-effector (in robot coordinate system)
+	## Computation in matrix form of G,M, and C
+	#G =-np.reshape(np.sum(Tm, 1), [param.nbVarX, 1]) * l.T * np.cos(T @ np.reshape(x[0:param.nbVarX], [param.nbVarX, 1])) * param.gravity
+	#G = T.T @ G
+	#M = (l.T * l) * np.cos(np.reshape(T @ x[:param.nbVarX], [param.nbVarX, 1]) - T @ x[:param.nbVarX]) * (Tm**.5 @ ((Tm**.5).T))
+	#M = T.T @ M @ T 
+	#C = -(l.T * l) * np.sin(np.reshape(T @ x[:param.nbVarX], [param.nbVarX, 1]) - T @ x[:param.nbVarX]) * (Tm**.5 @ ((Tm**.5).T))
+
+	# Elementwise computation of G, M, and C
+	G = np.zeros([param.nbVarX, 1])
+	M = np.zeros([param.nbVarX, param.nbVarX])
+	C =  np.zeros([param.nbVarX, param.nbVarX])
+	for k in range(param.nbVarX):
+		G[k,0] = -sum(m[0,k:]) * param.gravity * l[0,k] * np.cos(T[k,:] @ x[:param.nbVarX])
+		for i in range(param.nbVarX):
+			S = sum(m[0,k:param.nbVarX] * np.heaviside(np.array(range(k, param.nbVarX)) - i, 1))
+			M[k,i] = l[0,k] * l[0,i] * np.cos(T[k,:] @ x[:param.nbVarX] - T[i,:] @ x[:param.nbVarX]) * S
+			C[k,i] = -l[0,k] * l[0,i] * np.sin(T[k,:] @ x[:param.nbVarX] - T[i,:] @ x[:param.nbVarX]) * S
+
+	G = T.T @ G
+	M = T.T @ M @ T
+
+	# Compute acceleration
+	tau = np.reshape(u, [param.nbVarX, 1])
+	inv_M = np.linalg.inv(M)
+	ddq = inv_M @ (tau + G + T.T @ C @ (T @ np.reshape(x[param.nbVarX:],[param.nbVarX, 1]))**2 - \
+		T @ np.reshape(x[param.nbVarX:],[param.nbVarX, 1])*param.damping)
+	# compute the next step
+	dq = x[param.nbVarX:] + ddq[:,0] * param.dt
+	q  = x[:param.nbVarX] + x[param.nbVarX:] * param.dt + 0.5 * ddq[:,0] * (param.dt**2)
+	xt = np.append(q, dq)
+	return xt
+
+
+# Forward kinematics for all joints (in robot coordinate system)
 def fkin0(x, param): 
-    L = np.tril(np.ones(3))
-    fl = np.vstack([
-        L @ np.diag(param.l[0:3]) @ np.cos(L @ x[0:3]),
-        L @ np.diag(param.l[0:3]) @ np.sin(L @ x[0:3])
-    ])
-    fr = np.vstack([
-        L @ np.diag(param.l[[0,3,4]]) @ np.cos(L @ x[[0,3,4]]),
-        L @ np.diag(param.l[[0,3,4]]) @ np.sin(L @ x[[0,3,4]])
-    ])
-    f = np.hstack([fl[:,::-1], np.zeros([2,1]), fr])
-    return f
-
-# Jacobian of the end-effector with analytical computation (for single time step)
-def Jkin(x, param):
-    L = np.tril(np.ones(3))
-    J = np.zeros((param.nbVarF, param.nbVarX))
-    Jl = np.vstack([-np.sin(L @ x[:3]).T @ np.diag(param.l[:3]) @ L,
-                    np.cos(L @ x[:3]).T @ np.diag(param.l[:3]) @ L
-                    ])
-    Jr = np.vstack([-np.sin(L @ x[[0,3,4]]).T @ np.diag(np.array(param.l)[[0,3,4]]) @ L,
-                    np.cos(L @ x[[0,3,4]]).T @ np.diag(np.array(param.l)[[0,3,4]]) @ L
-                    ])
-    J[:Jl.shape[0], :Jl.shape[1]] = Jl
-    J[2:, [0,3,4]] = Jr
-    return J
-
+	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+	f = np.vstack([
+		L @ np.diag(param.l) @ np.cos(L @ x),
+		L @ np.diag(param.l) @ np.sin(L @ x)
+	])
+	f = np.hstack([np.zeros([2,1]), f])
+	return f
 
 ## Parameters
 # ===============================
 
 param = lambda: None # Lazy way to define an empty class in python
-param.dt = 1e-1 # Time step length
-param.nbVarX = 5 # State space dimension
-param.nbVarF = 4 # Task space dimension ([x1,x2] for left end-effector, [x3,x4] for right end-effector)
-param.l = np.array([200, 200, 150, 200, 150]) # Robot links lengths
-param.Mu = np.array([-200, 100, 200, 100]) # Objects position
+param.nbVarX = 2 # State space dimension (x1,x2,x3)
+param.l = [2, 2] # Robot links lengths
+param.l_m = [1, 1] # Link masses
+param.damping = 8. # Damping
+param.gravity = 9.81 # Gravity
+param.dt = 5e-2 # Time step length
+
 
 #########################################################################################
 
 # Mouse events
 mouse0 = np.zeros(2)
-mouse = np.zeros(2)
 mousedown = 0
 hover_joint = -1
-selected_obj = -1
 move_joint= -1
 hover0 = np.zeros(2)
 
@@ -271,19 +267,15 @@ def onMouseMove(event):
 	offset = canvas.getBoundingClientRect()
 	mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
 	mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
-	mouse[0] = (mouse0[0] - canvas.width * 0.5) 
-	mouse[1] = -(mouse0[1] - canvas.height * 0.9) 
 	if move_joint >= 0:
 		x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
 		hover0 = np.copy(mouse0)
-
+		
 def onTouchMove(event):
 	global mouse, mouse0, hover0, x
 	offset = event.target.getBoundingClientRect()
 	mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
 	mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
-	mouse[0] = (mouse0[0] - canvas.width * 0.5) 
-	mouse[1] = -(mouse0[1] - canvas.height * 0.9)
 	if move_joint >= 0:
 		x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
 		hover0 = np.copy(mouse0)
@@ -296,13 +288,12 @@ def onMouseDown(event):
 		hover0 = np.copy(mouse0)
 
 def onMouseUp(event):
-	global mousedown, selected_obj, move_joint
+	global mousedown, move_joint
 	mousedown = 0
-	selected_obj = -1
 	move_joint = -1
 
 def onWheel(event):
-	global hover_joint, x
+	global x
 	if hover_joint >= 0:
 		x[hover_joint] -= 0.2 * (event.deltaY/106)
 
@@ -330,9 +321,10 @@ def clear_screen():
 	ctx.fillStyle = 'white'
 	ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-
+	
 def draw_ground():
-	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)	
+	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
+	ctx.translate(0, -40)	
 	ctx.lineCap = 'round'
 	ctx.lineJoin = 'round'
 	ctx.lineWidth = '5'
@@ -341,16 +333,16 @@ def draw_ground():
 	ctx.moveTo(-400, 0)
 	ctx.lineTo(400, 0)
 	ctx.stroke()
-	
+
 
 def draw_robot(x, color):
 	global hover_joint
-	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
+	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.5)
 	
-	f = fkin0(x, param)
+	f = fkin0(x, param)*100
 	
 	# Draw base
-	ctx.translate(f[0,3], f[1,3])
+	ctx.translate(f[0,0], f[1,0])
 	ctx.lineWidth = '4'
 	ctx.strokeStyle = 'white'
 	ctx.fillStyle = color
@@ -368,7 +360,7 @@ def draw_robot(x, color):
 	# Draw links
 	ctx.lineCap = 'round'
 	ctx.lineJoin = 'round'
-	for i in range(param.nbVarX+1):
+	for i in range(param.nbVarX):
 		# Draw links outlines
 		ctx.lineWidth = '46'
 		ctx.strokeStyle = 'white'
@@ -389,39 +381,26 @@ def draw_robot(x, color):
 	obj.arc(0, 0, 12, 0, 2*np.pi)
 	ctx.lineWidth = '4'
 	ctx.strokeStyle = 'white'
-	for i in range(param.nbVarX+2):
+	for i in range(param.nbVarX+1):
 		ctx.translate(f[0,i], f[1,i])
 		ctx.stroke(obj)
-		if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and i>0:
-			if i<4:
-				hover_joint = 3-i
-			else:
-				hover_joint = i-1
+		if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
+			hover_joint = i
 		ctx.translate(-f[0,i], -f[1,i])
 
 
-def draw_object(xobj, id, color):
-	global selected_obj
+def draw_tip(f, color):
 	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
 	# Draw object
 	obj = Path2D.new()
-	obj.arc(0, 0, 22, 0, 2*np.pi)
-	ctx.translate(xobj[0], xobj[1])
+	obj.arc(0, 0, 16, 0, 2*np.pi)
+	ctx.translate(f[0], f[1])
 	ctx.fillStyle = color
 	ctx.fill(obj)
-	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
-		selected_obj = id
 	
 
-def controlCommand(x, param):
-	#f = fkin(x, param)
-	#J = Jkin(x, param)
-	#u = np.linalg.pinv(J) @ (param.Mu - f[:,0]) * 10
-	u = np.zeros(param.nbVarX)
-	return u
-	
 #########################################################################################
- 
+	
 def errorHandler(e):
 	msg = 'Error: ' + str(e)
 	console.error(msg)
@@ -430,42 +409,29 @@ def errorHandler(e):
 	#el.textContent = msg
 	
 #########################################################################################
-x = np.array([np.pi/2, np.pi/2, np.pi/4, -np.pi/2, -np.pi/4]) # Initial robot state
+x = np.zeros(param.nbVarX) # Initial robot state
+state = np.append(x, np.zeros(param.nbVarX))
 u = np.zeros(param.nbVarX)
-
 while True:
 	
 	try:
-		u = controlCommand(x, param)
+		state = fdyn(state,u, param)
 	except Exception as e:
 		errorHandler(e)
-		#u = np.zeros(param.nbVarX)
-		def controlCommand(x, param):
-			u = np.zeros(param.nbVarX)
-			return u
-	
-	x += u * param.dt
-			
+		def fdyn(x, u, param):
+			f = np.zeros(param.nbVarX)
+			return f
+	x = state[:param.nbVarX]
 	# Reinit hovering variables
 	hover_joint = -1
-
+	
 	# Rendering
 	clear_screen()
-	#draw_ground()
+#	draw_ground()
 	draw_robot(x, '#AAAAAA')
-	draw_object(param.Mu[:2], 0, '#FF3399')
-	draw_object(param.Mu[2:], 1, '#FF9933')
-	
-	# Object selection
-	if selected_obj==0:
-		param.Mu[:2] = mouse[:2]
-		param.Mu[0] = max(min(param.Mu[0],450), -450)
-		param.Mu[1] = max(min(param.Mu[1],630), -70)
-	if selected_obj==1:
-		param.Mu[2:] = mouse[:2]
-		param.Mu[2] = max(min(param.Mu[2],450), -450)
-		param.Mu[3] = max(min(param.Mu[3],630), -70)
-	await asyncio.sleep(0.0001)
+	#draw_tip(f, '#FF3399')
+
+	await asyncio.sleep(0.01)
 
 </py-script>
 

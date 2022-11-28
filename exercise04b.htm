@@ -99,6 +99,12 @@
 			<li><a href='exercise04b.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
 		    <div class='p-1 mb-0 bg-dark text-white font-monospace'>4b</div>
 			<div class='p-1 mb-0'>Inverse kinematics and nullspace control</div></a></li>
+			<li><a href='exercise05a.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
+		    <div class='p-1 mb-0 bg-dark text-white font-monospace'>5a</div>
+			<div class='p-1 mb-0'>Forward dynamics</div></a></li>
+			<li><a href='exercise05b.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
+		    <div class='p-1 mb-0 bg-dark text-white font-monospace'>5b</div>
+			<div class='p-1 mb-0'>Inverse dynamics and impedance control</div></a></li>
 		  </ul>
 		</div>
 	  </li>
@@ -133,7 +139,7 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 <div class='col-sm-1'></div>
 <div class='col-sm-7'>
 
-<h1>Exercise 4.b<br>Inverse Kinematics</h1>
+<h1>Exercise 4.b<br>Inverse kinematics and nullspace control</h1>
 
 <p>Inverse kinematics consists of finding a configuration (joint angles) that reaches a target pose (position and/or orientation) with the end-effector of the robot. You can read more about inverse kinematics in Section 5 of the <a href='doc/rcfs.pdf' target='_blank'>RCFS documentation</a>.</p>
 <p>The goal of this exercise is to implement an inverse kinematics function for the 3 degree-of-freedom manipulator shown on the right.
@@ -225,26 +231,21 @@ Change this function to send velocity commands <code>u</code> to reach the targe
 
 <div class='col-sm-4'>
 	<div class='sticky-sm-top' style='padding: 2rem 1rem 1rem 1rem;'>
-		<hr>
-		
-		<div class='row justify-content-between'>
-		<div class='col-auto'><button class='btn btn-light btn-sm' disabled>Output</button></div>
-		<div class='col-auto'><button class='btn btn-outline-secondary btn-sm float-right' onclick='clearMsgsOutput()'>Clear</button></div>
-		</div>
-		<div id='output'></div>
-		<hr>
-		
-		<div class='row justify-content-between'>
-		<div class='col-auto'><button class='btn btn-light btn-sm' disabled>Error</button></div>
-		<div class='col-auto'><button class='btn btn-outline-secondary btn-sm float-right' onclick='clearMsgs()'>Clear</button></div>
-		</div>
-		<div id='errors'></div>
-		<hr>
-		
-		<canvas id='canvas' style='width:100%;' width='900px' height='700px'></canvas>
-		
-		</div>
-
+	<hr>
+	<div class='row justify-content-between'>
+	<div class='col-auto'><button class='btn btn-light btn-sm' disabled>Output</button></div>
+	<div class='col-auto'><button class='btn btn-outline-secondary btn-sm float-right' onclick='clearMsgsOutput()'>Clear</button></div>
+	</div>
+	<div id='output'></div>
+	<hr>
+	<div class='row justify-content-between'>
+	<div class='col-auto'><button class='btn btn-light btn-sm' disabled>Error</button></div>
+	<div class='col-auto'><button class='btn btn-outline-secondary btn-sm float-right' onclick='clearMsgs()'>Clear</button></div>
+	</div>
+	<div id='errors'></div>
+	<hr>
+	<canvas id='canvas' style='width:100%;' width='900px' height='700px'></canvas>
+	</div>
 </div> <!--sm-4-->
 
 </div> <!--row-->
