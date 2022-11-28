@@ -149,14 +149,14 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 		Use your mouse to perturb the robot and observe the effect of the dynamics.
 	</li>
 	<li class='list-group-item'>
-		Change <code>param.l</code>, <code>param.damping</code>, <code>param.l_m</code> to understand how these parameters affect the dynamics. Some parameters will yield instability (you can reload the page to restart from a stable initial state).
+		Change <code>param.l</code>, <code>param.l_m</code> and <code>param.damping</code> to see how these parameters affect the dynamics. Note that some parameters will produce instable behaviors (if this happens, you can reload the page to restart from a stable initial state).
 	</li>
 </ul><br>
 
 <div onkeydown='clearMsgs()' onclick='clearMsgs()'>
 <py-repl std-out='output' std-err='errors'>
 param.l = [2, 2] # Robot links lengths
-param.l_m = [1, 1] # Link masses
+param.l_m = [1, 1] # Links masses
 param.damping = 5 # Damping
 </py-repl> <!--output='repl-out' std-out='repl-out'-->
 </div>
