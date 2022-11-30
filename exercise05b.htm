@@ -192,7 +192,7 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 		Set $\bm{q}$, $\bm{\dot{q}}$ and $\bm{\ddot{q}}$ so that $ \bm{\tau} = \bm{C}(\bm{q},\bm{\dot{q}}) + \bm{g}(\bm{q})$. Perturb the robot with the mouse and observe the result of the perturbation.
 	</li>
 	<li class='list-group-item'>
-		We would like the robot to reach an upright position <code>q_target = np.array([np.pi/2, 0])</code> and stay there with zero velocity <code>dq_target = np.array([0., 0.])</code>.
+		We would like the robot to reach an upright position <code>q_target = np.array([np.pi/2, 0])</code> and stay there with zero velocity <code>dq_target = np.array([0, 0])</code>.
 		Set $\bm{q}$, $\bm{\dot{q}}$ and $\bm{\ddot{q}}$ such that we implement the following impedance controller to achieve our goal: $\bm{\tau} = \bm{M}(\bm{q})(\bm{K}_p(\bm{q}^d - \bm{q}) + \bm{K}_v(\bm{\dot{q}}^d - \bm{\dot{q}})) + \bm{C}(\bm{q},\bm{\dot{q}}) + \bm{g}(\bm{q})$. 
 		You should see that it stabilizes around the upright position. To check how stable is your controller, try to perturb the robot with the mouse. 
 		Modify the values of stiffness and damping to see the effect of perturbations on the impedance controller.

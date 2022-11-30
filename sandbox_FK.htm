@@ -299,37 +299,37 @@ def draw_robot(x, color):
 		ctx.lineTo(-40+i*15, -60)
 		ctx.stroke()
 		
-	# Draw links
+	# Draw links and articulations
+	obj = Path2D.new()
+	obj.arc(0, 0, 12, 0, 2*np.pi)
 	ctx.lineCap = 'round'
 	ctx.lineJoin = 'round'
 	for i in range(param.nbVarX):
-		# Draw links outlines
-		ctx.lineWidth = '46'
-		ctx.strokeStyle = 'white'
-		ctx.beginPath()
-		ctx.lineTo(f[0,i], f[1,i])
-		ctx.lineTo(f[0,i+1], f[1,i+1])
-		ctx.stroke()
-		# Draw links
-		ctx.lineWidth = '38'
-		ctx.strokeStyle = color
-		ctx.beginPath()
-		ctx.lineTo(f[0,i], f[1,i])
-		ctx.lineTo(f[0,i+1], f[1,i+1])
-		ctx.stroke()
+		if i < param.nbVarX:
+			# Draw links outlines
+			ctx.lineWidth = '46'
+			ctx.strokeStyle = 'white'
+			ctx.beginPath()
+			ctx.lineTo(f[0,i], f[1,i])
+			ctx.lineTo(f[0,i+1], f[1,i+1])
+			ctx.stroke()
+			# Draw links
+			ctx.lineWidth = '38'
+			ctx.strokeStyle = color
+			ctx.beginPath()
+			ctx.lineTo(f[0,i], f[1,i])
+			ctx.lineTo(f[0,i+1], f[1,i+1])
+			ctx.stroke()
 		
-	# Draw articulations
-	obj = Path2D.new()
-	obj.arc(0, 0, 12, 0, 2*np.pi)
-	ctx.lineWidth = '4'
-	ctx.strokeStyle = 'white'
-	for i in range(param.nbVarX+1):
+		# Draw articulations
+		ctx.lineWidth = '4'
+		ctx.strokeStyle = 'white'
 		ctx.translate(f[0,i], f[1,i])
 		ctx.stroke(obj)
 		if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
 			hover_joint = i
 		ctx.translate(-f[0,i], -f[1,i])
-
+	
 
 def draw_tip(f, color):
 	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
