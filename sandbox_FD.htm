@@ -189,14 +189,26 @@ def Jkin(x, param):
 
 def fdyn(x, u, param):
 	# Auxiliary matrices
-	l = np.reshape(param.l, [1, param.nbVarX])
+	l = np.reshape(param.l/100, [1, param.nbVarX])
 	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
 	m = np.reshape(param.m, [1, param.nbVarX])
 	Lm = np.triu(np.ones([m.shape[1], m.shape[1]])) * np.repeat(m, m.shape[1],0)
+	
+#	# Elementwise computation of G, M, and C
+#    G = np.zeros(param.nbVarX)
+#    M = np.zeros([param.nbVarX, param.nbVarX])
+#    C =  np.zeros([param.nbVarX, param.nbVarX])
+#    for k in range(param.nbVarX):
+#        G[k] = -sum(m[0,k:]) * param.gravity * l[0,k] * np.cos(L[k,:] @ x[:param.nbVarX])
+#        for i in range(param.nbVarX):
+#            S = sum(m[0,k:param.nbVarX] * np.heaviside(np.array(range(k, param.nbVarX)) - i, 1))
+#            M[k,i] = l[0,k] * l[0,i] * np.cos(L[k,:] @ x[:param.nbVarX] - L[i,:] @ x[:param.nbVarX]) * S
+#            C[k,i] = -l[0,k] * l[0,i] * np.sin(L[k,:] @ x[:param.nbVarX] - L[i,:] @ x[:param.nbVarX]) * S
 	# Computation in matrix form of G, M, and C
-	G = -np.sum(Lm,1) * param.l * np.cos(L @ x[:param.nbVarX]) * param.gravity
+	G = -np.sum(Lm,1) * param.l/100 * np.cos(L @ x[:param.nbVarX]) * param.gravity
 	M = (l.T * l) * np.cos(L @ x[:param.nbVarX] - L @ x[:param.nbVarX]) * (Lm**.5 @ ((Lm**.5).T))
-	C = -(l.T * l) * np.sin(L @ x[:param.nbVarX] - L @ x[:param.nbVarX]) * (Lm**.5 @ ((Lm**.5).T))    
+	C = -(l.T * l) * np.sin(L @ x[:param.nbVarX] - L @ x[:param.nbVarX]) * (Lm**.5 @ ((Lm**.5).T)) 
+   
 	G = L.T @ G
 	M = L.T @ M @ L 
 	# Compute acceleration

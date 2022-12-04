@@ -191,8 +191,18 @@ from pyodide.ffi import create_proxy
 from js import Path2D
 import numpy as np
 
+# Forward kinematics for all joints (in robot coordinate system)
+def fkin0(x, param): 
+	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+	f = np.vstack([
+		L @ np.diag(param.l) @ np.cos(L @ x),
+		L @ np.diag(param.l) @ np.sin(L @ x)
+	])
+	f = np.hstack([np.zeros([2,1]), f])
+	return f
+
 # Forward kinematics for end-effector (in robot coordinate system)
-def fdyn(x,u, param):	
+def fdyn(x, u, param):	
 	l = np.reshape(param.l, [1,param.nbVarX])
 	m = np.reshape(param.l_m, [1,param.nbVarX])
 	T = np.tril(np.ones([param.nbVarX, param.nbVarX]))
@@ -223,23 +233,13 @@ def fdyn(x,u, param):
 	tau = np.reshape(u, [param.nbVarX, 1])
 	inv_M = np.linalg.inv(M)
 	ddq = inv_M @ (tau + G + T.T @ C @ (T @ np.reshape(x[param.nbVarX:],[param.nbVarX, 1]))**2 - \
-		T @ np.reshape(x[param.nbVarX:],[param.nbVarX, 1])*param.damping)
+		T @ np.reshape(x[param.nbVarX:],[param.nbVarX, 1]) * param.damping)
 	# compute the next step
 	dq = x[param.nbVarX:] + ddq[:,0] * param.dt
 	q  = x[:param.nbVarX] + x[param.nbVarX:] * param.dt + 0.5 * ddq[:,0] * (param.dt**2)
 	xt = np.append(q, dq)
 	return xt
 
-
-# Forward kinematics for all joints (in robot coordinate system)
-def fkin0(x, param): 
-	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
-	f = np.vstack([
-		L @ np.diag(param.l) @ np.cos(L @ x),
-		L @ np.diag(param.l) @ np.sin(L @ x)
-	])
-	f = np.hstack([np.zeros([2,1]), f])
-	return f
 
 ## Parameters
 # ===============================
