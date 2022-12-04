@@ -137,14 +137,11 @@ function clearMsgs() {
 
 <div onkeydown='clearMsgs()' onclick='clearMsgs()'>
 <py-repl std-out='repl-out' std-err='repl-err'>
-param.nbVarX = 3 # State space dimension 
-param.l = [300, 300, 150] # Robot links lengths
-x = [3*np.pi/4, -np.pi/2, -np.pi/4] # Initial robot state
-
-# param.nbVarX = 8 # State space dimension 
-# param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
-# x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
-# x[0] = x[0] + np.pi
+param.dt = 5E-1 # Time step length
+param.l = np.array([200, 200]) # Robot links lengths
+param.m = np.array([1E0, 1E0]) # Robot links masses
+param.damping = .5 # Damping parameter
+param.gravity = 9.81 # Gravity
 </py-repl> <!--output='repl-out' std-out='repl-out'-->
 </div>
 <p id='repl-out' style='font-size: 70%; color: #777777;'>(press shift+enter or click on the green run button to run the code; objects and joints can be moved with the mouse)</p>
@@ -189,14 +186,34 @@ def Jkin(x, param):
 		 np.cos(L @ x).T @ np.diag(param.l) @ L
 	])
 	return J
-	
+
+def fdyn(x, u, param):
+	# Auxiliary matrices
+	l = np.reshape(param.l, [1, param.nbVarX])
+	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+	m = np.reshape(param.m, [1, param.nbVarX])
+	Lm = np.triu(np.ones([m.shape[1], m.shape[1]])) * np.repeat(m, m.shape[1],0)
+	# Computation in matrix form of G, M, and C
+	G = -np.sum(Lm,1) * param.l * np.cos(L @ x[:param.nbVarX]) * param.gravity
+	M = (l.T * l) * np.cos(L @ x[:param.nbVarX] - L @ x[:param.nbVarX]) * (Lm**.5 @ ((Lm**.5).T))
+	C = -(l.T * l) * np.sin(L @ x[:param.nbVarX] - L @ x[:param.nbVarX]) * (Lm**.5 @ ((Lm**.5).T))    
+	G = L.T @ G
+	M = L.T @ M @ L 
+	# Compute acceleration
+	ddx = np.linalg.inv(M) @ (u + G + L.T @ C @ (L @ x[param.nbVarX:])**2) - L @ x[param.nbVarX:] * param.damping
+	return ddx
+
+
 ## Parameters
 # ===============================
 
 param = lambda: None # Lazy way to define an empty class in python
-param.dt = 1e-1 # Time step length
-param.nbVarX = 3 # State space dimension (x1,x2,x3)
-param.l = [300, 300, 150] # Robot links lengths
+param.nbVarX = 2 # State space dimension
+param.dt = 5E-1 # Time step length
+param.l = np.array([200, 200]) # Robot links lengths
+param.m = np.array([1E0, 1E0]) # Robot links masses
+param.damping = .5 # Damping parameter
+param.gravity = 9.81 # Gravity
 
 param2 = lambda: None # Lazy way to define an empty class in python
 
@@ -216,7 +233,7 @@ def onMouseMove(event):
 	mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
 	mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
 	mouse[0] = (mouse0[0] - canvas.width * 0.5) 
-	mouse[1] = -(mouse0[1] - canvas.height * 0.9) 
+	mouse[1] = -(mouse0[1] - canvas.height * 0.1) 
 #	if move_joint >= 0:
 #		x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
 #		hover0 = np.copy(mouse0)
@@ -227,7 +244,7 @@ def onTouchMove(event):
 	mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
 	mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
 	mouse[0] = (mouse0[0] - canvas.width * 0.5) 
-	mouse[1] = -(mouse0[1] - canvas.height * 0.9)
+	mouse[1] = -(mouse0[1] - canvas.height * 0.1)
 #	if move_joint >= 0:
 #		x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
 #		hover0 = np.copy(mouse0)
@@ -236,7 +253,7 @@ def onMouseDown(event):
 	global mousedown, move_joint, hover0, param2
 	mousedown = 1
 	if hover_joint >= 0:
-		f0 = fkin0(x, param)
+		f0 = fkin0(x[:param.nbVarX], param)
 		param2.l = np.append(param.l[:hover_joint], np.linalg.norm(f0[:,hover_joint] - mouse))
 		param2.nbVarX = hover_joint+1
 		move_joint = hover_joint
@@ -281,7 +298,7 @@ def clear_screen():
 
 def draw_robot(x, color):
 	global hover_joint
-	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
+	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.1)
 	
 	f = fkin0(x, param)
 	
@@ -323,6 +340,7 @@ def draw_robot(x, color):
 			ctx.strokeStyle = color
 			ctx.stroke(obj)
 			if ctx.isPointInStroke(obj, mouse0[0], mouse0[1]) and move_joint < 0:
+				console.log(i)
 				hover_joint = i
 		
 		# Draw articulations
@@ -336,7 +354,7 @@ def draw_robot(x, color):
 	
 
 def draw_selected_point(f, color):
-	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
+	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.1)
 	# Draw object
 	obj = Path2D.new()
 	obj.arc(0, 0, 6, 0, 2*np.pi)
@@ -351,8 +369,8 @@ def controlCommand(x, param):
 		f = fkin(x[:move_joint+1], param2)
 		J = Jkin(x[:move_joint+1], param2)
 #		u[:move_joint+1] = np.linalg.pinv(J) @ (mouse - f) * 5 
-		pinvJ = np.linalg.inv(J.T @ J + np.eye(param2.nbVarX) * 1E4) @ J.T # Damped pseudoinverse
-		u[:move_joint+1] = pinvJ @ (mouse - f) * 5 
+#		pinvJ = np.linalg.inv(J.T @ J + np.eye(param2.nbVarX) * 1E4) @ J.T # Damped pseudoinverse
+		u[:move_joint+1] = J.T @ (mouse - f) * 1E-1 
 	return u
 
 #########################################################################################
@@ -365,33 +383,36 @@ def errorHandler(e):
 	#el.textContent = msg
 	
 #########################################################################################
-x = np.array([3*np.pi/4, -np.pi/2, -np.pi/4]) # Initial robot state
-u = np.zeros(param.nbVarX)
+x = np.zeros(2*param.nbVarX) # Initial robot state (position and velocity)
+u = np.zeros(param.nbVarX) # Input commands (torque commands)
 
 while True:
 	
-	try:
-		u = controlCommand(x, param)
-	except Exception as e:
-		errorHandler(e)
-		#u = np.zeros(param.nbVarX)
-		def controlCommand(x, param):
-			u = np.zeros(param.nbVarX)
-			return u
+#	try:
+#		u = controlCommand(x, param)
+#	except Exception as e:
+#		errorHandler(e)
+#		#u = np.zeros(param.nbVarX)
+#		def controlCommand(x, param):
+#			u = np.zeros(param.nbVarX)
+#			return u
 	
-	x += u * param.dt
+	u = controlCommand(x, param) # Torque commands
+	ddx = fdyn(x, u, param) # Compute accelerations
+#	x += np.append(x[param.nbVarX:], ddx) * param.dt # Update state
+	x += np.append(x[param.nbVarX:] + 0.5 * ddx * param.dt, ddx) * param.dt # Update state
 	
 	# Reinit hovering variables
 	hover_joint = -1
 	
 	# Rendering
 	clear_screen()
-	draw_robot(x, '#AAAAAA')
+	draw_robot(x[:param.nbVarX], '#AAAAAA')
 	if move_joint >= 0:
 		f = fkin(x[:move_joint+1], param2)
 		draw_selected_point(f, '#777777')
 
-	await asyncio.sleep(0.01)
+	await asyncio.sleep(0.001)
 
 </py-script>
 
