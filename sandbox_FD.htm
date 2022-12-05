@@ -105,6 +105,9 @@
 			<li><a href='exercise05b.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
 		    <div class='p-1 mb-0 bg-dark text-white font-monospace'>5b</div>
 			<div class='p-1 mb-0'>Inverse dynamics and impedance control</div></a></li>
+			<li><a href='exercise06.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
+		    <div class='p-1 mb-0 bg-dark text-white font-monospace'>06</div>
+			<div class='p-1 mb-0'>Planning with linear quadratic regulator (LQR)</div></a></li>
 		  </ul>
 		</div>
 	  </li>
@@ -209,15 +212,14 @@ def fdyn(x, u, param):
 #            C[k,i] = -l[0,k] * l[0,i] * np.sin(L[k,:] @ x[:param.nbVarX] - L[i,:] @ x[:param.nbVarX]) * S
 	# Computation in matrix form of G, M, and C
 	G = -np.sum(Lm,1) * param.l/100 * np.cos(L @ x[:param.nbVarX]) * param.gravity
-	M = (l.T * l) * np.cos(L @ x[:param.nbVarX] - L @ x[:param.nbVarX]) * (Lm**.5 @ ((Lm**.5).T))
 	C = -(l.T * l) * np.sin(L @ x[:param.nbVarX] - L @ x[:param.nbVarX]) * (Lm**.5 @ ((Lm**.5).T)) 
-   
+	M = (l.T * l) * np.cos(L @ x[:param.nbVarX] - L @ x[:param.nbVarX]) * (Lm**.5 @ ((Lm**.5).T))
+	
 	G = L.T @ G
+	C = L.T @ C
 	M = L.T @ M @ L 
 	# Compute acceleration
-#	ddx = np.linalg.inv(M) @ (u + G + L.T @ C @ (L @ x[param.nbVarX:])**2) - L @ x[param.nbVarX:] * param.damping
-	ddx = np.linalg.inv(M) @ (u + G + L.T @ C @ (L @ x[param.nbVarX:])**2) - x[param.nbVarX:] * param.damping
-#	ddx = np.linalg.inv(M) @ (u + G + L.T @ C @ (L @ x[param.nbVarX:])**2 - x[param.nbVarX:] * param.damping)
+	ddx = np.linalg.inv(M) @ (u + G + C @ (L @ x[param.nbVarX:])**2) - x[param.nbVarX:] * param.damping
 	return ddx
 
 
@@ -389,7 +391,7 @@ def controlCommand(x, param):
 		J = Jkin(x[:move_joint+1], param2)
 #		u[:move_joint+1] = np.linalg.pinv(J) @ (mouse - f) * 5 
 #		pinvJ = np.linalg.inv(J.T @ J + np.eye(param2.nbVarX) * 1E4) @ J.T # Damped pseudoinverse
-		u[:move_joint+1] = J.T @ (mouse - f) * 1E-2
+		u[:move_joint+1] += J.T @ (mouse - f) * 1E-2 # Torque commands
 	return u
 
 #########################################################################################
