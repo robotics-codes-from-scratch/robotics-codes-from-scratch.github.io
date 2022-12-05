@@ -187,13 +187,13 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 
 <ul class='list-group list-group-numbered'>
 	<li class='list-group-item'>
-		Change the code in the "LQR in task space" tab so that the point mass system passes through any point on the pink line at timestep 20 and reaches the yellow point at time step 49. To verify your solution, you can change the positions of the pink and yellow objects by dragging them and change their shape by redefining the precision matrices.
+		Change the code in the <i>LQR in task space</i> tab so that the point mass system passes through any point on the pink line at timestep 20 and reaches the yellow point at time step 49. To verify your solution, you can change the positions of the pink and yellow objects by dragging them and change their shape by redefining the precision matrices.
 	</li>
 	<li class='list-group-item'>
-		Change the code in the "LQR in task space" tab by setting <code>param.nbDeriv=2</code> so that the point-mass system is controlled with acceleration commands instead of velocity commands. Set <code>param.r</code> to a higher value until you see that it does not reach the pink line anymore. Set <code>param.nbDeriv=1</code> again to compare the smoothness of the two trajectories.
+		Change the code in the <i>LQR in task space</i> tab by setting <code>param.nbDeriv=2</code> so that the point-mass system is controlled with acceleration commands instead of velocity commands. Set <code>param.r</code> to a higher value until you see that it does not reach the pink line anymore. Set <code>param.nbDeriv=1</code> again to compare the smoothness of the two trajectories.
 	</li>
 	<li class='list-group-item'>
-		Change the code in the "LQR in joint space" tab so that the first viapoint is a 'picking configuration' (pink object) and the second viapoint is a 'placing configuration' (yellow object).
+		Change the code in the <i>LQR in joint space</i> tab so that the first viapoint is a 'picking configuration' (pink object) and the second viapoint is a 'placing configuration' (yellow object).
 	</li>
 </ul><br>
 <!-- <div class='row'> 
@@ -250,72 +250,48 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 	</li> -->
   </ul>
   <div class='tab-content' id='myTabContent'>
-	<div class='tab-pane fade show active' id='question1-tab-pane' role='tabpanel' aria-labelledby='question1-tab' tabindex='0'><br>
+	<div class='tab-pane fade show active' id='question1-tab-pane' role='tabpanel' aria-labelledby='question1-tab' tabindex='0'>
 		<py-repl std-out='output' std-err='errors'>
-param.nbDeriv = 1 # Number of derivatives, 2 for acceleration control
+param.nbVarPos = 3 # Dimension of position
+param.nbDeriv = 1 # Number of derivatives (1 for velocity commands)
 param.nbVarX = param.nbVarPos * param.nbDeriv # Dimension of the state space
-
-# precision of the first viapoint
-Q1 = np.eye(param.nbVarX)
-# precision of the second viapoint
-Q2 = np.eye(param.nbVarX)
-# precision of the control command
-param.r = 1e-2
-
-# Compute transfer matrices
+param.r = 1e-2 # precision of the control command
 Sx, Su = compute_transfer_matrices(param)
+
+# precision matrix of the first viapoint
+Q1 = np.eye(param.nbVarX)
+# precision matrix of the second viapoint
+Q2 = np.eye(param.nbVarX)
 
 # Time occurrence of viapoints
 tl = np.array([24, 49])
 idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)]) 
 				
-x = np.array([np.pi/3, np.pi/2, 0.]) # Initial position
-
-def solve_LQR(x0, param):
-  Q = np.identity(param.nbVarX * param.nbPoints)
-  Q[:param.nbVarX, :param.nbVarX] = Q1
-  Q[param.nbVarX:, param.nbVarX:] = Q2
-  R = I * param.r
-  xd = np.vstack([param.Mu, np.zeros((param.nbVarX-param.nbVarPos, param.nbPoints))]).T.flatten()
-  u_hat = np.linalg.inv(Su[idx.flatten()].T @ Q @ Su[idx.flatten()] + R) @ Su[idx.flatten()].T @ Q @ (xd - Sx[idx.flatten()] @ x0)
-  x_hat = (Sx @ x0 + Su @ u_hat).reshape((param.nbData, -1))
-  return x_hat
+x = np.array([1, 1, 0]) # Initial state
 		</py-repl>
 			
 	</div><br>
-	<div class='tab-pane fade' id='question2-tab-pane' role='tabpanel' aria-labelledby='question2-tab' tabindex='0'><br>
+	<div class='tab-pane fade' id='question2-tab-pane' role='tabpanel' aria-labelledby='question2-tab' tabindex='0'>
 		<py-repl std-out='output' std-err='errors'>
+param.nbVarPos = 3 # Dimension of position
 param.nbDeriv = 1 # Number of derivatives, 2 for acceleration control
 param.nbVarX = param.nbVarPos*param.nbDeriv # Dimension of the state space
-
-# precision of the first viapoint
-Q1 = np.eye(param.nbVarX)
-# precision of the second viapoint
-Q2 = np.eye(param.nbVarX)
-# precision of the control command
-param.r = 1e-2
-
-x_vias[0] = np.array([-np.pi/4, np.pi/2, np.pi])
-x_vias[1] = np.array([-np.pi/2, np.pi/2, np.pi])
-
-# Compute transfer matrices
+param.r = 1e-2 # precision of the control command
 Sx, Su = compute_transfer_matrices(param)
+
+# precision matrix of the first viapoint
+Q1 = np.eye(param.nbVarX)
+# precision matrix of the second viapoint
+Q2 = np.eye(param.nbVarX)
+
+x_vias[0] = np.array([-np.pi/3, np.pi/2, np.pi]) # 1st viapoint
+x_vias[1] = np.array([-np.pi/2, np.pi/2, np.pi]) # 2nd viapoint
 
 # Time occurrence of viapoints
 tl = np.array([24, 49])
 idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)]) 
 
-x = np.array([np.pi/3, np.pi/2, 0.]) # Initial position
-
-def solve_LQR(x0, param):
-  Q = np.identity(param.nbVarX * param.nbPoints)
-  Q[:param.nbVarX, :param.nbVarX] = Q1
-  Q[param.nbVarX:, param.nbVarX:] = Q2
-  R = I * param.r
-  xd = np.vstack([param.Mu, np.zeros((param.nbVarX-param.nbVarPos, param.nbPoints))]).T.flatten()
-  u_hat = np.linalg.inv(Su[idx.flatten()].T @ Q @ Su[idx.flatten()] + R) @ Su[idx.flatten()].T @ Q @ (xd - Sx[idx.flatten()] @ x0)
-  x_hat = (Sx @ x0 + Su @ u_hat).reshape((param.nbData, -1))
-  return x_hat
+x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial state
 		</py-repl>
 			
 	</div><br>
@@ -464,14 +440,15 @@ param.nbVarX = param.nbVarPos*param.nbDeriv #
 param.l = [79, 96, 55] # Robot links lengths
 param.sz = [50, 30] # Size of objects
 param.Mu = np.array([[100, 0, 0.], [100, 100, 0.]]).T # Viapoints 
-param.r = 1e-6
+initial_viapoints = param.Mu.copy()
+param.r = 1e-2
 param.tab = 'question1-tab-pane'
+param.prev_tab = 'question1-tab-pane'
 x_vias = np.zeros((2, param.nbVarX))
 
 # Precision matrix
 Q1 = np.eye(param.nbVarX)*1e0
 Q2 = np.eye(param.nbVarX)*1e0
-
 
 
 # Control weight matrix
@@ -597,8 +574,9 @@ tabEl = document.querySelectorAll("button[data-bs-toggle='tab']")
 def tab_fun(event):
 	activated_pane = document.querySelector(event.target.getAttribute('data-bs-target'))
 	if param.tab != activated_pane.id: # tab change occurred
+		param.prev_tab = param.tab
 		param.tab = activated_pane.id
-		reset_Q()
+
 for tab in tabEl:
 	tab.addEventListener('shown.bs.tab', create_proxy(tab_fun))
 #########################################################################################
@@ -728,7 +706,7 @@ def draw_viapoint(id, param, color):
 	radius_y = 2*np.sqrt(5.9991*s[1])*2
 	rotation = np.arctan2(v[1], v[0])
 
-	obj.ellipse(0, 0, radius_x, radius_y, rotation, 0, 2*np.pi)
+	obj.ellipse(0, 0, radius_x, radius_y, 0, 0, 2*np.pi)
 	#obj.rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
 	ctx.fillStyle = color
 	ctx.fill(obj)
@@ -741,9 +719,9 @@ def draw_viapoint(id, param, color):
 def draw_object(id, param, color):
 	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
 	if id == 0:
-		ctx.translate(-100, 140)
+		ctx.translate(-150, 140)
 	if id == 1:
-		ctx.translate(100, 140)
+		ctx.translate(150, 140)
 
 	obj = Path2D.new()
 
@@ -780,7 +758,6 @@ def draw_line(color):
 	ctx.stroke()
 
 def inverse_kinematics(x, t, fs, param, max_iter):
-
 	x_next = x.copy()
 	for i in range(max_iter):
 		f_ee = fkin(x_next, param)
@@ -799,8 +776,8 @@ def errorHandler(e):
 	#el.textContent = msg
 	
 #########################################################################################
-x = np.array([np.pi/3, np.pi/2, np.pi/4]) # Initial robot state
-x_vias[0] = np.array([-np.pi/4, np.pi/2, np.pi])
+x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
+x_vias[0] = np.array([-np.pi/3, np.pi/2, np.pi])
 x_vias[1] = np.array([-np.pi/2, np.pi/2, np.pi])
 
 u = np.zeros(param.nbVarX)
@@ -808,12 +785,9 @@ u = np.zeros(param.nbVarX)
 t0 = 0
 t = 0
 tf = 0
-max_iter=20
+max_iter = 20
 while True:
-	x0 = np.append(x.copy(), np.zeros(param.nbVarX-param.nbVarPos))
-	
-#	time = performance.now() * 0.0005;
-	t0 += 10.
+	t0 += 10
 	if t0 > 19:
 		t0 = 0
 		if t > param.nbData-2:
@@ -825,8 +799,8 @@ while True:
 		else:
 			t += 1
 			max_iter = 5
+	x0 = np.append(x, np.zeros(param.nbVarX-param.nbVarPos))
 	
-	#if hover_joint >= 0 or hover_obj>=0 or selected_obj>=0 or move_joint >=0:
 	if param.tab == 'question1-tab-pane':
 		xs = solve_LQR(x0, param)
 	else:
@@ -850,6 +824,9 @@ while True:
 		param.Mu[:,1] = x_vias[1]
 
 	else:
+		if param.prev_tab == 'question2-tab-pane':
+			param.Mu = initial_viapoints.copy()
+
 		draw_line('#FF3399')
 		draw_viapoint(0, param, '#FF3399')
 		draw_viapoint(1, param, 'rgb(182, 196, 23)')
