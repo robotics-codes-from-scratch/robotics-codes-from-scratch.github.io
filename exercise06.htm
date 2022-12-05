@@ -251,8 +251,7 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
   </ul>
   <div class='tab-content' id='myTabContent'>
 	<div class='tab-pane fade show active' id='question1-tab-pane' role='tabpanel' aria-labelledby='question1-tab' tabindex='0'><br>
-		<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
-			<py-repl std-out='output' std-err='errors'>
+		<py-repl std-out='output' std-err='errors'>
 param.nbDeriv = 1 # Number of derivatives, 2 for acceleration control
 param.nbVarX = param.nbVarPos * param.nbDeriv # Dimension of the state space
 
@@ -281,13 +280,11 @@ def solve_LQR(x0, param):
   u_hat = np.linalg.inv(Su[idx.flatten()].T @ Q @ Su[idx.flatten()] + R) @ Su[idx.flatten()].T @ Q @ (xd - Sx[idx.flatten()] @ x0)
   x_hat = (Sx @ x0 + Su @ u_hat).reshape((param.nbData, -1))
   return x_hat
-			</py-repl>
-		</div>
+		</py-repl>
 			
 	</div><br>
 	<div class='tab-pane fade' id='question2-tab-pane' role='tabpanel' aria-labelledby='question2-tab' tabindex='0'><br>
-		<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
-			<py-repl std-out='output' std-err='errors'>
+		<py-repl std-out='output' std-err='errors'>
 param.nbDeriv = 1 # Number of derivatives, 2 for acceleration control
 param.nbVarX = param.nbVarPos*param.nbDeriv # Dimension of the state space
 
@@ -319,12 +316,10 @@ def solve_LQR(x0, param):
   u_hat = np.linalg.inv(Su[idx.flatten()].T @ Q @ Su[idx.flatten()] + R) @ Su[idx.flatten()].T @ Q @ (xd - Sx[idx.flatten()] @ x0)
   x_hat = (Sx @ x0 + Su @ u_hat).reshape((param.nbData, -1))
   return x_hat
-			</py-repl>
-		</div>
+		</py-repl>
 			
 	</div><br>
 	<!-- <div class='tab-pane fade' id='answer1-tab-pane' role='tabpanel' aria-labelledby='answer1-tab' tabindex='0'>
-		<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
 			<py-repl std-out='output' std-err='errors'>
 			</py-repl>
 		</div>
@@ -342,7 +337,6 @@ def solve_LQR(x0, param):
 			<py-repl std-out='output' std-err='errors'>
 
 			</py-repl>
-		</div>
 	</div> -->
   </div> 
 

@@ -175,19 +175,17 @@ Change this function to send velocity commands <code>u</code> to reach the targe
   </ul>
   <div class='tab-content' id='myTabContent'>
 	<div class='tab-pane fade show active' id='question4-tab-pane' role='tabpanel' aria-labelledby='question4-tab' tabindex='0'>
-		<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
-			<py-repl std-out='output' std-err='errors'>
-			x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
-			def controlCommand(x, param):
-			  target_position = param.Mu[:2]
-			  current_ee_position = fkin(x, param)[:2]
-			  jacobian = Jkin(x, param)[:2]
+		<py-repl std-out='output' std-err='errors'>
+		x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
+		def controlCommand(x, param):
+		  target_position = param.Mu[:2]
+		  current_ee_position = fkin(x, param)[:2]
+		  jacobian = Jkin(x, param)[:2]
 
-			  u = np.zeros(param.nbVarX) # Implement here
+		  u = np.zeros(param.nbVarX) # Implement here
 
-			  return u
-			</py-repl> <!--output='repl-out' std-out='repl-out'-->
-		</div>
+		  return u
+		</py-repl> 
 	</div>
 	<div class='tab-pane fade' id='answer4-tab-pane' role='tabpanel' aria-labelledby='answer4-tab' tabindex='0'>
 		<py-repl std-out='output' std-err='errors'>
@@ -202,7 +200,7 @@ Change this function to send velocity commands <code>u</code> to reach the targe
 		  u = alpha * np.linalg.pinv(jacobian) @ (target_position - current_ee_position) # Position tracking
 		  
 		  return u
-		</py-repl> <!--output='repl-out' std-out='repl-out'-->
+		</py-repl> 
 	</div>
 	<div class='tab-pane fade' id='answer2-tab-pane' role='tabpanel' aria-labelledby='answer2-tab' tabindex='0'>
 		<py-repl std-out='output' std-err='errors'>
