@@ -141,9 +141,12 @@ document.addEventListener('DOMContentLoaded', function() {
 			<li><a href='exercise05b.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
 		    <div class='p-1 mb-0 bg-dark text-white font-monospace'>5b</div>
 			<div class='p-1 mb-0'>Inverse dynamics and impedance control</div></a></li>
-			<li><a href='exercise06.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
-		    <div class='p-1 mb-0 bg-dark text-white font-monospace'>06</div>
+			<li><a href='exercise06a.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
+		    <div class='p-1 mb-0 bg-dark text-white font-monospace'>6a</div>
 			<div class='p-1 mb-0'>Planning with linear quadratic regulator (LQR)</div></a></li>
+			<li><a href='exercise06b.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
+		    <div class='p-1 mb-0 bg-dark text-white font-monospace'>6b</div>
+			<div class='p-1 mb-0'>Planning in joint space with LQR</div></a></li>
 		  </ul>
 		</div>
 	  </li>
@@ -187,60 +190,17 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 
 <ul class='list-group list-group-numbered'>
 	<li class='list-group-item'>
-		Change the code in the <i>LQR in task space</i> tab so that the point mass system passes through any point on the pink line at timestep 20 and reaches the yellow point at time step 49. To verify your solution, you can change the positions of the pink and yellow objects by dragging them and change their shape by redefining the precision matrices.
+		Change the code so that the point mass system passes through any point on the pink line at timestep 20 and reaches the yellow point at time step 49. To verify your solution, you can change the positions of the pink and yellow objects by dragging them and change their shape by redefining the precision matrices.
 	</li>
 	<li class='list-group-item'>
-		Change the code in the <i>LQR in task space</i> tab by setting <code>param.nbDeriv=2</code> so that the point-mass system is controlled with acceleration commands instead of velocity commands. Set <code>param.r</code> to a higher value until you see that it does not reach the pink line anymore. Set <code>param.nbDeriv=1</code> again to compare the smoothness of the two trajectories.
-	</li>
-	<li class='list-group-item'>
-		Change the code in the <i>LQR in joint space</i> tab so that the first viapoint is a 'picking configuration' (pink object) and the second viapoint is a 'placing configuration' (yellow object).
+		Change the code by setting <code>param.nbDeriv=2</code> so that the point-mass system is controlled with acceleration commands instead of velocity commands. Set <code>param.r</code> to a higher value until you see that it does not reach the pink line anymore. Set <code>param.nbDeriv=1</code> again to compare the smoothness of the two trajectories.
 	</li>
 </ul><br>
-<!-- <div class='row'> 
-			    
-	<div class='col-sm-2'> 
-		<p class='text-center'>Q1</p>
-		<div class='input-group'>
-			<input type='text' class='form-control' placeholder='Q11' id='Q111' value='1.'>
-			<input type='text' class='form-control' placeholder='Q12' id='Q112' value='0.'>
-		</div>
-	</div>
 
-	<div class='col-sm-2'> 
-		<p class='text-center'>Q2</p>
-		<div class='input-group'>
-			<input type='text' class='form-control' placeholder='Q11' id='Q211' value='1.'>
-			<input type='text' class='form-control' placeholder='Q12' id='Q212' value='0.'>
-		</div>
-	</div>
-
-	<div class='col-sm-2'> 
-		<p class='text-center'>R</p>
-		<input type='text' class='form-control' placeholder='R' id='r' value='1e-6'>
-	</div>
-</div>
-
-<div class='row'> 
-
-	<div class='col-sm-2'> 
-		<div class='input-group'>
-			<input type='text' class='form-control' placeholder='Q21' id='Q121' value='0.'>
-			<input type='text' class='form-control' placeholder='Q22' id='Q122' value='1.'>
-		</div>
-	</div>
-	<div class='col-sm-2'> 
-		<div class='input-group'>
-			<input type='text' class='form-control' placeholder='Q21' id='Q221' value='0.'>
-			<input type='text' class='form-control' placeholder='Q22' id='Q222' value='1.'>
-		</div>
-	</div>
-</div> -->
 
 <ul class='nav nav-tabs' id='myTab' role='tablist'>
 	<li class='nav-item' role='presentation'>
 	  <button class='nav-link active' id='question1-tab' data-bs-toggle='tab' data-bs-target='#question1-tab-pane' type='button' role='tab' aria-controls='question1-tab-pane' aria-selected='true'>LQR in task space</button>
-	</li>
-	<li class='nav-item' role='presentation'>	  <button class='nav-link' id='question2-tab' data-bs-toggle='tab' data-bs-target='#question2-tab-pane' type='button' role='tab' aria-controls='question2-tab-pane' aria-selected='false'>LQR in joint space</button>
 	</li>
 	<!-- <li class='nav-item' role='presentation'>	  <button class='nav-link' id='answer1-tab' data-bs-toggle='tab' data-bs-target='#answer1-tab-pane' type='button' role='tab' aria-controls='answer1-tab-pane' aria-selected='false'>Answer 1</button>
 	</li> -->
@@ -252,7 +212,7 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
   <div class='tab-content' id='myTabContent'>
 	<div class='tab-pane fade show active' id='question1-tab-pane' role='tabpanel' aria-labelledby='question1-tab' tabindex='0'>
 		<py-repl std-out='output' std-err='errors'>
-param.nbVarPos = 3 # Dimension of position
+param.nbVarPos = 2 # Dimension of position
 param.nbDeriv = 1 # Number of derivatives (1 for velocity commands)
 param.nbVarX = param.nbVarPos * param.nbDeriv # Dimension of the state space
 param.r = 1e-2 # precision of the control command
@@ -267,30 +227,7 @@ Q2 = np.eye(param.nbVarX)
 tl = np.array([24, 49])
 idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)]) 
 				
-x = np.array([1, 1, 0]) # Initial state
-		</py-repl>
-	</div>
-	<div class='tab-pane fade' id='question2-tab-pane' role='tabpanel' aria-labelledby='question2-tab' tabindex='0'>
-		<py-repl std-out='output' std-err='errors'>
-param.nbVarPos = 3 # Dimension of position
-param.nbDeriv = 1 # Number of derivatives, 2 for acceleration control
-param.nbVarX = param.nbVarPos*param.nbDeriv # Dimension of the state space
-param.r = 1e-2 # precision of the control command
-Sx, Su = compute_transfer_matrices(param)
-
-# precision matrix of the first viapoint
-Q1 = np.eye(param.nbVarX)
-# precision matrix of the second viapoint
-Q2 = np.eye(param.nbVarX)
-
-x_vias[0] = np.array([-np.pi/3, np.pi/2, np.pi]) # 1st viapoint
-x_vias[1] = np.array([-np.pi/2, np.pi/2, np.pi]) # 2nd viapoint
-
-# Time occurrence of viapoints
-tl = np.array([24, 49])
-idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)]) 
-
-x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial state
+x = np.array([0, 0]) # Initial state
 		</py-repl>
 	</div>
 	<!-- <div class='tab-pane fade' id='answer1-tab-pane' role='tabpanel' aria-labelledby='answer1-tab' tabindex='0'>
@@ -431,15 +368,15 @@ def Jkin(xt, param):
 param = lambda: None # Lazy way to define an empty class in python
 param.dt = 1e-1 # Time step length
 param.nbData = 50 # Number of datapoints
-param.nbVarU = 3 # Control space dimension (dx1,dx2,dx3)
+param.nbVarU = 2 # Control space dimension (dx1,dx2,dx3)
 param.nbPoints = 2 # Number of viapoints
-param.nbDeriv = 1 # 
-param.nbVarPos = 3
-param.nbVarX = param.nbVarPos*param.nbDeriv # 
+param.nbDeriv = 1 
+param.nbVarPos = 2
+param.nbVarX = param.nbVarPos * param.nbDeriv  
 
 param.l = [79, 96, 55] # Robot links lengths
 param.sz = [50, 30] # Size of objects
-param.Mu = np.array([[100, 0, 0.], [100, 100, 0.]]).T # Viapoints 
+param.Mu = np.array([[100, 0], [100, 100]]).T # Viapoints 
 initial_viapoints = param.Mu.copy()
 param.r = 1e-2
 param.tab = 'question1-tab-pane'
@@ -450,10 +387,8 @@ x_vias = np.zeros((2, param.nbVarX))
 Q1 = np.eye(param.nbVarX)*1e0
 Q2 = np.eye(param.nbVarX)*1e0
 
-
 # Control weight matrix
 I = np.identity((param.nbData-1) * param.nbVarU) 
-
 
 def compute_transfer_matrices(param):
 	A1d = np.zeros((param.nbDeriv,param.nbDeriv))
@@ -495,7 +430,6 @@ def solve_LQR(x0, param):
 	u_hat = np.linalg.inv(Su[idx.flatten()].T @ Q @ Su[idx.flatten()] + R) @ Su[idx.flatten()].T @ Q @ (xd - Sx[idx.flatten()] @ x0)
 	x_hat = (Sx @ x0 + Su @ u_hat).reshape((param.nbData, -1))
 	return x_hat
-
 
 #########################################################################################
 
@@ -570,15 +504,6 @@ document.addEventListener('touchend', create_proxy(onMouseUp)) #for mobile inter
 document.addEventListener('wheel', create_proxy(onWheel)) #for standard mouse
 
 
-tabEl = document.querySelectorAll("button[data-bs-toggle='tab']")
-def tab_fun(event):
-	activated_pane = document.querySelector(event.target.getAttribute('data-bs-target'))
-	if param.tab != activated_pane.id: # tab change occurred
-		param.prev_tab = param.tab
-		param.tab = activated_pane.id
-
-for tab in tabEl:
-	tab.addEventListener('shown.bs.tab', create_proxy(tab_fun))
 #########################################################################################
 
 canvas = document.getElementById('canvas')
@@ -687,27 +612,27 @@ def draw_robot(xt, color1, color2, color3, color4, selectable, robot_id):
 #		ctx.lineTo(f[0,i], f[1,i])
 #	ctx.stroke()
 
-
 def draw_viapoint(id, param, color):
 	global selected_obj, hover_obj
 	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
 	ctx.translate(param.Mu[0, id], param.Mu[1, id])
-	# Draw object
-	obj = Path2D.new()
-	#obj.arc(0, 0, 8, 0, 2*np.pi)
 	if id == 0:
 		s, U = np.linalg.eig(np.linalg.inv(Q1[:2, :2]))
 	else:
 		s, U = np.linalg.eig(np.linalg.inv(Q2[:2, :2]))
-	s = np.real(s)
-	U = np.real(U)
-	v = U[:,np.argmax(s)] # eigenvector corresponding to the largest eigenvalue
-	radius_x = 2*np.sqrt(5.9991*s[0])*2
-	radius_y = 2*np.sqrt(5.9991*s[1])*2
-	rotation = np.arctan2(v[1], v[0])
-
-	obj.ellipse(0, 0, radius_x, radius_y, 0, 0, 2*np.pi)
-	#obj.rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
+	# Draw object
+	obj = Path2D.new()
+	al = np.linspace(-np.pi, np.pi, 50)
+	D = np.diag(s)*100
+	R = np.real(U @ np.sqrt(D+0j))
+	msh = (R @ np.array([np.cos(al),np.sin(al)])).T #+ param.Mu[:2,id]
+	obj = Path2D.new()
+	obj.moveTo(msh[0,0], msh[0,1])
+	for i in range(msh.shape[0]-1):
+		obj.lineTo(msh[i+1,0], msh[i+1,1])
+	obj.closePath()
+	ctx.strokeStyle = '#CCCCCC'
+	ctx.stroke(obj)
 	ctx.fillStyle = color
 	ctx.fill(obj)
 
@@ -776,9 +701,7 @@ def errorHandler(e):
 	#el.textContent = msg
 	
 #########################################################################################
-x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
-x_vias[0] = np.array([-np.pi/3, np.pi/2, np.pi])
-x_vias[1] = np.array([-np.pi/2, np.pi/2, np.pi])
+x = np.array([0,0]) # Initial robot state
 
 u = np.zeros(param.nbVarX)
 
@@ -801,10 +724,7 @@ while True:
 			max_iter = 5
 	x0 = np.append(x, np.zeros(param.nbVarX-param.nbVarPos))
 	
-	if param.tab == 'question1-tab-pane':
-		xs = solve_LQR(x0, param)
-	else:
-		xs = solve_LQR(x0, param)
+	xs = solve_LQR(x0, param)
 			
 	# Reinit hovering variables
 	hover_joint = -1
@@ -812,31 +732,16 @@ while True:
 
 	# Rendering
 	clear_screen()
-	
-	if param.tab == 'question2-tab-pane':
-		draw_ground()
-		draw_object(1, param,'#FF3399')
-		draw_object(0, param,'rgb(182, 196, 23)')
-		draw_robot(x_vias[0], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', True, 0)
-		draw_robot(x_vias[1], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', True, 1)
-		draw_robot(xs[t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False, -1)
-		param.Mu[:,0] = x_vias[0]
-		param.Mu[:,1] = x_vias[1]
+	draw_line('#FF3399')
+	draw_viapoint(0, param, '#FF3399')
+	draw_viapoint(1, param, 'rgb(182, 196, 23)')
+	draw_lqr_path(xs, param, 'rgb(93, 93, 211)')
 
-	else:
-		if param.prev_tab == 'question2-tab-pane':
-			param.Mu = initial_viapoints.copy()
-
-		draw_line('#FF3399')
-		draw_viapoint(0, param, '#FF3399')
-		draw_viapoint(1, param, 'rgb(182, 196, 23)')
-		draw_lqr_path(xs, param, 'rgb(93, 93, 211)')
-	
-		# Object selection
-		if selected_obj>= 0:
-			param.Mu[:2,selected_obj] = mouse
-			param.Mu[0,selected_obj] = max(min(param.Mu[0,selected_obj],225), -225)
-			param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],175), -175)
+	# Object selection
+	if selected_obj>= 0:
+		param.Mu[:2,selected_obj] = mouse
+		param.Mu[0,selected_obj] = max(min(param.Mu[0,selected_obj],225), -225)
+		param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],175), -175)
 		
 	await asyncio.sleep(0.0001)
 		
