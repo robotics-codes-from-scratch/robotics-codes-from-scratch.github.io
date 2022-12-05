@@ -181,13 +181,13 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 <div class='col-sm-1'></div>
 <div class='col-sm-7'>
 
-<h1>Exercise 6<br>Planning in joint space with LQR</h1>
+<h1>Exercise 6b<br>Planning in joint space with LQR</h1>
 
 <p>This exercise extends the previous example with an optimal control problem in joint space. You can specify the precision matrices used in LQR, change the poses of two viapoints, and then visualize the resulting motion found by LQR.</p>
 
 <ul class='list-group list-group-numbered'>
 	<li class='list-group-item'>
-		Change the code in the <i>LQR in joint space</i> tab so that the first viapoint is a 'picking configuration' (pink object) and the second viapoint is a 'placing configuration' (yellow object).
+		Change the code in the <i>LQR in joint space</i> tab so that the first viapoint is a 'picking configuration' (pink object) and the second viapoint is a 'placing configuration' (green object).
 	</li>
 </ul><br>
 
@@ -593,9 +593,10 @@ def draw_robot(xt, color1, color2, color3, color4, selectable, robot_id):
 def draw_object(id, param, color):
 	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
 	if id == 0:
-		ctx.translate(-150, 140)
+		ctx.translate(150, -10)
+		ctx.rotate(np.pi/2)
 	if id == 1:
-		ctx.translate(150, 140)
+		ctx.translate(100, 140)
 
 	obj = Path2D.new()
 
@@ -651,9 +652,9 @@ while True:
 	clear_screen()
 	draw_ground()
 	draw_object(1, param,'#FF3399')
-	draw_object(0, param,'rgb(182, 196, 23)')
-	draw_robot(param.Mu[:,0], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', True, 0)
-	draw_robot(param.Mu[:,1], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', True, 1)
+	draw_object(0, param,'#33FF99')
+	draw_robot(param.Mu[:,0], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', False, 0)
+	draw_robot(param.Mu[:,1], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', False, 1)
 	draw_robot(xs[t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False, -1)
 		
 	await asyncio.sleep(0.0001)
