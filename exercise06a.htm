@@ -186,14 +186,17 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 <p>Previously, in exercises 4 and 5, we defined a desired target position $\bm{x}_{\text{target}}$ defined either in joint space or task space and we wanted the robot to reach this target position. We did not specify the timings or the viapoints/paths that the robot should follow to reach these target positions.<p>
 <p>Optimal control is the principled way of planning a robot motion by specifying timings and/or a set of viapoints or a reference trajectory to follow.</p>
 <p>Linear quadratic regulator (LQR) is the most simple form of optimal control. In this exercise, the goal is to understand how LQR works and how it can be applied to robot planning problems. You can read more about this in Section 7 of the <a href='doc/rcfs.pdf' target='_blank'>RCFS documentation</a>.</p>
-<p>This exercise allows you to specify the precision matrices used in LQR and to change the placement of two viapoints. You can then visualize the resulting trajectory found by LQR.</p>
+<p>This exercise allows you to specify the precision matrices used in LQR and to change the placement of two viapoints. The series of control commands generates a resulting path that can be visualized on the right figure. The graphs show the corresponding covariance matrices (inverses of precision matrices) for two viapoints (in pink and green).</p>
 
 <ul class='list-group list-group-numbered'>
 	<li class='list-group-item'>
 		Change the code so that the point mass system passes through any point on the pink line at timestep 20 and reaches the green point at time step 49. To verify your solution, you can change the positions of the pink and green objects by dragging them and change their shape by redefining the precision matrices.
 	</li>
 	<li class='list-group-item'>
-		Change the code by setting <code>param.nbDeriv=2</code> so that the point-mass system is controlled with acceleration commands instead of velocity commands. Set <code>param.r</code> to a higher value until you see that it does not reach the pink line anymore. Set <code>param.nbDeriv=1</code> again to compare the smoothness of the two trajectories.
+		Change the code by setting <code>param.nbDeriv=2</code> so that the point-mass system is controlled with acceleration commands instead of velocity commands (system dynamics defined as a double integrator instead of a simple integrator). Set <code>param.r</code> to a higher value until you see that it does not reach the pink line anymore. Set <code>param.nbDeriv=1</code> again to compare the smoothness of the two trajectories.
+	</li>
+	<li class='list-group-item'>
+		Change the code so that both keypoints should be reached at time step 49. What do you observe? Change the precision matrices so that one of the corresponding covariance is elongated horizontally and the other is elongated vertically (large along one direction and thin anlong the other direction). Try to change the locations of the two viapoints. What do you observe?
 	</li>
 </ul><br>
 
