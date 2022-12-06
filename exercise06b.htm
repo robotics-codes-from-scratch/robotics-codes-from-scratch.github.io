@@ -329,6 +329,40 @@ def Jkin(xt, param):
 	])
 	return J
 
+def compute_transfer_matrices(param):
+	A1d = np.zeros((param.nbDeriv,param.nbDeriv))
+	B1d = np.zeros((param.nbDeriv,1))
+
+	for i in range(param.nbDeriv):
+		A1d += np.diag( np.ones(param.nbDeriv-i) ,i ) * param.dt**i * 1/factorial(i)
+		B1d[param.nbDeriv-i-1] = param.dt**(i+1) * 1/factorial(i+1)
+
+	A = np.kron(A1d,np.identity(param.nbVarPos))
+	B = np.kron(B1d,np.identity(param.nbVarPos))
+
+	# Build Sx and Su transfer matrices
+	Su = np.zeros((param.nbVarX*param.nbData,param.nbVarPos * (param.nbData-1))) 
+	Sx = np.kron(np.ones((param.nbData,1)),np.eye(param.nbVarX,param.nbVarX))
+
+	M = B
+	for i in range(1,param.nbData):
+		Sx[i*param.nbVarX:param.nbData*param.nbVarX,:] = np.dot(Sx[i*param.nbVarX:param.nbData*param.nbVarX,:], A)
+		Su[param.nbVarX*i:param.nbVarX*i+M.shape[0],0:M.shape[1]] = M
+		M = np.hstack((np.dot(A,M),B)) # [0,nb_state_var-1]
+	return Sx, Su
+
+def solve_LQR(x0, param):
+	Q = np.identity(param.nbVarX * param.nbPoints)
+	Q[:param.nbVarX, :param.nbVarX] = Q1
+	Q[param.nbVarX:, param.nbVarX:] = Q2
+	R = I*param.r
+	# Batch LQR Reproduction
+	# =====================================
+	xd = np.vstack([param.Mu, np.zeros((param.nbVarX-param.nbVarPos, param.nbPoints))]).T.flatten()
+	u_hat = np.linalg.inv(Su[idx.flatten()].T @ Q @ Su[idx.flatten()] + R) @ Su[idx.flatten()].T @ Q @ (xd - Sx[idx.flatten()] @ x0)
+	x_hat = (Sx @ x0 + Su @ u_hat).reshape((param.nbData, -1))
+	return x_hat
+
 ## Parameters
 # ===============================
 
@@ -355,46 +389,9 @@ Q2 = np.eye(param.nbVarX)*1e0
 # Control weight matrix
 I = np.identity((param.nbData-1) * param.nbVarU) 
 
-def compute_transfer_matrices(param):
-	A1d = np.zeros((param.nbDeriv,param.nbDeriv))
-	B1d = np.zeros((param.nbDeriv,1))
-
-	for i in range(param.nbDeriv):
-		A1d += np.diag( np.ones(param.nbDeriv-i) ,i ) * param.dt**i * 1/factorial(i)
-		B1d[param.nbDeriv-i-1] = param.dt**(i+1) * 1/factorial(i+1)
-
-	A = np.kron(A1d,np.identity(param.nbVarPos))
-	B = np.kron(B1d,np.identity(param.nbVarPos))
-
-	# Build Sx and Su transfer matrices
-	Su = np.zeros((param.nbVarX*param.nbData,param.nbVarPos * (param.nbData-1))) 
-	Sx = np.kron(np.ones((param.nbData,1)),np.eye(param.nbVarX,param.nbVarX))
-
-	M = B
-	for i in range(1,param.nbData):
-		Sx[i*param.nbVarX:param.nbData*param.nbVarX,:] = np.dot(Sx[i*param.nbVarX:param.nbData*param.nbVarX,:], A)
-		Su[param.nbVarX*i:param.nbVarX*i+M.shape[0],0:M.shape[1]] = M
-		M = np.hstack((np.dot(A,M),B)) # [0,nb_state_var-1]
-	return Sx, Su
-
-
-Sx, Su = compute_transfer_matrices(param)
-
 # Time occurrence of viapoints
 tl = np.array([24, 49])
 idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)]) 
-
-def solve_LQR(x0, param):
-	Q = np.identity(param.nbVarX * param.nbPoints)
-	Q[:param.nbVarX, :param.nbVarX] = Q1
-	Q[param.nbVarX:, param.nbVarX:] = Q2
-	R = I*param.r
-	# Batch LQR Reproduction
-	# =====================================
-	xd = np.vstack([param.Mu, np.zeros((param.nbVarX-param.nbVarPos, param.nbPoints))]).T.flatten()
-	u_hat = np.linalg.inv(Su[idx.flatten()].T @ Q @ Su[idx.flatten()] + R) @ Su[idx.flatten()].T @ Q @ (xd - Sx[idx.flatten()] @ x0)
-	x_hat = (Sx @ x0 + Su @ u_hat).reshape((param.nbData, -1))
-	return x_hat
 
 #########################################################################################
 
@@ -469,17 +466,6 @@ document.addEventListener('touchend', create_proxy(onMouseUp)) #for mobile inter
 document.addEventListener('wheel', create_proxy(onWheel)) #for standard mouse
 
 
-tabEl = document.querySelectorAll("button[data-bs-toggle='tab']")
-def tab_fun(event):
-	activated_pane = document.querySelector(event.target.getAttribute('data-bs-target'))
-	if param.tab != activated_pane.id: # tab change occurred
-		param.prev_tab = param.tab
-		param.tab = activated_pane.id
-	else:
-		param.prev_tab = param.tab
-
-for tab in tabEl:
-	tab.addEventListener('shown.bs.tab', create_proxy(tab_fun))
 #########################################################################################
 
 canvas = document.getElementById('canvas')
@@ -621,8 +607,9 @@ def errorHandler(e):
 	
 #########################################################################################
 x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
-
 u = np.zeros(param.nbVarX)
+
+Sx, Su = compute_transfer_matrices(param)
 
 t0 = 0
 t = 0

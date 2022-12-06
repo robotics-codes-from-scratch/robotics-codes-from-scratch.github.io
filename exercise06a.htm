@@ -186,7 +186,7 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 <p>Previously, in exercises 4 and 5, we defined a desired target position $\bm{x}_{\text{target}}$ defined either in joint space or task space and we wanted the robot to reach this target position. We did not specify the timings or the viapoints/paths that the robot should follow to reach these target positions.<p>
 <p>Optimal control is the principled way of planning a robot motion by specifying timings and/or a set of viapoints or a reference trajectory to follow.</p>
 <p>Linear quadratic regulator (LQR) is the most simple form of optimal control. In this exercise, the goal is to understand how LQR works and how it can be applied to robot planning problems. You can read more about this in Section 7 of the <a href='doc/rcfs.pdf' target='_blank'>RCFS documentation</a>.</p>
-<p>This exercise allows you to specify the precision matrices used in LQR and to change the placement of two viapoints. The series of control commands generates a resulting path that can be visualized on the right figure. The graphs show the corresponding covariance matrices (inverses of precision matrices) for two viapoints (in pink and green).</p>
+<p>This exercise allows you to specify the precision matrices used in LQR and to change the placement of two viapoints. The series of control commands generates a resulting path that can be visualized on the right figure (the black point shows the initial position). The graphs show the corresponding covariance matrices (inverses of precision matrices) for two viapoints (in pink and green).</p>
 
 <ul class='list-group list-group-numbered'>
 	<li class='list-group-item'>
@@ -365,34 +365,6 @@ def Jkin(xt, param):
 	])
 	return J
 
-## Parameters
-# ===============================
-
-param = lambda: None # Lazy way to define an empty class in python
-param.dt = 1e-1 # Time step length
-param.nbData = 50 # Number of datapoints
-param.nbVarU = 2 # Control space dimension (dx1,dx2,dx3)
-param.nbPoints = 2 # Number of viapoints
-param.nbDeriv = 1 
-param.nbVarPos = 2
-param.nbVarX = param.nbVarPos * param.nbDeriv  
-
-param.l = [79, 96, 55] # Robot links lengths
-param.sz = [50, 30] # Size of objects
-param.Mu = np.array([[100, 0], [100, 100]]).T # Viapoints 
-initial_viapoints = param.Mu.copy()
-param.r = 1e-2
-param.tab = 'question1-tab-pane'
-param.prev_tab = 'question1-tab-pane'
-x_vias = np.zeros((2, param.nbVarX))
-
-# Precision matrix
-Q1 = np.eye(param.nbVarX)*1e0
-Q2 = np.eye(param.nbVarX)*1e0
-
-# Control weight matrix
-I = np.identity((param.nbData-1) * param.nbVarU) 
-
 def compute_transfer_matrices(param):
 	A1d = np.zeros((param.nbDeriv,param.nbDeriv))
 	B1d = np.zeros((param.nbDeriv,1))
@@ -415,24 +387,48 @@ def compute_transfer_matrices(param):
 		M = np.hstack((np.dot(A,M),B)) # [0,nb_state_var-1]
 	return Sx, Su
 
-
-Sx, Su = compute_transfer_matrices(param)
-
-# Time occurrence of viapoints
-tl = np.array([24, 49])
-idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)]) 
-
 def solve_LQR(x0, param):
 	Q = np.identity(param.nbVarX * param.nbPoints)
 	Q[:param.nbVarX, :param.nbVarX] = Q1
 	Q[param.nbVarX:, param.nbVarX:] = Q2
-	R = I*param.r
+	R = I * param.r
 	# Batch LQR Reproduction
 	# =====================================
 	xd = np.vstack([param.Mu, np.zeros((param.nbVarX-param.nbVarPos, param.nbPoints))]).T.flatten()
 	u_hat = np.linalg.inv(Su[idx.flatten()].T @ Q @ Su[idx.flatten()] + R) @ Su[idx.flatten()].T @ Q @ (xd - Sx[idx.flatten()] @ x0)
 	x_hat = (Sx @ x0 + Su @ u_hat).reshape((param.nbData, -1))
 	return x_hat
+
+## Parameters
+# ===============================
+
+param = lambda: None # Lazy way to define an empty class in python
+param.dt = 1e-1 # Time step length
+param.nbData = 50 # Number of datapoints
+param.nbVarU = 2 # Control space dimension (dx1,dx2,dx3)
+param.nbPoints = 2 # Number of viapoints
+param.nbDeriv = 1 
+param.nbVarPos = 2
+param.nbVarX = param.nbVarPos * param.nbDeriv  
+param.l = [79, 96, 55] # Robot links lengths
+param.sz = [50, 30] # Size of objects
+param.Mu = np.array([[100, 0], [100, 100]]).T # Viapoints 
+initial_viapoints = param.Mu.copy()
+param.r = 1e-2
+param.tab = 'question1-tab-pane'
+param.prev_tab = 'question1-tab-pane'
+x_vias = np.zeros((2, param.nbVarX))
+
+# Precision matrix
+Q1 = np.eye(param.nbVarX)*1e0
+Q2 = np.eye(param.nbVarX)*1e0
+
+# Control weight matrix
+I = np.identity((param.nbData-1) * param.nbVarU) 
+
+# Time occurrence of viapoints
+tl = np.array([24, 49])
+idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)]) 
 
 #########################################################################################
 
@@ -445,10 +441,7 @@ mouse = np.zeros(2)
 mousedown = 0
 selected_obj = -1
 hover_obj = -1
-hover_joint = -1
-move_joint= -1
 hover0 = np.zeros(2)
-active_robot_id = 0
 
 def onMouseMove(event):
 	global mouse, mouse0, hover0, x ,active_robot_id, x_vias
@@ -528,92 +521,7 @@ def draw_ground():
 	ctx.moveTo(-200, 164)
 	ctx.lineTo(200, 164)
 	ctx.stroke()
-	
-	
-def draw_robot(xt, color1, color2, color3, color4, selectable, robot_id):
-	global hover_joint,active_robot_id
-	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation 
-	# Draw base
-	ctx.translate(0, 81)
-	ctx.lineWidth = '1'
-	ctx.strokeStyle = color3
-	ctx.fillStyle = color1
-	ctx.fill(base1_svg)
-	ctx.stroke(base1_svg) # Outline
-	ctx.stroke(base2_svg) 
 
-	# Draw seg1
-	ctx.rotate(xt[0])
-	ctx.fillStyle = color1
-	ctx.fill(seg11_svg)
-	ctx.stroke(seg11_svg) # Outline
-	ctx.fillStyle = color2
-	if selectable and ctx.isPointInPath(seg12_svg, mouse0[0], mouse0[1]):
-		ctx.fillStyle = '#3399FF'
-		hover_joint = 0
-		active_robot_id = robot_id
-	ctx.fill(seg12_svg)
-	ctx.stroke(seg12_svg)
-	ctx.stroke(seg13_svg)
-	ctx.stroke(seg14_svg)
-	ctx.stroke(seg15_svg)
-	
-	# Draw seg2
-	ctx.translate(0, -79)
-	ctx.rotate(xt[1])
-	ctx.fillStyle = color1
-	ctx.fill(seg21_svg) 
-	ctx.stroke(seg21_svg) # Outline
-	ctx.fillStyle = color2
-	if selectable and ctx.isPointInPath(seg22_svg, mouse0[0], mouse0[1]):
-		ctx.fillStyle = '#FF9933'
-		hover_joint = 1
-		active_robot_id = robot_id
-	ctx.fill(seg22_svg)
-	ctx.stroke(seg22_svg)
-	ctx.stroke(seg23_svg)
-	ctx.stroke(seg24_svg)
-
-	# Draw seg3
-	ctx.translate(0, -96)
-	ctx.rotate(xt[2])
-	ctx.fillStyle = color1
-	ctx.fill(seg31_svg)
-	ctx.stroke(seg31_svg) # Outline
-	ctx.fill(seg32_svg)
-	ctx.stroke(seg32_svg) # Outline
-	ctx.fill(seg33_svg)
-	ctx.stroke(seg33_svg) # Outline
-	ctx.fillStyle = color2
-	if selectable and ctx.isPointInPath(seg34_svg, mouse0[0], mouse0[1]):
-		ctx.fillStyle = '#99FF33'
-		hover_joint = 2
-		active_robot_id = robot_id
-	ctx.fill(seg34_svg)
-	ctx.stroke(seg34_svg)
-	ctx.stroke(seg35_svg)
-	ctx.stroke(seg36_svg)
-	ctx.stroke(seg37_svg)
-
-	# Draw end-effector point
-	ctx.translate(-20.5, -51)
-	ctx.beginPath()
-	ctx.arc(0, 0, 2, 0, 2 * np.pi)
-	ctx.fillStyle = color4
-	ctx.fill()
-	
-#	# Draw skeleton of the kinematic chain
-#	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
-#	ctx.lineCap = 'round'
-#	ctx.lineJoin = 'round'
-#	ctx.lineWidth = '2'
-#	ctx.strokeStyle = '#FF8888'
-#	f = fkin0(x, param)
-#	ctx.beginPath()
-#	ctx.moveTo(0, 81)
-#	for i in range(param.nbVarX+1):
-#		ctx.lineTo(f[0,i], f[1,i])
-#	ctx.stroke()
 
 def draw_viapoint(id, param, color, color2):
 	global selected_obj, hover_obj
@@ -664,7 +572,13 @@ def draw_object(id, param, color):
 
 def draw_lqr_path(xs, param, color):
 	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
+	# Draw initial point
+	ctx.fillStyle = color
+	ctx.beginPath()
+	ctx.arc(xs[0,0], xs[0,1], 5, 0, 2*np.pi)
 	ctx.fill()
+	
+	# Draw path
 	ctx.lineWidth = '3'
 	ctx.strokeStyle = color
 	ctx.beginPath()
@@ -704,32 +618,14 @@ def errorHandler(e):
 	
 #########################################################################################
 x = np.array([0,0]) # Initial robot state
-
 u = np.zeros(param.nbVarX)
+Sx, Su = compute_transfer_matrices(param)
 
-t0 = 0
-t = 0
-tf = 0
-max_iter = 20
 while True:
-	t0 += 10
-	if t0 > 19:
-		t0 = 0
-		if t > param.nbData-2:
-			tf += 1
-			if tf > 10: #Stay some iterations at the final point before starting again
-				t = 0
-				tf = 0
-				max_iter = 20
-		else:
-			t += 1
-			max_iter = 5
-	x0 = np.append(x, np.zeros(param.nbVarX-param.nbVarPos))
-	
+	x0 = np.append(x, np.zeros(param.nbVarX-param.nbVarPos))	
 	xs = solve_LQR(x0, param)
 			
 	# Reinit hovering variables
-	hover_joint = -1
 	hover_obj = -1
 
 	# Rendering
