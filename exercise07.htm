@@ -185,47 +185,117 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 <div class='col-sm-1'></div>
 <div class='col-sm-7'>
 
-<h1>Exercise 6b<br>Planning in joint space with LQR</h1>
-
-<p>This exercise extends the previous example with an optimal control problem in joint space. You can specify the precision matrices used in LQR, change the poses of two viapoints, and then visualize the resulting motion found by LQR.</p>
+<h1>Exercise 7<br>Iterative linear quadratic regulator</h1>
+<p>In Exercise 6a, we have seen how LQR can be used to control a point mass system to pass through a set of intermediate viapoints.</p>
+<p>In Exercise 6b, we have seen how LQR can be used to control a robot with joint angle velocity commands to pass through a set of intermediate joint angle configurations.</p>
+<p>In this exercise we will now see how an <b>iterative linear quadratic regulator (iLQR)</b> can be used to control a robot with joint angle velocity commands</p> 
+<p>We will consider a combination of viapoints in both joint space and task space. The goal will be to have the robot passing through a set of intermediate joint angle configurations and to have its end-effector passing through another set a intermediate viapoints.</p>
+<p>The first viapoint <code>param.viapoint1</code> is defined in the joint space and visualized by the orange robot.</p>
+<p>The second viapoint <code>param.viapoint2</code> is defined in the task space and visualized by the pink object.</p>
+<p>The third viapoint <code>param.viapoint3</code> is defined in the task space and visualized by the green object.</p>
+<p>The goal of this exercise is to plan a path with iLQR that generates a motion passing through a combination of task space and joint space viapoints.</p>
+<p>We consider a single integrator dynamical system with $\bm{x}_t$ and $\bm{u}_t$ representing joint angles and velocity commands at time step $t$, respectively.</p>
+<p>The cost function at a given timestep $t$ is defined by
+\begin{equation*}
+	c(\bm{x}_t,\bm{u}_t) = \sum_{i=1}^3\bm{f}^i(\bm{x}_t)^{\!\trsp} \bm{Q}_{t}^i \bm{f}^i(\bm{x}_t) + \bm{u}_t^\trsp \bm{R}_t \, \bm{u}_t,
+\end{equation*}
+where $\bm{Q}_t^i$ and $\bm{R}_t$ are weight matrices trading off viapoints tracking and control effort. Such cost is quadratic on $\bm{f}^i(\bm{x}_t)$ but can be non-quadratic on $\bm{x}_t$, which requires iLQR to be used instead of LQR.</p>
+<p>The solution to this problem results in the following update of the control commands at each iteration of iLQR 
+\begin{equation*}
+	\Delta\bm{\hat{u}} \!=\! {\Bigg(\bm{S}_{\bm{u}}^\trsp \sum_{i=1}^3\Big(\bm{J}^i(\bm{x})^\trsp \bm{Q}^i \bm{J}^i(\bm{x})\Big) \bm{S}_{\bm{u}} \!+\! \bm{R}\Bigg)}^{\!\!-1}
+	\Bigg(- \bm{S}_{\bm{u}}^\trsp \sum_{i=1}^3\Big(\bm{J}^i(\bm{x})^\trsp \bm{Q}^i \bm{f}^i(\bm{x})\Big) - \bm{R} \, \bm{u} \Bigg).
+\end{equation*}</p>
 
 <ul class='list-group list-group-numbered'>
 	<li class='list-group-item'>
-		Change the code in the <i>LQR in joint space</i> tab so that the first viapoint is a 'picking configuration' (pink object) and the second viapoint is a 'placing configuration' (green object).
+		Change the code in the <code>compute_fJ</code> function so that the robot can pass through the set of viapoints defined in joint space and task space. You can verify your answer by moving the objects and changing the joint angle configurations of the robot for both initial pose (in light gray) and viapoint pose (in orange).
+	</li>
+	<li class='list-group-item'>
+		Move the objects and modify the parameters tl, Q1, Q2 and Q3. Observe the resulting behaviors and the resulting cost.
 	</li>
 </ul><br>
 
 <ul class='nav nav-tabs' id='myTab' role='tablist'>
 	<li class='nav-item' role='presentation'>
-	  <button class='nav-link active' id='question1-tab' data-bs-toggle='tab' data-bs-target='#question1-tab-pane' type='button' role='tab' aria-controls='question1-tab-pane' aria-selected='true'>LQR in joint space</button>
+	  <button class='nav-link active' id='question1-tab' data-bs-toggle='tab' data-bs-target='#question1-tab-pane' type='button' role='tab' aria-controls='question1-tab-pane' aria-selected='true'>Question</button>
+	</li>
+	<li class='nav-item' role='presentation'><button class='nav-link' id='question2-tab' data-bs-toggle='tab' data-bs-target='#question2-tab-pane' type='button' role='tab' aria-controls='question2-tab-pane' aria-selected='false'>Answer</button>
 	</li>
   </ul>
   <div class='tab-content' id='myTabContent'>
 	<div class='tab-pane fade show active' id='question1-tab-pane' role='tabpanel' aria-labelledby='question1-tab' tabindex='0'>
 		<py-repl std-out='output' std-err='errors'>
-param.nbVarPos = 3 # Dimension of position
-param.nbDeriv = 1 # Number of derivatives, 2 for acceleration control
-param.nbVarX = param.nbVarPos*param.nbDeriv # Dimension of the state space
-param.r = 1e-2 # precision of the control command
-Sx, Su = compute_transfer_matrices(param)
+# Control weight matrix
+R = np.identity((param.nbData-1) * param.nbVarU) * 1E-6
 
-# precision matrix of the first viapoint
+# Precision matrices
 Q1 = np.eye(param.nbVarX)
-# precision matrix of the second viapoint
-Q2 = np.eye(param.nbVarX)
-
-param.Mu[:,0] = np.array([-np.pi/3, np.pi/2, np.pi]) # 1st viapoint
-param.Mu[:,1] = np.array([-np.pi/2, np.pi/2, np.pi]) # 2nd viapoint
+Q2 = np.eye(param.nbVarF)
+Q3 = np.eye(param.nbVarF)
 
 # Time occurrence of viapoints
-tl = np.array([24, 49])
-idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)]) 
+tl = np.array([17, 34, 49])
 
-x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial state
+# # Joint angle configuration at the first viapoint
+# print(x[:,tl[0]])
+
+# # End-effector position at the first viapoint
+# print(fkin(x[:,tl[0]], param))
+
+# print(param.viapoint1) #First viapoint
+# print(param.viapoint2) #Second viapoint
+# print(param.viapoint3) #Third viapoint
+
+def compute_fJ(x, param):
+  # Residual when reaching the first viapoint (in joint space, orange robot)
+  f1 = np.zeros(param.nbVarX) # To be replaced
+  # Residual when reaching the second viapoint (in task space, pink object)
+  f2 = np.zeros(param.nbVarF) # To be replaced
+  # Residual when reaching the third viapoint (in task space, green object)
+  f3 = np.zeros(param.nbVarF) # To be replaced
+  # Jacobian of the residual when reaching the first viapoint (in joint space, orange robot)
+  J1 = np.zeros((param.nbVarX, param.nbVarX)) # To be replaced
+  # Jacobian of the residual when reaching the second viapoint (in task space, pink object)
+  J2 = np.zeros((param.nbVarF, param.nbVarX)) # To be replaced
+  # Jacobian of the residual when reaching the third viapoint (in task space, green object)
+  J3 = np.zeros((param.nbVarF, param.nbVarX)) # To be replaced
+  return f1,f2,f3,J1,J2,J3
+  
+update_iLQR()
 		</py-repl>
+			
 	</div>
+	<div class='tab-pane fade' id='question2-tab-pane' role='tabpanel' aria-labelledby='question2-tab' tabindex='0'>
+		<py-repl std-out='output' std-err='errors'>
+# Control weight matrix
+R = np.identity((param.nbData-1) * param.nbVarU) * 1E-6
+
+# Precision matrix
+Q1 = np.eye(param.nbVarX)
+Q2 = np.eye(param.nbVarF)
+Q3 = np.eye(param.nbVarF)
+
+# Time occurrence of viapoints
+tl = np.array([17, 34, 49])
+
+def compute_fJ(x, param):
+  # Viapoint residuals
+  f1 = x[:,tl[0]] - param.viapoint1
+  f2 = fkin(x[:,tl[1]], param) - param.viapoint2
+  f3 = fkin(x[:,tl[2]], param) - param.viapoint3
+  # Corresponding Jacobians
+  J1 = np.eye(param.nbVarX)
+  J2 = Jkin(x[:,tl[1]], param)
+  J3 = Jkin(x[:,tl[2]], param)
+  return f1,f2,f3,J1,J2,J3
+
+update_iLQR()
+		</py-repl>
+			
+	</div><br>
+
   </div> 
-  <br><br>
+
 </div> <!--sm-7-->
 
 
@@ -245,6 +315,11 @@ x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial state
 		<div id='errors'></div>
 		<hr>
 		<canvas id='canvas' style='width:100%;' width='900px' height='700px'></canvas>
+		<form>
+		<div class='row'>
+		<div class='col-md'><center>Cost: <span id='cost'></span></div></center>
+		</div>
+		</form>
 	</div>
 </div> <!--sm-4-->
 
@@ -256,9 +331,8 @@ from js import Path2D
 import numpy as np
 from math import factorial
 
-object_angle = document.getElementById('object_angle')  # Objects angle
-object_angle = lambda: None
-object_angle.value = 0
+hover_joint = -1
+selected_obj = -1
 
 #########################################################################################
 base1_svg = Path2D.new('m -40.741975,77.319831 c -0.47247,-4.03869 7.32825,-20.1653 10.1171,-22.57617 4.71807,-4.07862 14.00201,-4.3722 15.87822,-6.89366 1.16821,-1.06725 1.19306,-2.45846 1.19136,-4.984461 -0.005,-6.836939 0.0375,-38.9164375 -0.0588,-42.62054746 C -13.757555,-5.2728275 -9.8130348,-13.34661 -0.02248483,-13.67734 7.5903552,-13.93451 13.741895,-7.1292375 13.608255,-0.84839739 13.474625,5.4324325 13.073715,50.200081 13.741895,54.075491 c 0.66817,3.8754 3.0736,26.72695 3.0736,26.72695 l -53.47684,-0.23624 c -3.68777,-0.0163 -4.0806,-3.24637 -4.0806,-3.24637 z')
@@ -283,12 +357,56 @@ seg35_svg = Path2D.new('m -10.926083,-10.640947 c -12.932836,-0.04585 -19.378158
 seg36_svg = Path2D.new('M -9.9187154,15.300602 C -29.124234,15.272545 -30.475824,15.251842 -30.475824,15.251842')
 seg37_svg = Path2D.new('m -23.186087,-46.845579 h 5.542233 v 0')
 	
-# Logarithmic map for R^2 x S^1 manifold
-def logmap(f, f0):
-	diff = np.zeros(3)
-	diff[:2] = f[:2] - f0[:2]
-	diff[2] = np.imag(np.log(np.exp(f0[-1]*1j).conj().T * np.exp(f[-1]*1j).T)).conj()
-	return diff
+## Parameters
+# ===============================
+simulation_speed = 10
+
+param = lambda: None # Lazy way to define an empty class in python
+param.dt = 1e-2 # Time step length
+param.nbData = 50 # Number of datapoints
+param.nbIter = 20 # Maximum number of iterations for iLQR
+param.nbPoints = 3 # Number of viapoints
+param.nbVarX = 3 # State space dimension (x1,x2,x3)
+param.nbVarU = 3 # Control space dimension (dx1,dx2,dx3)
+param.nbVarF = 2 # Objective function dimension (f1,f2)
+param.l = [79, 96, 55] # Robot links lengths
+param.sz = [50, 50] # Size of objects
+param.r = 1e-6 # Control weight term
+param.Mu = np.asarray([[150, 0, 0], [150, 120, 0]]).T # Objects location 
+
+param.viapoint1 = np.array([-np.pi/8, 3*np.pi/4, np.pi/2])  # Viapoint in joint space
+param.viapoint2 = np.array([150, 0]) # Viapoint in task space
+param.viapoint3 = np.array([150, 120]) # Viapoint in task space
+
+x_vias = np.zeros([param.nbVarX, 2]) # Initial and intermediate robot states
+x_vias[:,0] = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
+x_vias[:,1] = param.viapoint1 # Intermediate robot state
+
+# Control weight matrix
+R = np.identity((param.nbData-1) * param.nbVarU) * param.r
+
+# Precision matrix
+Q1 = np.eye(param.nbVarX)
+Q2 = np.eye(param.nbVarF)
+Q3 = np.eye(param.nbVarF)
+
+Q = np.eye(param.nbVarX + param.nbVarF * 2)
+Q[:param.nbVarX, :param.nbVarX] = Q1
+Q[param.nbVarX:param.nbVarX+param.nbVarF, param.nbVarX:param.nbVarX+param.nbVarF] = Q2
+Q[param.nbVarX+param.nbVarF:param.nbVarX+2*param.nbVarF, param.nbVarX+param.nbVarF:param.nbVarX+2*param.nbVarF] = Q3
+
+# Time occurrence of viapoints
+tl = np.array([17, 34, 49])
+idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)]) 
+
+# Transfer matrices (for linear system as single integrator)
+Su0 = np.vstack([
+	np.zeros([param.nbVarX, param.nbVarX*(param.nbData-1)]), 
+	np.tril(np.kron(np.ones([param.nbData-1, param.nbData-1]), np.eye(param.nbVarX) * param.dt))
+]) 
+Sx0 = np.kron(np.ones(param.nbData), np.identity(param.nbVarX)).T
+Su = Su0[idx.flatten()] # We remove the lines that are out of interest
+
 
 # Apply angle offsets to match robot kinematic chain
 def emulate_DH_params(x):
@@ -305,22 +423,13 @@ def fkin(x, param):
 	f = np.vstack([
 		param.l @ np.cos(L @ xt),
 		param.l @ np.sin(L @ xt),
-		orient
+		#orient
 	]) # f1,f2,f3, where f3 is the orientation (single Euler angle for planar robot)
 	f[1] += 81
-	return f.flatten()
-
-# Forward kinematics for all joints (in robot coordinate system)
-def fkin0(x, param): 
-	xt, _ = emulate_DH_params(x)
-	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
-	f = np.vstack([
-		L @ np.diag(param.l) @ np.cos(L @ xt),
-		L @ np.diag(param.l) @ np.sin(L @ xt)
-	])
-	f = np.hstack([np.zeros([2,1]), f])
-	f[1] += 81
+	if f.shape[-1] == 1:
+		f = f[:,0]
 	return f
+
 
 # Jacobian with analytical computation (for single time step)
 def Jkin(xt, param):
@@ -328,77 +437,68 @@ def Jkin(xt, param):
 	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
 	J = np.vstack([
 		-np.sin(L @ xt).T @ np.diag(param.l) @ L,
-			np.cos(L @ xt).T @ np.diag(param.l) @ L,
-			np.ones([1,param.nbVarX])
+		 np.cos(L @ xt).T @ np.diag(param.l) @ L,
+		 #np.ones([1,param.nbVarX])
 	])
 	return J
 
-def compute_transfer_matrices(param):
-	A1d = np.zeros((param.nbDeriv,param.nbDeriv))
-	B1d = np.zeros((param.nbDeriv,1))
+def compute_fJ(x, param):
+	# Viapoints residuals
+	f1 = np.zeros(param.nbVarX) 
+	f2 = np.zeros(param.nbVarF) 
+	f3 = np.zeros(param.nbVarF) 
+	# Corresponding Jacobians
+	J1 = np.zeros((param.nbVarX, param.nbVarX))
+	J2 = np.zeros((param.nbVarF, param.nbVarX)) 
+	J3 = np.zeros((param.nbVarF, param.nbVarX)) 
+	return f1,f2,f3,J1,J2,J3
+  
+# Residual and Jacobian for a viapoints reaching task
+def f_reach(x, param):
+	f1,f2,f3,J1,J2,J3 = compute_fJ(x, param)
+	f = np.append(np.append(f1, f2), f3)
+	J = np.zeros([param.nbVarX + 2 * param.nbVarF, 3 * param.nbVarX])
+	J[:param.nbVarX, :param.nbVarX] = J1
+	J[param.nbVarX:param.nbVarX+param.nbVarF, param.nbVarX:2*param.nbVarX] = J2 
+	J[param.nbVarX+param.nbVarF:, 2*param.nbVarX:]  = J3
+	return f, J
 
-	for i in range(param.nbDeriv):
-		A1d += np.diag( np.ones(param.nbDeriv-i) ,i ) * param.dt**i * 1/factorial(i)
-		B1d[param.nbDeriv-i-1] = param.dt**(i+1) * 1/factorial(i+1)
+# iLQR in batch form
+def iLQR(x0, u, param):
+	for i in range(param.nbIter):
+		x = Su0 @ u + Sx0 @ x0 # System evolution
+		x = x.reshape([param.nbVarX, param.nbData], order='F')
+		f, J = f_reach(x, param) # Residuals and Jacobians
+		du = np.linalg.inv(Su.T @ J.T @ Q @ J @ Su + R) @ (-Su.T @ J.T @ Q @ f.flatten('F') - u * param.r) # Gauss-Newton update
+		# Estimate step size with backtracking line search method
+		alpha = 1
+		cost0 = f.flatten('F').T @ Q @ f.flatten('F') + np.linalg.norm(u)**2 * param.r # Cost
+		while True:
+			utmp = u + du * alpha
+			xtmp = Su0 @ utmp + Sx0 @ x0 # System evolution
+			xtmp = xtmp.reshape([param.nbVarX, param.nbData], order='F')
+			ftmp, _ = f_reach(xtmp, param) # Residuals 
+			cost = ftmp.flatten('F').T @ Q @ ftmp.flatten('F') + np.linalg.norm(utmp)**2 * param.r # Cost
+			if cost < cost0 or alpha < 1e-3:
+				u = utmp
+				#console.log("Iteration {}, cost: {}".format(i,cost))
+				break
+			alpha /= 2
+		if np.linalg.norm(du * alpha) < 1E-2:
+			break # Stop iLQR iterations when solution is reached
+	return x, cost
 
-	A = np.kron(A1d,np.identity(param.nbVarPos))
-	B = np.kron(B1d,np.identity(param.nbVarPos))
-
-	# Build Sx and Su transfer matrices
-	Su = np.zeros((param.nbVarX*param.nbData,param.nbVarPos * (param.nbData-1))) 
-	Sx = np.kron(np.ones((param.nbData,1)),np.eye(param.nbVarX,param.nbVarX))
-
-	M = B
-	for i in range(1,param.nbData):
-		Sx[i*param.nbVarX:param.nbData*param.nbVarX,:] = np.dot(Sx[i*param.nbVarX:param.nbData*param.nbVarX,:], A)
-		Su[param.nbVarX*i:param.nbVarX*i+M.shape[0],0:M.shape[1]] = M
-		M = np.hstack((np.dot(A,M),B)) # [0,nb_state_var-1]
-	return Sx, Su
-
-def solve_LQR(x0, param):
-	Q = np.identity(param.nbVarX * param.nbPoints)
+def update_iLQR():
+	global Su, Q, x, cost_el
+	idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)]) 
+	Su = Su0[idx.flatten()] # We remove the lines that are out of interest
 	Q[:param.nbVarX, :param.nbVarX] = Q1
-	Q[param.nbVarX:, param.nbVarX:] = Q2
-	R = I*param.r
-	# Batch LQR Reproduction
-	# =====================================
-	xd = np.vstack([param.Mu, np.zeros((param.nbVarX-param.nbVarPos, param.nbPoints))]).T.flatten()
-	u_hat = np.linalg.inv(Su[idx.flatten()].T @ Q @ Su[idx.flatten()] + R) @ Su[idx.flatten()].T @ Q @ (xd - Sx[idx.flatten()] @ x0)
-	x_hat = (Sx @ x0 + Su @ u_hat).reshape((param.nbData, -1))
-	return x_hat
-
-## Parameters
-# ===============================
-
-param = lambda: None # Lazy way to define an empty class in python
-param.dt = 1e-1 # Time step length
-param.nbData = 50 # Number of datapoints
-param.nbVarU = 3 # Control space dimension (dx1,dx2,dx3)
-param.nbPoints = 2 # Number of viapoints
-param.nbDeriv = 1 
-param.nbVarPos = 3
-param.nbVarX = param.nbVarPos * param.nbDeriv 
-
-param.l = [79, 96, 55] # Robot links lengths
-param.sz = [50, 30] # Size of objects
-param.Mu = np.zeros((param.nbPoints, param.nbVarPos)).T
-param.Mu[:,0] = np.array([-np.pi/3, np.pi/2, np.pi]) # 1st viapoint
-param.Mu[:,1] = np.array([-np.pi/2, np.pi/2, np.pi]) # 2nd viapoint
-param.r = 1e-2
-
-# Precision matrix
-Q1 = np.eye(param.nbVarX)*1e0
-Q2 = np.eye(param.nbVarX)*1e0
-
-# Control weight matrix
-I = np.identity((param.nbData-1) * param.nbVarU) 
-
-# Time occurrence of viapoints
-tl = np.array([24, 49])
-idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)]) 
-
+	Q[param.nbVarX:param.nbVarX+param.nbVarF, param.nbVarX:param.nbVarX+param.nbVarF] = Q2
+	Q[param.nbVarX+param.nbVarF:param.nbVarX+2*param.nbVarF, param.nbVarX+param.nbVarF:param.nbVarX+2*param.nbVarF] = Q3
+	x, cost = iLQR(x_vias[:,0], u, param)
+	cost_el.textContent = '%.3f' % cost
+	
 #########################################################################################
-
 # GUI
 scaling_factor = 2 # General scaling factor for rendering 
 
@@ -406,33 +506,36 @@ scaling_factor = 2 # General scaling factor for rendering
 mouse0 = np.zeros(2)
 mouse = np.zeros(2)
 mousedown = 0
-selected_obj = -1
-hover_obj = -1
-hover_joint = -1
 move_joint= -1
 hover0 = np.zeros(2)
-active_robot_id = 0
+
+#def onMouseMove(event):
+#	global mouse, mouse0
+#	mouse0[0] = event.offsetX
+#	mouse0[1] = event.offsetY
+#	mouse[0] = (event.offsetX - canvas.width * 0.5) / scaling_factor #(event.offsetX / (window.innerWidth*.5)) * 2 - 1
+#	mouse[1] = (event.offsetY - canvas.height * 0.5) / scaling_factor #-(event.offsetY / (window.innerHeight*.5)) * 2 + 1
 
 def onMouseMove(event):
-	global mouse, mouse0, hover0, x ,active_robot_id, x_vias
+	global mouse, mouse0, hover0, x, active_robot_id, x_vias
 	offset = canvas.getBoundingClientRect()
 	mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
-	mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
+	mouse0[1] = (event.clientY - offset.y) * canvas.width / canvas.clientWidth
 	mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
 	mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
 	if move_joint >= 0:
-		x_vias[active_robot_id, move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
+		x_vias[move_joint, active_robot_id] -= 1E-2 * np.sum(hover0 - mouse0)
 		hover0 = np.copy(mouse0)
 
 def onTouchMove(event):
-	global mouse, mouse0, hover0, x,active_robot_id, x_vias
-	offset = event.target.getBoundingClientRect()
-	mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
-	mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
+	global mouse, mouse0, hover0, x, active_robot_id, x_vias
+	bcr = event.target.getBoundingClientRect()
+	mouse0[0] = event.touches.item(0).clientX - bcr.x
+	mouse0[1] = event.touches.item(0).clientY - bcr.y
 	mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor 
 	mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
 	if move_joint >= 0:
-		x_vias[active_robot_id, move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
+		x_vias[move_joint, active_robot_id] -= 1E-2 * np.sum(hover0 - mouse0)
 		hover0 = np.copy(mouse0)
 	
 def onMouseDown(event):
@@ -447,14 +550,18 @@ def onMouseUp(event):
 	mousedown = 0
 	selected_obj = -1
 	move_joint = -1
+	update_iLQR()
 
 def onWheel(event):
-	global hover_joint, hover_obj, x, object_angle, x_vias
-	if hover_obj == 0:
-		#param.Mu[2] += 0.2 * (event.deltaY/106)
-		object_angle.value = (float)(object_angle.value) + 0.2 * (event.deltaY/106)
+	global hover_joint, x_vias
+	#if mousedown==1:
+	#document.getElementById('object0_angle').value = str(param.Mu[2,0] + 0.2 * (event.deltaY/106))
 	if hover_joint >= 0:
-		x[hover_joint] -= 0.2 * (event.deltaY/106)
+		x_vias[hover_joint, active_robot_id] -= 0.2 * (event.deltaY/106)
+		update_iLQR()
+
+cost_el = document.getElementById('cost')
+debug_el = document.getElementById('debug')
 
 document.addEventListener('mousemove', create_proxy(onMouseMove)) #for standard mouse
 document.addEventListener('touchmove', create_proxy(onTouchMove)) #for mobile interfaces
@@ -468,10 +575,7 @@ document.addEventListener('mouseup', create_proxy(onMouseUp)) #for standard mous
 document.addEventListener('touchend', create_proxy(onMouseUp)) #for mobile interfaces 
 
 document.addEventListener('wheel', create_proxy(onWheel)) #for standard mouse
-
-
 #########################################################################################
-
 canvas = document.getElementById('canvas')
 ctx = canvas.getContext('2d')
 
@@ -512,7 +616,7 @@ def draw_robot(xt, color1, color2, color3, color4, selectable, robot_id):
 	ctx.stroke(seg11_svg) # Outline
 	ctx.fillStyle = color2
 	if selectable and ctx.isPointInPath(seg12_svg, mouse0[0], mouse0[1]):
-		ctx.fillStyle = '#3399FF'
+		ctx.fillStyle = color4
 		hover_joint = 0
 		active_robot_id = robot_id
 	ctx.fill(seg12_svg)
@@ -529,7 +633,7 @@ def draw_robot(xt, color1, color2, color3, color4, selectable, robot_id):
 	ctx.stroke(seg21_svg) # Outline
 	ctx.fillStyle = color2
 	if selectable and ctx.isPointInPath(seg22_svg, mouse0[0], mouse0[1]):
-		ctx.fillStyle = '#FF9933'
+		ctx.fillStyle = color4
 		hover_joint = 1
 		active_robot_id = robot_id
 	ctx.fill(seg22_svg)
@@ -549,7 +653,7 @@ def draw_robot(xt, color1, color2, color3, color4, selectable, robot_id):
 	ctx.stroke(seg33_svg) # Outline
 	ctx.fillStyle = color2
 	if selectable and ctx.isPointInPath(seg34_svg, mouse0[0], mouse0[1]):
-		ctx.fillStyle = '#99FF33'
+		ctx.fillStyle = color4
 		hover_joint = 2
 		active_robot_id = robot_id
 	ctx.fill(seg34_svg)
@@ -565,41 +669,32 @@ def draw_robot(xt, color1, color2, color3, color4, selectable, robot_id):
 	ctx.fillStyle = color4
 	ctx.fill()
 	
-#	# Draw skeleton of the kinematic chain
-#	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
-#	ctx.lineCap = 'round'
-#	ctx.lineJoin = 'round'
-#	ctx.lineWidth = '2'
-#	ctx.strokeStyle = '#FF8888'
-#	f = fkin0(x, param)
-#	ctx.beginPath()
-#	ctx.moveTo(0, 81)
-#	for i in range(param.nbVarX+1):
-#		ctx.lineTo(f[0,i], f[1,i])
-#	ctx.stroke()
 
-
-	
-def draw_object(id, param, color):
+def draw_obj(id, param, color, colortxt):
+	global selected_obj, hover_obj
 	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
-	if id == 0:
-		ctx.translate(150, -10)
-		ctx.rotate(np.pi/2)
-	if id == 1:
-		ctx.translate(100, 140)
-
-	obj = Path2D.new()
-
-	obj.rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
+	
+	ctx.translate(param.Mu[0,id], param.Mu[1,id])
+	ctx.rotate(param.Mu[2,id])
+	# Draw object
 	ctx.fillStyle = color
+	obj = Path2D.new()
+	obj.rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
 	ctx.fill(obj)
-
 	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
 		hover_obj = id
 	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
 		selected_obj = id
-
+	#debug_el.innerText = str(selected_obj)
 	
+	#ctx.fillRect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
+	if param.sz[0] > 39 and param.sz[1] > 19:
+		ctx.textAlign = 'center'
+		ctx.textBaseline = 'middle'
+		ctx.font = '10px Permanent Marker'
+		ctx.fillStyle = colortxt
+		ctx.fillText('Move me!', 0, 0)
+
 #########################################################################################
 	
 def errorHandler(e):
@@ -610,17 +705,16 @@ def errorHandler(e):
 	#el.textContent = msg
 	
 #########################################################################################
-x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
-u = np.zeros(param.nbVarX)
-
-Sx, Su = compute_transfer_matrices(param)
+u = np.zeros(param.nbVarU * (param.nbData-1)) # Initial control commands
+x, cost = iLQR(x_vias[:,0], u, param)
+cost_el.textContent = '%.3f' % cost
 
 t0 = 0
 t = 0
 tf = 0
-max_iter = 20
 while True:
-	t0 += 10
+#	time = performance.now() * 0.0005;
+	t0 += simulation_speed
 	if t0 > 19:
 		t0 = 0
 		if t > param.nbData-2:
@@ -628,26 +722,32 @@ while True:
 			if tf > 10: #Stay some iterations at the final point before starting again
 				t = 0
 				tf = 0
-				max_iter = 20
 		else:
 			t += 1
-			max_iter = 5
-	x0 = np.append(x, np.zeros(param.nbVarX-param.nbVarPos))
-	xs = solve_LQR(x0, param)
-			
+	
 	# Reinit hovering variables
 	hover_joint = -1
 	hover_obj = -1
-
+	
 	# Rendering
 	clear_screen()
 	draw_ground()
-	draw_object(1, param,'#FF3399')
-	draw_object(0, param,'#33FF99')
-	draw_robot(param.Mu[:,0], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', False, 0)
-	draw_robot(param.Mu[:,1], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', False, 1)
-	draw_robot(xs[t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False, -1)
-		
+	draw_robot(x_vias[:,0], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', True, 0) # x0
+	draw_robot(x_vias[:,1], '#FF9933', '#EE8822',  '#DD7711', '#CC6600', True, 1) # Viapose
+	draw_obj(0, param, '#FF3399', '#DD1177')
+	draw_obj(1, param, '#33FF99', '#11DD77')
+	draw_robot(x[:,t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False, -1)
+	
+	# Object selection
+	if selected_obj>= 0:
+		param.Mu[:2,selected_obj] = mouse
+		param.Mu[0,selected_obj] = max(min(param.Mu[0,selected_obj],225), -225)
+		param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],175), -175)
+
+	param.viapoint1 = x_vias[:,1]
+	param.viapoint2 = param.Mu[:2,0]
+	param.viapoint3 = param.Mu[:2,1]
+
 	await asyncio.sleep(0.0001)
 		
 </py-script>

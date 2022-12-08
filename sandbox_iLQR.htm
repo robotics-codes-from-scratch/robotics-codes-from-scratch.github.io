@@ -111,6 +111,9 @@
 			<li><a href='exercise06b.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
 		    <div class='p-1 mb-0 bg-dark text-white font-monospace'>6b</div>
 			<div class='p-1 mb-0'>Planning in joint space with LQR</div></a></li>
+			<li><a href='exercise07.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
+		    <div class='p-1 mb-0 bg-dark text-white font-monospace'>07</div>
+			<div class='p-1 mb-0'>Iterative linear quadratic regulator (iLQR)</div></a></li>
 		  </ul>
 		</div>
 	  </li>
@@ -302,7 +305,6 @@ def f_reach(x, param):
 
 # iLQR in batch form
 def iLQR(x0, u, param):
-	global Su, Sx0
 	for i in range(param.nbIter):
 		x = Su0 @ u + Sx0 @ x0 # System evolution
 		x = x.reshape([param.nbVarX, param.nbData], order='F')
@@ -325,6 +327,26 @@ def iLQR(x0, u, param):
 		if np.linalg.norm(du * alpha) < 1E-2:
 			break # Stop iLQR iterations when solution is reached
 	return x, cost
+
+def update_iLQR():
+	global param, Q, x, cost_el
+	# console.log("iLQR required")
+	param.useBoundingBox = bounding_box.checked
+	param.sz = [(float)(objects_size[0].value),(float)(objects_size[1].value)]
+	for i in range(param.nbPoints): 
+		#obj[i].rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
+		param.Mu[2,i] = (float)(objects_angle[i].value)
+		param.A[:,:,i] = np.asarray([
+			[np.cos(param.Mu[2,i]), -np.sin(param.Mu[2,i])],
+			[np.sin(param.Mu[2,i]), np.cos(param.Mu[2,i])]
+		])
+#	if track_orientation.checked:
+#		Q = np.identity(param.nbVarF * param.nbPoints)
+#	else:
+#		Q = np.kron(np.identity(param.nbPoints), np.diag([1, 1, 0]))
+	x, cost = iLQR(x0, u, param)
+	cost_el.textContent = '%.3f' % cost
+
 
 ## Parameters
 # ===============================
@@ -584,27 +606,6 @@ def draw_obj(id, param, color, colortxt):
 		ctx.font = '10px Permanent Marker'
 		ctx.fillStyle = colortxt
 		ctx.fillText('Move me!', 0, 0)
-
-
-def update_iLQR():
-	global param, Q, x, cost_el
-	# console.log("iLQR required")
-	param.useBoundingBox = bounding_box.checked
-	param.sz = [(float)(objects_size[0].value),(float)(objects_size[1].value)]
-	for i in range(param.nbPoints): 
-		#obj[i].rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
-		param.Mu[2,i] = (float)(objects_angle[i].value)
-		param.A[:,:,i] = np.asarray([
-			[np.cos(param.Mu[2,i]), -np.sin(param.Mu[2,i])],
-			[np.sin(param.Mu[2,i]), np.cos(param.Mu[2,i])]
-		])
-#	if track_orientation.checked:
-#		Q = np.identity(param.nbVarF * param.nbPoints)
-#	else:
-#		Q = np.kron(np.identity(param.nbPoints), np.diag([1, 1, 0]))
-	x, cost = iLQR(x0, u, param)
-	cost_el.textContent = '%.3f' % cost
-
 
 #########################################################################################
 
