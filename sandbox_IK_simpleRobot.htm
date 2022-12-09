@@ -72,6 +72,8 @@
 			<div class='p-1 mb-0'>Inverse kinematics (IK)</div></a></li>
 			<li><a href='sandbox_bimanual.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
 			<div class='p-1 mb-0'>Bimanual robot</div></a></li>
+			<li><a href='sandbox_humanoid.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
+			<div class='p-1 mb-0'>Humanoid robot (CoM and coordination matrix)</div></a></li>
 		    <li><a href='sandbox_iLQR.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
 		    <div class='p-1 mb-0'>Iterative linear quadratic regulator (iLQR)</div></a></li>
 		  </ul>
@@ -226,9 +228,6 @@ def onMouseMove(event):
 	mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
 	mouse[0] = (mouse0[0] - canvas.width * 0.5) 
 	mouse[1] = -(mouse0[1] - canvas.height * 0.9) 
-#	if move_joint >= 0:
-#		x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
-#		hover0 = np.copy(mouse0)
 		
 def onTouchMove(event):
 	global mouse, mouse0, hover0, x
@@ -237,9 +236,6 @@ def onTouchMove(event):
 	mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
 	mouse[0] = (mouse0[0] - canvas.width * 0.5) 
 	mouse[1] = -(mouse0[1] - canvas.height * 0.9)
-#	if move_joint >= 0:
-#		x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
-#		hover0 = np.copy(mouse0)
 	
 def onMouseDown(event):
 	global mousedown, move_joint, hover0, param2
@@ -249,9 +245,6 @@ def onMouseDown(event):
 		param2.l = np.append(param.l[:hover_joint], np.linalg.norm(f0[:,hover_joint] - mouse))
 		param2.nbVarX = hover_joint+1
 		move_joint = hover_joint
-#		if param2.l[-1] > 40:
-#			move_joint = hover_joint
-#			hover0 = np.copy(mouse0)
 
 def onMouseUp(event):
 	global mousedown, move_joint
@@ -267,11 +260,9 @@ document.addEventListener('mousemove', create_proxy(onMouseMove)) #for standard 
 document.addEventListener('touchmove', create_proxy(onTouchMove)) #for mobile interfaces
 
 document.addEventListener('mousedown', create_proxy(onMouseDown)) #for standard mouse
-#document.addEventListener('pointerdown', create_proxy(onMouseDown)) #for mobile interfaces 
 document.addEventListener('touchstart', create_proxy(onMouseDown)) #for mobile interfaces 
 
 document.addEventListener('mouseup', create_proxy(onMouseUp)) #for standard mouse
-#document.addEventListener('pointerup', create_proxy(onMouseUp)) #for mobile interfaces 
 document.addEventListener('touchend', create_proxy(onMouseUp)) #for mobile interfaces 
 
 document.addEventListener('wheel', create_proxy(onWheel)) #for standard mouse
@@ -286,13 +277,12 @@ def clear_screen():
 	ctx.setTransform(1, 0, 0, 1, 0, 0)
 	ctx.fillStyle = 'white'
 	ctx.fillRect(0, 0, canvas.width, canvas.height)
+	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
 
 
 def draw_robot(x, color):
 	global hover_joint
-	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
-	
-	f = fkin0(x, param)
+	f = fkin0(x, param) # Update positions of the robot links
 	
 	# Draw base
 	ctx.translate(f[0,0], f[1,0])
@@ -339,13 +329,10 @@ def draw_robot(x, color):
 		ctx.strokeStyle = 'white'
 		ctx.translate(f[0,i], f[1,i])
 		ctx.stroke(obj_articulation)
-#		if ctx.isPointInPath(obj_articulation, mouse0[0], mouse0[1]) and move_joint < 0:
-#			hover_joint = i
 		ctx.translate(-f[0,i], -f[1,i])
 	
 
 def draw_selected_point(f, color):
-	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
 	# Draw object
 	obj = Path2D.new()
 	obj.arc(0, 0, 6, 0, 2*np.pi)
@@ -371,7 +358,6 @@ def errorHandler(e):
 	console.error(msg)
 	el = document.getElementById('repl-err')
 	el.innerText = msg
-	#el.textContent = msg
 	
 #########################################################################################
 x = np.array([3*np.pi/4, -np.pi/2, -np.pi/4]) # Initial robot state
@@ -388,7 +374,7 @@ while True:
 			u = np.zeros(param.nbVarX)
 			return u
 	
-	x += u * param.dt
+	x += u * param.dt # Update robot state
 	
 	# Reinit hovering variables
 	hover_joint = -1
