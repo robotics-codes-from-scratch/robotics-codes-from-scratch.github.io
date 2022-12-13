@@ -27,7 +27,7 @@
 
 
 
-<script defer src='https://pyscript.net/latest/pyscript.js'></script>
+<script defer src='https://pyscript.net/latest/pyscript.min.js'></script>
 	
 <py-config type='toml'>
 	packages = ['numpy']
@@ -213,8 +213,9 @@ def controlCommand(x, param):
 
 <py-script>
 from pyodide.ffi import create_proxy
-from js import Path2D
+from js import Path2D, document, console
 import numpy as np
+import asyncio
 
 # Forward kinematics for end-effector (in robot coordinate system)
 def fkin(x, param):
@@ -441,41 +442,42 @@ def errorHandler(e):
 	
 #########################################################################################
 x = np.array([np.pi/2, np.pi/2, np.pi/4, -np.pi/2, -np.pi/4]) # Initial robot state
-u = np.zeros(param.nbVarX)
+#u = np.zeros(param.nbVarX)
 
-while True:
+async def main():
+	global hover_joint, x
 	
-	try:
-		u = controlCommand(x, param)
-	except Exception as e:
-		errorHandler(e)
-		#u = np.zeros(param.nbVarX)
-		def controlCommand(x, param):
+	while True:
+		try:
+			u = controlCommand(x, param)
+		except Exception as e:
+			errorHandler(e)
 			u = np.zeros(param.nbVarX)
-			return u
-	
-	x += u * param.dt
-			
-	# Reinit hovering variables
-	hover_joint = -1
+		
+		x += u * param.dt
+				
+		# Reinit hovering variables
+		hover_joint = -1
 
-	# Rendering
-	clear_screen()
-	#draw_ground()
-	draw_robot(x, '#AAAAAA')
-	draw_object(param.Mu[:2], 0, '#FF3399')
-	draw_object(param.Mu[2:], 1, '#FF9933')
-	
-	# Object selection
-	if selected_obj==0:
-		param.Mu[:2] = mouse[:2]
-		param.Mu[0] = max(min(param.Mu[0],450), -450)
-		param.Mu[1] = max(min(param.Mu[1],630), -70)
-	if selected_obj==1:
-		param.Mu[2:] = mouse[:2]
-		param.Mu[2] = max(min(param.Mu[2],450), -450)
-		param.Mu[3] = max(min(param.Mu[3],630), -70)
-	await asyncio.sleep(0.0001)
+		# Rendering
+		clear_screen()
+		#draw_ground()
+		draw_robot(x, '#AAAAAA')
+		draw_object(param.Mu[:2], 0, '#FF3399')
+		draw_object(param.Mu[2:], 1, '#FF9933')
+		
+		# Object selection
+		if selected_obj==0:
+			param.Mu[:2] = mouse[:2]
+			param.Mu[0] = max(min(param.Mu[0],450), -450)
+			param.Mu[1] = max(min(param.Mu[1],630), -70)
+		if selected_obj==1:
+			param.Mu[2:] = mouse[:2]
+			param.Mu[2] = max(min(param.Mu[2],450), -450)
+			param.Mu[3] = max(min(param.Mu[3],630), -70)
+		await asyncio.sleep(0.0001)
+
+pyscript.run_until_complete(main())
 
 </py-script>
 

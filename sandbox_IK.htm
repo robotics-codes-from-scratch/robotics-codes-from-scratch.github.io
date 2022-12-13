@@ -27,7 +27,7 @@
 
 
 
-<script defer src='https://pyscript.net/latest/pyscript.js'></script>
+<script defer src='https://pyscript.net/latest/pyscript.min.js'></script>
 	
 <py-config type='toml'>
 	packages = ['numpy']
@@ -271,8 +271,9 @@ def controlCommand(x, param):
 
 <py-script>
 from pyodide.ffi import create_proxy
-from js import Path2D
+from js import Path2D, document, console
 import numpy as np
+import asyncio
 
 object_angle = document.getElementById('object_angle')  # Objects angle
 
@@ -579,39 +580,40 @@ def errorHandler(e):
 	
 #########################################################################################
 x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
-u = np.zeros(param.nbVarX)
+#u = np.zeros(param.nbVarX)
 
-while True:
+async def main():
+	global hover_joint, hover_obj, param, x
 	
-	try:
-		u = controlCommand(x, param)
-	except Exception as e:
-		errorHandler(e)
-		#u = np.zeros(param.nbVarX)
-		def controlCommand(x, param):
+	while True:
+		try:
+			u = controlCommand(x, param)
+		except Exception as e:
+			errorHandler(e)
 			u = np.zeros(param.nbVarX)
-			return u
-	
-	x += u * param.dt
-	
-	# Reinit hovering variables
-	hover_joint = -1
-	hover_obj = -1
+		
+		x += u * param.dt
+		
+		# Reinit hovering variables
+		hover_joint = -1
+		hover_obj = -1
 
-	# Rendering
-	clear_screen()
-	draw_ground()
-	draw_obj(param, '#FF3399', '#DD1177')
-	draw_robot(x, '#CCCCCC', '#AAAAAA', '#222222', '#000000', True)
-	
-	# Object selection
-	if selected_obj==0:
-		param.Mu[:2] = mouse
-		param.Mu[0] = max(min(param.Mu[0],225), -225)
-		param.Mu[1] = max(min(param.Mu[1],175), -175)
-	param.Mu[2] = (float)(object_angle.value)
+		# Rendering
+		clear_screen()
+		draw_ground()
+		draw_obj(param, '#FF3399', '#DD1177')
+		draw_robot(x, '#CCCCCC', '#AAAAAA', '#222222', '#000000', True)
+		
+		# Object selection
+		if selected_obj==0:
+			param.Mu[:2] = mouse
+			param.Mu[0] = max(min(param.Mu[0],225), -225)
+			param.Mu[1] = max(min(param.Mu[1],175), -175)
+		param.Mu[2] = (float)(object_angle.value)
 
-	await asyncio.sleep(0.0001)
+		await asyncio.sleep(0.0001)
+
+pyscript.run_until_complete(main())
 
 </py-script>
 

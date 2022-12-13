@@ -27,7 +27,7 @@
 
 
 
-<script defer src='https://pyscript.net/latest/pyscript.js'></script>
+<script defer src='https://pyscript.net/latest/pyscript.min.js'></script>
 	
 <py-config type='toml'>
 	packages = ['numpy']
@@ -151,10 +151,10 @@ function clearMsgs() {
 # Precision matrix
 Q = np.eye(param.nbVarF * param.nbPoints)
 
-# Consider only position tracking (no orientation)
+# # Consider only position tracking (no orientation)
 # Q = np.kron(np.eye(param.nbPoints), np.diag([1, 1, 0])) 
 
-# Consider only last keypoint
+# # Consider only last keypoint
 # Q = np.kron(np.diag([0, 1]), np.eye(3))
 
 update_iLQR()
@@ -201,8 +201,9 @@ update_iLQR()
 
 <py-script>
 from pyodide.ffi import create_proxy
-from js import Path2D
+from js import Path2D, document, console
 import numpy as np
+import asyncio
 
 objects_angle = [document.getElementById('object0_angle'), document.getElementById('object1_angle')]  # Objects angle
 objects_size = [document.getElementById('objects_width'), document.getElementById('objects_height')]  # Objects size
@@ -616,45 +617,50 @@ u = np.zeros(param.nbVarU * (param.nbData-1)) # Initial control commands
 x, cost = iLQR(x0, u, param)
 cost_el.textContent = '%.3f' % cost
 
-t0 = 0
-t = 0
-tf = 0
-while True:
-#	time = performance.now() * 0.0005;
-	t0 += (float)(simulation_speed.value)
-	if t0 > 19:
-		t0 = 0
-		if t > param.nbData-2:
-			tf += 1
-			if tf > 10: #Stay some iterations at the final point before starting again
-				t = 0
-				tf = 0
-		else:
-			t += 1
+async def main():
+	global hover_joint, hover_obj, param
 	
-	# Reinit hovering variables
-	hover_joint = -1
-	hover_obj = -1
-	
-	# Rendering
-	clear_screen()
-	draw_ground()
-	draw_robot(x0, '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', True)
-	draw_obj(0, param, '#FF3399', '#DD1177')
-	draw_obj(1, param, '#33FF99', '#11DD77')
-	draw_robot(x[:,t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False)
-	# draw_obj(0, 'rgba(255,51,153,0.5)', 'rgba(221,17,119,0.5)')
-	# draw_obj(1, 'rgba(51,255,153,0.5)', 'rgba(17,221,119,0.5)')
-	
-	# debug_el.innerText = str(ctx.isPointInPath(seg11_svg, mouse0[0], mouse0[1])) + ' ' + str(mouse[0]) + ' ' + str(mouse[1])
-	
-	# Object selection
-	if selected_obj>= 0:
-		param.Mu[:2,selected_obj] = mouse
-		param.Mu[0,selected_obj] = max(min(param.Mu[0,selected_obj],225), -225)
-		param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],175), -175)
+	t0 = 0
+	t = 0
+	tf = 0
+	while True:
+	#	time = performance.now() * 0.0005;
+		t0 += (float)(simulation_speed.value)
+		if t0 > 19:
+			t0 = 0
+			if t > param.nbData-2:
+				tf += 1
+				if tf > 10: #Stay some iterations at the final point before starting again
+					t = 0
+					tf = 0
+			else:
+				t += 1
+		
+		# Reinit hovering variables
+		hover_joint = -1
+		hover_obj = -1
+		
+		# Rendering
+		clear_screen()
+		draw_ground()
+		draw_robot(x0, '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', True)
+		draw_obj(0, param, '#FF3399', '#DD1177')
+		draw_obj(1, param, '#33FF99', '#11DD77')
+		draw_robot(x[:,t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False)
+		# draw_obj(0, 'rgba(255,51,153,0.5)', 'rgba(221,17,119,0.5)')
+		# draw_obj(1, 'rgba(51,255,153,0.5)', 'rgba(17,221,119,0.5)')
+		
+		# debug_el.innerText = str(ctx.isPointInPath(seg11_svg, mouse0[0], mouse0[1])) + ' ' + str(mouse[0]) + ' ' + str(mouse[1])
+		
+		# Object selection
+		if selected_obj>= 0:
+			param.Mu[:2,selected_obj] = mouse
+			param.Mu[0,selected_obj] = max(min(param.Mu[0,selected_obj],225), -225)
+			param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],175), -175)
 
-	await asyncio.sleep(0.0001)
+		await asyncio.sleep(0.0001)
+
+pyscript.run_until_complete(main())
 
 </py-script>
 
