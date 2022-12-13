@@ -179,8 +179,9 @@ def fkin(x, param):
 
 <py-script>
 from pyodide.ffi import create_proxy
-from js import Path2D
+from js import Path2D, document, console
 import numpy as np
+import asyncio
 
 # Forward kinematics for end-effector (in robot coordinate system)
 def fkin(x, param):
@@ -364,26 +365,25 @@ def errorHandler(e):
 #########################################################################################
 x = [3*np.pi/4, -np.pi/2, -np.pi/4] # Initial robot state
 
-while True:
-	
-	try:
-		f = fkin(x, param)
-	except Exception as e:
-		errorHandler(e)
-		def fkin(x, param):
+async def main():
+	while True:
+		try:
+			f = fkin(x, param)
+		except Exception as e:
+			errorHandler(e)
 			f = np.zeros(param.nbVarX)
-			return f
-	
-	# Reinit hovering variables
-	hover_joint = -1
-	
-	# Rendering
-	clear_screen()
-#	draw_ground()
-	draw_robot(x, '#AAAAAA')
-	draw_tip(f, '#FF3399')
+		
+		# Reinit hovering variables
+		hover_joint = -1
+		
+		# Rendering
+		clear_screen()
+		draw_robot(x, '#AAAAAA')
+		draw_tip(f, '#FF3399')
 
-	await asyncio.sleep(0.01)
+		await asyncio.sleep(0.01)
+
+pyscript.run_until_complete(main())
 
 </py-script>
 
