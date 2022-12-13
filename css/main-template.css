@@ -38,7 +38,7 @@ input {
 	cursor: pointer;
 }
 
-.editor-box{
+.py-repl-editor{
 	background: #EEEEEE;
     box-sizing: border-box;
     border-width: 0px;
