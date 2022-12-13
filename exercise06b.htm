@@ -252,10 +252,11 @@ x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial state
 
 </div> <!--row-->
 
-<py-script std-err='errors', output='output'>
+<py-script>
 from pyodide.ffi import create_proxy
-from js import Path2D
+from js import Path2D, document, console
 import numpy as np
+import asyncio
 from math import factorial
 
 object_angle = document.getElementById('object_angle')  # Objects angle
@@ -617,41 +618,46 @@ u = np.zeros(param.nbVarX)
 
 Sx, Su = compute_transfer_matrices(param)
 
-t0 = 0
-t = 0
-tf = 0
-max_iter = 20
-while True:
-	t0 += 10
-	if t0 > 19:
-		t0 = 0
-		if t > param.nbData-2:
-			tf += 1
-			if tf > 10: #Stay some iterations at the final point before starting again
-				t = 0
-				tf = 0
-				max_iter = 20
-		else:
-			t += 1
-			max_iter = 5
-	x0 = np.append(x, np.zeros(param.nbVarX-param.nbVarPos))
-	xs = solve_LQR(x0, param)
-			
-	# Reinit hovering variables
-	hover_joint = -1
-	hover_obj = -1
+async def main():
+	global hover_joint, hover_obj
+	
+	t0 = 0
+	t = 0
+	tf = 0
+	max_iter = 20
+	while True:
+		t0 += 10
+		if t0 > 19:
+			t0 = 0
+			if t > param.nbData-2:
+				tf += 1
+				if tf > 10: #Stay some iterations at the final point before starting again
+					t = 0
+					tf = 0
+					max_iter = 20
+			else:
+				t += 1
+				max_iter = 5
+		x0 = np.append(x, np.zeros(param.nbVarX-param.nbVarPos))
+		xs = solve_LQR(x0, param)
+				
+		# Reinit hovering variables
+		hover_joint = -1
+		hover_obj = -1
 
-	# Rendering
-	clear_screen()
-	draw_ground()
-	draw_object(1, param,'#FF3399')
-	draw_object(0, param,'#33FF99')
-	draw_robot(param.Mu[:,0], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', False, 0)
-	draw_robot(param.Mu[:,1], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', False, 1)
-	draw_robot(xs[t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False, -1)
-		
-	await asyncio.sleep(0.0001)
-		
+		# Rendering
+		clear_screen()
+		draw_ground()
+		draw_object(1, param,'#FF3399')
+		draw_object(0, param,'#33FF99')
+		draw_robot(param.Mu[:,0], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', False, 0)
+		draw_robot(param.Mu[:,1], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', False, 1)
+		draw_robot(xs[t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False, -1)
+			
+		await asyncio.sleep(0.0001)
+
+pyscript.run_until_complete(main())
+	
 </py-script>
 
 </div> <!--container-->

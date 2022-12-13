@@ -327,10 +327,11 @@ print(state)
 
 </div> <!--row-->
 
-<py-script std-err='errors', output='output'>
+<py-script>
 from pyodide.ffi import create_proxy
-from js import Path2D
+from js import Path2D, document, console
 import numpy as np
+import asyncio
 
 def inverse_dynamics(q, dq, ddq, param):
 	l = np.reshape(param.l, [1,param.nbVarX])
@@ -590,25 +591,31 @@ x = np.array([np.pi/3, np.pi/4]) # Initial robot state
 x_target = np.array([np.pi/2, np.pi/5])
 state = np.append(x, np.zeros(param.nbVarX))
 u = np.zeros(param.nbVarX)
-while True:
 
-	try:
-		u = controlCommand(state+np.random.randn(param.nbVarX*2)*param.noise_scale)
-	except Exception as e:
-		errorHandler(e)
-		u = np.zeros(param.nbVarX)
-	state = fdyn(state, u, param)	
-	x = state[:param.nbVarX]
-	# Reinit hovering variables
-	hover_joint = -1
+async def main():
+	global hover_joint, x, state
 	
-	# Rendering
-	clear_screen()
-#	draw_ground()
-	draw_robot(x, '#AAAAAA')
-	#draw_tip(f, '#FF3399')
+	while True:
+		try:
+			u = controlCommand(state+np.random.randn(param.nbVarX*2)*param.noise_scale)
+		except Exception as e:
+			errorHandler(e)
+			u = np.zeros(param.nbVarX)
+			
+		state = fdyn(state, u, param)	
+		x = state[:param.nbVarX]
+		# Reinit hovering variables
+		hover_joint = -1
+		
+		# Rendering
+		clear_screen()
+	#	draw_ground()
+		draw_robot(x, '#AAAAAA')
+		#draw_tip(f, '#FF3399')
 
-	await asyncio.sleep(0.01)
+		await asyncio.sleep(0.01)
+
+pyscript.run_until_complete(main())
 
 </py-script>
 

@@ -327,11 +327,11 @@ update_iLQR()
 
 </div> <!--row-->
 
-<py-script std-err='errors', output='output'>
+<py-script>
 from pyodide.ffi import create_proxy
-from js import Path2D
+from js import Path2D, document, console
 import numpy as np
-from math import factorial
+import asyncio
 
 hover_joint = -1
 selected_obj = -1
@@ -711,47 +711,52 @@ u = np.zeros(param.nbVarU * (param.nbData-1)) # Initial control commands
 x, cost = iLQR(x_vias[:,0], u, param)
 cost_el.textContent = '%.3f' % cost
 
-t0 = 0
-t = 0
-tf = 0
-while True:
-#	time = performance.now() * 0.0005;
-	t0 += simulation_speed
-	if t0 > 19:
-		t0 = 0
-		if t > param.nbData-2:
-			tf += 1
-			if tf > 10: #Stay some iterations at the final point before starting again
-				t = 0
-				tf = 0
-		else:
-			t += 1
+async def main():
+	global hover_joint, hover_obj, param
 	
-	# Reinit hovering variables
-	hover_joint = -1
-	hover_obj = -1
-	
-	# Rendering
-	clear_screen()
-	draw_ground()
-	draw_robot(x_vias[:,0], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', True, 0) # x0
-	draw_robot(x_vias[:,1], '#FF9933', '#EE8822',  '#DD7711', '#CC6600', True, 1) # Viapose
-	draw_obj(0, param, '#FF3399', '#DD1177')
-	draw_obj(1, param, '#33FF99', '#11DD77')
-	draw_robot(x[:,t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False, -1)
-	
-	# Object selection
-	if selected_obj>= 0:
-		param.Mu[:2,selected_obj] = mouse
-		param.Mu[0,selected_obj] = max(min(param.Mu[0,selected_obj],225), -225)
-		param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],175), -175)
-
-	param.viapoint1 = x_vias[:,1]
-	param.viapoint2 = param.Mu[:2,0]
-	param.viapoint3 = param.Mu[:2,1]
-
-	await asyncio.sleep(0.0001)
+	t0 = 0
+	t = 0
+	tf = 0
+	while True:
+	#	time = performance.now() * 0.0005;
+		t0 += simulation_speed
+		if t0 > 19:
+			t0 = 0
+			if t > param.nbData-2:
+				tf += 1
+				if tf > 10: #Stay some iterations at the final point before starting again
+					t = 0
+					tf = 0
+			else:
+				t += 1
 		
+		# Reinit hovering variables
+		hover_joint = -1
+		hover_obj = -1
+		
+		# Rendering
+		clear_screen()
+		draw_ground()
+		draw_robot(x_vias[:,0], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', True, 0) # x0
+		draw_robot(x_vias[:,1], '#FF9933', '#EE8822',  '#DD7711', '#CC6600', True, 1) # Viapose
+		draw_obj(0, param, '#FF3399', '#DD1177')
+		draw_obj(1, param, '#33FF99', '#11DD77')
+		draw_robot(x[:,t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False, -1)
+		
+		# Object selection
+		if selected_obj>= 0:
+			param.Mu[:2,selected_obj] = mouse
+			param.Mu[0,selected_obj] = max(min(param.Mu[0,selected_obj],225), -225)
+			param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],175), -175)
+
+		param.viapoint1 = x_vias[:,1]
+		param.viapoint2 = param.Mu[:2,0]
+		param.viapoint3 = param.Mu[:2,1]
+
+		await asyncio.sleep(0.0001)
+
+pyscript.run_until_complete(main())
+
 </py-script>
 
 </div> <!--container-->
