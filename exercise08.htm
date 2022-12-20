@@ -191,13 +191,13 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 <h1>Exercise 8<br>Exploration with ergodic control</h1>
 
 <p>In this exercise, we will use ergodic control as an exploration mechanism for a point mass agent.</p> 
-<p>The goal is to analyze how ergodic control can be used to find a target object with an unknown location but with a prior knowledge on its location in the form of a distribution. The time took by ergodic control to find the hidden target is shown below the plot.</p> 
+<p>The goal is to analyze how ergodic control can be used to find a target object with an unknown location but with a prior knowledge on its location in the form of a distribution. The time took by ergodic control to find the hidden target is shown below the animation.</p> 
 <p>Ergodic control uses a prior information on the location of the target object in the form of a probability distribution. In this exercise, a mixture of Gaussians is used as distribution (represented as pink ellipsoids to represent the contours of two standard deviations).</p>
 <p>Ergodic control computes control commands to generate a path so that the agent will spend time in the different location of the workspace in proportion to the given spatial distribution. Namely, if we would discretize the workspace and count the number of times the agent passed in each cell of this grid, the controller will ensure that over time, the resulting histogram will match the desired spatial distribution.</p>
 
 <ul class='list-group list-group-numbered'>
 	<li class='list-group-item'>
-		Change the Gaussian parameters <code>param.nbGaussian</code>, <code>param.Mu</code>, <code>param.Sigma</code> and the initial position <code>param.x0</code> of the agent and observe the search behavior.
+		Change the Gaussian parameters <code>param.nbGaussian</code>, <code>param.Mu</code>, <code>param.Sigma</code> and the initial position <code>param.x0</code> of the agent (point in black in the animation) and observe the search behavior.
 	</li>
 	<li class='list-group-item'>
 		Set the target position <code>param.target</code> to be a sample from the mixture of Gaussians (with equal mixing coefficients), the means <code>param.Mu</code> and the covariance matrices <code>param.Sigma</code>.<br>
@@ -421,7 +421,7 @@ def draw_scene(param):
 	ctx.fillStyle = 'black'
 	ctx.lineWidth = '0.01'
 	ctx.beginPath()
-	ctx.arc(param.x0[0], param.x0[1], 0.002, 0, 2*np.pi)
+	ctx.arc(param.x0[0], param.x0[1], 0.006, 0, 2*np.pi)
 	ctx.fill()
 	# Draw Gaussians
 	for k in range(param.nbGaussian):
