@@ -246,6 +246,7 @@ for i in range(param.nbGaussian):
 # Sampling from GMM to define the target
 gaussian_id = np.random.choice(np.arange(0,param.nbGaussian))
 param.target = np.random.multivariate_normal(param.Mu[:,gaussian_id],param.Sigma[:,:,gaussian_id])
+param.target = np.clip(param.target, 0.01, 0.99) # Target within [0,1]
 
 update_ergodic_control()
 		</py-repl>
@@ -275,7 +276,7 @@ update_ergodic_control()
 		<canvas id='canvas' style='width:100%;' width='900px' height='900px'></canvas>
 		<form>
 		<div class='row'>
-		<div class='col-md'><center>Info: <span id='cost'></span></div></center>
+		<div class='col-md'><center><span id='cost'></span></div></center>
 		</div>
 		</form>
 	</div>
@@ -354,31 +355,11 @@ def line_segment_and_circle_intersect(cx, cy, radius, x1, y1, x2, y2):
         return d1 <= radius or d2 <= radius
 
 
-def ergodic_control_command(x, t, wt, param):
-	# Depends on the current position only here, outputs: dphi, phix, phiy
-	ang = x[:,np.newaxis] * rg * omega
-	phi1 = np.cos(ang) #Eq.(18)
-	dphi1 = -np.sin(ang) * np.tile(rg,(param.nbVar,1)) * omega 
-	phix = phi1[0,xx-1].flatten()
-	phiy = phi1[1,yy-1].flatten()
-	dphix = dphi1[0,xx-1].flatten()
-	dphiy = dphi1[1,yy-1].flatten()
-	dphi = np.vstack([[dphix * phiy], [phix * dphiy]])
-	# Depends on wt, wt starts with zeros, then updates
-	wt = wt + (phix * phiy).T / (L**param.nbVar)	
-
-	# Depends on dphi, wt, w_hat, t
-	u = -dphi @ (Lambda * (wt/(t+1) - w_hat)) # Eq.(24)
-	u = u * u_max / (np.linalg.norm(u)+u_norm_reg) # Velocity command
-
-	return u, wt
-
-
 def clear_screen():
 	ctx.setTransform(canvas.width, 0, 0, -canvas.height, 0, canvas.height)
 	ctx.fillStyle = 'white'
 	ctx.fillRect(0, 0, 1, 1)
-	cost_el.textContent = 'Did not find the target yet'
+	cost_el.textContent = ''
 
 
 def draw_Gaussian(id, param, color, color2):
@@ -406,13 +387,6 @@ def draw_Gaussian(id, param, color, color2):
 	ctx.fill()
 	ctx.stroke()
 
-
-def errorHandler(e):
-	msg = 'Error: ' + str(e)
-	console.error(msg)
-	el = document.getElementById('errors')
-	el.innerText = msg
-	
 	
 def draw_scene(param):
 	clear_screen()
@@ -433,10 +407,37 @@ def draw_scene(param):
 	ctx.fillStyle = '#3399FF'
 	ctx.fill(obj)
 	return obj
+
+
+def errorHandler(e):
+	msg = 'Error: ' + str(e)
+	console.error(msg)
+	el = document.getElementById('errors')
+	el.innerText = msg
 	
 
+def ergodic_control_command(x, t, wt, param):
+	# Depends on the current position only here, outputs: dphi, phix, phiy
+	ang = x[:,np.newaxis] * rg * omega
+	phi1 = np.cos(ang) #Eq.(18)
+	dphi1 = -np.sin(ang) * np.tile(rg,(param.nbVar,1)) * omega 
+	phix = phi1[0,xx-1].flatten()
+	phiy = phi1[1,yy-1].flatten()
+	dphix = dphi1[0,xx-1].flatten()
+	dphiy = dphi1[1,yy-1].flatten()
+	dphi = np.vstack([[dphix * phiy], [phix * dphiy]])
+	# Depends on wt, wt starts with zeros, then updates
+	wt = wt + (phix * phiy).T / (L**param.nbVar)	
+
+	# Depends on dphi, wt, w_hat, t
+	u = -dphi @ (Lambda * (wt/(t+1) - w_hat)) # Eq.(24)
+	u = u * u_max / (np.linalg.norm(u)+u_norm_reg) # Velocity command
+
+	return u, wt
+
+
 def update_ergodic_control():
-	global w_hat, wt, obj, x, t, found_flag
+	global w_hat, wt, obj, x, t, found_flag, param
 	Alpha = np.ones(param.nbGaussian) / param.nbGaussian # mixing coeffs. Priors
 
 	## Compute Fourier series coefficients w_hat of desired spatial distribution
@@ -444,7 +445,7 @@ def update_ergodic_control():
 	for j in range(param.nbGaussian):
 		for n in range(op.shape[1]):
 			MuTmp = np.diag(op[:,n]) @ param.Mu[:,j]
-			SigmaTmp = np.diag(op[:,n])@ param.Sigma[:,:,j]@np.diag(op[:,n]).T
+			SigmaTmp = np.diag(op[:,n]) @ param.Sigma[:,:,j] @ np.diag(op[:,n]).T
 			cos_term = np.cos(kk.T @ MuTmp)
 			exp_term = np.exp(np.diag(-.5 * kk.T @ SigmaTmp @ kk))
 			w_hat = w_hat + Alpha[j] * cos_term * exp_term 
@@ -452,6 +453,7 @@ def update_ergodic_control():
 	t = 0
 	found_flag = 0
 	wt = np.zeros(param.nbFct**param.nbVar)
+	param.x0 = np.clip(param.x0, 0.01, 0.99) # x0 should be within [0,1]
 	x = param.x0.copy()
 	obj = draw_scene(param)
 
@@ -527,7 +529,7 @@ async def main():
 		
 		if line_segment_and_circle_intersect(param.target[0], param.target[1], \
 				 param.target_radius, x_prev[0], x_prev[1], x[0], x[1]) and found_flag==0:
-			cost_el.textContent = 'Target found in ' + '%.1f' % (t*param.dt) + ' seconds.'
+			cost_el.textContent = 'Target found in ' + '%.1f' % (t*param.dt) + ' seconds'
 			found_flag = 1
 		await asyncio.sleep(1E-6)
 
