@@ -190,18 +190,18 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 
 <h1>Exercise 8<br>Exploration with ergodic control</h1>
 
-<p>In this exercise, we will use ergodic exploration to discover a hidden target object. Ergodic control uses a prior information on the location of the 
-target object in the form of Gaussian mixture model distribution and plans a trajectory that explores this distribution evenly in time.</p>
-
-<p>The goal of this exercise session is to discover the hidden target object depicted in green as fast as possible. You can find this information below the plot. </p>
+<p>In this exercise, we will use ergodic control as an exploration mechanism for a point mass agent.</p> 
+<p>The goal is to analyze how ergodic control can be used to find a target object with an unknown location but with a prior knowledge on its location in the form of a distribution. The time took by ergodic control to find the hidden target is shown below the plot.</p> 
+<p>Ergodic control uses a prior information on the location of the target object in the form of a probability distribution. In this exercise, a mixture of Gaussians is used as distribution (represented as pink ellipsoids to represent the contours of two standard deviations).</p>
+<p>Ergodic control computes control commands to generate a path so that the agent will spend time in the different location of the workspace in proportion to the given spatial distribution. Namely, if we would discretize the workspace and count the number of times the agent passed in each cell of this grid, the controller will ensure that over time, the resulting histogram will match the desired spatial distribution.</p>
 
 <ul class='list-group list-group-numbered'>
 	<li class='list-group-item'>
-		Change the Gaussian parameters <code>param.nbGaussian</code>, <code>param.Mu</code>, <code>param.Sigma</code> and the initial position <code>param.x0</code> to discover the green object as fast as possible.
+		Change the Gaussian parameters <code>param.nbGaussian</code>, <code>param.Mu</code>, <code>param.Sigma</code> and the initial position <code>param.x0</code> of the agent and observe the search behavior.
 	</li>
 	<li class='list-group-item'>
-		Set the target position <code>param.target</code> to be a sample from the Gaussian mixture model defined by equal priors, the means <code>param.Mu</code> and the covariance matrices <code>param.Sigma</code>.
-		Hint: to sample from a GMM distribution, you can first uniformly sample between 1 and <code>param.nbGaussian</code> to choose the Gaussian component to sample from.
+		Set the target position <code>param.target</code> to be a sample from the mixture of Gaussians (with equal mixing coefficients), the means <code>param.Mu</code> and the covariance matrices <code>param.Sigma</code>.<br>
+		Hint: to sample from a mixture of Gaussians, you can first uniformly sample between 1 and <code>param.nbGaussian</code> to choose the Gaussian component to sample from. 
 	</li>
 </ul><br>
 
@@ -215,14 +215,14 @@ target object in the form of Gaussian mixture model distribution and plans a tra
   <div class='tab-content' id='myTabContent'>
 	<div class='tab-pane fade show active' id='question1-tab-pane' role='tabpanel' aria-labelledby='question1-tab' tabindex='0'>
 		<py-repl output='output' error='errors'>
-param.x0 = np.array([0.2, 0.3])
+param.x0 = np.array([.2, .3])
 
 param.nbGaussian = 2
-param.Mu = np.ones((param.nbVar,param.nbGaussian)) * 0.5 # Implement here
+param.Mu = np.ones((param.nbVar,param.nbGaussian)) * .5 # Implement here
 param.Sigma = np.zeros((param.nbVar,param.nbVar,param.nbGaussian)) # Implement here
 
 # Sampling from GMM to define the target
-param.target = np.array([.9, .9]) # implement here
+param.target = np.array([.5, .5]) # implement here
 
 update_ergodic_control()
 		</py-repl><br>
@@ -230,7 +230,7 @@ update_ergodic_control()
 	</div>
 	<div class='tab-pane fade' id='question2-tab-pane' role='tabpanel' aria-labelledby='question2-tab' tabindex='0'>
 		<py-repl output='output' error='errors'>
-param.x0 = np.array([0.2, 0.3])
+param.x0 = np.array([.2, .3])
 
 param.nbGaussian = 2
 param.Mu = np.zeros((param.nbVar,param.nbGaussian))
@@ -293,48 +293,39 @@ import numpy as np
 import asyncio
 from math import sqrt
 
-hover_joint = -1
-selected_obj = -1
-cost_el = document.getElementById('cost')
 ## Parameters
 # ===============================
-simulation_speed = 10
-
 param = lambda: None # Lazy way to define an empty class in python
 param.dt = 1e-2 # Time step length
-param.nbData = 200 # Number of datapoints
 param.nbFct = 10 # Number of basis functions along x and y
 param.nbVar = 2 # Dimension of datapoints
-param.nbRes = 100 # resolution of discretization
 param.nbGaussian = 2  # Number of Gaussians to represent the spatial distribution
-param.target = np.array([.9, .9])
+param.target = np.array([.5, .5])
 param.target_radius = .03 
-sp = (param.nbVar + 1) / 2 # Sobolev norm parameter
-param.x0 = np.array([0.1, 0.3])
-# Gaussian centers
-param.Mu = np.zeros((param.nbVar,param.nbGaussian))
-param.Mu[:,0] = np.array([.5, .7])
-param.Mu[:,1] =  np.array([.6, .3])
-# Gaussian covariances
+param.x0 = np.array([.2, .3]) # Initial point
 
-# Initial point
+canvas = document.getElementById('canvas')
+ctx = canvas.getContext('2d')
+cost_el = document.getElementById('cost')
 
-# direction vectors
-Sigma1_v = np.array([.3,.1])
-Sigma2_v = np.array([.1,.2])
-# scale 
-Sigma1_scale = 5E-1
-Sigma2_scale = 3E-1
-# regularization 
-Sigma1_regularization = np.eye(param.nbVar)*5E-3
-Sigma2_regularization = np.eye(param.nbVar)*1E-2
-param.Sigma = np.zeros((param.nbVar,param.nbVar,param.nbGaussian))
-# construct the cov. matrix using the outer product
-param.Sigma[:,:,0] = np.outer(Sigma1_v,Sigma1_v) * Sigma1_scale + Sigma1_regularization
-param.Sigma[:,:,1] = np.outer(Sigma2_v,Sigma2_v) * Sigma2_scale + Sigma2_regularization
 
-# mixing. coeffs sums to one Priors in Sylvain's Code
-Alpha = np.ones(param.nbGaussian) / param.nbGaussian # mixing coeffs. Priors
+def hadamard_matrix(n: int) -> np.ndarray:
+    if n == 1:
+        return np.array([[1]])
+    # Recursively construct a Hadamard matrix of size n/2
+    half_size = n // 2
+    h_half = hadamard_matrix(half_size)
+    # Construct a matrix of ones with size n/2
+    ones_matrix = np.ones((half_size, half_size), dtype=int)
+    # Construct a matrix of minus ones with size n/2
+    minus_ones_matrix = -1 * ones_matrix
+    # Combine the four sub-matrices to form a Hadamard matrix of size n
+    h = np.empty((n, n), dtype=int)
+    for i in range(half_size):
+        h[i] = np.concatenate((h_half[i], ones_matrix[i]))
+        h[i + half_size] = np.concatenate((h_half[i],
+            minus_ones_matrix[i]))
+    return h
 
 
 def line_segment_and_circle_intersect(cx, cy, radius, x1, y1, x2, y2):
@@ -363,61 +354,15 @@ def line_segment_and_circle_intersect(cx, cy, radius, x1, y1, x2, y2):
         return d1 <= radius or d2 <= radius
 
 
-# Domain limit for each dimension (considered to be 1 
-# for each dimension in this implementation)
-xlim = [0, 1] 
-L = (xlim[1] - xlim[0]) * 2 # Size of [-xlim(2),xlim(2)]
-omega = 2 * np.pi / L
-u_max = 1E1 # Maximum speed allowed 
-u_norm_reg = 1E-1 # not sure what is this not to divide by zero?
-
-def hadamard_matrix(n: int) -> np.ndarray:
-    if n == 1:
-        return np.array([[1]])
-    # Recursively construct a Hadamard matrix of size n/2
-    half_size = n // 2
-    h_half = hadamard_matrix(half_size)
-    # Construct a matrix of ones with size n/2
-    ones_matrix = np.ones((half_size, half_size), dtype=int)
-    # Construct a matrix of minus ones with size n/2
-    minus_ones_matrix = -1 * ones_matrix
-    # Combine the four sub-matrices to form a Hadamard matrix of size n
-    h = np.empty((n, n), dtype=int)
-    for i in range(half_size):
-        h[i] = np.concatenate((h_half[i], ones_matrix[i]))
-        h[i + half_size] = np.concatenate((h_half[i],
-            minus_ones_matrix[i]))
-    return h
-
-# Unchanged stuff
-rg = np.arange(0,param.nbFct,dtype=float)
-KX = np.zeros((param.nbVar,param.nbFct,param.nbFct))
-KX[0,:,:], KX[1,:,:] = np.meshgrid(rg, rg)
-# Mind the flatten() !!!
-# Weighting vector (Eq.(16))
-Lambda = np.array(
-	KX[0,:].flatten()**2 + KX[1,:].flatten()**2 + 1).T**(-sp)   
-op = hadamard_matrix(2**(param.nbVar-1))
-op = np.array(op)
-kk = KX.reshape(param.nbVar,param.nbFct**2)*omega
-wt = np.zeros(param.nbFct**param.nbVar)
-
-## Things that depend on param
-# mixing. coeffs sums to one Priors
-w_hat = np.zeros(param.nbFct**param.nbVar)
-x = param.x0.copy()
-xx, yy = np.meshgrid(np.arange(1,param.nbFct+1),np.arange(1,param.nbFct+1))
-
 def ergodic_control_command(x, t, wt, param):
-	global w_hat
 	# Depends on the current position only here, outputs: dphi, phix, phiy
-	ang = x[:,np.newaxis]*rg*omega
+	ang = x[:,np.newaxis] * rg * omega
 	phi1 = np.cos(ang) #Eq.(18)
 	dphi1 = -np.sin(ang) * np.tile(rg,(param.nbVar,1)) * omega 
 	phix = phi1[0,xx-1].flatten()
 	phiy = phi1[1,yy-1].flatten()
 	dphix = dphi1[0,xx-1].flatten()
-	dphiy = dphi1[1, yy-1].flatten()
+	dphiy = dphi1[1,yy-1].flatten()
 	dphi = np.vstack([[dphix * phiy], [phix * dphiy]])
 	# Depends on wt, wt starts with zeros, then updates
 	wt = wt + (phix * phiy).T / (L**param.nbVar)	
@@ -429,79 +374,67 @@ def ergodic_control_command(x, t, wt, param):
 	return u, wt
 
 
-#########################################################################################
-canvas = document.getElementById('canvas')
-ctx = canvas.getContext('2d')
-scaling_factor = 1 # General scaling factor for rendering 
-
 def clear_screen():
-	global ctx
 	ctx.setTransform(canvas.width, 0, 0, -canvas.height, 0, canvas.height)
 	ctx.fillStyle = 'white'
 	ctx.fillRect(0, 0, 1, 1)
 	cost_el.textContent = 'Did not find the target yet'
-	
-def draw_viapoint(id, param, color, color2):
-	global ctx
+
+
+def draw_Gaussian(id, param, color, color2):
 	ctx.setTransform(canvas.width, 0, 0, -canvas.height, 0, canvas.height)
-	ctx.translate(param.Mu[0,id],param.Mu[1,id])
+	ctx.translate(param.Mu[0,id], param.Mu[1,id])
 
 	s, U = np.linalg.eig(param.Sigma[:2, :2, id])
 
-	# Draw object
+	# Draw Gaussian
 	al = np.linspace(-np.pi, np.pi, 50)
-	D = np.diag(s)*1
+	D = np.diag(s) * 2 # Draw contours with two standard deviations
 	R = np.real(U @ np.sqrt(D+0j))
 
-	msh = (R @ np.array([np.cos(al),np.sin(al)])).T #+ param.Mu[:2,id]
+	msh = (R @ np.array([np.cos(al), np.sin(al)])).T #+ param.Mu[:2,id]
+	
+	ctx.lineWidth = '0.01'
+	ctx.fillStyle = color
+	ctx.strokeStyle = color2
 	
 	ctx.beginPath()
-	ctx.lineWidth = '0.01'
 	ctx.moveTo(msh[0,0], msh[0,1])
 	for i in range(msh.shape[0]-1):
 		ctx.lineTo(msh[i+1,0], msh[i+1,1])
 	ctx.closePath()
-	ctx.strokeStyle = color2
-	ctx.stroke()
-	ctx.fillStyle = color
 	ctx.fill()
+	ctx.stroke()
 
-#########################################################################################
-	
+
 def errorHandler(e):
 	msg = 'Error: ' + str(e)
 	console.error(msg)
 	el = document.getElementById('errors')
 	el.innerText = msg
-	#el.textContent = msg
 	
-#########################################################################################
-color_x0 = 'black'
-color_x = 'black'
-
+	
 def draw_scene(param):
-	global ctx
 	clear_screen()
 	# Draw initial point
 	ctx.setTransform(canvas.width, 0, 0, -canvas.height, 0, canvas.height)
-	ctx.fillStyle = color_x0
-	ctx.strokeStyle = color_x0
+	ctx.fillStyle = 'black'
 	ctx.lineWidth = '0.01'
 	ctx.beginPath()
 	ctx.arc(param.x0[0], param.x0[1], 0.002, 0, 2*np.pi)
-	ctx.stroke()
 	ctx.fill()
 	# Draw Gaussians
 	for k in range(param.nbGaussian):
-		draw_viapoint(k, param, '#FF3399', '#DD1177')
+		draw_Gaussian(k, param, '#FF3399', '#DD1177')
 	# Draw target object
 	ctx.setTransform(canvas.width, 0, 0, -canvas.height, 0, canvas.height)
 	obj = Path2D.new()
 	obj.arc(param.target[0], param.target[1], param.target_radius, 0, 2*np.pi)
-	ctx.fillStyle = 'green'
+	ctx.fillStyle = '#3399FF'
 	ctx.fill(obj)
 	return obj
 	
+
 def update_ergodic_control():
 	global w_hat, wt, obj, x, t, found_flag
 	Alpha = np.ones(param.nbGaussian) / param.nbGaussian # mixing coeffs. Priors
@@ -522,33 +455,81 @@ def update_ergodic_control():
 	x = param.x0.copy()
 	obj = draw_scene(param)
 
+#########################################################################################
+
+# Gaussian centers
+param.Mu = np.zeros((param.nbVar,param.nbGaussian))
+param.Mu[:,0] = np.array([.5, .7])
+param.Mu[:,1] =  np.array([.6, .3])
+
+# Gaussian covariances
+# direction vectors
+Sigma1_v = np.array([.3,.1])
+Sigma2_v = np.array([.1,.2])
+# scale 
+Sigma1_scale = 5E-1
+Sigma2_scale = 3E-1
+# regularization 
+Sigma1_regularization = np.eye(param.nbVar)*5E-3
+Sigma2_regularization = np.eye(param.nbVar)*1E-2
+param.Sigma = np.zeros((param.nbVar,param.nbVar,param.nbGaussian))
+# construct the cov. matrix using the outer product
+param.Sigma[:,:,0] = np.outer(Sigma1_v,Sigma1_v) * Sigma1_scale + Sigma1_regularization
+param.Sigma[:,:,1] = np.outer(Sigma2_v,Sigma2_v) * Sigma2_scale + Sigma2_regularization
+
+# mixing coeffs (sums to one) 
+Alpha = np.ones(param.nbGaussian) / param.nbGaussian # mixing coeffs. Priors
+
+# Domain limit for each dimension (considered to be 1 for each dimension in this implementation)
+xlim = [0, 1] 
+L = (xlim[1] - xlim[0]) * 2 # Size of [-xlim(2),xlim(2)]
+omega = 2 * np.pi / L
+u_max = 1E1 # Maximum speed allowed 
+u_norm_reg = 1E-1 # not sure what is this not to divide by zero?
+
+# Range
+rg = np.arange(0, param.nbFct, dtype=float)
+KX = np.zeros((param.nbVar, param.nbFct, param.nbFct))
+KX[0,:,:], KX[1,:,:] = np.meshgrid(rg, rg)
+
+# Weighting vector (Eq.(16))
+sp = (param.nbVar + 1) / 2 # Sobolev norm parameter
+Lambda = np.array(KX[0,:].flatten()**2 + KX[1,:].flatten()**2 + 1).T**(-sp)   
+op = hadamard_matrix(2**(param.nbVar-1))
+op = np.array(op)
+kk = KX.reshape(param.nbVar,param.nbFct**2)*omega
+wt = np.zeros(param.nbFct**param.nbVar)
+
+w_hat = np.zeros(param.nbFct**param.nbVar)
+xx, yy = np.meshgrid(np.arange(1,param.nbFct+1), np.arange(1,param.nbFct+1))
+x = param.x0.copy()
 
 obj = draw_scene(param)
 update_ergodic_control()
-
+ctx.setTransform(canvas.width, 0, 0, -canvas.height, 0, canvas.height)
 
 async def main():
-	global param, ctx, r_x, draw_scene, t,  wt, x, obj, found_flag, cost_el
+	global t, wt, x, found_flag, cost_el
 	t = 0
 	while True:
 		t += 1
 		u, wt = ergodic_control_command(x, t, wt, param)
+		x_prev = x.copy()
+		x += u * param.dt # Update of position
+		
 		# Draw ergodic control path
-		ctx.setTransform(canvas.width, 0, 0, -canvas.height, 0, canvas.height)
 		ctx.lineWidth = '0.005'
 		ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)'
 		ctx.beginPath()
-		ctx.strokeStyle = color_x
-		ctx.moveTo(x[0], x[1])
-		x_prev = x.copy()
-		x = x + (u * param.dt) # Update of position
+		ctx.moveTo(x_prev[0], x_prev[1])
 		ctx.lineTo(x[0], x[1])
 		ctx.stroke()
+		
 		if line_segment_and_circle_intersect(param.target[0], param.target[1], \
 				 param.target_radius, x_prev[0], x_prev[1], x[0], x[1]) and found_flag==0:
 			cost_el.textContent = 'Target found in ' + '%.1f' % (t*param.dt) + ' seconds.'
 			found_flag = 1
-		await asyncio.sleep(0.0001)
+		await asyncio.sleep(1E-6)
 
 pyscript.run_until_complete(main())
 </py-script>
