@@ -293,10 +293,9 @@ mouse = np.zeros(2)
 mousedown = 0
 hover_joint = -1
 move_joint= -1
-hover0 = np.zeros(2)
 
 def onMouseMove(event):
-	global mouse, mouse0, hover0, x
+	global mouse, mouse0
 	offset = canvas.getBoundingClientRect()
 	mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
 	mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
@@ -304,7 +303,7 @@ def onMouseMove(event):
 	mouse[1] = -(mouse0[1] - canvas.height * 0.9) 
 		
 def onTouchMove(event):
-	global mouse, mouse0, hover0, x
+	global mouse, mouse0
 	offset = event.target.getBoundingClientRect()
 	mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
 	mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
@@ -312,7 +311,7 @@ def onTouchMove(event):
 	mouse[1] = -(mouse0[1] - canvas.height * 0.9)
 	
 def onMouseDown(event):
-	global mousedown, move_joint, hover0, param2
+	global mousedown, move_joint, param2
 	mousedown = 1
 	if hover_joint >= 0:
 		f0 = fkin0(x, param)
@@ -399,7 +398,7 @@ def draw_robot(x, color):
 			ctx.strokeStyle = color
 			ctx.stroke(obj)
 			if ctx.isPointInStroke(obj, mouse0[0], mouse0[1]) and move_joint < 0:
-				hover_joint = i		
+				hover_joint = i
 		# Draw articulations
 		ctx.lineWidth = '4'
 		ctx.strokeStyle = 'white'
@@ -519,7 +518,7 @@ def controlCommand(x, param):
 		J = np.hstack((J, np.zeros([2,param.nbVarX-move_joint-1]))) # Augmented form
 		J = J @ C # Imposed coordination
 		# IK
-		pinvJ = np.linalg.inv(J.T @ J + np.eye(J.shape[1]) * 1e-1) @ J.T # Damped pseudoinverse
+		pinvJ = np.linalg.inv(J.T @ J + np.eye(J.shape[1]) * 1e4) @ J.T # Damped pseudoinverse
 		u = C @ pinvJ @ df # Control commands with imposed coordination
 	return u
 
@@ -534,7 +533,6 @@ def errorHandler(e):
 #########################################################################################
 a = .7
 x = np.array([np.pi/2-a, 2*a, -a, 3*np.pi/4, 3*np.pi/4]) # Initial robot state
-#u = np.zeros(param.nbVarX)
 
 async def main():
 	global hover_joint, x
@@ -553,14 +551,14 @@ async def main():
 		
 		# Rendering
 		clear_screen()
-		#Draw CoM line
+		# Draw CoM line
 		ctx.strokeStyle = '#FFAAAA'
 		ctx.lineWidth = '8'
 		ctx.beginPath()	
 		ctx.moveTo(param.Mu_CoM[0], 0)
 		ctx.lineTo(param.Mu_CoM[0], 500)
 		ctx.stroke()
-		#Draw CoM
+		# Draw CoM
 		draw_CoM(param.Mu_CoM, '#AA0000') # Target CoM
 		draw_robot(x, '#AAAAAA')
 		f_CoM = fkin_CoM(x, param) 
@@ -569,7 +567,7 @@ async def main():
 			f = fkin(x[:move_joint+1], param2)
 			draw_selected_point(f, '#777777')
 
-		await asyncio.sleep(0.01)
+		await asyncio.sleep(0.0001)
 
 pyscript.run_until_complete(main())
 
