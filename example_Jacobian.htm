@@ -228,7 +228,16 @@ $\bm{J}(\bm{x})=\begin{bmatrix}
 
 <div class='col-sm-4'>
 <div class='sticky-sm-top'>
+
+<span style='position:relative; font-size: 150%;'>
 <canvas id='canvas' style='width:100%;' width='900px' height='700px'></canvas>
+<span id='x0' style='position:absolute; left:0px; bottom:0px;'>$\color{#CC0000}x_1$</span>
+<span id='x1' style='position:absolute; left:0px; bottom:0px;'>$\color{#CC5500}x_2$</span>
+<span id='x2' style='position:absolute; left:0px; bottom:0px;'>$\color{#CC9900}x_3$</span>
+<span id='f0' style='position:absolute; left:0px; bottom:0px;'>$\color{#00AA00}f_1$</span>
+<span id='f1' style='position:absolute; left:0px; bottom:0px;'>$\color{#0000CC}f_2$</span>
+</span>
+
 </div>
 </div> <!--sm-4-->
 
@@ -340,9 +349,12 @@ document.addEventListener('wheel', create_proxy(onWheel)) #for standard mouse
 canvas = document.getElementById('canvas')
 ctx = canvas.getContext('2d')
 
+x_el = []
 formula_el = []
 for i in range(param.nbVarX):
-	formula_el.append(document.getElementById('formula%d' %i))
+	formula_el.append(document.getElementById('formula%d' % i))
+	x_el.append(document.getElementById('x%d' % i))
+f_el = [document.getElementById('f0'), document.getElementById('f1')]
 
 
 def clear_screen():
@@ -353,7 +365,7 @@ def clear_screen():
 
 
 def draw_robot(x):
-	global hover_joint
+	global hover_joint, x_el
 	f = fkin0(x, param)
 
 	# Draw axes
@@ -469,13 +481,21 @@ def draw_robot(x):
 		ctx.moveTo(0, 0)
 		ctx.lineTo(np.cos(a[1])*r, np.sin(a[1])*r)
 		ctx.stroke()
-		# Draw joint angle name
-		ctx.fillStyle = colors[i]
-		ctx.save()
-		ctx.translate(np.cos(np.mean(a))*(r+20)-15, np.sin(np.mean(a))*(r+20)-15)
-		ctx.scale(1, -1)
-		ctx.fillText('x' + chr(8321 + i), 0, 0) # Display subscript with unicode
-		ctx.restore()
+		
+#		# Draw joint angle name (with canvas)
+#		ctx.fillStyle = colors[i]
+#		ctx.save()
+#		ctx.translate(np.cos(np.mean(a))*(r+20)-15, np.sin(np.mean(a))*(r+20)-15)
+#		ctx.scale(1, -1)
+#		ctx.fillText('x' + chr(8321 + i), 0, 0) # Display subscript with unicode
+#		ctx.restore()
+		
+		# Draw joint angle name (with latex)
+		xtmp = np.zeros(2)
+		xtmp[0] = (f[0,i] + np.cos(np.mean(a))*(r+20)-15 + canvas.width * 0.2) * canvas.clientWidth / canvas.width
+		xtmp[1] = (f[1,i] + np.sin(np.mean(a))*(r+20)-15 + canvas.height * 0.1) * canvas.clientHeight / canvas.height
+		x_el[i].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1]))
+		
 		ctx.translate(-f[0,i], -f[1,i])
 	
 	# Draw robot end-effector
@@ -511,12 +531,14 @@ def draw_trace(fhist):
 	for i in range(fhist_id):
 		ctx.lineTo(fhist[0,i], 0)
 	ctx.stroke()
-	# Draw text on horizontal axis
-	ctx.save()
-	ctx.translate(fhist[0,fhist_id-1]-15, -45)
-	ctx.scale(1, -1)
-	ctx.fillText('f' + chr(8321), 0, 0) # Display subscript with unicode
-	ctx.restore()
+	
+#	# Draw text on horizontal axis
+#	ctx.save()
+#	ctx.translate(fhist[0,fhist_id-1]-15, -45)
+#	ctx.scale(1, -1)
+#	ctx.fillText('f' + chr(8321), 0, 0) # Display subscript with unicode
+#	ctx.restore()
+	
 	# Draw trace on vertical axis
 	ctx.strokeStyle = '#0000CC'
 	ctx.fillStyle = '#0000CC'
@@ -526,14 +548,23 @@ def draw_trace(fhist):
 	for i in range(fhist_id):
 		ctx.lineTo(0, fhist[1,i])
 	ctx.stroke()
-	# Draw text on vertical axis
-	ctx.save()
-	ctx.translate(-45, fhist[1,fhist_id-1]-15)
-	ctx.scale(1, -1)
-	ctx.fillText('f' + chr(8322), 0, 0) # Display subscript with unicode
-	ctx.restore()
 	
-
+#	# Draw text on vertical axis (with canvas)
+#	ctx.save()
+#	ctx.translate(-45, fhist[1,fhist_id-1]-15)
+#	ctx.scale(1, -1)
+#	ctx.fillText('f' + chr(8322), 0, 0) # Display subscript with unicode
+#	ctx.restore()
+	
+	# Draw text on axes (with latex)
+	xtmp = np.zeros(2)
+	xtmp[0] = (fhist[0,fhist_id-1] - 15 + canvas.width * 0.2) * canvas.clientWidth / canvas.width
+	xtmp[1] = (- 60 + canvas.height * 0.1) * canvas.clientHeight / canvas.height
+	f_el[0].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # Horizontal axis
+	xtmp[0] = (- 60 + canvas.width * 0.2) * canvas.clientWidth / canvas.width
+	xtmp[1] = (fhist[1,fhist_id-1] - 15 + canvas.height * 0.1) * canvas.clientHeight / canvas.height
+	f_el[1].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # Vertical axis
+	
 
 def draw_selected_point(f):
 	obj = Path2D.new()
@@ -567,7 +598,7 @@ def controlCommand(x, param):
 
 def wiggleJoint(joint_id, t):
 	u = np.zeros(param.nbVarX)
-	u[joint_id] = np.sin(np.pi * 4 * t / tmax) * .2
+	u[joint_id] = np.sin(np.pi * 4 * t / tmax) * .08
 	return u
 
 #########################################################################################
