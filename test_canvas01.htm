@@ -68,53 +68,6 @@ def clear_screen():
 	ctx.fillStyle = 'grey'
 	ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-def draw_drone():
-	scaling_factor = 1
-	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation 
-	
-	ctx.fillStyle = '#000000'
-	ctx.strokeStyle = '#990000'
-	ctx.fill(drone_svg)
-	ctx.stroke(drone_svg)
-	
-	ctx.strokeStyle = '#FFFFFF'
-	ctx.beginPath()
-	ctx.lineWidth = '1'
-	ctx.moveTo(0,-1)
-	ctx.lineTo(0,1)
-	ctx.stroke()
-
-
-def draw_car():
-	scaling_factor = 5
-	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation 
-
-	ctx.fillStyle = '#000000'
-	ctx.strokeStyle = '#990000'
-	ctx.fill(car_svg)
-	ctx.stroke(car_svg)
-	
-	ctx.save()
-	ctx.translate(25, -11.2)
-	ctx.rotate(0.2)
-	ctx.fillStyle = '#008800'
-	ctx.fill(lwheel_svg)
-	ctx.stroke(lwheel_svg)
-	ctx.restore()
-
-	ctx.save()
-	ctx.translate(25, 11.2)
-	ctx.rotate(0.2)
-	ctx.fillStyle = '#000088'
-	ctx.fill(rwheel_svg)
-	ctx.stroke(rwheel_svg)
-	ctx.restore()
-	
-	ctx.strokeStyle = '#FFFFFF'
-	ctx.beginPath()
-	ctx.moveTo(0,-1)
-	ctx.lineTo(0,1)
-	ctx.stroke()
 
 def draw_6():
 	ctx.setTransform(canvas.width, 0, 0, -canvas.height, 0, canvas.height)
@@ -198,6 +151,7 @@ def draw_4():
 	ctx.lineTo(.601, .4)
 	ctx.stroke()
 
+
 def draw_text():
 	ctx.font = '58px serif'
 	ctx.fillText('f() = l x' + chr(8321), 100, 100) # Display subscript with unicode
@@ -208,14 +162,85 @@ def draw_text():
 	ctx.font = '58px Pacifico'
 	ctx.fillText('f() = l x' + chr(8321), 100, 400) # Display subscript with unicode
 
+
+def draw_drone():
+	scaling_factor = 1
+	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation 
 	
+	ctx.fillStyle = '#000000'
+	ctx.strokeStyle = '#990000'
+	ctx.fill(drone_svg)
+	ctx.stroke(drone_svg)
+	
+	ctx.strokeStyle = '#FFFFFF'
+	ctx.beginPath()
+	ctx.lineWidth = '1'
+	ctx.moveTo(0,-1)
+	ctx.lineTo(0,1)
+	ctx.stroke()
+
+
+def draw_car(x):
+	offset = 0
+	scaling_factor = 2
+	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation 
+	ctx.translate(-180, -120)
+	
+	ctx.translate(x[0], x[1])
+	ctx.rotate(x[2])
+
+	ctx.fillStyle = '#000000'
+	ctx.strokeStyle = '#990000'
+	ctx.save()
+	ctx.translate(-offset, 0)
+	ctx.fill(car_svg)
+#	ctx.stroke(car_svg)
+	ctx.restore()
+	
+	ctx.save()
+	ctx.translate(25-offset, -11.2)
+	ctx.rotate(x[3])
+#	ctx.fillStyle = '#008800'
+	ctx.fill(lwheel_svg)
+#	ctx.stroke(lwheel_svg)
+	ctx.restore()
+
+	ctx.save()
+	ctx.translate(25-offset, 11.2)
+	ctx.rotate(x[3])
+#	ctx.fillStyle = '#000088'
+	ctx.fill(rwheel_svg)
+#	ctx.stroke(rwheel_svg)
+	ctx.restore()
+	
+#	ctx.strokeStyle = '#FFFFFF'
+#	ctx.beginPath()
+#	ctx.moveTo(0,0)
+#	ctx.lineTo(25,0)
+#	ctx.stroke()
+	
+
+def dynSys(x, u):
+	dt = 6E-1 # delta t
+	l = 25 # Length of the car
+	x_ = np.zeros(x.shape[0])
+	x_[:2] = x[:2] + dt * u[0] * np.array([np.cos(x[2]), np.sin(x[2])])
+	x_[2] = x[2] + dt * u[0] * np.tan(x[3]) / l
+	x_[3] = x[3] + dt * u[1]
+	return x_
+    
 #########################################################################################
 clear_screen()
 #draw_4()
 #draw_6()
 #draw_text()
-#draw_car()
-draw_drone()
+#draw_drone()
+
+x = np.array([0, 0, 0, 2E-1])
+u = np.array([1E2, 0])
+for n in range(5):
+	draw_car(x)
+	x = dynSys(x, u)
 
 </py-script>
 
