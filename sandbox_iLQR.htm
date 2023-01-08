@@ -75,7 +75,9 @@
 		    <li><a href='sandbox_iLQR.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
 		    <div class='p-1 mb-0'>Iterative linear quadratic regulator (iLQR)</div></a></li>
 		    <li><a href='sandbox_iLQR_car.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
-		    <div class='p-1 mb-0'>iLQR for vehicle steering</div></a></li>
+		    <div class='p-1 mb-0'>iLQR for car</div></a></li>
+		    <li><a href='sandbox_iLQR_bicopter.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
+		    <div class='p-1 mb-0'>iLQR for bicopter</div></a></li>
 		  </ul>
 		</div>
 	  </li>
@@ -189,8 +191,6 @@ update_iLQR()
 </div>
 
 </form>
-
-<div><p id='debug'></p></div>
 
 </div> <!--sm-7-->
 
@@ -368,7 +368,7 @@ param.nbVarF = 3 # Objective function dimension (f1,f2,f3, with f3 as orientatio
 param.l = [79., 96., 55.] # Robot links lengths
 param.sz = [(float)(objects_size[0].value), (float)(objects_size[1].value)] # Size of objects
 param.r = 1e-6 # Control weight term
-param.Mu = np.asarray([[100., 0, (float)(objects_angle[0].value)], [100., 100., (float)(objects_angle[1].value)]]).T # Viapoints 
+param.Mu = np.array([[100., 0, (float)(objects_angle[0].value)], [100., 100., (float)(objects_angle[1].value)]]).T # Viapoints 
 param.A = np.zeros([2., 2., param.nbPoints]) # Object orientation matrices
 param.useBoundingBox = False # Consider bounding boxes for reaching cost
 
@@ -460,7 +460,6 @@ def onWheel(event):
 		update_iLQR()
 
 cost_el = document.getElementById('cost')
-debug_el = document.getElementById('debug')
 
 document.addEventListener('mousemove', create_proxy(onMouseMove)) #for standard mouse
 document.addEventListener('touchmove', create_proxy(onTouchMove)) #for mobile interfaces
@@ -596,7 +595,6 @@ def draw_obj(id, param, color, colortxt):
 		hover_obj = id
 	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
 		selected_obj = id
-	#debug_el.innerText = str(selected_obj)
 	
 	#ctx.fillRect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
 	if param.sz[0] > 39 and param.sz[1] > 19:
@@ -645,9 +643,7 @@ async def main():
 		draw_robot(x[:,t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False)
 		# draw_obj(0, 'rgba(255,51,153,0.5)', 'rgba(221,17,119,0.5)')
 		# draw_obj(1, 'rgba(51,255,153,0.5)', 'rgba(17,221,119,0.5)')
-		
-		# debug_el.innerText = str(ctx.isPointInPath(seg11_svg, mouse0[0], mouse0[1])) + ' ' + str(mouse[0]) + ' ' + str(mouse[1])
-		
+				
 		# Object selection
 		if selected_obj >= 0:
 			param.Mu[:2,selected_obj] = mouse
