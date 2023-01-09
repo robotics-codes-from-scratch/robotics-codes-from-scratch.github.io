@@ -181,12 +181,10 @@ document.addEventListener('DOMContentLoaded', function() {
 function clearMsgs() {
   const el = document.getElementById('errors');
   el.innerText = '';
-  //console.log('event!');
 }
 function clearMsgsOutput() {
   const el = document.getElementById('output');
   el.innerText = '';
-  //console.log('event!');
 }
 const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b','#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
 </script>
@@ -195,81 +193,160 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 <div class='col-sm-1'></div>
 <div class='col-sm-7'>
 
-<h1>Exercise 6b<br>Planning in joint space with LQR</h1>
+<h1>Exercise 9<br>Orientation with Riemannian manifold</h1>
 
-<p>This exercise extends the previous example with an optimal control problem in joint space. You can specify the precision matrices used in LQR, change the poses of two viapoints, and then visualize the resulting motion found by LQR.</p>
-
+<p>In this exercise, we will extend the inverse kinematics problem to orientation tracking.</p>
+<p>Inverse kinematics consists of finding a configuration (joint angles) that reaches a target pose (position and/or orientation) with the end-effector of the robot. In <a href='exercise04.htm' target='_blank'>Exercise 4</a>, we have seen how inverse kinematics can be used to reach a desired target position, without taking into account the orientation.</p> 
+<p>The goal of this exercise is to implement an inverse kinematics function to track a desired target orientation for the 3-axis manipulator displayed on the right. We would like that the end-effector of this robot orients itself with the same orientation as the pink object (with desired grip depicted in transparency), which can be changed by using the slider below the robot.</p>
+<p>The orientation of a planar robot is on a Riemannian manifold $\mathcal{S}^1$, which requires a logarithmic map function (<code>logmap()</code> function in the code) to compute the residual error between the target orientation and the current orientation, represented as a light pink circle in the figure. This residual can be represented in the tangent space of the desired target point (light pink segment tangent to the light pink circle in the figure). This residual vector in pink corresponds to a geodesic distance that needs to be decreased to reach the desired orientation. When projected back to the manifold, the resulting geodesic path in pink corresponds to the shortest distance between the current orientation and the desired orientation while staying on the manifold.</p> 
+<p>The goal of this exercise is to compare the use of a geodesic distance and a standard Euclidean distance for different initial orientation and desired target orientation.</p>
+<p>The function <code>controlCommand</code> continuously sends joint velocity commands to the robot. In the initial code, the robot is not moving because <code>u=np.zeros(param.nbVarX)</code> sends zero commands to the robot.</p>
+<p><code>param.Mu</code> contains the target pose in the form of $[x_1, x_2, \theta]$, <code>fkin(x, param)</code> returns end-effector pose of the robot in the form of $[x_1, x_2, \theta]$, and <code>Jkin(x, param)</code> returns a Jacobian matrix of size $3\times3$.</p>
 <ul class='list-group list-group-numbered'>
-	<li class='list-group-item'>
-		Change the code in the <i>LQR in joint space</i> tab so that the first viapoint is a 'picking configuration' (pink object) and the second viapoint is a 'placing configuration' (green object).
-	</li>
+
+<li class='list-group-item'>
+Change this function to send velocity commands <code>u</code> to reach the target orientation.
+Compute the residual either as a geodesic distance or as a Euclidean distance and observe the behavior when the current orientation is close to $\pi$ and the target orientation is close $-\pi$. What do you observe? Can you explain the difference in the tracking behaviors?
+</li>
+
+<li class='list-group-item'>
+Change this function to send velocity commands <code>u</code> to reach the target orientation as a <em>primary task</em> and reaching the object position as a <em>secondary task</em>. You can do this by using nullspace control as presented in Section 5.2 of the <a href='doc/rcfs.pdf' target='_blank'>RCFS documentation</a>.
+</li>
+
 </ul><br>
 
+
 <ul class='nav nav-tabs' id='myTab' role='tablist'>
-	<li class='nav-item' role='presentation'>
-	  <button class='nav-link active' id='question1-tab' data-bs-toggle='tab' data-bs-target='#question1-tab-pane' type='button' role='tab' aria-controls='question1-tab-pane' aria-selected='true'>LQR in joint space</button>
-	</li>
+    <li class='nav-item' role='presentation'>
+      <button class='nav-link active' id='question4-tab' data-bs-toggle='tab' data-bs-target='#question4-tab-pane' type='button' role='tab' aria-controls='question4-tab-pane' aria-selected='true'>Question</button>
+    </li>
+    <li class='nav-item' role='presentation'>
+      <button class='nav-link' id='answer4-tab' data-bs-toggle='tab' data-bs-target='#answer4-tab-pane' type='button' role='tab' aria-controls='answer4-tab-pane' aria-selected='false'>Answer 1</button>
+    </li>
+    <li class='nav-item' role='presentation'>
+        <button class='nav-link' id='answer2-tab' data-bs-toggle='tab' data-bs-target='#answer2-tab-pane' type='button' role='tab' aria-controls='answer2-tab-pane' aria-selected='false'>Answer 2</button>
+    </li>
   </ul>
   <div class='tab-content' id='myTabContent'>
-	<div class='tab-pane fade show active' id='question1-tab-pane' role='tabpanel' aria-labelledby='question1-tab' tabindex='0'>
-		<py-repl std-out='output' std-err='errors'>
-param.nbVarPos = 3 # Dimension of position
-param.nbDeriv = 1 # Number of derivatives, 2 for acceleration control
-param.nbVarX = param.nbVarPos*param.nbDeriv # Dimension of the state space
-param.r = 1e-2 # precision of the control command
-Sx, Su = compute_transfer_matrices(param)
+    <div class='tab-pane fade show active' id='question4-tab-pane' role='tabpanel' aria-labelledby='question4-tab' tabindex='0'>
+        <py-repl std-out='output' std-err='errors'>
+x = np.array([-0.8, 1.8, 3.0]) # Initial robot state
 
-# precision matrix of the first viapoint
-Q1 = np.eye(param.nbVarX)
-# precision matrix of the second viapoint
-Q2 = np.eye(param.nbVarX)
+def controlCommand(x, param):
+  f = fkin(x, param) # End-effector position and orientation
+  J = Jkin(x, param) # Jacobian matrix
+  r_ori = logmap(param.Mu[2:], f[2:]) # Orientation residual
+#   r_ori = param.Mu[-1] - f[-1] # Orientation residual (Euclidean distance)
+  
+  u = np.zeros(param.nbVarX) # Implement here
+  
+  return u
+        </py-repl> 
+    </div>
+    <div class='tab-pane fade' id='answer4-tab-pane' role='tabpanel' aria-labelledby='answer4-tab' tabindex='0'>
+        <py-repl std-out='output' std-err='errors'>
+x = np.array([-0.8, 1.8, 3.0]) # Initial robot state
 
-param.Mu[:,0] = np.array([-np.pi/3, np.pi/2, np.pi]) # 1st viapoint
-param.Mu[:,1] = np.array([-np.pi/2, np.pi/2, np.pi]) # 2nd viapoint
+def controlCommand(x, param):
+  f = fkin(x, param) # End-effector position and orientation
+  J = Jkin(x, param) # Jacobian matrix
+  J_ori = J[2:,:] # Jacobian matrix for orientation 
+  r_ori = logmap(param.Mu[2:], f[2:]) # Orientation residual
+  # r_ori = param.Mu[2:] - f[2:] # Orientation residual (as Euclidean distance)
+  
+  u = 0.1 * np.linalg.pinv(J_ori) @ r_ori # Orientation tracking (with step size 0.1)
+  
+  return u
+        </py-repl> 
+    </div>
+    <div class='tab-pane fade' id='answer2-tab-pane' role='tabpanel' aria-labelledby='answer2-tab' tabindex='0'>
+        <py-repl std-out='output' std-err='errors'>
+x = np.array([-0.8, 1.8, 3.0]) # Initial robot state
 
-# Time occurrence of viapoints
-tl = np.array([24, 49])
-idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)]) 
-
-x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial state
-		</py-repl>
-	</div>
+def controlCommand(x, param):
+  f = fkin(x, param) # End-effector position and orientation
+  J = Jkin(x, param) # Jacobian matrix
+  J_pos = J[:2,:] # Jacobian matrix for position 
+  J_ori = J[2:,:] # Jacobian matrix for orientation
+  r_pos = (param.Mu[:2] - f[:2]) # Position residual
+  r_ori = (param.Mu[2:] - f[2:]) # Orientation residual
+  
+  # Prioritized control (orientation tracking prioritized over position tracking)
+  pinv_J_ori = np.linalg.inv(J_ori.T @ J_ori + np.eye(param.nbVarX) * 1E-2) @ J_ori.T # Damped pseudoinverse
+  N_ori = np.eye(param.nbVarX) - pinv_J_ori @ J_ori # Nullspace projection operator
+  u_ori = 0.1 * pinv_J_ori @ r_ori # Command for position tracking (with step size 0.1)
+  J_pos_N_ori = J_pos @ N_ori
+  pinv_J_pos_N_ori = J_pos_N_ori.T @ np.linalg.inv(J_pos_N_ori @ J_pos_N_ori.T + np.eye(2) * 1E1) # Damped pseudoinverse
+  u_pos = 0.1 * pinv_J_pos_N_ori @ (r_pos - J_pos @ u_ori) # Command for orientation tracking (with position tracking prioritized)
+  u = u_ori + N_ori @ u_pos # Control commands
+  
+  # # Prioritized control (position tracking prioritized over orientation tracking)
+  # pinv_J_pos = np.linalg.inv(J_pos.T @ J_pos + np.eye(param.nbVarX) * 1E-2) @ J_pos.T # Damped pseudoinverse
+  # N_pos = np.eye(param.nbVarX) - pinv_J_pos @ J_pos # Nullspace projection operator
+  # u_pos = 0.1 * pinv_J_pos @ r_pos # Command for position tracking (with step size 0.1)
+  # J_ori_N_pos = J_ori @ N_pos
+  # pinv_J_ori_N_pos = J_ori_N_pos.T @ np.linalg.inv(J_ori_N_pos @ J_ori_N_pos.T + np.eye(1) * 1E1) # Damped pseudoinverse
+  # u_ori = 0.1 * pinv_J_ori_N_pos @ (r_ori - J_ori @ u_pos) # Command for orientation tracking (with position tracking prioritized)
+  # u = u_pos + N_pos @ u_ori # Control commands
+  
+  return u
+        </py-repl> <!--output='repl-out' std-out='repl-out'-->
+    </div>
   </div> 
-  <br><br>
+
+<br><br>
+
+<!-- <p id='repl-out' style='font-size: 70%; color: #777777;'>(press shift+enter or click on the green run button to run the code)</p>
+<p id='repl-err' style='font-size: 70%; color: #880000;'></p> -->
+
+
 </div> <!--sm-7-->
 
-
 <div class='col-sm-4'>
-	<div class='sticky-sm-top' style='padding: 2rem 1rem 1rem 1rem;'>
-		<hr>
-		<div class='row justify-content-between'>
-		<div class='col-auto'><button class='btn btn-light btn-sm' disabled>Output</button></div>
-		<div class='col-auto'><button class='btn btn-outline-secondary btn-sm float-right' onclick='clearMsgsOutput()'>Clear</button></div>
-		</div>
-		<div id='output'></div>
-		<hr>
-		<div class='row justify-content-between'>
-		<div class='col-auto'><button class='btn btn-light btn-sm' disabled>Error</button></div>
-		<div class='col-auto'><button class='btn btn-outline-secondary btn-sm float-right' onclick='clearMsgs()'>Clear</button></div>
-		</div>
-		<div id='errors'></div>
-		<hr>
-		<canvas id='canvas' style='width:100%;' width='900px' height='700px'></canvas>
-	</div>
+    <div class='sticky-sm-top' style='padding: 2rem 1rem 1rem 1rem;'>
+    <hr>
+    <div class='row justify-content-between'>
+    <div class='col-auto'><button class='btn btn-light btn-sm' disabled>Output</button></div>
+    <div class='col-auto'><button class='btn btn-outline-secondary btn-sm float-right' onclick='clearMsgsOutput()'>Clear</button></div>
+    </div>
+    <div id='output'></div>
+    <hr>
+    <div class='row justify-content-between'>
+    <div class='col-auto'><button class='btn btn-light btn-sm' disabled>Error</button></div>
+    <div class='col-auto'><button class='btn btn-outline-secondary btn-sm float-right' onclick='clearMsgs()'>Clear</button></div>
+    </div>
+    <div id='errors'></div>
+    <hr>
+    <span style='position:relative; font-size: 100%;'>
+    <canvas id='canvas' style='width:100%;' width='900px' height='700px'></canvas>
+    <span id='latex0' style='position:absolute; left:0px; bottom:0px;'>$\color{#FF3399}\mathcal{S}^1$</span>
+    <span id='latex1' style='position:absolute; left:0px; bottom:0px;'>$\mu^\theta$</span>
+    <span id='latex2' style='position:absolute; left:0px; bottom:0px;'>$\theta$</span>
+    </span>
+    <input id='object_angle' type='range' min='-3.14159' max='3.14159' step='0.0001' value='0' class='w-72' style='vertical-align:middle;'>
+	&nbsp;&nbsp;<label>Object orientation</label><br>
+    <input id='simulation_speed' type='range' min='0' max='20' step='0.01' value='10' class='w-72' style='vertical-align:middle;'>
+	&nbsp;&nbsp;<label>Simulation speed</label>
+    </div>
+
 </div> <!--sm-4-->
 
 </div> <!--row-->
-
 <py-script>
+    def print(x):
+        display(x, target="output")
+</py-script>
+<py-script std-out='output' std-err='errors'>
 from pyodide.ffi import create_proxy
 from js import Path2D, document, console
 import numpy as np
 import asyncio
-from math import factorial
 
-object_angle = document.getElementById('object_angle')  # Objects angle
-object_angle = lambda: None
-object_angle.value = 0
+object_angle = document.getElementById('object_angle') # Object angle
+simulation_speed = document.getElementById('simulation_speed') # Simulation speed
+latex_el = []
+for i in range(3):
+	latex_el.append(document.getElementById('latex%d' % i)) # Latex symbols
 
 #########################################################################################
 base1_svg = Path2D.new('m -40.741975,77.319831 c -0.47247,-4.03869 7.32825,-20.1653 10.1171,-22.57617 4.71807,-4.07862 14.00201,-4.3722 15.87822,-6.89366 1.16821,-1.06725 1.19306,-2.45846 1.19136,-4.984461 -0.005,-6.836939 0.0375,-38.9164375 -0.0588,-42.62054746 C -13.757555,-5.2728275 -9.8130348,-13.34661 -0.02248483,-13.67734 7.5903552,-13.93451 13.741895,-7.1292375 13.608255,-0.84839739 13.474625,5.4324325 13.073715,50.200081 13.741895,54.075491 c 0.66817,3.8754 3.0736,26.72695 3.0736,26.72695 l -53.47684,-0.23624 c -3.68777,-0.0163 -4.0806,-3.24637 -4.0806,-3.24637 z')
@@ -293,13 +370,17 @@ seg34_svg = Path2D.new('M -10.345869,0.79321884 C -9.8879044,6.4881727 -4.887349
 seg35_svg = Path2D.new('m -10.926083,-10.640947 c -12.932836,-0.04585 -19.378158,-0.0931 -19.378158,-0.0931')
 seg36_svg = Path2D.new('M -9.9187154,15.300602 C -29.124234,15.272545 -30.475824,15.251842 -30.475824,15.251842')
 seg37_svg = Path2D.new('m -23.186087,-46.845579 h 5.542233 v 0')
-	
+    
+# # Logarithmic map for R^2 x S^1 manifold
+# def logmap(f, f0):
+#     diff = np.zeros(3)
+#     diff[:2] = f[:2] - f0[:2]
+#     diff[2] = np.imag(np.log(np.exp(f0[-1]*1j).conj().T * np.exp(f[-1]*1j).T)).conj()
+#     return diff
+
 # Logarithmic map for R^2 x S^1 manifold
 def logmap(f, f0):
-	diff = np.zeros(3)
-	diff[:2] = f[:2] - f0[:2]
-	diff[2] = np.imag(np.log(np.exp(f0[-1]*1j).conj().T * np.exp(f[-1]*1j).T)).conj()
-	return diff
+	return np.imag(np.log(np.exp(f0*1j).conj().T * np.exp(f*1j).T)).conj()
 
 # Apply angle offsets to match robot kinematic chain
 def emulate_DH_params(x):
@@ -339,74 +420,20 @@ def Jkin(xt, param):
 	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
 	J = np.vstack([
 		-np.sin(L @ xt).T @ np.diag(param.l) @ L,
-			np.cos(L @ xt).T @ np.diag(param.l) @ L,
-			np.ones([1,param.nbVarX])
+		 np.cos(L @ xt).T @ np.diag(param.l) @ L,
+		 np.ones([1,param.nbVarX])
 	])
 	return J
-
-def compute_transfer_matrices(param):
-	A1d = np.zeros((param.nbDeriv,param.nbDeriv))
-	B1d = np.zeros((param.nbDeriv,1))
-
-	for i in range(param.nbDeriv):
-		A1d += np.diag( np.ones(param.nbDeriv-i) ,i ) * param.dt**i * 1/factorial(i)
-		B1d[param.nbDeriv-i-1] = param.dt**(i+1) * 1/factorial(i+1)
-
-	A = np.kron(A1d,np.identity(param.nbVarPos))
-	B = np.kron(B1d,np.identity(param.nbVarPos))
-
-	# Build Sx and Su transfer matrices
-	Su = np.zeros((param.nbVarX*param.nbData,param.nbVarPos * (param.nbData-1))) 
-	Sx = np.kron(np.ones((param.nbData,1)),np.eye(param.nbVarX,param.nbVarX))
-
-	M = B
-	for i in range(1,param.nbData):
-		Sx[i*param.nbVarX:param.nbData*param.nbVarX,:] = np.dot(Sx[i*param.nbVarX:param.nbData*param.nbVarX,:], A)
-		Su[param.nbVarX*i:param.nbVarX*i+M.shape[0],0:M.shape[1]] = M
-		M = np.hstack((np.dot(A,M),B)) # [0,nb_state_var-1]
-	return Sx, Su
-
-def solve_LQR(x0, param):
-	Q = np.identity(param.nbVarX * param.nbPoints)
-	Q[:param.nbVarX, :param.nbVarX] = Q1
-	Q[param.nbVarX:, param.nbVarX:] = Q2
-	R = I*param.r
-	# Batch LQR Reproduction
-	# =====================================
-	xd = np.vstack([param.Mu, np.zeros((param.nbVarX-param.nbVarPos, param.nbPoints))]).T.flatten()
-	u_hat = np.linalg.inv(Su[idx.flatten()].T @ Q @ Su[idx.flatten()] + R) @ Su[idx.flatten()].T @ Q @ (xd - Sx[idx.flatten()] @ x0)
-	x_hat = (Sx @ x0 + Su @ u_hat).reshape((param.nbData, -1))
-	return x_hat
 
 ## Parameters
 # ===============================
 
 param = lambda: None # Lazy way to define an empty class in python
 param.dt = 1e-1 # Time step length
-param.nbData = 50 # Number of datapoints
-param.nbVarU = 3 # Control space dimension (dx1,dx2,dx3)
-param.nbPoints = 2 # Number of viapoints
-param.nbDeriv = 1 
-param.nbVarPos = 3
-param.nbVarX = param.nbVarPos * param.nbDeriv 
-
-param.l = [79, 96, 55] # Robot links lengths
-param.sz = [50, 30] # Size of objects
-param.Mu = np.zeros((param.nbPoints, param.nbVarPos)).T
-param.Mu[:,0] = np.array([-np.pi/3, np.pi/2, np.pi]) # 1st viapoint
-param.Mu[:,1] = np.array([-np.pi/2, np.pi/2, np.pi]) # 2nd viapoint
-param.r = 1e-2
-
-# Precision matrix
-Q1 = np.eye(param.nbVarX)*1e0
-Q2 = np.eye(param.nbVarX)*1e0
-
-# Control weight matrix
-I = np.identity((param.nbData-1) * param.nbVarU) 
-
-# Time occurrence of viapoints
-tl = np.array([24, 49])
-idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)]) 
+param.nbVarX = 3 # State space dimension (x1,x2,x3)
+param.l = [79., 96., 55.] # Robot links lengths
+param.sz = [50., 30.] # Size of objects
+param.Mu = np.array([50., 0, -np.pi]) # Object position and orientation 
 
 #########################################################################################
 
@@ -420,52 +447,41 @@ mousedown = 0
 selected_obj = -1
 hover_obj = -1
 hover_joint = -1
-move_joint= -1
-hover0 = np.zeros(2)
-active_robot_id = 0
 
 def onMouseMove(event):
-	global mouse, mouse0, hover0, x ,active_robot_id, x_vias
+	global mouse, mouse0
 	offset = canvas.getBoundingClientRect()
 	mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
 	mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
 	mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
 	mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
-	if move_joint >= 0:
-		x_vias[active_robot_id, move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
-		hover0 = np.copy(mouse0)
 
 def onTouchMove(event):
-	global mouse, mouse0, hover0, x,active_robot_id, x_vias
+	global mouse, mouse0
 	offset = event.target.getBoundingClientRect()
 	mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
 	mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
 	mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor 
 	mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
-	if move_joint >= 0:
-		x_vias[active_robot_id, move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
-		hover0 = np.copy(mouse0)
-	
+    
 def onMouseDown(event):
-	global mousedown, move_joint, hover0
+	global mousedown
 	mousedown = 1
-	if hover_joint >= 0:
-		move_joint = hover_joint
-		hover0 = np.copy(mouse0)
+#	console.log('Mouse down')
 
 def onMouseUp(event):
-	global mousedown, selected_obj, move_joint
+	global mousedown, selected_obj
 	mousedown = 0
 	selected_obj = -1
-	move_joint = -1
+#	console.log('Mouse up')
 
 def onWheel(event):
-	global hover_joint, hover_obj, x, object_angle, x_vias
+	global hover_joint, hover_obj, x, object_angle, param
 	if hover_obj == 0:
-		#param.Mu[2] += 0.2 * (event.deltaY/106)
-		object_angle.value = (float)(object_angle.value) + 0.2 * (event.deltaY/106)
+		param.Mu[2] += 0.2 * (event.deltaY/106)
+		object_angle.value = float(object_angle.value) + 0.2 * (event.deltaY/106)
 	if hover_joint >= 0:
-		x[hover_joint] -= 0.2 * (event.deltaY/106)
+		x[hover_joint] += 0.2 * (event.deltaY/106)
 
 document.addEventListener('mousemove', create_proxy(onMouseMove)) #for standard mouse
 document.addEventListener('touchmove', create_proxy(onTouchMove)) #for mobile interfaces
@@ -480,7 +496,6 @@ document.addEventListener('touchend', create_proxy(onMouseUp)) #for mobile inter
 
 document.addEventListener('wheel', create_proxy(onWheel)) #for standard mouse
 
-
 #########################################################################################
 
 canvas = document.getElementById('canvas')
@@ -490,8 +505,8 @@ def clear_screen():
 	ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity 
 	ctx.fillStyle = 'white'
 	ctx.fillRect(0, 0, canvas.width, canvas.height)
-	
-	
+    
+    
 def draw_ground():
 	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation 	
 	ctx.beginPath()
@@ -502,10 +517,10 @@ def draw_ground():
 	ctx.moveTo(-200, 164)
 	ctx.lineTo(200, 164)
 	ctx.stroke()
-	
-	
-def draw_robot(xt, color1, color2, color3, color4, selectable, robot_id):
-	global hover_joint,active_robot_id
+    
+    
+def draw_robot(xt, color1, color2, color3, color4, selectable):
+	global hover_joint
 	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation 
 	# Draw base
 	ctx.translate(0, 81)
@@ -525,13 +540,12 @@ def draw_robot(xt, color1, color2, color3, color4, selectable, robot_id):
 	if selectable and ctx.isPointInPath(seg12_svg, mouse0[0], mouse0[1]):
 		ctx.fillStyle = '#3399FF'
 		hover_joint = 0
-		active_robot_id = robot_id
 	ctx.fill(seg12_svg)
 	ctx.stroke(seg12_svg)
 	ctx.stroke(seg13_svg)
 	ctx.stroke(seg14_svg)
 	ctx.stroke(seg15_svg)
-	
+
 	# Draw seg2
 	ctx.translate(0, -79)
 	ctx.rotate(xt[1])
@@ -542,7 +556,6 @@ def draw_robot(xt, color1, color2, color3, color4, selectable, robot_id):
 	if selectable and ctx.isPointInPath(seg22_svg, mouse0[0], mouse0[1]):
 		ctx.fillStyle = '#FF9933'
 		hover_joint = 1
-		active_robot_id = robot_id
 	ctx.fill(seg22_svg)
 	ctx.stroke(seg22_svg)
 	ctx.stroke(seg23_svg)
@@ -562,7 +575,6 @@ def draw_robot(xt, color1, color2, color3, color4, selectable, robot_id):
 	if selectable and ctx.isPointInPath(seg34_svg, mouse0[0], mouse0[1]):
 		ctx.fillStyle = '#99FF33'
 		hover_joint = 2
-		active_robot_id = robot_id
 	ctx.fill(seg34_svg)
 	ctx.stroke(seg34_svg)
 	ctx.stroke(seg35_svg)
@@ -575,80 +587,148 @@ def draw_robot(xt, color1, color2, color3, color4, selectable, robot_id):
 	ctx.arc(0, 0, 2, 0, 2 * np.pi)
 	ctx.fillStyle = color4
 	ctx.fill()
-	
-#	# Draw skeleton of the kinematic chain
-#	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
-#	ctx.lineCap = 'round'
-#	ctx.lineJoin = 'round'
-#	ctx.lineWidth = '2'
-#	ctx.strokeStyle = '#FF8888'
-#	f = fkin0(x, param)
-#	ctx.beginPath()
-#	ctx.moveTo(0, 81)
-#	for i in range(param.nbVarX+1):
-#		ctx.lineTo(f[0,i], f[1,i])
-#	ctx.stroke()
+    
 
-
-	
-def draw_object(id, param, color):
+def draw_obj(param, color, colortxt):
+	global selected_obj, hover_obj
 	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
-	if id == 0:
-		ctx.translate(150, -10)
-		ctx.rotate(np.pi/2)
-	if id == 1:
-		ctx.translate(100, 140)
 
-	obj = Path2D.new()
-
-	obj.rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
+	ctx.translate(param.Mu[0], param.Mu[1])
+	ctx.rotate(param.Mu[2])
+	# Draw object
 	ctx.fillStyle = color
+	obj = Path2D.new()
+	obj.rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
 	ctx.fill(obj)
-
 	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
-		hover_obj = id
+		hover_obj = 0
 	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
-		selected_obj = id
+		selected_obj = 0
+	#ctx.fillRect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
+	if param.sz[0] > 39 and param.sz[1] > 19:
+		ctx.textAlign = 'center'
+		ctx.textBaseline = 'middle'
+		ctx.font = '10px Permanent Marker'
+		ctx.fillStyle = colortxt
+		ctx.fillText('Move me!', 0, 0)
+	# Draw seg3
+	ctx.lineWidth = '1'
+	ctx.strokeStyle = '#00000022'
+	ctx.fillStyle = '#00000022'
+	ctx.translate(-52,20)
+	ctx.rotate(np.pi/2)
+	ctx.fill(seg31_svg)
+	ctx.stroke(seg31_svg) # Outline
+	ctx.fill(seg32_svg)
+	ctx.stroke(seg32_svg) # Outline
+	ctx.fill(seg33_svg)
+	ctx.stroke(seg33_svg) # Outline
+	ctx.fill(seg34_svg)
+	ctx.stroke(seg34_svg)
+	ctx.stroke(seg35_svg)
+	ctx.stroke(seg36_svg)
+	ctx.stroke(seg37_svg)
 
-	
+
+def draw_manifold(x, param, color):
+	global ctx, latex_el
+	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
+
+	# Parameters
+	pos = np.array([-120.0, -80.0])
+	radius = 50.0
+	v = np.array([np.cos(x[-1]), np.sin(x[-1])]) * radius # Current orientation coordinates
+	vMu0 = np.array([np.cos(param.Mu[-1]), np.sin(param.Mu[-1])]) # Unit direction of tangent space
+	vMu = vMu0 * radius # Target orientation coordinates
+	d = logmap(param.Mu[-1], x[-1]) # Geodesic distance
+
+	ctx.translate(pos[0], pos[1])
+
+	# Draw S¹ manifold
+	ctx.strokeStyle = color+'33'
+	ctx.lineWidth = '2'
+	ctx.beginPath()
+	ctx.arc(0, 0, radius, 0, 2*np.pi)
+	ctx.stroke()
+
+	# Draw tangent space as line segment
+	ctx.beginPath()
+	ctx.moveTo(vMu[0]-vMu[1]*2, vMu[1]+vMu[0]*2)
+	ctx.lineTo(vMu[0]+vMu[1]*2, vMu[1]-vMu[0]*2)
+	ctx.stroke()
+
+	# Draw geodesics
+	ctx.lineWidth = '3'
+	ctx.strokeStyle = color
+	ctx.beginPath()
+	if d < 0:
+		ctx.arc(0, 0, radius, param.Mu[-1], x[-1]) # Geodesic
+	else:
+		ctx.arc(0, 0, radius, x[-1], param.Mu[-1]) # Geodesic
+	ctx.stroke()
+	# Corresponding shooting vector in tangent space
+	ctx.beginPath()
+	ctx.moveTo(vMu[0], vMu[1])
+	ctx.lineTo(vMu[0]+vMu0[1]*d*radius, vMu[1]-vMu0[0]*d*radius)
+	ctx.stroke()
+
+	# Draw points 
+	ctx.fillStyle = 'black'
+	ctx.beginPath()
+	ctx.arc(vMu[0], vMu[1], 3, 0, 2*np.pi) # Target orientation
+	ctx.fill()
+	ctx.beginPath()
+	ctx.arc(v[0], v[1], 3, 0, 2*np.pi) # Current orientation
+	ctx.fill()
+	ctx.beginPath()
+	ctx.arc(vMu[0]+vMu0[1]*d*radius, vMu[1]-vMu0[0]*d*radius, 3, 0, 2*np.pi) # Current orientation in tangent space
+	ctx.fill()
+		
+	# Latex labels
+	v = np.array([np.cos(x[-1]), np.sin(x[-1])]) * radius * 1.3 # Current orientation coordinates
+	vMu = np.array([np.cos(param.Mu[-1]), np.sin(param.Mu[-1])]) * radius * 0.7 # Unit direction of tangent space    
+	xtmp = np.zeros(2)
+	xtmp[0] = ((pos[0]-7) * scaling_factor + canvas.width * 0.5) * canvas.clientWidth / canvas.width
+	xtmp[1] = (-(pos[1]-15) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height 
+	latex_el[0].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # S¹
+	xtmp[0] = ((pos[0]+vMu[0]-7) * scaling_factor + canvas.width * 0.5) * canvas.clientWidth / canvas.width
+	xtmp[1] = (-(pos[1]+vMu[1]-15) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height 
+	latex_el[1].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # theta
+	xtmp[0] = ((pos[0]+v[0]-7) * scaling_factor + canvas.width * 0.5) * canvas.clientWidth / canvas.width
+	xtmp[1] = (-(pos[1]+v[1]-15) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height 
+	latex_el[2].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # mu
+
+
+def controlCommand(x, param):
+	u = np.zeros(param.nbVarX)
+	return u
+    
 #########################################################################################
-	
+ 
 def errorHandler(e):
 	msg = 'Error: ' + str(e)
 	console.error(msg)
 	el = document.getElementById('errors')
 	el.innerText = msg
 	#el.textContent = msg
-	
+    
 #########################################################################################
-x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
+#x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
+x = np.array([-0.8, 1.8, 3.0]) # Initial robot state (with orientation=pi)
 u = np.zeros(param.nbVarX)
 
-Sx, Su = compute_transfer_matrices(param)
-
 async def main():
-	global hover_joint, hover_obj
-	
+	global hover_joint, hover_obj, x, param
+
 	t0 = 0
-	t = 0
-	tf = 0
-	max_iter = 20
 	while True:
-		t0 += 10
+		t0 += float(simulation_speed.value)
 		if t0 > 19:
 			t0 = 0
-			if t > param.nbData-2:
-				tf += 1
-				if tf > 10: #Stay some iterations at the final point before starting again
-					t = 0
-					tf = 0
-					max_iter = 20
-			else:
-				t += 1
-				max_iter = 5
-		x0 = np.append(x, np.zeros(param.nbVarX-param.nbVarPos))
-		xs = solve_LQR(x0, param)
-				
+			u = controlCommand(x, param)
+			# Update of state
+			x += u * param.dt 
+		
 		# Reinit hovering variables
 		hover_joint = -1
 		hover_obj = -1
@@ -656,16 +736,21 @@ async def main():
 		# Rendering
 		clear_screen()
 		draw_ground()
-		draw_object(1, param,'#FF3399')
-		draw_object(0, param,'#33FF99')
-		draw_robot(param.Mu[:,0], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', False, 0)
-		draw_robot(param.Mu[:,1], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', False, 1)
-		draw_robot(xs[t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False, -1)
-			
+		draw_manifold(fkin(x,param), param, '#FF3399')
+		draw_obj(param, '#FF3399', '#DD1177')
+		draw_robot(x, '#CCCCCC', '#AAAAAA', '#222222', '#000000', True)
+		
+		# Object selection
+		if selected_obj==0:
+			param.Mu[:2] = mouse
+			param.Mu[0] = max(min(param.Mu[0],225), -225)
+			param.Mu[1] = max(min(param.Mu[1],175), -175)
+		param.Mu[2] = float(object_angle.value)
+
 		await asyncio.sleep(0.0001)
 
 pyscript.run_until_complete(main())
-	
+
 </py-script>
 
 </div> <!--container-->
