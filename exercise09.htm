@@ -206,7 +206,7 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 
 <li class='list-group-item'>
 Change this function to send velocity commands <code>u</code> to reach the target orientation.
-Compute the residual either as a geodesic distance or as a Euclidean distance and observe the behavior when the current orientation is close to $\pi$ and the target orientation is close $-\pi$. What do you observe? Can you explain the difference in the tracking behaviors?
+Compute the residual either as a geodesic distance or as a Euclidean distance and observe the behavior when the current orientation is close to $\pi$ and the target orientation is close $-\pi$. Note that $\pi$ and $-\pi$ are the same point on the manifold $\mathcal{S}^1$, which is depicted in the figure as a short segment on the left side of the circle. What do you observe? Can you explain the difference in the tracking behaviors?
 </li>
 
 <li class='list-group-item'>
@@ -611,7 +611,7 @@ def draw_obj(param, color, colortxt):
 		ctx.font = '10px Permanent Marker'
 		ctx.fillStyle = colortxt
 		ctx.fillText('Move me!', 0, 0)
-	# Draw seg3
+	# Draw seg3 (robot end-effector)
 	ctx.lineWidth = '1'
 	ctx.strokeStyle = '#00000022'
 	ctx.fillStyle = '#00000022'
@@ -649,6 +649,10 @@ def draw_manifold(x, param, color):
 	ctx.lineWidth = '2'
 	ctx.beginPath()
 	ctx.arc(0, 0, radius, 0, 2*np.pi)
+	ctx.stroke()
+	ctx.beginPath()
+	ctx.moveTo(-radius-3, 0)
+	ctx.lineTo(-radius+3, 0)
 	ctx.stroke()
 
 	# Draw tangent space as line segment
@@ -714,7 +718,7 @@ def errorHandler(e):
     
 #########################################################################################
 #x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
-x = np.array([-0.8, 1.8, 3.0]) # Initial robot state (with orientation=pi)
+x = np.array([-0.8, 1.8, 3.0]) # Initial robot state (for an orientation close to pi)
 u = np.zeros(param.nbVarX)
 
 async def main():
