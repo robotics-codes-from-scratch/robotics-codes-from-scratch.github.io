@@ -341,10 +341,10 @@ def update_iLQR():
 	global param, Q, x, cost_el
 	# console.log("iLQR required")
 	param.useBoundingBox = bounding_box.checked
-	param.sz = [(float)(objects_size[0].value),(float)(objects_size[1].value)]
+	param.sz = [float(objects_size[0].value), float(objects_size[1].value)]
 	for i in range(param.nbPoints): 
 		#obj[i].rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
-		param.Mu[2,i] = (float)(objects_angle[i].value)
+		param.Mu[2,i] = float(objects_angle[i].value)
 		param.A[:,:,i] = np.asarray([
 			[np.cos(param.Mu[2,i]), -np.sin(param.Mu[2,i])],
 			[np.sin(param.Mu[2,i]), np.cos(param.Mu[2,i])]
@@ -369,10 +369,10 @@ param.nbVarX = 3 # State space dimension (x1,x2,x3)
 param.nbVarU = 3 # Control space dimension (dx1,dx2,dx3)
 param.nbVarF = 3 # Objective function dimension (f1,f2,f3, with f3 as orientation)
 param.l = [79., 96., 55.] # Robot links lengths
-param.sz = [(float)(objects_size[0].value), (float)(objects_size[1].value)] # Size of objects
-param.r = 1e-6 # Control weight term
-param.Mu = np.array([[100., 0, (float)(objects_angle[0].value)], [100., 100., (float)(objects_angle[1].value)]]).T # Viapoints 
-param.A = np.zeros([2., 2., param.nbPoints]) # Object orientation matrices
+param.sz = [float(objects_size[0].value), float(objects_size[1].value)] # Size of objects
+param.r = 1E-6 # Control weight term
+param.Mu = np.array([[100., 0, float(objects_angle[0].value)], [100., 100., float(objects_angle[1].value)]]).T # Viapoints 
+param.A = np.zeros([2, 2, param.nbPoints]) # Object orientation matrices
 param.useBoundingBox = False # Consider bounding boxes for reaching cost
 
 # Object rotation matrices
@@ -456,7 +456,7 @@ def onWheel(event):
 	#if mousedown==1:
 	#document.getElementById('object0_angle').value = str(param.Mu[2,0] + 0.2 * (event.deltaY/106))
 	if hover_obj >= 0:
-		objects_angle[hover_obj].value = (float)(objects_angle[hover_obj].value) + 0.2 * (event.deltaY/106)
+		objects_angle[hover_obj].value = float(objects_angle[hover_obj].value) + 0.2 * (event.deltaY/106)
 		update_iLQR()
 	if hover_joint >= 0:
 		x0[hover_joint] -= 0.2 * (event.deltaY/106)
@@ -622,7 +622,7 @@ async def main():
 	tf = 0
 	while True:
 	#	time = performance.now() * 0.0005;
-		t0 += (float)(simulation_speed.value)
+		t0 += float(simulation_speed.value)
 		if t0 > 19:
 			t0 = 0
 			if t > param.nbData-2:
