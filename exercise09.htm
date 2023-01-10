@@ -317,22 +317,22 @@ def controlCommand(x, param):
     </div>
     <div id='errors'></div>
     <hr>
-    <span style='position:relative; font-size: 100%;'>
+    <div style='position:relative; font-size: 100%;'>
     <canvas id='canvas' style='width:100%;' width='900px' height='700px'></canvas>
-    <span id='latex0' style='position:absolute; left:0px; bottom:0px;'>${\color{#DD1177}\mathcal{S}^1}$</span>
-    <span id='latex1' style='position:absolute; left:0px; bottom:0px;'>${\color{#11DD77}\mathbb{R}^1}$</span>
-    <span id='latex2' style='position:absolute; left:0px; bottom:0px;'>${\color{#DD1177}\mu^\tp{ori}}$</span>
-    <span id='latex3' style='position:absolute; left:0px; bottom:0px;'>${\color{#DD1177}f^\tp{ori}}$</span>
-    <span id='latex4' style='position:absolute; left:0px; bottom:0px;'>${\color{#11DD77}\mu^\tp{ori}}$</span>
-    <span id='latex5' style='position:absolute; left:0px; bottom:0px;'>${\color{#11DD77}f^\tp{ori}}$</span>
-    <span id='latex6' style='position:absolute; left:0px; bottom:0px;'>${\color{#11DD77}-\pi}$</span>
-    <span id='latex7' style='position:absolute; left:0px; bottom:0px;'>${\color{#11DD77}\pi}$</span>
-    </span>
+    <span id='latex0' style='position:absolute; left:9999px; bottom:0px;'>${\color{#DD1177}\mathcal{S}^1}$</span>
+    <span id='latex1' style='position:absolute; left:9999px; bottom:0px;'>${\color{#11DD77}\mathbb{R}^1}$</span>
+    <span id='latex2' style='position:absolute; left:9999px; bottom:0px;'>${\color{#DD1177}\mu^\tp{ori}}$</span>
+    <span id='latex3' style='position:absolute; left:9999px; bottom:0px;'>${\color{#DD1177}f^\tp{ori}}$</span>
+    <span id='latex4' style='position:absolute; left:9999px; bottom:0px;'>${\color{#11DD77}\mu^\tp{ori}}$</span>
+    <span id='latex5' style='position:absolute; left:9999px; bottom:0px;'>${\color{#11DD77}f^\tp{ori}}$</span>
+    <span id='latex6' style='position:absolute; left:9999px; bottom:0px;'>${\color{#11DD77}-\pi}$</span>
+    <span id='latex7' style='position:absolute; left:9999px; bottom:0px;'>${\color{#11DD77}\pi}$</span>
+    </div>
     <input id='object_angle' type='range' min='-3.14159' max='3.14159' step='0.0001' value='0.8' class='w-72' style='vertical-align:middle;'>
 	&nbsp;&nbsp;<label>Object orientation</label><br>
     <input id='simulation_speed' type='range' min='0' max='20' step='0.01' value='10' class='w-72' style='vertical-align:middle;'>
 	&nbsp;&nbsp;<label>Simulation speed</label>
-    </div>
+    </div> <!--sticky-sm-top-->
 
 </div> <!--sm-4-->
 
@@ -635,14 +635,35 @@ def draw_obj(param, color='#FF3399', colortxt='#DD1177'):
 	ctx.stroke(seg37_svg)
 
 
+def draw_arrow(x1, x2, color='black', sz=10., lw='2'):
+	ctx.strokeStyle = color
+	ctx.fillStyle = color
+	ctx.lineWidth = lw
+	# Draw arrow tip
+	length = np.linalg.norm(x2-x1)
+	if length > sz*1.5:
+		v = (x2-x1) * sz / length
+		ctx.beginPath()
+		ctx.moveTo(x2[0], x2[1])
+		ctx.lineTo(x2[0]-v[0]+v[1]*.5, x2[1]-v[1]-v[0]*.5)
+		ctx.lineTo(x2[0]-v[0]-v[1]*.5, x2[1]-v[1]+v[0]*.5)
+		ctx.fill()
+		x2 = x1 + v * (length-sz*.9) / sz 
+	#Draw line
+	ctx.beginPath()
+	ctx.moveTo(x1[0], x1[1])
+	ctx.lineTo(x2[0], x2[1])
+	ctx.stroke()
+
+
 def draw_manifold(x, param, color='#FF3399', color2='#33FF99'):
 	global ctx, latex_el
 	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
 
 	# Parameters
-	pos = np.array([-120.0, -80.0]) # Position of S¹
-	pos2 = np.array([-70.0, -80.0]) # Position of R¹ (relative to S¹)
-	radius = 50.0
+	pos = np.array([-120., -80.]) # Position of S¹
+	pos2 = np.array([-70, -80.]) # Position of R¹ (relative to S¹)
+	radius = 50.
 	v = np.array([np.cos(x[-1]), np.sin(x[-1])]) * radius # Current orientation coordinates
 	vMu0 = np.array([np.cos(param.Mu[-1]), np.sin(param.Mu[-1])]) # Unit direction of tangent space
 	vMu = vMu0 * radius # Target orientation coordinates
@@ -677,10 +698,8 @@ def draw_manifold(x, param, color='#FF3399', color2='#33FF99'):
 		ctx.arc(0, 0, radius, x[-1], param.Mu[-1]) # Geodesic
 	ctx.stroke()
 	# Corresponding residual vector in tangent space
-	ctx.beginPath()
-	ctx.moveTo(vMu[0], vMu[1])
-	ctx.lineTo(vMu[0]+vMu0[1]*d*radius, vMu[1]-vMu0[0]*d*radius)
-	ctx.stroke()
+	x2 = np.array([vMu[0]+vMu0[1]*d*radius, vMu[1]-vMu0[0]*d*radius])
+	draw_arrow(vMu, x2, color)
 	
 	# Draw R¹ manifold
 	ctx.strokeStyle = color2+'33'
@@ -698,11 +717,9 @@ def draw_manifold(x, param, color='#FF3399', color2='#33FF99'):
 	ctx.stroke()
 	
 	# Residual vector on R¹
-	ctx.strokeStyle = color2
-	ctx.beginPath()
-	ctx.moveTo(pos2[0]+(np.pi*radius)+(param.Mu[-1]*radius), pos2[1])
-	ctx.lineTo(pos2[0]+(np.pi*radius)+(x[-1]*radius), pos2[1])
-	ctx.stroke()
+	x1 = np.array([pos2[0]+(np.pi*radius)+(x[-1]*radius), pos2[1]])
+	x2 = np.array([pos2[0]+(np.pi*radius)+(param.Mu[-1]*radius), pos2[1]])
+	draw_arrow(x1, x2, color2)
 
 	# Draw points 
 	ctx.fillStyle = 'black'
@@ -712,9 +729,9 @@ def draw_manifold(x, param, color='#FF3399', color2='#33FF99'):
 	ctx.beginPath()
 	ctx.arc(v[0], v[1], 3, 0, 2*np.pi) # Current orientation on S¹
 	ctx.fill()
-	ctx.beginPath()
-	ctx.arc(vMu[0]+vMu0[1]*d*radius, vMu[1]-vMu0[0]*d*radius, 3, 0, 2*np.pi) # Current orientation in tangent space
-	ctx.fill()
+#	ctx.beginPath()
+#	ctx.arc(vMu[0]+vMu0[1]*d*radius, vMu[1]-vMu0[0]*d*radius, 3, 0, 2*np.pi) # Current orientation in tangent space
+#	ctx.fill()
 	ctx.beginPath()
 	ctx.arc(pos2[0]+(np.pi+param.Mu[-1])*radius, pos2[1], 3, 0, 2*np.pi) # Target orientation on R¹
 	ctx.fill()
@@ -723,39 +740,39 @@ def draw_manifold(x, param, color='#FF3399', color2='#33FF99'):
 	ctx.fill()
 	
 	# Latex labels
-	v = np.array([np.cos(x[-1]), np.sin(x[-1])]) * radius * 1.3 # Current orientation coordinates
-	vMu = np.array([np.cos(param.Mu[-1]), np.sin(param.Mu[-1])]) * radius * 0.7 # Unit direction of tangent space    
+	v = np.array([np.cos(x[-1]), np.sin(x[-1])]) * radius * 1.4 # Current orientation coordinates
+	vMu = np.array([np.cos(param.Mu[-1]), np.sin(param.Mu[-1])]) * radius * 0.6 # Unit direction of tangent space    
 	xtmp = np.zeros(2)
 	xtmp[0] = ((pos[0]-7) * scaling_factor + canvas.width * 0.5) * canvas.clientWidth / canvas.width
-	xtmp[1] = (-(pos[1]-15) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height 
+	xtmp[1] = (-(pos[1]+5) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height 
 	latex_el[0].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # S¹
 	
 	xtmp[0] = ((pos[0]+pos2[0]-30-7) * scaling_factor + canvas.width * 0.5) * canvas.clientWidth / canvas.width
-	xtmp[1] = (-(pos[1]+pos2[1]-15) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height 
+	xtmp[1] = (-(pos[1]+pos2[1]+5) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height 
 	latex_el[1].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # R¹
 	
 	xtmp[0] = ((pos[0]+vMu[0]-7) * scaling_factor + canvas.width * 0.5) * canvas.clientWidth / canvas.width
-	xtmp[1] = (-(pos[1]+vMu[1]-15) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height 
+	xtmp[1] = (-(pos[1]+vMu[1]+5) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height 
 	latex_el[2].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # f^ori on S¹
 	
 	xtmp[0] = ((pos[0]+v[0]-7) * scaling_factor + canvas.width * 0.5) * canvas.clientWidth / canvas.width
-	xtmp[1] = (-(pos[1]+v[1]-15) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height 
+	xtmp[1] = (-(pos[1]+v[1]+5) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height 
 	latex_el[3].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # mu^ori on S¹
 	
 	xtmp[0] = ((pos[0]+pos2[0]+(np.pi+x[-1])*radius-7) * scaling_factor + canvas.width * 0.5) * canvas.clientWidth / canvas.width
-	xtmp[1] = (-(pos[1]+pos2[1]-32) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height 
+	xtmp[1] = (-(pos[1]+pos2[1]-12) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height 
 	latex_el[4].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # f^ori on R¹
 	
 	xtmp[0] = ((pos[0]+pos2[0]+(np.pi+param.Mu[-1])*radius-7) * scaling_factor + canvas.width * 0.5) * canvas.clientWidth / canvas.width
-	xtmp[1] = (-(pos[1]+pos2[1]-32) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height 
+	xtmp[1] = (-(pos[1]+pos2[1]-12) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height 
 	latex_el[5].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # mu^ori on R¹
 	
 	xtmp[0] = ((pos[0]+pos2[0]-7) * scaling_factor + canvas.width * 0.5) * canvas.clientWidth / canvas.width
-	xtmp[1] = (-(pos[1]+pos2[1]-2) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height 
+	xtmp[1] = (-(pos[1]+pos2[1]+18) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height 
 	latex_el[6].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # -pi
 	
 	xtmp[0] = ((pos[0]+pos2[0]+(2*np.pi*radius)-7) * scaling_factor + canvas.width * 0.5) * canvas.clientWidth / canvas.width
-	xtmp[1] = (-(pos[1]+pos2[1]-2) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height 
+	xtmp[1] = (-(pos[1]+pos2[1]+18) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height 
 	latex_el[7].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # pi
 
 
