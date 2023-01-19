@@ -224,6 +224,10 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
   </div> -->
 
 <py-script>
+    def print(x):
+        display(x, target='output')
+</py-script>
+<py-script std-out='output' std-err='errors'>
 import numpy as np
 import matplotlib.pyplot as plt
 from js import document, console
@@ -312,16 +316,16 @@ linear combination and product of Gaussians. We will see how one can use these o
 			  return cons*np.exp(-0.5*(x-mu).dot(np.linalg.inv(sigma))@ (x-mu))
 			
 			def linear_combination(A1, A2, c, mu1, mu2, sigma1, sigma2):
-			  mu_L = A1 @ mu1 + A2 @ mu2 + c # Implement here
-			  sigma_L = A1 @ sigma1 @ A1.T + A2 @ sigma2 @ A2.T # Implement here
+			  mu_L = A1 @ mu1 + A2 @ mu2 + c 
+			  sigma_L = A1 @ sigma1 @ A1.T + A2 @ sigma2 @ A2.T 
 			  return mu_L, sigma_L
 			
 			def product_gaussians(mu1, mu2, sigma1, sigma2):
 			  sigma1_inv = np.linalg.inv(sigma1)
 			  sigma2_inv = np.linalg.inv(sigma2)
-			  sigma_P = np.linalg.inv(sigma1_inv + sigma2_inv) # Implement here
-			  mu_P = sigma_P @ (sigma1_inv @ mu1 + sigma2_inv @ mu2) # Implement here
-			  c = gaussian_nD(mu1, mu2, sigma1 + sigma2) # Implement here 
+			  sigma_P = np.linalg.inv(sigma1_inv + sigma2_inv) 
+			  mu_P = sigma_P @ (sigma1_inv @ mu1 + sigma2_inv @ mu2) 
+			  c = gaussian_nD(mu1, mu2, sigma1 + sigma2) 
 			  return mu_P, sigma_P, c
 			</py-repl>
 	</div>
@@ -409,8 +413,8 @@ linear combination and product of Gaussians. We will see how one can use these o
 	<div class="tab-pane fade" id="answer2-tab-pane" role="tabpanel" aria-labelledby="answer2-tab" tabindex="0">
 		<py-repl std-out='output' std-err='errors'>
 			def fit_gaussian(X):
-				mu = np.mean(X, axis=-1) # implement here
-				sigma = (X-mu[:,None]).dot((X-mu[:,None]).T)/nb_data # implement here
+				mu = np.mean(X, axis=-1) 
+				sigma = (X-mu[:,None]).dot((X-mu[:,None]).T) / nb_data 
 				return mu, sigma
 		</py-repl>
 	</div>

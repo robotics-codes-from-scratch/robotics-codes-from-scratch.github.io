@@ -204,6 +204,10 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 </script>
 
 <py-script>
+    def print(x):
+        display(x, target='output')
+</py-script>
+<py-script std-out='output' std-err='errors'>
 import numpy as np
 import matplotlib.pyplot as plt
 from js import document, console
@@ -268,6 +272,8 @@ fig
 <py-repl id='rep1_plot' std-out='chart' std-err='errors'>
   fig,ax = plt.subplots(figsize=(5,5))
   ax.plot(t,x)
+  ax.set_xlabel('t')
+  ax.set_ylabel('x')
   fig
 </py-repl>
 <br>
@@ -279,25 +285,25 @@ fig
 <py-repl id='rep2' std-out='output' std-err='errors'>
   nbFct = 30
   psi = build_basis_function(nb_data,nbFct)
-  def estimate_w(psi):
+  def estimate_w(x, psi):
     # w =  # Implement here: Estimation of superposition weights from data
     return w
   
-  w = estimate_w(psi)
+  w = estimate_w(x, psi)
   print(w.shape) # verify the dimension of this to be equal to nbFct
 </py-repl>
 <br>
 
   <li>Verify your estimation of $\bm{w}$ by reconstructing the data using $\bm{\hat{x}} = \bm{\Phi} \bm{w}$ and plot.</li><br>
+  
 <!--    x_hat = psi @ w # Reconstruction data-->
-
 <py-repl id='rep3' std-out='chart' std-err='errors'>
   def reconstruct(w, psi):
     # x_hat = # Implement here: Reconstruction data
     return x_hat
   
   x_hat = reconstruct(w, psi)
-  ax.plot(t,x_hat)
+  ax.plot(t, x_hat)
   fig
 </py-repl>
 <div class='col-auto'><button class='btn btn-light btn-sm' data-bs-toggle='collapse' data-bs-target='#answer1' aria-expanded='false' aria-controls='answer1'>Show/hide answer</button></div>
@@ -311,13 +317,15 @@ fig
   nbFcts = [] # Implement here: choose 5 different nbFct
   errors = []
   for nbFct in nbFcts:
-    psi = build_basis_function(nb_data,nbFct)
+    psi = build_basis_function(nb_data, nbFct)
     w = estimate_w(psi)
     x_hat = reconstruct(w, psi)
     # errors.append() # Implement here: compute the error between x and x_hat
   
   fig,ax = plt.subplots(figsize=(5,5))
-  ax.plot(nbFcts,errors, 'o')
+  ax.plot(nbFcts, errors, 'o')
+  ax.set_xlabel('nbFcts')
+  ax.set_ylabel('Error')
   fig
 </py-repl>
 <div class='col-auto'><button class='btn btn-light btn-sm' data-bs-toggle='collapse' data-bs-target='#answer2' aria-expanded='false' aria-controls='answer2'>Show/hide answer</button></div>

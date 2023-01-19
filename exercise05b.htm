@@ -309,7 +309,7 @@ print(state)
 
 <br><br>
 
-<!-- <p id='repl-out' style='font-size: 70%; color: #777777;'>(press shift+enter or click on the green run button to run the code)</p>
+<!-- <p id='repl-out' style='font-size: 70%; color: #777777;'>(click on the green run button to run the code)</p>
 <p id='repl-err' style='font-size: 70%; color: #880000;'></p> -->
 
 </div> <!--sm-7-->
@@ -336,6 +336,10 @@ print(state)
 </div> <!--row-->
 
 <py-script>
+    def print(x):
+        display(x, target='output')
+</py-script>
+<py-script std-out='output' std-err='errors'>
 from pyodide.ffi import create_proxy
 from js import Path2D, document, console
 import numpy as np

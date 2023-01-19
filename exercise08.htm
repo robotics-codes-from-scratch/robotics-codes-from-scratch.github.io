@@ -290,9 +290,9 @@ update_ergodic_control()
 </div> <!--row-->
 <py-script>
 def print(x):
-	display(x, target="output")
+	display(x, target='output')
 </py-script>
-<py-script>
+<py-script std-out='output' std-err='errors'>
 from pyodide.ffi import create_proxy
 from js import Path2D, document, console
 import numpy as np

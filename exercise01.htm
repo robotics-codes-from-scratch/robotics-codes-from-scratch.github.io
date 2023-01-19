@@ -154,13 +154,6 @@ function clearMsgsOutput() {
 const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
 </script>
 
-<py-script>
-import numpy as np
-import matplotlib.pyplot as plt
-from js import document, console
-from pyodide.ffi import create_proxy
-</py-script>
-
 <div class='row'>
 <div class='col-sm-1'> </div>
 
@@ -170,45 +163,48 @@ from pyodide.ffi import create_proxy
 
 <p>The goal of this first exercise is to get familiar with linear algebra operations in Python and to the use of the web inerface that we will use for the exercises.</p>
 <p>This page contains a series of codes that you can edit and run. It might take some time to load (especially the first time you load it). The functionalities have been tested with Chrome and Firefox.</p>
-<p>To run the code in each editor box, you can either press shift+enter or click on the green run button <svg style='height:20px;width:20px;vertical-align:-.125em;transform-origin:center;overflow:visible;color:green' viewBox='0 0 384 512' aria-hidden='false' role='img' xmlns='http://www.w3.org/2000/svg'><g transform='translate(192 256)' transform-origin='96 0'><g transform='translate(0,0) scale(1,1)'><path d='M361 215C375.3 223.8 384 239.3 384 256C384 272.7 375.3 288.2 361 296.1L73.03 472.1C58.21 482 39.66 482.4 24.52 473.9C9.377 465.4 0 449.4 0 432V80C0 62.64 9.377 46.63 24.52 38.13C39.66 29.64 58.21 29.99 73.03 39.04L361 215z' fill='currentColor' transform='translate(-192 -256)'></path></g></g></svg> that appears on the right corner of the editor when you hover over it.</p>
+<p>To run the code in each editor box, click on the green run button <svg style='height:20px;width:20px;vertical-align:-.125em;transform-origin:center;overflow:visible;color:green' viewBox='0 0 384 512' aria-hidden='false' role='img' xmlns='http://www.w3.org/2000/svg'><g transform='translate(192 256)' transform-origin='96 0'><g transform='translate(0,0) scale(1,1)'><path d='M361 215C375.3 223.8 384 239.3 384 256C384 272.7 375.3 288.2 361 296.1L73.03 472.1C58.21 482 39.66 482.4 24.52 473.9C9.377 465.4 0 449.4 0 432V80C0 62.64 9.377 46.63 24.52 38.13C39.66 29.64 58.21 29.99 73.03 39.04L361 215z' fill='currentColor' transform='translate(-192 -256)'></path></g></g></svg> that appears on the right corner of the editor when you hover over it.</p>
 <p>The last line of the code can be used to display the outputs of the execution (workspace on the right side of the page), by just writing the name of the variable. <em>print(var)</em> can alternatively by used at any place within the code. Only the last output will be displayed on the workspace. At anytime, you can click on the <em>clear</em> buttons to clean the workspace.</p>
 <p>When defining functions, you can use two space characters to create tabulations (the tab key should be kept for navigating the web interface).</p>
 <p>This first exercise only requires you to run the codes, to display the results, to analyze these outputs, and to modify the examples in order to get familiar with the use of matrices, vectors and associated linear algebra operations in Python. Some of the exercises require the previous codes to have been run once, in order to define the variables.</p>
 
 <h5>1. Test your first Python code</h5>
-<py-repl id='rep0' std-out='output' std-err='errors'>print('Hello world!')</py-repl>
+<py-repl std-out='output' std-err='errors'>print('Hello world!')</py-repl>
 
 <h5>2. Create and display a random 3D vector</h5>
 
-<py-repl id='rep1' std-out='output' std-err='errors' output-mode='replace'>
+<py-repl std-out='output' std-err='errors' output-mode='replace'>
 vec1 = np.array([3., 4.]) # create a vector with given entries
 vec2 = np.random.randn(3) # create a random vector
-vec1, vec2
+print(vec1)
+print(vec2)
 </py-repl>
 
 <h5>3. Create and display a random 3D matrix</h5>
 
-<py-repl id='rep2' std-out='output' std-err='errors' output-mode='replace' >
+<py-repl std-out='output' std-err='errors' output-mode='replace' >
 mat1 = np.array([[1.,2.],[2., 10.]]) # create a matrix with given entries
 mat2 = np.random.randn(3,3) # create a random 3x3 matrix
-mat1, mat2
+print(mat1)
+print(mat2)
 </py-repl>
 
 <h5>4. Multiplication and product operations</h5>
 
-<py-repl id='rep3' std-out='output' std-err='errors' output-mode='replace' >
+<py-repl std-out='output' std-err='errors' output-mode='replace' >
 prod1 = mat1 @ mat1 # multiply mat1 by mat1
 prod2 = mat1 * mat1 # elementwise product between mat1 by mat1
 prod3 = mat1 @ vec1 # multiply mat1 by vec1
 prod4a = vec2.T @ vec2 # dot product between vec2 and vec2
 prod4b = vec2.dot(vec2) # dot product between vec2 and vec2
 prod5 = np.outer(vec2, vec2) # Outer product between vec2 and vec2
-prod4a,prod4b # Display two of the results
+print(prod4a)
+print(prod4b) # Display two of the results
 </py-repl>
 
 <h5>5. Reformatting and stacking of vectors and matrices</h5>
 
-<py-repl id='rep4' std-out='output' std-err='errors'>
+<py-repl std-out='output' std-err='errors'>
 vec3 = np.random.randn(3)
 # stack vec2 and vec3 to obtain a matrix of shape (2,3)
 stacked1 = np.stack([vec2, vec3])
@@ -216,12 +212,12 @@ stacked1 = np.stack([vec2, vec3])
 concatenated1 =  np.vstack([mat2, vec2[None]])
 # stack mat2 and vec2 to obtain a matrix of shape (3,4)
 concatenated2 =  np.hstack([mat2, vec2[:,None]])
-stacked1.shape # display the matrix dimension of stacked1 
+print(stacked1.shape) # display the matrix dimension of stacked1 
 </py-repl>
 
 <h5>6. Inversion of a matrix</h5>
 
-<py-repl id='rep5' std-out='output' std-err='errors'>
+<py-repl std-out='output' std-err='errors'>
   mat = np.diag([1., 1., 1.]) # set diagonal matrix 
   mat_inv = np.linalg.inv(mat) # matrix inversion
 
@@ -237,7 +233,8 @@ stacked1.shape # display the matrix dimension of stacked1
   #Compare the two solutions
   diff = np.linalg.norm(mat1_pinv - mat2_pinv, ord='fro') 
 
-  is_invertible, diff # diff should be almost zero
+  print(is_invertible)
+  print(diff) # diff should be almost zero
 </py-repl>
 
 <h5>7. Solve Ax=b using least squares</h5>
@@ -246,7 +243,7 @@ stacked1.shape # display the matrix dimension of stacked1
 <p>Compute the error between Ax and b to see if your solution for x seems correct.</p>
 <p>Modify the dimensions of A and b (including rectangular matrices for A) and observe the results.</p>
 
-<py-repl id='rep6' std-out='output' std-err='errors'>
+<py-repl std-out='output' std-err='errors'>
 A = np.random.randn(3,3)
 b = np.random.randn(3)
 # x = ...
@@ -261,13 +258,14 @@ np.linalg.norm(A @ x - b)
 <p>Implement a function fun(x) that inverts a matrix, by taking x as input (matrix) and by generating x_inv as output.</p>
 <p>Can you make this function robust to the use of singular matrices? (see part 6 above as a hint)</p>
 
-<py-repl id='rep7' std-out='output' std-err='errors'>
+<py-repl std-out='output' std-err='errors'>
 def fun(x):
   # x_inv = ...
   return x_inv
 
 x = np.diag([1., 2, 0.])
-fun(x)
+y = fun(x)
+print(y)
 </py-repl>
 <!--
 def fun(x):
@@ -284,7 +282,7 @@ fun(x)
 
 <h5>9. Plotting</h5>
 
-<py-repl id='rep8' std-out='chart' std-err='errors'>
+<py-repl std-out='chart' std-err='errors'>
 x = np.arange(5) # create data
 fig,ax = plt.subplots(figsize=(5,5))
 ax.plot(x, x**2) # plot data in a graph
@@ -323,6 +321,17 @@ fig
 </div> <!-- col-sm-4 -->
 
 </div> <!-- row -->
+
+<py-script>
+    def print(x):
+        display(x, target='output')
+</py-script>
+<py-script std-out='output' std-err='errors'>
+import numpy as np
+import matplotlib.pyplot as plt
+from js import document, console
+from pyodide.ffi import create_proxy
+</py-script>
 
 </div> <!--container-->
 </body>

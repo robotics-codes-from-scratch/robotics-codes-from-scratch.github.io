@@ -261,6 +261,10 @@ x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial state
 </div> <!--row-->
 
 <py-script>
+    def print(x):
+        display(x, target='output')
+</py-script>
+<py-script std-out='output' std-err='errors'>
 from pyodide.ffi import create_proxy
 from js import Path2D, document, console
 import numpy as np
