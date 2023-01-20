@@ -25,14 +25,6 @@
 
 
 
-<script defer src='https://pyscript.net/latest/pyscript.min.js'></script>
-	
-<py-config type='toml'>
-	packages = ['numpy']
-</py-config>
-		
-<link rel='stylesheet' href='https://pyscript.net/latest/pyscript.css'> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
-	
 <link rel='stylesheet' href='css/sidebars.css'> <!-- main navigation menu -->
 <link rel='stylesheet' href='css/main-template.css'>
 
@@ -152,265 +144,32 @@
 <div class='container-fluid'>
 
 
-<div class='row'>
-<div class='col-sm-1'></div>
-<div class='col-sm-7'>
+<center>
+<h1>Robotics codes from scratch (RCFS)</h1>
+</center>
 
-<br><br>
+<div class='container'>
 
-<script>
-function clearMsgs() {
-  const el = document.getElementById('repl-err');
-  el.innerText = '';
-  //console.log('event!');
-}
-</script>
+<p>RCFS is both a website with interactive examples and a collection of source codes to study learning and optimization techniques in robotics.</p>
 
-<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
-<py-repl std-out='repl-out' std-err='repl-err'>
-param.nbVarX = 3 # State space dimension 
-param.l = [300, 300, 150] # Robot links lengths
-x = [3*np.pi/4, -np.pi/2, -np.pi/4] # Initial robot state
+<p>RCFS is currently maintained by <a href='https://calinon.ch' target='_blank'>Dr Sylvain Calinon</a> at the <a href='https://www.idiap.ch' target='_blank'>Idiap Research Institute</a>.</p>
 
-# param.nbVarX = 8 # State space dimension 
-# param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
-# x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
-# x[0] = x[0] + np.pi
-</py-repl> <!--output='repl-out' std-out='repl-out'-->
+<!--
+To teach robotics in an efficient manner, my general observation is that <b>with too many toolboxes, knowledge can easily be lost</b>. My teaching experience led me to create Robotics codes from scratch (RCFS), a collection of source codes to study learning and optimization techniques in robotics through simple 2D examples in various forms, with source codes provided in a variety of programming languages, including Python, Matlab (with full compatibility with GNU Octave), C++ and Julia, as well as with interactive examples to be run directly on webpages, either by using code snippets that can be modified, or by changing parameters with the mouse (changing the location of the objects to be picked by the robot, perturbing the robot with the mouse pointer, adjusting the control parameters with a set of sliders, etc.). 
+
+The technology that I used for the web-based interactive examples and exercises is built upon PyScript (https://pyscript.net/), which exploits the same core components as Jupyter Notebooks, but providing more customized functionalities and a modern integration to websites. These interactive examples are integrated in three manners within the two robotics courses that I am teaching for the Swiss Distance University Institute and for the AI-Move Post-Master program at Mines-ParisTech:
+<ul>
+<li>During the lecture, as interactive examples that I directly run during the lectures, either by using the mouse cursor or in the form of live coding that I can integrate fluently within the course, without additional clutter since only very few lines of codes are displayed for each topic (only the lines of interest are displayed for each interactive example).</li>
+<li>During the labs, in the form of step-by-step exercises that the students can freely use during the labs or after the labs to better understand the learning and optimization algorithms that are taught during the lectures. In particular, this also allows them to observe and assess their potential limitations by direct interaction (by trying to push the models and algorithms to their limits by changing the configurations of the involved objects, by virtually pushing the robot with the mouse cursor to introduce perturbations, or by changing the optimization parameters through sliders).</li> 
+<li>After the courses, for online learning, as a recap of previous lectures, or for the preparation of the exam, by having access to the interactive examples and exercises as standard accessible webpages that do not require any installation or any specific hardware/software.</li>
+</ul>
+
+RCFS also provides more traditional source code examples in various programming languages, where each example is a standalone program to facilitate the modification and re-use of the codes. The examples use homogeneous variable names between examples and between programming languages, facilitating the passage between one example to another, and also between one language to another. While it is likely that the majority of students will use the Python examples, the effort of replicating the same codes in other languages aim to provide students who would not be more familiar with other languages \textbf{to focus on the algorithmic part of the programming}, instead of focusing on coding/syntax details. The choice of providing only simple graphics rendering and of concentrating on planar robots follows a similar philosophy, by providing minimal codes that focus on the essential algorithmic aspects to understand learning and optimization techniques in robotics. 
+
+In my view, this standpoint is particularly important to teach learning and optimization approaches in robotics, as this research field is submerged by toolboxes and frameworks that can often be highly complicated to install and use (also being large, as for example ROS that typically requires >1GB of hard disk). It is also satisfying for the students to see that they can master the whole pipeline. They can see with basic examples how the topics that they learned can be put in practice with short codes that can be run in a standalone fashion. This approach is aimed to be complementary to the code snippets in the interactive web-based examples of RCFS that focus on very specific parts of the algorithms. The use of notebooks is nowadays highly popular for teaching. When used correctly by the students, this format has undeniable advantages. However, I believe that it is also good to prepare the students to the next steps that will likely require them to move outside notebook environments when considering real robots applications. In this view, short standalone codes can help at facilitating this transition. In the provided codes, the focus on the graphics rendering aspects is minimal. In the web-based examples, since this part is hidden, the examples can be conceived to be visually more appealing and technically more impressive. For each toy example studied during the labs, I also provide an example of the same algorithm used in a more elaborated application, with a focus on real robot applications. 
+-->
+
 </div>
-<p id='repl-out' style='font-size: 70%; color: #777777;'>(click on the green run button to run the code; objects and joints can be moved with the mouse)</p>
-<p id='repl-err' style='font-size: 70%; color: #880000;'></p>
-
-</div> <!--sm-7-->
-
-<div class='col-sm-4'>
-<div class='sticky-sm-top'>
-<canvas id='canvas' style='width:100%;' width='900px' height='700px'></canvas>
-</div>
-</div> <!--sm-4-->
-
-</div> <!--row-->
-
-<py-script>
-from pyodide.ffi import create_proxy
-from js import Path2D, document, console
-import numpy as np
-import asyncio
-
-# Forward kinematics for end-effector (in robot coordinate system)
-def fkin(x, param):
-	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
-	f = [param.l @ np.cos(L @ x), param.l @ np.sin(L @ x)] 
-	return f
-	
-# Forward kinematics for all joints (in robot coordinate system)
-def fkin0(x, param): 
-	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
-	f = np.vstack([
-		L @ np.diag(param.l) @ np.cos(L @ x),
-		L @ np.diag(param.l) @ np.sin(L @ x)
-	])
-	f = np.hstack([np.zeros([2,1]), f])
-	return f
-
-# Jacobian with analytical computation (for single time step)
-def Jkin(x, param):
-	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
-	J = np.vstack([
-		-np.sin(L @ x).T @ np.diag(param.l) @ L,
-		 np.cos(L @ x).T @ np.diag(param.l) @ L
-	])
-	return J
-	
-## Parameters
-# ===============================
-
-param = lambda: None # Lazy way to define an empty class in python
-param.dt = 1e-1 # Time step length
-param.nbVarX = 3 # State space dimension (x1,x2,x3)
-param.l = [300, 300, 150] # Robot links lengths
-
-param2 = lambda: None # Lazy way to define an empty class in python
-
-#########################################################################################
-
-# Mouse events
-mouse0 = np.zeros(2)
-mouse = np.zeros(2)
-mousedown = 0
-hover_joint = -1
-move_joint= -1
-hover0 = np.zeros(2)
-
-def onMouseMove(event):
-	global mouse, mouse0, hover0, x
-	offset = canvas.getBoundingClientRect()
-	mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
-	mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
-	mouse[0] = (mouse0[0] - canvas.width * 0.5) 
-	mouse[1] = -(mouse0[1] - canvas.height * 0.9) 
-		
-def onTouchMove(event):
-	global mouse, mouse0, hover0, x
-	offset = event.target.getBoundingClientRect()
-	mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
-	mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
-	mouse[0] = (mouse0[0] - canvas.width * 0.5) 
-	mouse[1] = -(mouse0[1] - canvas.height * 0.9)
-	
-def onMouseDown(event):
-	global mousedown, move_joint, hover0, param2
-	mousedown = 1
-	if hover_joint >= 0:
-		f0 = fkin0(x, param)
-		param2.l = np.append(param.l[:hover_joint], np.linalg.norm(f0[:,hover_joint] - mouse))
-		param2.nbVarX = hover_joint+1
-		move_joint = hover_joint
-
-def onMouseUp(event):
-	global mousedown, move_joint
-	mousedown = 0
-	move_joint = -1
-
-def onWheel(event):
-	global x
-	if hover_joint >= 0:
-		x[hover_joint] -= 0.2 * (event.deltaY/106)
-
-document.addEventListener('mousemove', create_proxy(onMouseMove)) #for standard mouse
-document.addEventListener('touchmove', create_proxy(onTouchMove)) #for mobile interfaces
-
-document.addEventListener('mousedown', create_proxy(onMouseDown)) #for standard mouse
-document.addEventListener('touchstart', create_proxy(onMouseDown)) #for mobile interfaces 
-
-document.addEventListener('mouseup', create_proxy(onMouseUp)) #for standard mouse
-document.addEventListener('touchend', create_proxy(onMouseUp)) #for mobile interfaces 
-
-document.addEventListener('wheel', create_proxy(onWheel)) #for standard mouse
-
-
-#########################################################################################
-
-canvas = document.getElementById('canvas')
-ctx = canvas.getContext('2d')
-
-def clear_screen():
-	ctx.setTransform(1, 0, 0, 1, 0, 0)
-	ctx.fillStyle = 'white'
-	ctx.fillRect(0, 0, canvas.width, canvas.height)
-	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
-
-
-def draw_robot(x, color):
-	global hover_joint
-	f = fkin0(x, param) # Update positions of the robot links
-	
-	# Draw base
-	ctx.translate(f[0,0], f[1,0])
-	ctx.lineWidth = '4'
-	ctx.strokeStyle = 'white'
-	ctx.fillStyle = color
-	ctx.beginPath()
-	ctx.arc(0, 0, 40, 0, np.pi)
-	ctx.rect(-40, 0, 80, -40)
-	ctx.fill()
-	ctx.strokeStyle = color
-	for i in range(5):
-		ctx.beginPath()
-		ctx.moveTo(-30+i*15, -40)
-		ctx.lineTo(-40+i*15, -60)
-		ctx.stroke()
-		
-	# Draw links and articulations
-	obj_articulation = Path2D.new()
-	obj_articulation.arc(0, 0, 12, 0, 2*np.pi)
-	ctx.lineCap = 'round'
-	ctx.lineJoin = 'round'
-	for i in range(param.nbVarX):
-		if i < param.nbVarX:
-			# Draw links outlines
-			ctx.lineWidth = '46'
-			ctx.strokeStyle = 'white'
-			ctx.beginPath()
-			ctx.lineTo(f[0,i], f[1,i])
-			ctx.lineTo(f[0,i+1], f[1,i+1])
-			ctx.stroke()
-			# Draw links
-			obj = Path2D.new()
-			obj.lineTo(f[0,i], f[1,i])
-			obj.lineTo(f[0,i+1], f[1,i+1])
-			ctx.lineWidth = '38'
-			ctx.strokeStyle = color
-			ctx.stroke(obj)
-			if ctx.isPointInStroke(obj, mouse0[0], mouse0[1]) and move_joint < 0:
-				hover_joint = i
-		
-		# Draw articulations
-		ctx.lineWidth = '4'
-		ctx.strokeStyle = 'white'
-		ctx.translate(f[0,i], f[1,i])
-		ctx.stroke(obj_articulation)
-		ctx.translate(-f[0,i], -f[1,i])
-	
-
-def draw_selected_point(f, color):
-	# Draw object
-	obj = Path2D.new()
-	obj.arc(0, 0, 6, 0, 2*np.pi)
-	ctx.translate(f[0], f[1])
-	ctx.fillStyle = color
-	ctx.fill(obj)
-
-
-def controlCommand(x, param):
-	u = np.zeros(param.nbVarX)
-	if move_joint >= 0:
-		f = fkin(x[:move_joint+1], param2)
-		J = Jkin(x[:move_joint+1], param2)
-#		u[:move_joint+1] = np.linalg.pinv(J) @ (mouse - f) * 5 
-		pinvJ = np.linalg.inv(J.T @ J + np.eye(param2.nbVarX) * 1E4) @ J.T # Damped pseudoinverse
-		u[:move_joint+1] = pinvJ @ (mouse - f) * 5 
-	return u
-
-#########################################################################################
- 
-def errorHandler(e):
-	msg = 'Error: ' + str(e)
-	console.error(msg)
-	el = document.getElementById('repl-err')
-	el.innerText = msg
-	
-#########################################################################################
-x = np.array([3*np.pi/4, -np.pi/2, -np.pi/4]) # Initial robot state
-#u = np.zeros(param.nbVarX)
-
-async def main():
-	global hover_joint, x
-	
-	while True:
-		try:
-			u = controlCommand(x, param)
-		except Exception as e:
-			errorHandler(e)
-			u = np.zeros(param.nbVarX)
-		
-		x += u * param.dt # Update robot state
-		
-		# Reinit hovering variables
-		hover_joint = -1
-		
-		# Rendering
-		clear_screen()
-		draw_robot(x, '#AAAAAA')
-		if move_joint >= 0:
-			f = fkin(x[:move_joint+1], param2)
-			draw_selected_point(f, '#777777')
-
-		await asyncio.sleep(0.01)
-
-pyscript.run_until_complete(main())
-
-</py-script>
 
 </div> <!--container-->
 </body>

@@ -48,7 +48,19 @@
     <div class='offcanvas-body'>
 	<ul class='list-unstyled ps-0'>
 	  
-	  <!--<li><a href='index.htm' class='link-dark d-inline-flex text-decoration-none rounded'>Home</a></li>-->
+	  
+	  <li class='border-top my-1'></li>
+	  
+	  <li class='mb-1'>
+		<button class='btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed' data-bs-toggle='collapse' data-bs-target='#general-collapse' aria-expanded='true'>General information</button>
+		<div class='collapse show' id='general-collapse'>
+		  <!--<li><a href='index.htm' class='link-dark d-inline-flex text-decoration-none rounded'>Home</a></li>-->
+		  <ul class='btn-toggle-nav list-unstyled fw-normal pb-1 small'>
+		  	<li><a href='about.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
+			<div class='p-1 mb-0'>About</div></a></li>
+		  </ul>
+		</div>
+	  </li>  
 	  
 	  <li class='border-top my-1'></li>
 	  
@@ -140,16 +152,31 @@
 
 <p>Robotics codes from scratch (RCFS) is a collection of source codes to study and test learning and optimization problems in robotics through simple 2D examples. Most examples are coded in Python and Matlab/Octave (full compatibility with GNU Octave). Some are also coded in C++ and Julia. The code examples have .m, .py, .cpp and .jl extensions that can be found in their respective folders matlab, python, cpp and julia.</p>
 
-<p>Use the menu on the top-left corner to see the available sandbox examples and interactive exercises.</p>
+<p>Use the <b>menu on the top-left corner</b> to see the available sandbox examples and interactive exercises.</p>
 
+<!--
 <center>
 <img class='img-fluid' src='images/logo.png'>
 </center>
+-->
+<br>
 
 <center>
 <a href='https://gitlab.idiap.ch/rli/robotics-codes-from-scratch' target='_blank'><button type='button' class='btn btn-primary btn-lg'><i class='bi bi-git'></i> git repo</button></a>
 <a href='doc/rcfs.pdf' target='_blank'><button type='button' class='btn btn-danger btn-lg'><i class='bi bi-file-pdf-fill'></i> pdf</button></a>
 <a href='sandbox_iLQR.htm'><button type='button' class='btn btn-success btn-lg'><i class='bi bi-wrench-adjustable-circle-fill'></i> sandbox example</button></a>
+</center>
+
+<br><br>
+
+<center>
+<img class='img-fluid' src='videos/iLQR_manipulator01.gif'>
+<img class='img-fluid' src='videos/iLQR_car.gif'>
+<img class='img-fluid' src='videos/bimanual_nullspace01.gif'>
+<img class='img-fluid' src='videos/iLQR_bicopter.gif'>
+<img class='img-fluid' src='videos/humanoid_CoM01.gif'>
+<img class='img-fluid' src='videos/RiemannianManifold01.gif'>
+<img class='img-fluid' src='videos/Jacobian01.gif'>
 </center>
 
 </div>
