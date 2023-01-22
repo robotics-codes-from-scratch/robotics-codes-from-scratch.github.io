@@ -144,32 +144,62 @@
 <div class='container-fluid'>
 
 
+<div class='row'>
+<div class='col-sm-1'></div>
+<div class='col-sm-7'>
+
 <center>
 <h1>Robotics codes from scratch (RCFS)</h1>
 </center>
 
-<div class='container'>
+<p>RCFS is a website with interactive examples, as well as a collection of source codes to study learning and optimization techniques in robotics. It is currently maintained by <a href='https://calinon.ch' target='_blank'>Dr Sylvain Calinon</a> at the <a href='https://www.idiap.ch' target='_blank'>Idiap Research Institute</a>.</p>
 
-<p>RCFS is both a website with interactive examples and a collection of source codes to study learning and optimization techniques in robotics.</p>
+<p>RCFS is free software: you can redistribute it and/or modify it under the terms of the <a href='https://www.gnu.org/licenses/' target='_blank'>GNU General Public License version 3</a> as published by the Free Software Foundation.</p>
 
-<p>RCFS is currently maintained by <a href='https://calinon.ch' target='_blank'>Dr Sylvain Calinon</a> at the <a href='https://www.idiap.ch' target='_blank'>Idiap Research Institute</a>.</p>
+<h3>What does RCFS contain?</h3>
 
-<!--
-To teach robotics in an efficient manner, my general observation is that <b>with too many toolboxes, knowledge can easily be lost</b>. My teaching experience led me to create Robotics codes from scratch (RCFS), a collection of source codes to study learning and optimization techniques in robotics through simple 2D examples in various forms, with source codes provided in a variety of programming languages, including Python, Matlab (with full compatibility with GNU Octave), C++ and Julia, as well as with interactive examples to be run directly on webpages, either by using code snippets that can be modified, or by changing parameters with the mouse (changing the location of the objects to be picked by the robot, perturbing the robot with the mouse pointer, adjusting the control parameters with a set of sliders, etc.). 
-
-The technology that I used for the web-based interactive examples and exercises is built upon PyScript (https://pyscript.net/), which exploits the same core components as Jupyter Notebooks, but providing more customized functionalities and a modern integration to websites. These interactive examples are integrated in three manners within the two robotics courses that I am teaching for the Swiss Distance University Institute and for the AI-Move Post-Master program at Mines-ParisTech:
+<p>RCFS can be used to study and test learning and optimization techniques in robotics through simple 2D examples.</p> 
+<p>It is composed of three parts:
 <ul>
-<li>During the lecture, as interactive examples that I directly run during the lectures, either by using the mouse cursor or in the form of live coding that I can integrate fluently within the course, without additional clutter since only very few lines of codes are displayed for each topic (only the lines of interest are displayed for each interactive example).</li>
-<li>During the labs, in the form of step-by-step exercises that the students can freely use during the labs or after the labs to better understand the learning and optimization algorithms that are taught during the lectures. In particular, this also allows them to observe and assess their potential limitations by direct interaction (by trying to push the models and algorithms to their limits by changing the configurations of the involved objects, by virtually pushing the robot with the mouse cursor to introduce perturbations, or by changing the optimization parameters through sliders).</li> 
-<li>After the courses, for online learning, as a recap of previous lectures, or for the preparation of the exam, by having access to the interactive examples and exercises as standard accessible webpages that do not require any installation or any specific hardware/software.</li>
+<li>Interactive examples to be run directly on webpages, either by using code snippets that can be modified, or by changing parameters with the mouse (changing the location of the objects to be picked by the robot, perturbing the robot with the mouse pointer, adjusting the control parameters with a set of sliders, etc.).</li> 
+<li><a href='https://gitlab.idiap.ch/rli/robotics-codes-from-scratch' target='_blank'>Source codes provided in a variety of programming languages</a>, including Python, Matlab (with full compatibility with GNU Octave), C++ and Julia.</li> 
+<li><a href='https://robotics-codes-from-scratch.github.io/doc/rcfs.pdf' target='_blank'>An accompanying PDF</a> containing the corresponding descriptions of the algorithms.</li> 
 </ul>
+</p>
 
-RCFS also provides more traditional source code examples in various programming languages, where each example is a standalone program to facilitate the modification and re-use of the codes. The examples use homogeneous variable names between examples and between programming languages, facilitating the passage between one example to another, and also between one language to another. While it is likely that the majority of students will use the Python examples, the effort of replicating the same codes in other languages aim to provide students who would not be more familiar with other languages \textbf{to focus on the algorithmic part of the programming}, instead of focusing on coding/syntax details. The choice of providing only simple graphics rendering and of concentrating on planar robots follows a similar philosophy, by providing minimal codes that focus on the essential algorithmic aspects to understand learning and optimization techniques in robotics. 
+<p>The technology used for the web-based interactive examples and exercises is built upon <a href='https://pyscript.net/' target='_blank'>PyScript</a>, which exploits the same core components as Jupyter Notebooks, but providing more customized functionalities and a modern integration to websites.</p>
 
-In my view, this standpoint is particularly important to teach learning and optimization approaches in robotics, as this research field is submerged by toolboxes and frameworks that can often be highly complicated to install and use (also being large, as for example ROS that typically requires >1GB of hard disk). It is also satisfying for the students to see that they can master the whole pipeline. They can see with basic examples how the topics that they learned can be put in practice with short codes that can be run in a standalone fashion. This approach is aimed to be complementary to the code snippets in the interactive web-based examples of RCFS that focus on very specific parts of the algorithms. The use of notebooks is nowadays highly popular for teaching. When used correctly by the students, this format has undeniable advantages. However, I believe that it is also good to prepare the students to the next steps that will likely require them to move outside notebook environments when considering real robots applications. In this view, short standalone codes can help at facilitating this transition. In the provided codes, the focus on the graphics rendering aspects is minimal. In the web-based examples, since this part is hidden, the examples can be conceived to be visually more appealing and technically more impressive. For each toy example studied during the labs, I also provide an example of the same algorithm used in a more elaborated application, with a focus on real robot applications. 
--->
+<h3>How to use RCFS for teaching?</h3>
 
-</div>
+<p>RCFS can be used for teaching by explicitly mentioning the origin of the codes/examples, by including as a link:</p>
+<p><center><b>https://robotics-codes-from-scratch.github.io/</b></center></p>
+
+<p>The interactive examples can potentially be integrated in three manners in robotics courses:
+<ul>
+<li><b>During lectures</b>, as interactive examples that can be directly run by using the mouse cursor or in the form of live coding that can be fluently integrated within the course, without additional clutter since only very few lines of codes are displayed for each topic (only the lines of interest are displayed for each interactive example).</li>
+<li><b>During labs</b>, in the form of step-by-step exercises that the students can freely use during the labs or after the labs to better understand the learning and optimization algorithms that are taught during the lectures. In particular, this also allows them to observe and assess their potential limitations by direct interaction (by trying to push the models and algorithms to their limits by changing the configurations of the involved objects, by virtually pushing the robot with the mouse cursor to introduce perturbations, or by changing the optimization parameters through sliders).</li> 
+<li><b>For individual online learning</b>, by having access to the interactive examples and exercises as standard accessible webpages that do not require any installation or any specific hardware/software.</li>
+</ul>
+</p>
+
+<h3>Why standalone source codes?</h3>
+
+<p>RCFS also provides more traditional source code examples in various programming languages, where each example is a standalone program to facilitate the modification and re-use of the codes. The examples use homogeneous variable names between examples and between programming languages, facilitating the passage between one example to another, and also between one language to another. While the majority of users will leverage the Python examples, the effort of replicating the same codes in other languages aim to provide users who would not be more familiar with other languages <b>to focus on the algorithmic part of the programming</b>, instead of focusing on coding/syntax details. The choice of providing only simple graphics rendering and of concentrating on planar robots follows a similar principle, by providing minimal codes that focus on the essential algorithmic aspects to understand learning and optimization techniques in robotics.</p>
+
+<p>By providing standalone examples, RCFS allow users to more easily master the whole algorithmic pipeline. They can see with basic examples how the topics that they learned can be put in practice with short codes that can be run independently. This approach is aimed to be complementary to the code snippets in the interactive web-based examples of RCFS that focus on very specific parts of the algorithms.</p> 
+
+<h3>Why not providing notebooks?</h3>
+
+<p>The use of notebooks is nowadays highly popular for teaching. When used correctly, this format has undeniable advantages. However, when providing students with material to study robotics, we believe it is also important to prepare them to the next steps that will require them to move outside notebook environments when considering real robots applications. In this view, the short standalone codes in RCFS can help at facilitating this transition. In the provided codes, the focus on the graphics rendering aspects is minimal. In the web-based examples, since this part is hidden, the examples are created to be visually more appealing and technically more impressive.</p>
+
+<br><br>
+
+</div> <!--sm-7-->
+
+<div class='col-sm-4'>
+</div> <!--sm-4-->
+
+</div> <!--row-->
 
 </div> <!--container-->
 </body>
