@@ -240,7 +240,7 @@ print(stacked1.shape) # display the matrix dimension of stacked1
   is_invertible = np.linalg.det(mat) != 0.
 
   # Pseudoinverses of mat
-  mat1_pinv = np.linalg.inv(mat.T @ mat).T @ mat.T # using inv(A.T @ A) @ A.T
+  mat1_pinv = np.linalg.inv(mat.T @ mat) @ mat.T # using inv(A.T @ A) @ A.T
   mat2_pinv = np.linalg.pinv(mat) # using np.linalg.pinv()
   
   #Compare the two solutions
