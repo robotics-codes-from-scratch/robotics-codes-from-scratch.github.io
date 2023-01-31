@@ -230,16 +230,17 @@ print(stacked1.shape) # display the matrix dimension of stacked1
 <h5>6. Inversion of a matrix</h5>
 
 <py-repl std-out='output' std-err='errors'>
-  mat = np.diag([1., 1., 1.]) # set diagonal matrix 
+  mat = np.diag([0.1, 0.2, 0.3]) # set diagonal matrix 
   mat_inv = np.linalg.inv(mat) # matrix inversion
 
-  # Let's make it not invertible by changing the last entry to 0
-  mat[-1,-1] = 0.
-  # Let's now check if it is invertible (without inverting it)
+  # # Let's make it not invertible by changing the last entry to 0
+  # mat[-1,-1] = 0.
+  
+  # Let's check if the matrix is invertible (without inverting it)
   is_invertible = np.linalg.det(mat) != 0.
 
   # Pseudoinverses of mat
-  mat1_pinv = (mat.T @ mat).T @ mat # using (A.T @ A).T @ A
+  mat1_pinv = np.linalg.inv(mat.T @ mat).T @ mat.T # using inv(A.T @ A) @ A.T
   mat2_pinv = np.linalg.pinv(mat) # using np.linalg.pinv()
   
   #Compare the two solutions
