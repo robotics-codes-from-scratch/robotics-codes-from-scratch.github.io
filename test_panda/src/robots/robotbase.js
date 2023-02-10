@@ -1,10 +1,8 @@
 import { Object3D, Vector3, Quaternion, Euler, Bone } from "three";
 import { traverse } from "../utils.js"
 
-
-export const MODELS_ROOT = "/models/";
+export const MODELS_ROOT = window.location.href.substring(0, window.location.href.lastIndexOf('/')) + "/models/";
 export const getPackage = (name) => MODELS_ROOT + name;
-
 
 export default class Robot {
     constructor(name, packagename, xacro) {
