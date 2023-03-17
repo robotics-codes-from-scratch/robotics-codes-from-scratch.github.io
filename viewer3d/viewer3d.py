@@ -8,7 +8,7 @@
 
 from js import Viewer3Djs
 from js import three
-from pyodide import create_proxy
+from pyodide.ffi import create_proxy
 from pyodide.ffi import to_js
 import numpy as np
 
