@@ -170,6 +170,13 @@
 
 <br><br>
 
+<py-config type='toml'>
+    packages = ['numpy']
+    [[fetch]]
+        from = './viewer3d/'
+        files = ['viewer3d.py']
+</py-config>
+
 <script>
 function clearMsgs() {
   const el = document.getElementById('repl-err');
@@ -178,251 +185,225 @@ function clearMsgs() {
 }
 </script>
 
+
+<ul class='nav nav-tabs' id='myTab' role='tablist'>
+
+<li class='nav-item' role='presentation'><button class='nav-link active' id='posorient-tab' data-bs-toggle='tab' data-bs-target='#posorient-tab-pane' type='button' role='tab' aria-controls='posorient-tab-pane' aria-selected='true'>Position + orientation</button></li>
+
+<li class='nav-item' role='presentation'><button class='nav-link' id='pos-tab' data-bs-toggle='tab' data-bs-target='#pos-tab-pane' type='button' role='tab' aria-controls='pos-tab-pane' aria-selected='false'>Position</button></li>
+
+<li class='nav-item' role='presentation'><button class='nav-link' id='orient-tab' data-bs-toggle='tab' data-bs-target='#orient-tab-pane' type='button' role='tab' aria-controls='orient-tab-pane' aria-selected='false'>Orientation</button></li>
+
+</ul>
+
+
+<div class='tab-content' id='myTabContent'>
+
+<div class='tab-pane fade show active' id='posorient-tab-pane' role='tabpanel' aria-labelledby='posorient-tab' tabindex='0'>
 <div onkeydown='clearMsgs()' onclick='clearMsgs()'>
 <py-repl std-out='repl-out' std-err='repl-err'>
-param.nbVarX = 3 # State space dimension 
-param.l = [300, 300, 150] # Robot links lengths
-x = [3*np.pi/4, -np.pi/2, -np.pi/4] # Initial robot state
+x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
 
-# param.nbVarX = 8 # State space dimension 
-# param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
-# x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
-# x[0] = x[0] + np.pi
-</py-repl> <!--output='repl-out' std-out='repl-out'-->
+def controlCommand(x, mu):
+    J = Jkin(x)
+    f = fkin(x)
+    u = np.linalg.pinv(J) @ logmap(mu, f)  # Position & orientation tracking
+    return u
+</py-repl>
 </div>
-<p id='repl-out' style='font-size: 70%; color: #777777;'>(click on the green run button to run the code; objects and joints can be moved with the mouse)</p>
+</div>
+
+<div class='tab-pane fade show' id='pos-tab-pane' role='tabpanel' aria-labelledby='pos-tab' tabindex='0'>
+<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
+<py-repl std-out='repl-out' std-err='repl-err'>
+x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
+
+def controlCommand(x, mu):
+    J = Jkin(x)
+    f = fkin(x)
+    u = np.linalg.pinv(J[0:3,:]) @ (mu[0:3] - f[0:3])  # Position tracking
+    return u
+</py-repl>
+</div>
+</div>
+
+<div class='tab-pane fade show' id='orient-tab-pane' role='tabpanel' aria-labelledby='orient-tab' tabindex='0'>
+<div onkeydown='clearMsgs()' onclick='clearMsgs()'>
+<py-repl std-out='repl-out' std-err='repl-err'>
+x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
+
+def controlCommand(x, mu):
+    J = Jkin(x)
+    f = fkin(x)
+    u = np.linalg.pinv(J[3:,:]) @ logmap_S3(mu[3:], f[3:])  # Orientation tracking
+    return u
+</py-repl>
+</div>
+</div>
+
+</div>
+
+<p id='repl-out' style='font-size: 70%; color: #777777;'>(click on the green run button to run the code; the blue target can be moved with the mouse)</p>
 <p id='repl-err' style='font-size: 70%; color: #880000;'></p>
 
 </div> <!--sm-7-->
 
 <div class='col-sm-4'>
 <div class='sticky-sm-top'>
-<canvas id='canvas' style='width:100%;' width='900px' height='700px'></canvas>
+    <div id="viewer3d" style="width: 100%; height: 400px;"></div>
 </div>
 </div> <!--sm-4-->
 
 </div> <!--row-->
 
+
+<!-- Import all the necessary JavaScript dependency modules
+Sadly, can't be imported from an external file for the moment, this is not supported by Chrome
+-->
+<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.141.0/build/three.module.js",
+            "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.141.0/examples/jsm/",
+            "xacro-parser": "https://cdn.jsdelivr.net/npm/xacro-parser@0.3.1/src/index.js",
+            "urdf-loader": "https://cdn.jsdelivr.net/npm/urdf-loader@0.10.4/src/URDFLoader.js",
+            "expr-eval": "https://cdn.jsdelivr.net/npm/expr-eval@2.0.2/dist/index.mjs"
+        }
+    }
+</script>
+
+
+<!-- We need to import our 'Viewer3D' JavaScript module, otherwise it is not
+accessible from Python -->
+<script type="module">
+    import { Viewer3D } from './viewer3d/viewer3d.js';
+</script>
+
+
 <py-script>
-from pyodide.ffi import create_proxy
-from js import Path2D, document, console
-import numpy as np
-import asyncio
-
-# Forward kinematics for end-effector (in robot coordinate system)
-def fkin(x, param):
-	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
-	f = [param.l @ np.cos(L @ x), param.l @ np.sin(L @ x)] 
-	return f
-	
-# Forward kinematics for all joints (in robot coordinate system)
-def fkin0(x, param): 
-	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
-	f = np.vstack([
-		L @ np.diag(param.l) @ np.cos(L @ x),
-		L @ np.diag(param.l) @ np.sin(L @ x)
-	])
-	f = np.hstack([np.zeros([2,1]), f])
-	return f
-
-# Jacobian with analytical computation (for single time step)
-def Jkin(x, param):
-	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
-	J = np.vstack([
-		-np.sin(L @ x).T @ np.diag(param.l) @ L,
-		 np.cos(L @ x).T @ np.diag(param.l) @ L
-	])
-	return J
-	
-## Parameters
-# ===============================
-
-param = lambda: None # Lazy way to define an empty class in python
-param.dt = 1e-1 # Time step length
-param.nbVarX = 3 # State space dimension (x1,x2,x3)
-param.l = [300, 300, 150] # Robot links lengths
-
-param2 = lambda: None # Lazy way to define an empty class in python
-
-#########################################################################################
-
-# Mouse events
-mouse0 = np.zeros(2)
-mouse = np.zeros(2)
-mousedown = 0
-hover_joint = -1
-move_joint= -1
-hover0 = np.zeros(2)
-
-def onMouseMove(event):
-	global mouse, mouse0, hover0, x
-	offset = canvas.getBoundingClientRect()
-	mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
-	mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
-	mouse[0] = (mouse0[0] - canvas.width * 0.5) 
-	mouse[1] = -(mouse0[1] - canvas.height * 0.9) 
-		
-def onTouchMove(event):
-	global mouse, mouse0, hover0, x
-	offset = event.target.getBoundingClientRect()
-	mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
-	mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
-	mouse[0] = (mouse0[0] - canvas.width * 0.5) 
-	mouse[1] = -(mouse0[1] - canvas.height * 0.9)
-	
-def onMouseDown(event):
-	global mousedown, move_joint, hover0, param2
-	mousedown = 1
-	if hover_joint >= 0:
-		f0 = fkin0(x, param)
-		param2.l = np.append(param.l[:hover_joint], np.linalg.norm(f0[:,hover_joint] - mouse))
-		param2.nbVarX = hover_joint+1
-		move_joint = hover_joint
-
-def onMouseUp(event):
-	global mousedown, move_joint
-	mousedown = 0
-	move_joint = -1
-
-def onWheel(event):
-	global x
-	if hover_joint >= 0:
-		x[hover_joint] -= 0.2 * (event.deltaY/106)
-
-document.addEventListener('mousemove', create_proxy(onMouseMove)) #for standard mouse
-document.addEventListener('touchmove', create_proxy(onTouchMove)) #for mobile interfaces
-
-document.addEventListener('mousedown', create_proxy(onMouseDown)) #for standard mouse
-document.addEventListener('touchstart', create_proxy(onMouseDown)) #for mobile interfaces 
-
-document.addEventListener('mouseup', create_proxy(onMouseUp)) #for standard mouse
-document.addEventListener('touchend', create_proxy(onMouseUp)) #for mobile interfaces 
-
-document.addEventListener('wheel', create_proxy(onWheel)) #for standard mouse
+        from viewer3d import Viewer3D
+        from js import document, Themes
+        import math
+        import numpy as np
 
 
-#########################################################################################
-
-canvas = document.getElementById('canvas')
-ctx = canvas.getContext('2d')
-
-def clear_screen():
-	ctx.setTransform(1, 0, 0, 1, 0, 0)
-	ctx.fillStyle = 'white'
-	ctx.fillRect(0, 0, canvas.width, canvas.height)
-	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
+        # The function that will be called once the 3D viewer has finished loading
+        robot = None
+        def onSceneReady():
+            global robot
+            robot = viewer3D.robot
 
 
-def draw_robot(x, color):
-	global hover_joint
-	f = fkin0(x, param) # Update positions of the robot links
-	
-	# Draw base
-	ctx.translate(f[0,0], f[1,0])
-	ctx.lineWidth = '4'
-	ctx.strokeStyle = 'white'
-	ctx.fillStyle = color
-	ctx.beginPath()
-	ctx.arc(0, 0, 40, 0, np.pi)
-	ctx.rect(-40, 0, 80, -40)
-	ctx.fill()
-	ctx.strokeStyle = color
-	for i in range(5):
-		ctx.beginPath()
-		ctx.moveTo(-30+i*15, -40)
-		ctx.lineTo(-40+i*15, -60)
-		ctx.stroke()
-		
-	# Draw links and articulations
-	obj_articulation = Path2D.new()
-	obj_articulation.arc(0, 0, 12, 0, 2*np.pi)
-	ctx.lineCap = 'round'
-	ctx.lineJoin = 'round'
-	for i in range(param.nbVarX):
-		if i < param.nbVarX:
-			# Draw links outlines
-			ctx.lineWidth = '46'
-			ctx.strokeStyle = 'white'
-			ctx.beginPath()
-			ctx.lineTo(f[0,i], f[1,i])
-			ctx.lineTo(f[0,i+1], f[1,i+1])
-			ctx.stroke()
-			# Draw links
-			obj = Path2D.new()
-			obj.lineTo(f[0,i], f[1,i])
-			obj.lineTo(f[0,i+1], f[1,i+1])
-			ctx.lineWidth = '38'
-			ctx.strokeStyle = color
-			ctx.stroke(obj)
-			if ctx.isPointInStroke(obj, mouse0[0], mouse0[1]) and move_joint < 0:
-				hover_joint = i
-		
-		# Draw articulations
-		ctx.lineWidth = '4'
-		ctx.strokeStyle = 'white'
-		ctx.translate(f[0,i], f[1,i])
-		ctx.stroke(obj_articulation)
-		ctx.translate(-f[0,i], -f[1,i])
-	
+        # Create the Viewer3D object
+        viewer3D = Viewer3D(
+            document.getElementById('viewer3d'),
+            parameters=dict(
+                logmap_sphere=True,
+                theme=Themes.Simple,
+            ),
+            onready=onSceneReady,
+        )
 
-def draw_selected_point(f, color):
-	# Draw object
-	obj = Path2D.new()
-	obj.arc(0, 0, 6, 0, 2*np.pi)
-	ctx.translate(f[0], f[1])
-	ctx.fillStyle = color
-	ctx.fill(obj)
+        # Disable the manipulation of the joints
+        viewer3D.jointsManipulationEnabled = False
+
+        # Add one target
+        viewer3D.addTarget("target", [0.0, 0.4, 0.5], [0.57, 0.57, 0.42, -0.42], '#FF3399')
+        viewer3D.logmapTarget = "target"
+
+        # The function that will be called once per frame
+        x = None
+
+        def ikUpdate(delta):
+            global x
+
+            if x is None:
+                x = robot.jointPositions
+            elif not isinstance(x, np.ndarray):
+                x = np.array(x)
+
+            target = viewer3D.getTarget("target")
+
+            u = controlCommand(x, target.transforms)
+
+            x += u * 0.1
+            robot.jointPositions = x
+
+        viewer3D.setRenderingCallback(ikUpdate)
 
 
-def controlCommand(x, param):
-	u = np.zeros(param.nbVarX)
-	if move_joint >= 0:
-		f = fkin(x[:move_joint+1], param2)
-		J = Jkin(x[:move_joint+1], param2)
-#		u[:move_joint+1] = np.linalg.pinv(J) @ (mouse - f) * 5 
-		pinvJ = np.linalg.inv(J.T @ J + np.eye(param2.nbVarX) * 1E4) @ J.T # Damped pseudoinverse
-		u[:move_joint+1] = pinvJ @ (mouse - f) * 5 
-	return u
+        # Placeholder for the function to implement
+        def controlCommand(x, mu):
+            return np.zeros(x.shape)
 
-#########################################################################################
- 
-def errorHandler(e):
-	msg = 'Error: ' + str(e)
-	console.error(msg)
-	el = document.getElementById('repl-err')
-	el.innerText = msg
-	
-#########################################################################################
-x = np.array([3*np.pi/4, -np.pi/2, -np.pi/4]) # Initial robot state
-#u = np.zeros(param.nbVarX)
 
-async def main():
-	global hover_joint, x
-	
-	while True:
-		try:
-			u = controlCommand(x, param)
-		except Exception as e:
-			errorHandler(e)
-			u = np.zeros(param.nbVarX)
-		
-		x += u * param.dt # Update robot state
-		
-		# Reinit hovering variables
-		hover_joint = -1
-		
-		# Rendering
-		clear_screen()
-		draw_robot(x, '#AAAAAA')
-		if move_joint >= 0:
-			f = fkin(x[:move_joint+1], param2)
-			draw_selected_point(f, '#777777')
+        # Forward kinematics function (allows to not care about 'robot')
+        def fkin(x):
+            return robot.fkin(x)
 
-		await asyncio.sleep(0.01)
 
-pyscript.run_until_complete(main())
+        # Jacobian with numerical computation
+        def Jkin(x):
+            eps = 1e-6
+            D = len(x)
 
+            # Matrix computation
+            X = np.tile(x.reshape((-1,1)), [1,D])
+            F1 = fkin(X)
+            F2 = fkin(X + np.identity(D) * eps)
+            J = logmap(F2, F1) / eps
+
+            return J
+
+
+        # Matrix form of quaternion
+        def QuatMatrix(q):
+            # Note: quaternions elements are ordered as [x, y, z, w]
+            return np.array([
+                [q[3], -q[2], q[1], q[0]],
+                [q[2], q[3], -q[0], q[1]],
+                [-q[1], q[0], q[3], q[2]],
+                [-q[0], -q[1], -q[2], q[3]],
+            ])
+
+
+        # Arcosine redefinition to make sure the distance between antipodal quaternions is zero
+        def acoslog(x):
+            try:
+                y = math.acos(x)
+            except ValueError:
+                return math.nan
+
+            if x < 0:
+                y = y - np.pi
+            return y
+
+
+        # Logarithmic map for S^3 manifold (with e in tangent space)
+        def logmap_S3(x, x0):
+            R = QuatMatrix(x0)
+            x = R.T @ x
+            sc = acoslog(x[3]) / np.sqrt(1.0 - x[3]**2)
+            if math.isnan(sc):
+                sc = 1.0
+            return x[:3] * sc
+
+
+        # Logarithmic map for R^3 x S^3 manifold (with e in tangent space)
+        def logmap(f, f0):
+            if len(f.shape) == 1:
+                e = np.ndarray((6,))
+                e[0:3] = (f[0:3] - f0[0:3])
+                e[3:] = logmap_S3(f[3:], f0[3:])
+            else:
+                e = np.ndarray((6, f.shape[1]))
+                e[0:3,:] = (f[0:3,:] - f0[0:3,:])
+                for t in range(f.shape[1]):
+                    e[3:,t] = logmap_S3(f[3:,t], f0[3:,t])
+            return e
 </py-script>
+
 
 </div> <!--container-->
 </body>

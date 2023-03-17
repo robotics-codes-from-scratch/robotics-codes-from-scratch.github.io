@@ -1,17 +1,36 @@
-import { Object3D, Vector3, Quaternion, Euler, Bone } from "three";
-import { traverse } from "../utils.js"
+/*
+ * SPDX-FileCopyrightText: Copyright © 2023 Idiap Research Institute <contact@idiap.ch>
+ * SPDX-FileCopyrightText: Copyright © 2022 Nikolas Dahn
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ * SPDX-FileContributor: Nikolas Dahn
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ * This file is a modification of the one implemented in https://github.com/ndahn/Rocksi
+ *
+ */
 
-export const MODELS_ROOT = window.location.href.substring(0, window.location.href.lastIndexOf('/')) + "/models/";
+import { Object3D, Vector3, Quaternion, Euler, Bone } from 'three';
+import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js';
+import { traverse, getURL } from '../utils.js';
+import JointPositionHelper from '../helpers/jointpositionhelper.js';
+
+
+export const MODELS_ROOT = getURL("models/");
 export const getPackage = (name) => MODELS_ROOT + name;
+
+
+const _tmpVector3 = new Vector3();
+const _tmpQuaternion = new Quaternion();
+
+
 
 export default class Robot {
     constructor(name, packagename, xacro) {
         this.name = name;
         this._package = packagename + '/';
         this._xacro = xacro;
-
-        // Whether to use orientation based gripping
-        this.useAdvancedGripping = true;
 
         // This will store the model loaded by URDFLoader
         this.model = {}
@@ -21,7 +40,7 @@ export default class Robot {
         // Required for find_package
         this.packages = {
             get [packagename]() {
-                return getPackage(packagename); 
+                return getPackage(packagename);
             }
         };
 
@@ -31,7 +50,7 @@ export default class Robot {
             movable: [],
             links: [],
         };
-    
+
         // Parts of the hand, filled by init()
         this.hand = {
             joints: [],
@@ -45,11 +64,8 @@ export default class Robot {
 
 
         /* =============================================================
-         * Everything past here should be filled by the deriving classes 
+         * Everything past here should be filled by the deriving classes
          * ============================================================= */
-        
-        // Additional macros that will be required for loading the Xacro
-        this.rosMacros = {};
 
         this.modelScale = 1;
 
@@ -61,9 +77,8 @@ export default class Robot {
 
         // Default pose of the robot
         this.defaultPose = {
-            // joint_1: -0.11,
         },
-        
+
         // Location of the handle used for moving the robot
         this.tcp = {
             parent: "",
@@ -72,45 +87,29 @@ export default class Robot {
             rotation: [0, 0, 0],
             object: new Object3D(),  // Filled by init()
         };
-    
-        // Joint names that the robot is allowed to use for moving
-        this.ikEnabled = [
-            // "joint_1", "joint_2", ...
+
+        // Offsets to apply to the joint position helpers
+        this.jointPositionHelperOffsets = {
+        };
+
+        // Joint position helpers that must be inverted
+        this.jointPositionHelperInverted = [
         ];
-    
-        // Additional joint limits
-        this.interactionJointLimits = {
-            // joint_1: {
-            //     lower: 0.0,
-            //     upper: 1.57,
-            // },
-        };
-
-        // Velocities to move a joint one unit 
-        // (m/s for prismatic joints, rad/s for revolute joints)
-        this.maxSpeed = {
-            move: 1.0,
-            gripper: 0.2
-        };
-
-        // Blockly Generator instance that can convert the blockly workspace 
-        // into code that can be run on the robot
-        this.generator = null;
     }
 
 
     init(model) {
         this.model = model;
-		this.joints = model.joints;
+        this.joints = model.joints;
         this.links = model.links;
-        
+
         this.model.scale.set(this.modelScale, this.modelScale, this.modelScale);
 
-		this.tcp.object.position.set(...this.tcp.position);
-		this.tcp.object.quaternion.multiply(
-			new Quaternion().setFromEuler(
-				new Euler().set(...this.tcp.rotation)
-			)
+        this.tcp.object.position.set(...this.tcp.position);
+        this.tcp.object.quaternion.multiply(
+            new Quaternion().setFromEuler(
+                new Euler().set(...this.tcp.rotation)
+            )
         );
         this.getFrame(this.tcp.parent).add(this.tcp.object);
 
@@ -158,8 +157,6 @@ export default class Robot {
         }
     }
 
-    onLoadComplete() {}
-
 
     get root() {
         return MODELS_ROOT;
@@ -181,7 +178,10 @@ export default class Robot {
             }
 
             for (let i = 0; i < pose.length; i++) {
-                this.arm.movable[i].setJointValue(pose[i]);
+                const joint = this.arm.movable[i];
+                joint.setJointValue(pose[i]);
+                if (joint.helper != null)
+                    joint.helper.updatePosition();
             }
         }
         else if (typeof pose === 'object') {
@@ -189,6 +189,8 @@ export default class Robot {
                 let value = pose[joint.name];
                 if (typeof value === 'number') {
                     joint.setJointValue(value);
+                    if (joint.helper != null)
+                        joint.helper.updatePosition();
                 }
             }
         }
@@ -200,7 +202,7 @@ export default class Robot {
 
     getPose() {
         var pose = new Array(this.arm.movable.length);
-        
+
         for (let i = 0; i < pose.length; i++) {
             pose[i] = this.arm.movable[i].jointValue[0];
         }
@@ -209,14 +211,44 @@ export default class Robot {
     }
 
 
-	isJoint(part) {
-		return part.type === "URDFJoint";
-	}
-
-	isLink(part) {
-		return part.type === "URDFLink";
+    /* Returns the position of the end-effector of the robot (a Vector3)
+    */
+    getEndEffectorPosition() {
+        this.tcp.object.getWorldPosition(_tmpVector3);
+        return _tmpVector3.clone();
     }
-    
+
+
+    /* Returns the orientation of the end-effector of the robot (a Quaternion)
+    */
+    getEndEffectorOrientation() {
+        this.tcp.object.getWorldQuaternion(_tmpQuaternion);
+        return _tmpQuaternion.clone();
+    }
+
+
+    /* Returns the position and orientation of the end-effector of the robot in an array
+    of the form: [px, py, pz, qx, qy, qz, qw]
+    */
+    getEndEffectorTransforms() {
+        this.tcp.object.getWorldPosition(_tmpVector3);
+        this.tcp.object.getWorldQuaternion(_tmpQuaternion);
+
+        return [
+            _tmpVector3.x, _tmpVector3.y, _tmpVector3.z,
+            _tmpQuaternion.x, _tmpQuaternion.y, _tmpQuaternion.z, _tmpQuaternion.w,
+        ];
+    }
+
+
+    isJoint(part) {
+        return part.type === "URDFJoint";
+    }
+
+    isLink(part) {
+        return part.type === "URDFLink";
+    }
+
     isArm(part) {
         return this.partNames.arm.includes(part.name);
     }
@@ -229,12 +261,6 @@ export default class Robot {
         return this.isJoint(part) && part._jointType !== "fixed";
     }
 
-	isIKEnabled(part) {
-        return this.ikEnabled.length > 0
-            ? this.ikEnabled.includes(part.name)
-            : this.isMovable(part) && this.isArm(part);
-    }
-
 
     isGripperOpen() {
         return this.getGripperAbduction() >= 0.5;
@@ -244,7 +270,7 @@ export default class Robot {
         if (this.hand.movable.length === 0) {
             return 0;
         }
-        
+
         // Average abduction of all hand joints
         let abduction = 0.0;
         for (let joint of this.hand.movable) {
@@ -257,69 +283,105 @@ export default class Robot {
         abduction /= this.hand.movable.length;
         return abduction;
     }
-    
 
-	getJointForLink(link) {
-		if (typeof link === "string") {
-			link = this.model.links[link];
-		}
+    closeGripper() {
+        const start = {};
+        const target = {};
 
-		let p = link.parent;
-		while (p) {
-			if (this.isJoint(p)) {
-				return p;
-			}
-			p = p.parent;
-		}
+        for (const finger of this.hand.movable) {
+            start[finger.name] = finger.angle;
+            target[finger.name] = finger.states.closed;
+        }
 
-		return null;
-	}
+        let tween = new TWEEN.Tween(start)
+            .to(target, 1000.0)
+            .easing(TWEEN.Easing.Quadratic.Out);
 
-	getLinkForJoint(joint) {
-		if (typeof joint === "string") {
-			joint = this.model.joints[joint];
-		}
+        tween.onUpdate(object => {
+            for (const j in object) {
+                this.model.joints[j].setJointValue(object[j]);
+            }
+        });
 
-		for (let c of joint.children) {
-			if (this.isLink(c)) {
-				return c;
-			}
-		}
-
-		return null;
-    }
-    
-	getFrame(name) {
-		return this.model.frames[name];
+        tween.start();
     }
 
+    openGripper() {
+        const start = {};
+        const target = {};
 
-    createSkeleton() {
-        let pos = new Vector3();
-		let parent = new Bone();
-        
-        let skeleton = {
-            origin: this.model,
-            root: parent,
-            bones: [],
-            tip: this.tcp.object,
-        };
-        
-		for (let joint of this.arm.movable) {
-			let link = this.getLinkForJoint(joint);
-			link.getWorldPosition(pos);
-			
-			let bone = new Bone();
-			bone.robotJoint = joint;
-			parent.add(bone);
-			parent.lookAt(pos);
-			parent.updateMatrixWorld();  // crucial for worldToLocal!
-			bone.position.copy(bone.worldToLocal(pos));
-			
-			skeleton.bones.push(bone);
-			parent = bone;
-		}
+        for (const finger of this.hand.movable) {
+            start[finger.name] = finger.angle;
+            target[finger.name] = finger.states.opened;
+        }
 
-		return skeleton;
-	}
+        let tween = new TWEEN.Tween(start)
+            .to(target, 1000.0)
+            .easing(TWEEN.Easing.Quadratic.Out);
+
+        tween.onUpdate(object => {
+            for (const j in object) {
+                this.model.joints[j].setJointValue(object[j]);
+            }
+        });
+
+        tween.start();
+    }
+
+
+    getJointForLink(link) {
+        if (typeof link === "string") {
+            link = this.model.links[link];
+        }
+
+        let p = link.parent;
+        while (p) {
+            if (this.isJoint(p)) {
+                return p;
+            }
+            p = p.parent;
+        }
+
+        return null;
+    }
+
+    getLinkForJoint(joint) {
+        if (typeof joint === "string") {
+            joint = this.model.joints[joint];
+        }
+
+        for (let c of joint.children) {
+            if (this.isLink(c)) {
+                return c;
+            }
+        }
+
+        return null;
+    }
+
+    getFrame(name) {
+        return this.model.frames[name];
+    }
+
+
+    createJointPositionHelpers() {
+        for (let i = 0; i < this.arm.movable.length; ++i) {
+            const joint = this.arm.movable[i];
+
+            const helper = new JointPositionHelper(joint, i + 1, this.jointPositionHelperInverted.includes(joint.name));
+
+            if (this.jointPositionHelperOffsets[joint.name])
+                helper.translateZ(this.jointPositionHelperOffsets[joint.name]);
+        }
+    }
+
+
+    updatePositionHelpersSize(cameraPosition, elementWidth) {
+        for (let i = 0; i < this.arm.movable.length; ++i) {
+            const joint = this.arm.movable[i];
+
+            if (joint.helper != null)
+                joint.helper.updateSize(cameraPosition, elementWidth);
+        }
+    }
 }

@@ -110,8 +110,8 @@ document.addEventListener('DOMContentLoaded', function() {
 	  <li class='border-top my-1'></li>
 	  
 	  <li class='mb-1'>
-		<button class='btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed' data-bs-toggle='collapse' data-bs-target='#sandboxes-collapse' aria-expanded='true'>Sandboxes</button>
-		<div class='collapse show' id='sandboxes-collapse'>
+		<button class='btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed' data-bs-toggle='collapse' data-bs-target='#2dsandboxes-collapse' aria-expanded='true'>2D sandboxes</button>
+		<div class='collapse show' id='2dsandboxes-collapse'>
 		  <ul class='btn-toggle-nav list-unstyled fw-normal pb-1 small'>
 		  	<li><a href='sandbox_FK.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
 			<div class='p-1 mb-0'>Forward kinematics (FK)</div></a></li>
@@ -127,6 +127,18 @@ document.addEventListener('DOMContentLoaded', function() {
 		    <div class='p-1 mb-0'>iLQR for car</div></a></li>
 		    <li><a href='sandbox_iLQR_bicopter.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
 		    <div class='p-1 mb-0'>iLQR for bicopter</div></a></li>
+		  </ul>
+		</div>
+	  </li>
+	  
+	  <li class='border-top my-1'></li>
+	  
+	  <li class='mb-1'>
+		<button class='btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed' data-bs-toggle='collapse' data-bs-target='#3dsandboxes-collapse' aria-expanded='true'>3D sandboxes</button>
+		<div class='collapse show' id='3dsandboxes-collapse'>
+		  <ul class='btn-toggle-nav list-unstyled fw-normal pb-1 small'>
+		  	<li><a href='sandbox3d_IK.htm' class='link-dark d-inline-flex text-decoration-none rounded'>
+			<div class='p-1 mb-0'>Inverse kinematics (IK)</div></a></li>
 		  </ul>
 		</div>
 	  </li>
@@ -238,7 +250,7 @@ from pyodide.ffi import create_proxy
 <code>nb_data</code> (number of timesteps) and <code>nb_fct</code> (number of basis functions) as arguments and returns <code>phi</code>
 the matrix of basis functions.</p> 
 <ol>
-  <li>Visualize what happens when you change the parameter <code>nb_fct</code> using the slider.</li>
+  <li>Visualize what happens when you change the parameter <code>nb_fct</code>.</li>
   <li>Visualize what happens when you change the parameter <code>param_lambda</code>.</li>
   <li>Change the function below to plot Bézier basis functions (you can compare your result to Figure 1 in the <a href='doc/rcfs.pdf' target='_blank'>RCFS documentation</a>).</li>
 </ol>
