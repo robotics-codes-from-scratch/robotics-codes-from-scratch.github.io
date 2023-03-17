@@ -28,7 +28,10 @@
 <script defer src='https://pyscript.net/latest/pyscript.min.js'></script>
 	
 <py-config type='toml'>
-	packages = ['numpy']
+    packages = ['numpy']
+    [[fetch]]
+        from = './viewer3d/'
+        files = ['viewer3d.py']
 </py-config>
 		
 <link rel='stylesheet' href='https://pyscript.net/latest/pyscript.css'> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
