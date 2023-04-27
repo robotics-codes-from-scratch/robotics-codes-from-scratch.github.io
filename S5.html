@@ -1,0 +1,2142 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta content="My awesome project" name="description"/>
+  <meta content="awesome" name="keywords"/>
+  <meta content="John Doe" name="author"/>
+  <title>
+   My awesome project
+  </title>
+  <link href="static_images/favicon.ico" rel="icon" sizes="any"/>
+  <link href="static_images/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <link href="css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="css/bootstrap-icons-1.10.4/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="css/permanent_marker.css" rel="stylesheet"/>
+  <link href="css/main-template.css" rel="stylesheet"/>
+  <link href="css/sidebars.css" rel="stylesheet"/>
+  <link href="css/katex.min.css" rel="stylesheet"/>
+  <script src="js/jquery-3.6.4.min.js">
+  </script>
+  <script src="js/bootstrap.bundle.min.js">
+  </script>
+  <script src="js/katex.min.js">
+  </script>
+  <script>
+   function initialize(){
+                convertMath();
+                alignImages();
+            }
+
+            function convertMath(){
+                const elements = document.getElementsByClassName("ltx_Math");
+                const macros = {};
+                for(let element of elements){
+                    katex.render(element.textContent, element, {
+                        throwOnError: false,
+                        macros
+                    });
+                }
+            }
+
+            function alignImages(){
+
+                document.getElementsByTagName('style').innerHTML = '';
+
+                let txt_height = document.querySelector('#txt-col').offsetHeight;
+                let img_height = document.querySelector('#img-col').offsetHeight;
+
+                let margin = 50;
+
+                if(txt_height > img_height && screen.width >= 576){
+                    let nb_figures = document.querySelectorAll('.figure_main').length;
+                    let computed_margin = (txt_height - img_height) / nb_figures;
+
+                    if(computed_margin > margin){
+                        margin = computed_margin;
+                    }
+                }
+
+                const style = document.createElement('style');
+                style.innerHTML = '.figure_main{ padding-top:'+Math.round(margin/2)+'px; padding-bottom:'+Math.round(margin/2)+'px; }';
+                document.head.appendChild(style);
+            }
+
+            window.onload = initialize;
+            window.onorientationchange = alignImages;
+  </script>
+ </head>
+ <body>
+  <nav aria-label="Light offcanvas navbar" class="navbar fixed-top" style="width: 50px;">
+   <div class="container-fluid">
+    <button aria-controls="offcanvasNavbarLight" class="navbar-toggler" data-bs-target="#offcanvasNavbarLight" data-bs-toggle="offcanvas" type="button">
+     <span class="navbar-toggler-icon" style="cursor: pointer;">
+     </span>
+    </button>
+    <div aria-labelledby="offcanvasNavbarLightLabel" class="offcanvas offcanvas-start" id="offcanvasNavbarLight" style="width: 500px;" tabindex="-1">
+     <div class="offcanvas-header">
+      <!--style='height: 50px;'-->
+      <a class="navbar-brand" href="index.html">
+       <h4 class="offcanvas-title" id="offcanvasNavbarLightLabel">
+        <i class="bi bi-robot">
+        </i>
+        <i class="bi bi-code-slash">
+        </i>
+        RCFS
+       </h4>
+      </a>
+      <button aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" type="button">
+      </button>
+     </div>
+     <div class="offcanvas-body">
+      <!--Menu goes here-->
+      <ul class="list-unstyled ps-0" id="menu_container">
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#general-collapse" data-bs-toggle="collapse">
+         General information
+        </button>
+        <div class="collapse show" id="general-collapse">
+         <!--<li><a href='index.html' class='link-dark d-inline-flex text-decoration-none rounded'>Home</a></li>-->
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="about.html">
+            <div class="p-1 mb-0">
+             About
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes2d-collapse" data-bs-toggle="collapse">
+         2D sandboxes
+        </button>
+        <div class="collapse show" id="sandboxes2d-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_FK.html">
+            <div class="p-1 mb-0">
+             Forward kinematics (FK)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_IK.html">
+            <div class="p-1 mb-0">
+             Inverse kinematics (IK)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_bimanual.html">
+            <div class="p-1 mb-0">
+             Bimanual robot
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_humanoid.html">
+            <div class="p-1 mb-0">
+             Humanoid robot (CoM and coordination matrix)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR.html">
+            <div class="p-1 mb-0">
+             Iterative linear quadratic regulator (iLQR)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_car.html">
+            <div class="p-1 mb-0">
+             iLQR for car
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_bicopter.html">
+            <div class="p-1 mb-0">
+             iLQR for bicopter
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes3d-collapse" data-bs-toggle="collapse">
+         3D sandboxes
+        </button>
+        <div class="collapse show" id="sandboxes3d-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox3d_IK.html">
+            <div class="p-1 mb-0">
+             Inverse kinematics (IK)
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#exercises-collapse" data-bs-toggle="collapse">
+         Exercises
+        </button>
+        <div class="collapse show" id="exercises-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise01.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             01
+            </div>
+            <div class="p-1 mb-0">
+             Linear algebra in Python
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise02.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             02
+            </div>
+            <div class="p-1 mb-0">
+             Movement primitives and Newton's method
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise03.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             03
+            </div>
+            <div class="p-1 mb-0">
+             Gaussian Distributions
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             4a
+            </div>
+            <div class="p-1 mb-0">
+             Forward kinematics
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             4b
+            </div>
+            <div class="p-1 mb-0">
+             Inverse kinematics and nullspace control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             5a
+            </div>
+            <div class="p-1 mb-0">
+             Forward dynamics
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             5b
+            </div>
+            <div class="p-1 mb-0">
+             Inverse dynamics and impedance control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             6a
+            </div>
+            <div class="p-1 mb-0">
+             Planning with linear quadratic regulator
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             6b
+            </div>
+            <div class="p-1 mb-0">
+             Planning in joint space with LQR
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise07.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             07
+            </div>
+            <div class="p-1 mb-0">
+             Iterative linear quadratic regulator (iLQR)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise08.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             08
+            </div>
+            <div class="p-1 mb-0">
+             Exploration with ergodic control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise09.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             09
+            </div>
+            <div class="p-1 mb-0">
+             Orientation with Riemannian manifold
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          1 Introduction
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#Newtonsmethodforminimization-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         2 Newton’s method for minimization
+        </button>
+        <div class="collapse show" id="Newtonsmethodforminimization-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html">
+            <span class="p-1 mb-0">
+             2 Newton’s method for minimization
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:GaussNewton">
+            <span class="p-1 mb-0">
+             2.1 Gauss–Newton algorithm
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LS">
+            <span class="p-1 mb-0">
+             2.2 Least squares
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LSconstraints">
+            <span class="p-1 mb-0">
+             2.3 Least squares with constraints
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="S3.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          3 Forward kinematics (FK) for a planar robot manipulator
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#InversekinematicsIKforaplanarrobotmanipulator-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         4 Inverse kinematics (IK) for a planar robot manipulator
+        </button>
+        <div class="collapse show" id="InversekinematicsIKforaplanarrobotmanipulator-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html">
+            <span class="p-1 mb-0">
+             4 Inverse kinematics (IK) for a planar robot manipulator
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IKnum">
+            <span class="p-1 mb-0">
+             4.1 Numerical estimation of the Jacobian
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IK_nullspace">
+            <span class="p-1 mb-0">
+             4.2 Inverse kinematics (IK) with task prioritization
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#Encodingwithbasisfunctions-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         5 Encoding with basis functions
+        </button>
+        <div class="collapse show" id="Encodingwithbasisfunctions-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html">
+            <span class="p-1 mb-0">
+             5 Encoding with basis functions
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS1">
+            <span class="p-1 mb-0">
+             5.1 Univariate trajectories
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS2">
+            <span class="p-1 mb-0">
+             5.2 Multivariate trajectories
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS3">
+            <span class="p-1 mb-0">
+             5.3 Multidimensional inputs
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS4">
+            <span class="p-1 mb-0">
+             5.4 Concatenated basis functions
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS5">
+            <span class="p-1 mb-0">
+             5.5 Batch computation of basis functions coefficients
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS6">
+            <span class="p-1 mb-0">
+             5.6 Recursive computation of basis functions coefficients
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#LinearquadratictrackingLQT-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         6 Linear quadratic tracking (LQT)
+        </button>
+        <div class="collapse show" id="LinearquadratictrackingLQT-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html">
+            <span class="p-1 mb-0">
+             6 Linear quadratic tracking (LQT)
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS1">
+            <span class="p-1 mb-0">
+             6.1 LQT with smoothness cost
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS2">
+            <span class="p-1 mb-0">
+             6.2 LQT with control primitives
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRrecursive">
+            <span class="p-1 mb-0">
+             6.3 LQR with a recursive formulation
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:augmState">
+            <span class="p-1 mb-0">
+             6.4 LQT with a recursive formulation and an augmented state space
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRLS">
+            <span class="p-1 mb-0">
+             6.5 Least squares formulation of recursive LQR
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:DMPLQT">
+            <span class="p-1 mb-0">
+             6.6 Dynamical movement primitives (DMP) reformulated as LQT with control primitives
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#iLQRoptimization-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         7 iLQR optimization
+        </button>
+        <div class="collapse show" id="iLQRoptimization-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html">
+            <span class="p-1 mb-0">
+             7 iLQR optimization
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRbatch">
+            <span class="p-1 mb-0">
+             7.1 Batch formulation of iLQR
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRrecursive">
+            <span class="p-1 mb-0">
+             7.2 Recursive formulation of iLQR
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRLS">
+            <span class="p-1 mb-0">
+             7.3 Least squares formulation of recursive iLQR
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS4">
+            <span class="p-1 mb-0">
+             7.4 Updates by considering step sizes
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS5">
+            <span class="p-1 mb-0">
+             7.5 iLQR with quadratic cost on f(x_{t})
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS6">
+            <span class="p-1 mb-0">
+             7.6 iLQR with control primitives
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS7">
+            <span class="p-1 mb-0">
+             7.7 iLQR for spacetime optimization
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS8">
+            <span class="p-1 mb-0">
+             7.8 iLQR with offdiagonal elements in the precision matrix
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS9">
+            <span class="p-1 mb-0">
+             7.9 Car steering
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS10">
+            <span class="p-1 mb-0">
+             7.10 Bicopter
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#ForwarddynamicsFDforaplanarrobotmanipulator-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         8 Forward dynamics (FD) for a planar robot manipulator
+        </button>
+        <div class="collapse show" id="ForwarddynamicsFDforaplanarrobotmanipulator-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html">
+            <span class="p-1 mb-0">
+             8 Forward dynamics (FD) for a planar robot manipulator
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html#SS1">
+            <span class="p-1 mb-0">
+             8.1 Robot manipulator with dynamics equation
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="bib.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          References
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="A1.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          A System dynamics at trajectory level
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="A2.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          B Derivation of motion equation for a planar robot
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="A3.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          C Linear systems used in the bimanual tennis serve example
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="A4.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          D Equivalence between LQT and LQR with augmented state space
+         </button>
+        </a>
+       </li>
+      </ul>
+     </div>
+    </div>
+   </div>
+  </nav>
+  <div class="container-fluid">
+   <!--<center><h1 class="title">My Title</h1></center>-->
+   <div id="data_container">
+    <div class="row">
+     <div class="col-sm-7 offset-1">
+      <div id="txt-col">
+       <h1 class="ltx_title ltx_title_section">
+        <span class="ltx_tag ltx_tag_section">
+         <span class="ltx_text">
+          5
+         </span>
+        </span>
+        <span class="ltx_text">
+         Encoding with basis functions
+        </span>
+       </h1>
+       <div class="ltx_para" id="p1">
+        <p class="ltx_p">
+         Basis functions can be used to encode signals in a compact manner. It can be used to provide prior information about the encoded signals through a weighted superposition of basis functions acting as a dictionary of simpler signals that are combined to form more complex signals.
+        </p>
+       </div>
+       <div class="ltx_para" id="p2">
+        <p class="ltx_p">
+         Basis functions can for example be used to encode trajectories, whose input is a 1D time variable and whose output can be multidimensional. For basis functions
+         <span class="ltx_Math" id="p2.m1">
+          \bm{\phi}(t)
+         </span>
+         described by a time or phase variable
+         <span class="ltx_Math" id="p2.m2">
+          t
+         </span>
+         , the corresponding continuous signal
+         <span class="ltx_Math" id="p2.m3">
+          \bm{x}(t)
+         </span>
+         is encoded with
+         <span class="ltx_Math" id="p2.m4">
+          \bm{x}(t)=\bm{\phi}(t)\,\bm{w}
+         </span>
+         , with
+         <span class="ltx_Math" id="p2.m5">
+          t
+         </span>
+         a continuous time variable and
+         <span class="ltx_Math" id="p2.m6">
+          \bm{w}
+         </span>
+         a vector containing the superposition weights. Basis functions can also be employed in a discretized form by providing a specific list of time steps, which is the form we will employ next.
+        </p>
+       </div>
+       <div class="ltx_para" id="p3">
+        <p class="ltx_p">
+         The term
+         <em class="ltx_emph ltx_font_italic">
+          movement primitive
+         </em>
+         is often used in robotics to refer to the use of basis functions to encode trajectories. It corresponds to an organization of continuous motion signals in the form of a superposition in parallel and in series of simpler signals, which can be viewed as “building blocks” to create more complex movements, see Fig.
+         <a class="ltx_ref" href="#fig:MP" title="Figure 8 ‣ Piecewise constant basis functions ‣ 5.1 Univariate trajectories ‣ 5 Encoding with basis functions ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           8
+          </span>
+         </a>
+         . This principle, coined in the context of motor control
+         <cite class="ltx_cite ltx_citemacro_cite">
+          [
+          <a class="ltx_ref" href="bib.html#bib17" title="Linear combinations of primitives in vertebrate motor control">
+           9
+          </a>
+          ]
+         </cite>
+         , remains valid for a wide range of continuous time signals (for both analysis and synthesis).
+        </p>
+       </div>
+       <h2 class="ltx_title ltx_title_subsection">
+        <span class="ltx_tag ltx_tag_subsection">
+         <span class="ltx_text">
+          5.1
+         </span>
+        </span>
+        <span class="ltx_text">
+         Univariate trajectories
+        </span>
+       </h2>
+       <div class="ltx_para" id="SS1.p1">
+        <p class="ltx_p">
+         A univariate trajectory
+         <span class="ltx_Math" id="SS1.p1.m1">
+          \bm{x}^{\text{\tiny 1D}}\in\mathbb{R}^{T}
+         </span>
+         of
+         <span class="ltx_Math" id="SS1.p1.m2">
+          T
+         </span>
+         datapoints can be represented as a weighted sum of
+         <span class="ltx_Math" id="SS1.p1.m3">
+          K
+         </span>
+         basis functions with
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="E14">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E14.m1">
+            \bm{x}^{\text{\tiny 1D}}=\sum_{k=1}^{K}\bm{\phi}_{k}\;w^{\text{\tiny 1D}}_{k}=\bm{\phi}\;\bm{w}^{\text{\tiny 1D}},
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (14)
+           </span>
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         where
+         <span class="ltx_Math" id="SS1.p1.m4">
+          \bm{\phi}
+         </span>
+         can be any set of basis functions, including some common forms that are presented below (see also
+         <cite class="ltx_cite ltx_citemacro_cite">
+          [
+          <a class="ltx_ref" href="bib.html#bib6" title="Mixture models for the analysis, edition, and synthesis of continuous time series">
+           2
+          </a>
+          ]
+         </cite>
+         for more details).
+        </p>
+       </div>
+       <h3 class="ltx_title ltx_title_subsubsection">
+        Piecewise constant basis functions
+       </h3>
+       <div class="ltx_para" id="SS1.SSSx1.p1">
+        <p class="ltx_p">
+         Piecewise constant basis functions can be computed in matrix form as
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="E15">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E15.m1">
+            \bm{\phi}=\bm{I}_{K}\otimes\bm{1}_{\frac{T}{K}},
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (15)
+           </span>
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         where
+         <span class="ltx_Math" id="SS1.SSSx1.p1.m1">
+          \bm{I}_{K}
+         </span>
+         is an identity matrix of size
+         <span class="ltx_Math" id="SS1.SSSx1.p1.m2">
+          K
+         </span>
+         and
+         <span class="ltx_Math" id="SS1.SSSx1.p1.m3">
+          \bm{1}_{\frac{T}{K}}
+         </span>
+         is a vector of length
+         <span class="ltx_Math" id="SS1.SSSx1.p1.m4">
+          \frac{T}{K}
+         </span>
+         compose of unit elements, see Fig.
+         <a class="ltx_ref" href="#fig:MP" title="Figure 8 ‣ Piecewise constant basis functions ‣ 5.1 Univariate trajectories ‣ 5 Encoding with basis functions ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           8
+          </span>
+         </a>
+         .
+        </p>
+       </div>
+       <h3 class="ltx_title ltx_title_subsubsection">
+        Radial basis functions (RBFs)
+       </h3>
+       <div class="ltx_para" id="SS1.SSSx2.p1">
+        <p class="ltx_p">
+         Gaussian radial basis functions (RBFs) can be computed in matrix form as
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="E16">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E16.m1">
+            \bm{\phi}=\exp(-\lambda\;\bm{E}\odot\bm{E}),\quad\text{with}\quad\bm{E}=\bm{t}\;\bm{1}_{K}^{\scriptscriptstyle\top}-\bm{1}_{T}\;{\bm{\mu}^{\text{\tiny s}}}^{\scriptscriptstyle\top},
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (16)
+           </span>
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         where
+         <span class="ltx_Math" id="SS1.SSSx2.p1.m1">
+          \lambda
+         </span>
+         is bandwidth parameter,
+         <span class="ltx_Math" id="SS1.SSSx2.p1.m2">
+          \odot
+         </span>
+         is the elementwise (Hadamard) product operator,
+         <span class="ltx_Math" id="SS1.SSSx2.p1.m3">
+          \bm{t}\in\mathbb{R}^{T}
+         </span>
+         is a vector with entries linearly spaced between
+         <span class="ltx_Math" id="SS1.SSSx2.p1.m4">
+          0
+         </span>
+         to
+         <span class="ltx_Math" id="SS1.SSSx2.p1.m5">
+          1
+         </span>
+         ,
+         <span class="ltx_Math" id="SS1.SSSx2.p1.m6">
+          \bm{\mu}^{\text{\tiny s}}\in\mathbb{R}^{K}
+         </span>
+         is a vector containing the RBF centers linearly spaced on the
+         <span class="ltx_Math" id="SS1.SSSx2.p1.m7">
+          [0,1]
+         </span>
+         range, and the
+         <span class="ltx_Math" id="SS1.SSSx2.p1.m8">
+          \exp(\cdot)
+         </span>
+         function is applied to each element of the matrix, see Fig.
+         <a class="ltx_ref" href="#fig:MP" title="Figure 8 ‣ Piecewise constant basis functions ‣ 5.1 Univariate trajectories ‣ 5 Encoding with basis functions ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           8
+          </span>
+         </a>
+         .
+        </p>
+       </div>
+       <div class="ltx_para" id="SS1.SSSx2.p2">
+        <p class="ltx_p">
+         RBFs can also be employed in a rescaled form by replacing each row
+         <span class="ltx_Math" id="SS1.SSSx2.p2.m1">
+          \bm{\phi}_{k}
+         </span>
+         with
+         <span class="ltx_Math" id="SS1.SSSx2.p2.m2">
+          \frac{\bm{\phi}_{k}}{\sum_{i=1}^{K}\bm{\phi}_{i}}
+         </span>
+         .
+        </p>
+       </div>
+       <h3 class="ltx_title ltx_title_subsubsection">
+        Bernstein basis functions
+       </h3>
+       <div class="ltx_para" id="SS1.SSSx3.p1">
+        <p class="ltx_p">
+         Bernstein basis functions (used for Bézier curves) can be computed as
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="E17">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E17.m1">
+            \bm{\phi}_{k}=\frac{(K-1)!}{(k-1)!(K-k)!}\;{(\bm{1}_{T}-\bm{t})}^{K-k}\;\odot\;\bm{t}^{k-1},
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (17)
+           </span>
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         <span class="ltx_Math" id="SS1.SSSx3.p1.m1">
+          \forall k\in\{1,\ldots,K\}
+         </span>
+         , where
+         <span class="ltx_Math" id="SS1.SSSx3.p1.m2">
+          \bm{t}\in\mathbb{R}^{T}
+         </span>
+         is a vector with entries linearly spaced between
+         <span class="ltx_Math" id="SS1.SSSx3.p1.m3">
+          0
+         </span>
+         to
+         <span class="ltx_Math" id="SS1.SSSx3.p1.m4">
+          1
+         </span>
+         , and
+         <span class="ltx_Math" id="SS1.SSSx3.p1.m5">
+          (\cdot)^{d}
+         </span>
+         is applied elementwise, see Fig.
+         <a class="ltx_ref" href="#fig:MP" title="Figure 8 ‣ Piecewise constant basis functions ‣ 5.1 Univariate trajectories ‣ 5 Encoding with basis functions ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           8
+          </span>
+         </a>
+         .
+        </p>
+       </div>
+       <h3 class="ltx_title ltx_title_subsubsection">
+        Fourier basis functions
+       </h3>
+       <div class="ltx_para" id="SS1.SSSx4.p1">
+        <p class="ltx_p">
+         Fourier basis functions can be computed in matrix form as
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="E18">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E18.m1">
+            \bm{\phi}=\exp(\bm{t}\,\bm{\tilde{k}}^{\scriptscriptstyle\top}\,2\pi i),
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (18)
+           </span>
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         where the
+         <span class="ltx_Math" id="SS1.SSSx4.p1.m1">
+          \exp(\cdot)
+         </span>
+         function is applied to each element of the matrix,
+         <span class="ltx_Math" id="SS1.SSSx4.p1.m2">
+          \bm{t}\in\mathbb{R}^{T}
+         </span>
+         is a vector with entries linearly spaced between
+         <span class="ltx_Math" id="SS1.SSSx4.p1.m3">
+          0
+         </span>
+         to
+         <span class="ltx_Math" id="SS1.SSSx4.p1.m4">
+          1
+         </span>
+         ,
+         <span class="ltx_Math" id="SS1.SSSx4.p1.m5">
+          \bm{\tilde{k}}={[-K\!+\!1,-K\!+\!2,\ldots,K\!-\!2,K\!-\!1]}^{\scriptscriptstyle\top}
+         </span>
+         , and
+         <span class="ltx_Math" id="SS1.SSSx4.p1.m6">
+          i
+         </span>
+         is the imaginary unit (
+         <span class="ltx_Math" id="SS1.SSSx4.p1.m7">
+          i^{2}=-1
+         </span>
+         ).
+        </p>
+       </div>
+       <div class="ltx_para" id="SS1.SSSx4.p2">
+        <p class="ltx_p">
+         If
+         <span class="ltx_Math" id="SS1.SSSx4.p2.m1">
+          \bm{x}
+         </span>
+         is a real and even signal, the above formulation can be simplified to
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="eq:dct">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E19.m1">
+            \bm{\phi}=\cos(\bm{t}\,\bm{k}^{\scriptscriptstyle\top}\,2\pi i),
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (19)
+           </span>
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         with
+         <span class="ltx_Math" id="SS1.SSSx4.p2.m2">
+          \bm{k}={[0,1,\ldots,K\!-\!2,K\!-\!1]}^{\scriptscriptstyle\top}
+         </span>
+         , see Fig.
+         <a class="ltx_ref" href="#fig:MP" title="Figure 8 ‣ Piecewise constant basis functions ‣ 5.1 Univariate trajectories ‣ 5 Encoding with basis functions ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           8
+          </span>
+         </a>
+         .
+        </p>
+       </div>
+       <div class="ltx_para" id="SS1.SSSx4.p3">
+        <p class="ltx_p">
+         Indeed, we first note that
+         <span class="ltx_Math" id="SS1.SSSx4.p3.m1">
+          \exp(ai)
+         </span>
+         is composed of a real part and an imaginary part with
+         <span class="ltx_Math" id="SS1.SSSx4.p3.m2">
+          \exp(ai)=\cos(a)+i\sin(a)
+         </span>
+         . We can see that for a given time step
+         <span class="ltx_Math" id="SS1.SSSx4.p3.m3">
+          t
+         </span>
+         , a real state
+         <span class="ltx_Math" id="SS1.SSSx4.p3.m4">
+          x_{t}
+         </span>
+         can be constructed with the Fourier series
+        </p>
+        <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx7">
+         <tbody id="Ex43">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_td ltx_align_right ltx_eqn_cell">
+            <span class="ltx_Math" id="Ex43.m1">
+             \displaystyle x_{t}
+            </span>
+           </td>
+           <td class="ltx_td ltx_align_left ltx_eqn_cell">
+            <span class="ltx_Math" id="Ex43.m2">
+             \displaystyle=\sum_{k=-K+1}^{K-1}w_{k}\exp(t\,k\,2\pi i)
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </tbody>
+         <tbody id="Ex44">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_td ltx_eqn_cell">
+           </td>
+           <td class="ltx_td ltx_align_left ltx_eqn_cell">
+            <span class="ltx_Math" id="Ex44.m1">
+             \displaystyle=\sum_{k=-K+1}^{K-1}w_{k}\cos(t\,k\,2\pi)
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </tbody>
+         <tbody id="Ex45">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_td ltx_eqn_cell">
+           </td>
+           <td class="ltx_td ltx_align_left ltx_eqn_cell">
+            <span class="ltx_Math" id="Ex45.m1">
+             \displaystyle=w_{0}+\sum_{k=1}^{K-1}2w_{k}\cos(t\,k\,2\pi),
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </tbody>
+        </table>
+        <p class="ltx_p">
+         where we used the properties
+         <span class="ltx_Math" id="SS1.SSSx4.p3.m5">
+          \cos(0)=1
+         </span>
+         and
+         <span class="ltx_Math" id="SS1.SSSx4.p3.m6">
+          \cos(-a)=\cos(a)
+         </span>
+         of the cosine function. Since we do not need direct correspondences between the Fourier transform and discrete cosine transform as in the above, we can omit the scaling factors for
+         <span class="ltx_Math" id="SS1.SSSx4.p3.m7">
+          w_{k}
+         </span>
+         and directly write the decomposition as in (
+         <a class="ltx_ref" href="#eq:dct" title="(19) ‣ Fourier basis functions ‣ 5.1 Univariate trajectories ‣ 5 Encoding with basis functions ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           19
+          </span>
+         </a>
+         ).
+        </p>
+       </div>
+       <h2 class="ltx_title ltx_title_subsection">
+        <span class="ltx_tag ltx_tag_subsection">
+         <span class="ltx_text">
+          5.2
+         </span>
+        </span>
+        <span class="ltx_text">
+         Multivariate trajectories
+        </span>
+       </h2>
+       <div class="ltx_para" id="SS2.p1">
+        <p class="ltx_p">
+         A multivariate trajectory
+         <span class="ltx_Math" id="SS2.p1.m1">
+          \bm{x}\in\mathbb{R}^{DT}
+         </span>
+         of
+         <span class="ltx_Math" id="SS2.p1.m2">
+          T
+         </span>
+         datapoints of dimension
+         <span class="ltx_Math" id="SS2.p1.m3">
+          D
+         </span>
+         can similarly be computed as
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="eq:Psi">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E20.m1">
+            \bm{x}=\sum_{k=1}^{K}\bm{\Psi}_{k}\;w_{k}=\bm{\Psi}\;\bm{w},\quad\text{with}\quad\bm{\Psi}=\bm{\phi}\otimes\bm{C}=\left[\begin{matrix}\bm{C}\phi_{1,1}&amp;\bm{C}\phi_{2,1}&amp;\cdots&amp;\bm{C}\phi_{K,1}\\
+\bm{C}\phi_{1,2}&amp;\bm{C}\phi_{2,2}&amp;\cdots&amp;\bm{C}\phi_{K,2}\\
+\vdots&amp;\vdots&amp;\ddots&amp;\vdots\\
+\bm{C}\phi_{1,T}&amp;\bm{C}\phi_{2,T}&amp;\cdots&amp;\bm{C}\phi_{K,T}\end{matrix}\right],
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (20)
+           </span>
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         where
+         <span class="ltx_Math" id="SS2.p1.m4">
+          \otimes
+         </span>
+         the Kronecker product operator and
+         <span class="ltx_Math" id="SS2.p1.m5">
+          \bm{C}
+         </span>
+         is a coordination matrix that can for example be set to identity.
+        </p>
+       </div>
+       <div class="ltx_para" id="SS2.p2">
+        <p class="ltx_p">
+         Such encoding aims at encoding the movement as a weighted superposition of simpler movements, whose compression aims at working in a subspace of reduced dimensionality, while denoising the signal and capturing the essential aspects of a movement. This can be illustrated as basic building blocks that can be differently assembled to form more elaborated movements, often referred to as
+         <em class="ltx_emph ltx_font_italic">
+          movement primitives
+         </em>
+         (MP).
+        </p>
+       </div>
+       <h2 class="ltx_title ltx_title_subsection">
+        <span class="ltx_tag ltx_tag_subsection">
+         <span class="ltx_text">
+          5.3
+         </span>
+        </span>
+        <span class="ltx_text">
+         Multidimensional inputs
+        </span>
+       </h2>
+       <div class="ltx_para" id="SS3.p1">
+        <p class="ltx_p">
+         Basis functions can also be used to encode signals generated by multivariate inputs
+         <span class="ltx_Math" id="SS3.p1.m1">
+          t_{i}
+         </span>
+         . For example, a Bézier surface uses two input variables
+         <span class="ltx_Math" id="SS3.p1.m2">
+          t_{1}
+         </span>
+         and
+         <span class="ltx_Math" id="SS3.p1.m3">
+          t_{2}
+         </span>
+         to cover a spatial range and generates an output variable describing the height of the surface within this rectangular region. This surface (represented as a colormap in Fig.
+         <a class="ltx_ref" href="#fig:Bezier_1D2D3D01" title="Figure 9 ‣ 5.3 Multidimensional inputs ‣ 5 Encoding with basis functions ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           9
+          </span>
+         </a>
+         -
+         <em class="ltx_emph ltx_font_italic">
+          center
+         </em>
+         ) can be constructed from a 1D input signal by leveraging the Kronecker product operation, namely
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="E21">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E21.m1">
+            \bm{\Psi}=\bm{\phi}\,\otimes\,\bm{\phi}.
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (21)
+           </span>
+          </td>
+         </tr>
+        </table>
+       </div>
+       <div class="ltx_para" id="SS3.p2">
+        <p class="ltx_p">
+         As for the unidimensional version, we still maintain a linear reconstruction
+         <span class="ltx_Math" id="SS3.p2.m1">
+          \bm{x}=\bm{\Psi}\,\bm{w}
+         </span>
+         , where
+         <span class="ltx_Math" id="SS3.p2.m2">
+          \bm{x}
+         </span>
+         and
+         <span class="ltx_Math" id="SS3.p2.m3">
+          \bm{w}
+         </span>
+         are vectorized versions of surface heights and superposition weights, which can be reorganized as 2D arrays if required.
+        </p>
+       </div>
+       <div class="ltx_para" id="SS3.p3">
+        <p class="ltx_p">
+         Successive Kronecker products can be used so that any number of input and output dimensions
+         <span class="ltx_Math" id="SS3.p3.m1">
+          {d^{\text{\tiny in}}}
+         </span>
+         and
+         <span class="ltx_Math" id="SS3.p3.m2">
+          {d^{\text{\tiny out}}}
+         </span>
+         can be considered, with
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="E22">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E22.m1">
+            \bm{\Psi}=\underbrace{\bm{\phi}\,\otimes\,\bm{\phi}\,\otimes\cdots\otimes\,\bm{\phi}}_{d^{\text{\tiny in}}}\,\otimes\,\bm{I}_{d^{\text{\tiny out}}}.
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (22)
+           </span>
+          </td>
+         </tr>
+        </table>
+       </div>
+       <div class="ltx_para" id="SS3.p4">
+        <p class="ltx_p">
+         For example, a vector field in 3D can be encoded with basis functions
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="E23">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E23.m1">
+            \bm{\Psi}=\bm{\phi}\,\otimes\,\bm{\phi}\,\otimes\,\bm{\phi}\,\otimes\,\bm{I}_{3},
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (23)
+           </span>
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         where
+         <span class="ltx_Math" id="SS3.p4.m1">
+          \bm{I}_{3}
+         </span>
+         is a
+         <span class="ltx_Math" id="SS3.p4.m2">
+          3\!\times\!3
+         </span>
+         identity matrix to encode the 3 elements of the vector.
+        </p>
+       </div>
+       <div class="ltx_para" id="SS3.p5">
+        <p class="ltx_p">
+         Figure
+         <a class="ltx_ref" href="#fig:Bezier_1D2D3D01" title="Figure 9 ‣ 5.3 Multidimensional inputs ‣ 5 Encoding with basis functions ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           9
+          </span>
+         </a>
+         shows examples with various input dimensions. In Fig.
+         <a class="ltx_ref" href="#fig:Bezier_1D2D3D01" title="Figure 9 ‣ 5.3 Multidimensional inputs ‣ 5 Encoding with basis functions ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           9
+          </span>
+         </a>
+         -
+         <em class="ltx_emph ltx_font_italic">
+          center
+         </em>
+         , several equidistant contours are displayed as closed paths, with the one corresponding to the object contour (distance zero) represented in blue. In Fig.
+         <a class="ltx_ref" href="#fig:Bezier_1D2D3D01" title="Figure 9 ‣ 5.3 Multidimensional inputs ‣ 5 Encoding with basis functions ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           9
+          </span>
+         </a>
+         -
+         <em class="ltx_emph ltx_font_italic">
+          left
+         </em>
+         , several isosurfaces are displayed as 3D shapes, with the one corresponding to the object surface (distance zero) represented in blue. The algorithm used to determine the closed contours (in 2D) and isosurfaces (in 3D) is exploited her for visualization purpose, but can also be exploited if an explicit definition of shapes is required (instead of an implicit surface representation).
+        </p>
+       </div>
+       <div class="ltx_para" id="SS3.p6">
+        <p class="ltx_p">
+         The analytic expression provided by the proposed encoding can also be used to express the derivatives as analytic expressions. This can be used for control and planning problem, such as moving closer or away from objects, or orienting the robot gripper to be locally aligned with the surface of an object.
+        </p>
+       </div>
+       <h2 class="ltx_title ltx_title_subsection">
+        <span class="ltx_tag ltx_tag_subsection">
+         <span class="ltx_text">
+          5.4
+         </span>
+        </span>
+        <span class="ltx_text">
+         Concatenated basis functions
+        </span>
+       </h2>
+       <div class="ltx_para" id="SS4.p1">
+        <p class="ltx_p">
+         When encoding entire signals, some dictionaries such as Bernstein basis functions require to set polynomials of high order to encode long or complex signals. Instead of considering a global encoding, it can be useful to split the problem as a set of local fitting problems which can consider low order polynomials. A typical example is the encoding of complex curves as a concatenation of simple Bézier curves. When concatenating curves, constraints on the superposition weights are typically considered. These weights can be represented as control points in the case of Bézier curves and splines. We typically constraint the last point of a curve and the first point of the next curve to maintain the continuity of the curve. We also typically constraint the control points before and after this joint to by symmetric, effectively imposing smoothness.
+        </p>
+       </div>
+       <div class="ltx_para" id="SS4.p2">
+        <p class="ltx_p">
+         In practice, this can be achieved efficiently by simply replacing
+         <span class="ltx_Math" id="SS4.p2.m1">
+          \bm{\phi}
+         </span>
+         with
+         <span class="ltx_Math" id="SS4.p2.m2">
+          \bm{\phi}\bm{S}
+         </span>
+         in the above equations, where
+         <span class="ltx_Math" id="SS4.p2.m3">
+          \bm{S}
+         </span>
+         is a tall rectangular matrix. This further reduces the number of superposition weights required in the encoding, as the constraints also reduce the number of free variables.
+        </p>
+       </div>
+       <div class="ltx_para" id="SS4.p3">
+        <p class="ltx_p">
+         For example, for the concatenation of Bézier curves, we can define
+         <span class="ltx_Math" id="SS4.p3.m1">
+          \bm{S}
+         </span>
+         as
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="E24">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E24.m1">
+            \bm{S}=\begin{bmatrix}1&amp;0&amp;\cdots&amp;0&amp;0&amp;\cdots\\
+0&amp;1&amp;\cdots&amp;0&amp;0&amp;\cdots\\
+\vdots&amp;\vdots&amp;\ddots&amp;\vdots&amp;\vdots&amp;\ddots\\
+0&amp;0&amp;\cdots&amp;1&amp;0&amp;\cdots\\
+0&amp;0&amp;\cdots&amp;0&amp;1&amp;\cdots\\
+0&amp;0&amp;\cdots&amp;0&amp;1&amp;\cdots\\
+0&amp;0&amp;\cdots&amp;-1&amp;2&amp;\cdots\\
+\vdots&amp;\vdots&amp;\ddots&amp;\vdots&amp;\vdots&amp;\ddots\end{bmatrix},
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (24)
+           </span>
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         where the pattern
+         <span class="ltx_Math" id="SS4.p3.m2">
+          \begin{bmatrix}1&amp;0\\
+0&amp;1\\
+0&amp;1\\
+-1&amp;2\end{bmatrix}
+         </span>
+         is repeated for each junction of two consecutive Bézier curves. For two concatenated cubic Bézier curves, each composed of 4 Bernstein basis functions, we can see locally that this operator yields a constraint of the form
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="E25">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E25.m1">
+            \begin{bmatrix}w_{3}\\
+w_{4}\\
+w_{5}\\
+w_{6}\end{bmatrix}=\begin{bmatrix}1&amp;0\\
+0&amp;1\\
+0&amp;1\\
+-1&amp;2\end{bmatrix}\begin{bmatrix}a\\
+b\end{bmatrix},
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (25)
+           </span>
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         which ensures that
+         <span class="ltx_Math" id="SS4.p3.m3">
+          w_{4}=w_{5}
+         </span>
+         and
+         <span class="ltx_Math" id="SS4.p3.m4">
+          w_{6}=-w_{3}+2w_{5}
+         </span>
+         . These constraints guarantee that the last control point and the first control point of the next segment are the same, and that the control point before and after are symmetric with respect to this junction point, see Fig.
+         <a class="ltx_ref" href="#fig:Bezier_1D2D3D01" title="Figure 9 ‣ 5.3 Multidimensional inputs ‣ 5 Encoding with basis functions ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           9
+          </span>
+         </a>
+         -
+         <em class="ltx_emph ltx_font_italic">
+          left
+         </em>
+         .
+        </p>
+       </div>
+       <h2 class="ltx_title ltx_title_subsection">
+        <span class="ltx_tag ltx_tag_subsection">
+         <span class="ltx_text">
+          5.5
+         </span>
+        </span>
+        <span class="ltx_text">
+         Batch computation of basis functions coefficients
+        </span>
+       </h2>
+       <div class="ltx_para" id="SS5.p1">
+        <p class="ltx_p">
+         Based on observed data
+         <span class="ltx_Math" id="SS5.p1.m1">
+          \bm{x}
+         </span>
+         , the superposition weights
+         <span class="ltx_Math" id="SS5.p1.m2">
+          \bm{w}
+         </span>
+         can be estimated as a simple least squares estimate
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="E26">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E26.m1">
+            \bm{w}=\bm{\Psi}^{\dagger}\bm{x},
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (26)
+           </span>
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         or as the regularized version (ridge regression)
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="eq:ridge">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E27.m1">
+            \bm{w}={(\bm{\Psi}^{\scriptscriptstyle\top}\bm{\Psi}+\lambda\bm{I})}^{-1}\bm{\Psi}^{\scriptscriptstyle\top}\bm{x}.
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (27)
+           </span>
+          </td>
+         </tr>
+        </table>
+       </div>
+       <h2 class="ltx_title ltx_title_subsection">
+        <span class="ltx_tag ltx_tag_subsection">
+         <span class="ltx_text">
+          5.6
+         </span>
+        </span>
+        <span class="ltx_text">
+         Recursive computation of basis functions coefficients
+        </span>
+       </h2>
+       <figure class="ltx_float" id="alg:splineRLS">
+        <div class="ltx_listing ltx_lst_numbers_left ltx_listing">
+         <div class="ltx_listingline">
+          <span class="ltx_Math" id="algorithm1.m1">
+           \bm{\tilde{B}}=\frac{1}{\lambda}\bm{I}
+          </span>
+          <span class="ltx_text ltx_font_typewriter">
+           //
+          </span>
+          <span class="ltx_text ltx_font_typewriter">
+           Initialize
+           <span class="ltx_Math" id="algorithm1.m2">
+            \bm{\tilde{B}}
+           </span>
+           , corresponding to
+           <span class="ltx_Math" id="algorithm1.m3">
+            (\bm{\Psi}^{\scriptscriptstyle\top}\bm{\Psi})^{-1}
+           </span>
+          </span>
+         </div>
+         <div class="ltx_listingline">
+          <span class="ltx_Math" id="algorithm1.m4">
+           \bm{w}=\bm{w}_{0}
+          </span>
+          <span class="ltx_text ltx_font_typewriter">
+           //
+          </span>
+          <span class="ltx_text ltx_font_typewriter">
+           Initialize superposition weights (e.g., with prior shape
+           <span class="ltx_Math" id="algorithm1.m5">
+            \bm{w}_{0}
+           </span>
+           )
+          </span>
+         </div>
+         <div class="ltx_listingline">
+          <span class="ltx_text ltx_font_bold">
+           for
+          </span>
+          <em class="ltx_emph ltx_font_italic">
+           <span class="ltx_Math" id="algorithm1.m6">
+            n\leftarrow 1
+           </span>
+           to
+           <span class="ltx_Math" id="algorithm1.m7">
+            N
+           </span>
+          </em>
+          <span class="ltx_text ltx_font_bold">
+           do
+          </span>
+         </div>
+         <div class="ltx_listingline">
+          <span class="ltx_rule">
+          </span>
+          <span class="ltx_Math" id="algorithm1.m8">
+           \bm{\Psi}_{n}=\bm{\Psi}(\bm{t}_{n})
+          </span>
+          <span class="ltx_text ltx_font_typewriter">
+           //
+          </span>
+          <span class="ltx_text ltx_font_typewriter">
+           Evaluate basis functions at location
+           <span class="ltx_Math" id="algorithm1.m9">
+            \bm{t}_{n}
+           </span>
+           , where the corresponding datapoint is
+           <span class="ltx_Math" id="algorithm1.m10">
+            \bm{x}_{n}
+           </span>
+          </span>
+         </div>
+         <div class="ltx_listingline">
+          <span class="ltx_rule">
+          </span>
+          <span class="ltx_Math" id="algorithm1.m11">
+           \bm{K}=\bm{\tilde{B}}\bm{\Psi}_{n}^{\scriptscriptstyle\top}\left(\bm{I}+\bm{\Psi}_{n}\bm{\tilde{B}}\bm{\Psi}_{n}^{\scriptscriptstyle\top}\right)^{-1}
+          </span>
+          <span class="ltx_text ltx_font_typewriter">
+           //
+          </span>
+          <span class="ltx_text ltx_font_typewriter">
+           Compute Kalman gain
+           <span class="ltx_Math" id="algorithm1.m12">
+            \bm{K}
+           </span>
+          </span>
+         </div>
+         <div class="ltx_listingline">
+          <span class="ltx_rule">
+          </span>
+          <span class="ltx_Math" id="algorithm1.m13">
+           \bm{\tilde{B}}\leftarrow\bm{\tilde{B}}-\bm{K}\bm{\Psi}_{n}\bm{\tilde{B}}
+          </span>
+          <span class="ltx_text ltx_font_typewriter">
+           //
+          </span>
+          <span class="ltx_text ltx_font_typewriter">
+           Update
+           <span class="ltx_Math" id="algorithm1.m14">
+            \bm{\tilde{B}}
+           </span>
+          </span>
+         </div>
+         <div class="ltx_listingline">
+          <span class="ltx_rule">
+          </span>
+          <span class="ltx_Math" id="algorithm1.m15">
+           \bm{w}\leftarrow\bm{w}+\bm{K}\Big(\bm{x}_{n}-\bm{\Psi}_{n}\bm{w}\Big)
+          </span>
+          <span class="ltx_text ltx_font_typewriter">
+           //
+          </span>
+          <span class="ltx_text ltx_font_typewriter">
+           Update superposition weights
+           <span class="ltx_Math" id="algorithm1.m16">
+            \bm{w}
+           </span>
+          </span>
+         </div>
+         <div class="ltx_listingline">
+          <span class="ltx_rule">
+          </span>
+         </div>
+         <div class="ltx_listingline">
+          end for
+         </div>
+         <div class="ltx_listingline">
+         </div>
+        </div>
+        <figcaption class="ltx_caption">
+         <span class="ltx_tag ltx_tag_float">
+          <span class="ltx_text ltx_font_bold">
+           Algorithm 1
+          </span>
+         </span>
+         Recursive computation of weights
+        </figcaption>
+       </figure>
+       <div class="ltx_para" id="SS6.p1">
+        <p class="ltx_p">
+         The same result can be obtained by recursive computation, by providing the datapoints one-by-one or by groups of points. The algorithm starts from an initial estimate of
+         <span class="ltx_Math" id="SS6.p1.m1">
+          \bm{w}
+         </span>
+         that is iteratively refined with the arrival of new datapoints, see Fig.
+         <a class="ltx_ref" href="#fig:Bezier_2D_RLS" title="Figure 10 ‣ 5.6 Recursive computation of basis functions coefficients ‣ 5 Encoding with basis functions ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           10
+          </span>
+         </a>
+         .
+        </p>
+       </div>
+       <div class="ltx_para" id="SS6.p2">
+        <p class="ltx_p">
+         This recursive least squares algorithm exploits the
+         <span class="ltx_text ltx_font_bold">
+          Sherman-Morrison-Woodbury formulas
+         </span>
+         that relate the inverse of a matrix after a small-rank perturbation to the inverse of the original matrix, namely
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="eq:SMW">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E28.m1">
+            \left(\bm{B}+\bm{U}\bm{V}\right)^{-1}=\bm{B}^{-1}-\overbrace{\bm{B}^{-1}\bm{U}\left(\bm{I}+\bm{V}\bm{B}^{-1}\bm{U}\right)^{-1}\bm{V}\bm{B}^{-1}}^{\bm{E}}
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (28)
+           </span>
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         with
+         <span class="ltx_Math" id="SS6.p2.m1">
+          \bm{U}\!\in\!\mathbb{R}^{n\times m}
+         </span>
+         and
+         <span class="ltx_Math" id="SS6.p2.m2">
+          \bm{V}\!\in\!\mathbb{R}^{m\times n}
+         </span>
+         . When
+         <span class="ltx_Math" id="SS6.p2.m3">
+          m\!\ll\!n
+         </span>
+         , the correction term
+         <span class="ltx_Math" id="SS6.p2.m4">
+          \bm{E}
+         </span>
+         can be computed more efficiently than inverting
+         <span class="ltx_Math" id="SS6.p2.m5">
+          \bm{B}+\bm{U}\bm{V}
+         </span>
+         .
+        </p>
+       </div>
+       <div class="ltx_para" id="SS6.p3">
+        <p class="ltx_p">
+         By defining
+         <span class="ltx_Math" id="SS6.p3.m1">
+          \bm{B}\!=\!\bm{\Psi}^{\scriptscriptstyle\top}\bm{\Psi}
+         </span>
+         , the above relation can be exploited to update the least squares solution (
+         <a class="ltx_ref" href="#eq:ridge" title="(27) ‣ 5.5 Batch computation of basis functions coefficients ‣ 5 Encoding with basis functions ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           27
+          </span>
+         </a>
+         ) when new datapoints become available. Indeed, if
+         <span class="ltx_Math" id="SS6.p3.m2">
+          \bm{\Psi}_{\!\scriptscriptstyle\mathrm{new}}=\begin{bmatrix}\bm{\Psi},\bm{V}\end{bmatrix}
+         </span>
+         and
+         <span class="ltx_Math" id="SS6.p3.m3">
+          \bm{x}_{\!\scriptscriptstyle\mathrm{new}}=\begin{bmatrix}\bm{x}\\
+\bm{v}\end{bmatrix}
+         </span>
+         , we can see that
+        </p>
+        <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx8">
+         <tbody id="E29">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_td ltx_align_right ltx_eqn_cell">
+            <span class="ltx_Math" id="E29.m1">
+             \displaystyle\bm{B}_{\!\scriptscriptstyle\mathrm{new}}
+            </span>
+           </td>
+           <td class="ltx_td ltx_align_left ltx_eqn_cell">
+            <span class="ltx_Math" id="E29.m2">
+             \displaystyle=\bm{\Psi}_{\!\scriptscriptstyle\mathrm{new}}^{\scriptscriptstyle\top}\bm{\Psi}_{\!\scriptscriptstyle\mathrm{new}}
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+            <span class="ltx_tag ltx_tag_equation ltx_align_right">
+             (29)
+            </span>
+           </td>
+          </tr>
+         </tbody>
+         <tbody id="E30">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_td ltx_eqn_cell">
+           </td>
+           <td class="ltx_td ltx_align_left ltx_eqn_cell">
+            <span class="ltx_Math" id="E30.m1">
+             \displaystyle=\bm{\Psi}^{\scriptscriptstyle\top}\bm{\Psi}+\bm{V}^{\scriptscriptstyle\top}\bm{V}
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+            <span class="ltx_tag ltx_tag_equation ltx_align_right">
+             (30)
+            </span>
+           </td>
+          </tr>
+         </tbody>
+         <tbody id="E31">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_td ltx_eqn_cell">
+           </td>
+           <td class="ltx_td ltx_align_left ltx_eqn_cell">
+            <span class="ltx_Math" id="E31.m1">
+             \displaystyle=\bm{B}+\bm{V}^{\scriptscriptstyle\top}\bm{V},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+            <span class="ltx_tag ltx_tag_equation ltx_align_right">
+             (31)
+            </span>
+           </td>
+          </tr>
+         </tbody>
+        </table>
+        <p class="ltx_p">
+         whose inverse can be computed using (
+         <a class="ltx_ref" href="#eq:SMW" title="(28) ‣ 5.6 Recursive computation of basis functions coefficients ‣ 5 Encoding with basis functions ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           28
+          </span>
+         </a>
+         ), yielding
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="E32">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E32.m1">
+            \bm{B}_{\!\scriptscriptstyle\mathrm{new}}^{-1}=\bm{B}^{-1}-\underbrace{\bm{B}^{-1}\bm{V}^{\scriptscriptstyle\top}\left(\bm{I}+\bm{V}\bm{B}^{-1}\bm{V}^{\scriptscriptstyle\top}\right)^{-1}}_{\bm{K}}\bm{V}\bm{B}^{-1}.
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (32)
+           </span>
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         This is exploited to estimate the update as
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="E33">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E33.m1">
+            \bm{w}_{\!\scriptscriptstyle\mathrm{new}}=\bm{w}+\bm{K}\Big(\bm{v}-\bm{V}\bm{w}\Big),
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (33)
+           </span>
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         with Kalman gain
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="E34">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E34.m1">
+            \bm{K}=\bm{B}^{-1}\bm{V}^{\scriptscriptstyle\top}\left(\bm{I}+\bm{V}\bm{B}^{-1}\bm{V}^{\scriptscriptstyle\top}\right)^{-1}.
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (34)
+           </span>
+          </td>
+         </tr>
+        </table>
+       </div>
+       <div class="ltx_para" id="SS6.p4">
+        <p class="ltx_p">
+         The above equations can be used recursively, with
+         <span class="ltx_Math" id="SS6.p4.m1">
+          \bm{B}_{\!\scriptscriptstyle\mathrm{new}}^{-1}
+         </span>
+         and
+         <span class="ltx_Math" id="SS6.p4.m2">
+          \bm{w}_{\!\scriptscriptstyle\mathrm{new}}
+         </span>
+         the updates that will become
+         <span class="ltx_Math" id="SS6.p4.m3">
+          \bm{B}^{-1}
+         </span>
+         and
+         <span class="ltx_Math" id="SS6.p4.m4">
+          \bm{w}
+         </span>
+         for the next iteration. Note that the above iterative computation only uses
+         <span class="ltx_Math" id="SS6.p4.m5">
+          \bm{B}^{-1}
+         </span>
+         , which is the variable stored in memory. Namely, we never use
+         <span class="ltx_Math" id="SS6.p4.m6">
+          \bm{B}
+         </span>
+         , only the inverse. For recursive ridge regression, the algorithm starts with
+         <span class="ltx_Math" id="SS6.p4.m7">
+          \bm{B}^{-1}=\frac{1}{\lambda}\bm{I}
+         </span>
+         . After all datapoints are used, the estimate of
+         <span class="ltx_Math" id="SS6.p4.m8">
+          \bm{w}
+         </span>
+         is exactly the same as the ridge regression result (
+         <a class="ltx_ref" href="#eq:ridge" title="(27) ‣ 5.5 Batch computation of basis functions coefficients ‣ 5 Encoding with basis functions ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           27
+          </span>
+         </a>
+         ) computed in batch form. Algorithm
+         <a class="ltx_ref" href="#alg:splineRLS" title="Algorithm 1 ‣ 5.6 Recursive computation of basis functions coefficients ‣ 5 Encoding with basis functions ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           1
+          </span>
+         </a>
+         summarizes the computation steps.
+        </p>
+       </div>
+      </div>
+     </div>
+     <div class="col-sm-3">
+      <div id="img-col">
+       <figure class="ltx_figure figure_main" id="fig:MP">
+        <figure class="ltx_figure ltx_align_center" id="F8.fig1">
+         <img class="ltx_graphics ltx_centering" id="F8.g1" src="images/MP_basisFcts01.png"/>
+        </figure>
+        <figure class="ltx_figure ltx_align_center" id="F8.fig2">
+         <img class="ltx_graphics ltx_centering" id="F8.g2" src="images/MP_basisFcts_mat01.png"/>
+        </figure>
+        <figcaption class="ltx_caption ltx_centering">
+         <span class="ltx_tag ltx_tag_figure">
+          <span class="ltx_text">
+           Figure 8
+          </span>
+          :
+         </span>
+         <span class="ltx_text">
+          Examples of basis functions.
+          <em class="ltx_emph ltx_font_italic">
+           Left:
+          </em>
+          Representation in timeline form for
+          <span class="ltx_Math" id="F8.m7">
+           K=5
+          </span>
+          and
+          <span class="ltx_Math" id="F8.m8">
+           T=300
+          </span>
+          .
+          <em class="ltx_emph ltx_font_italic">
+           Right:
+          </em>
+          Representation in matrix form for
+          <span class="ltx_Math" id="F8.m9">
+           K=5
+          </span>
+          and
+          <span class="ltx_Math" id="F8.m10">
+           T=20
+          </span>
+          , with a grayscale colormap where white pixels are
+          <span class="ltx_Math" id="F8.m11">
+           0
+          </span>
+          and black pixels are
+          <span class="ltx_Math" id="F8.m12">
+           1
+          </span>
+          .
+         </span>
+        </figcaption>
+       </figure>
+       <figure class="ltx_figure ltx_align_floatright figure_main" id="fig:Bezier_1D2D3D01">
+        <img class="ltx_graphics ltx_centering" id="F9.g1" src="images/Bezier_1D2D3D01.png"/>
+        <figcaption class="ltx_caption ltx_centering">
+         <span class="ltx_tag ltx_tag_figure">
+          <span class="ltx_text">
+           Figure 9
+          </span>
+          :
+         </span>
+         <span class="ltx_text">
+          Concatenated Bernstein basis functions used with inputs of various dimensions.
+          <em class="ltx_emph ltx_font_italic">
+           Left:
+          </em>
+          Concatenation of
+          <span class="ltx_Math" id="F9.m5">
+           6
+          </span>
+          cubic Bézier curves with a 1D input (time variable
+          <span class="ltx_Math" id="F9.m6">
+           t
+          </span>
+          ).
+          <em class="ltx_emph ltx_font_italic">
+           Center:
+          </em>
+          Concatenation of
+          <span class="ltx_Math" id="F9.m7">
+           5\!\times\!5
+          </span>
+          cubic Bézier curves with a 2D input.
+          <em class="ltx_emph ltx_font_italic">
+           Right:
+          </em>
+          Concatenation of
+          <span class="ltx_Math" id="F9.m8">
+           5\!\times\!5\!\times\!5
+          </span>
+          cubic Bézier curves with a 3D input.
+Each cubic Bézier curve corresponds to the superposition of 4 Bernstein basis functions, with superposition weigths acting as control points (displayed as black points in the 1D example), with constraints on the control points ensuring continuity.
+         </span>
+        </figcaption>
+       </figure>
+       <figure class="ltx_figure figure_main" id="fig:Bezier_2D_RLS">
+        <img class="ltx_graphics ltx_centering" id="F10.g1" src="images/spline2D_RLS02.png"/>
+        <figcaption class="ltx_caption ltx_centering">
+         <span class="ltx_tag ltx_tag_figure">
+          <span class="ltx_text">
+           Figure 10
+          </span>
+          :
+         </span>
+         <span class="ltx_text">
+          Iterative estimation of a 2D SDF, where the weights are initialized to form a circular object. Points are then sampled one-by-one (in red) to probe the value of the function as the sampled location. Each point used to refine the estimate and is then discarded.
+         </span>
+        </figcaption>
+       </figure>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </body>
+</html>

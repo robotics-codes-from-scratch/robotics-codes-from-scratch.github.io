@@ -1,0 +1,870 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta content="My awesome project" name="description"/>
+  <meta content="awesome" name="keywords"/>
+  <meta content="John Doe" name="author"/>
+  <title>
+   My awesome project
+  </title>
+  <link href="static_images/favicon.ico" rel="icon" sizes="any"/>
+  <link href="static_images/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <link href="css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="css/bootstrap-icons-1.10.4/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="css/permanent_marker.css" rel="stylesheet"/>
+  <link href="css/main-template.css" rel="stylesheet"/>
+  <link href="css/sidebars.css" rel="stylesheet"/>
+  <script src="js/jquery-3.6.4.min.js">
+  </script>
+  <script src="js/bootstrap.bundle.min.js">
+  </script>
+ </head>
+ <body>
+  <nav aria-label="Light offcanvas navbar" class="navbar fixed-top" style="width: 50px;">
+   <div class="container-fluid">
+    <button aria-controls="offcanvasNavbarLight" class="navbar-toggler" data-bs-target="#offcanvasNavbarLight" data-bs-toggle="offcanvas" type="button">
+     <span class="navbar-toggler-icon" style="cursor: pointer;">
+     </span>
+    </button>
+    <div aria-labelledby="offcanvasNavbarLightLabel" class="offcanvas offcanvas-start" id="offcanvasNavbarLight" style="width: 500px;" tabindex="-1">
+     <div class="offcanvas-header">
+      <!--style='height: 50px;'-->
+      <a class="navbar-brand" href="index.html">
+       <h4 class="offcanvas-title" id="offcanvasNavbarLightLabel">
+        <i class="bi bi-robot">
+        </i>
+        <i class="bi bi-code-slash">
+        </i>
+        RCFS
+       </h4>
+      </a>
+      <button aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" type="button">
+      </button>
+     </div>
+     <div class="offcanvas-body">
+      <!--Menu goes here-->
+      <ul class="list-unstyled ps-0" id="menu_container">
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#general-collapse" data-bs-toggle="collapse">
+         General information
+        </button>
+        <div class="collapse show" id="general-collapse">
+         <!--<li><a href='index.html' class='link-dark d-inline-flex text-decoration-none rounded'>Home</a></li>-->
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="about.html">
+            <div class="p-1 mb-0">
+             About
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes2d-collapse" data-bs-toggle="collapse">
+         2D sandboxes
+        </button>
+        <div class="collapse show" id="sandboxes2d-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_FK.html">
+            <div class="p-1 mb-0">
+             Forward kinematics (FK)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_IK.html">
+            <div class="p-1 mb-0">
+             Inverse kinematics (IK)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_bimanual.html">
+            <div class="p-1 mb-0">
+             Bimanual robot
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_humanoid.html">
+            <div class="p-1 mb-0">
+             Humanoid robot (CoM and coordination matrix)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR.html">
+            <div class="p-1 mb-0">
+             Iterative linear quadratic regulator (iLQR)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_car.html">
+            <div class="p-1 mb-0">
+             iLQR for car
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_bicopter.html">
+            <div class="p-1 mb-0">
+             iLQR for bicopter
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes3d-collapse" data-bs-toggle="collapse">
+         3D sandboxes
+        </button>
+        <div class="collapse show" id="sandboxes3d-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox3d_IK.html">
+            <div class="p-1 mb-0">
+             Inverse kinematics (IK)
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#exercises-collapse" data-bs-toggle="collapse">
+         Exercises
+        </button>
+        <div class="collapse show" id="exercises-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise01.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             01
+            </div>
+            <div class="p-1 mb-0">
+             Linear algebra in Python
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise02.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             02
+            </div>
+            <div class="p-1 mb-0">
+             Movement primitives and Newton's method
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise03.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             03
+            </div>
+            <div class="p-1 mb-0">
+             Gaussian Distributions
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             4a
+            </div>
+            <div class="p-1 mb-0">
+             Forward kinematics
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             4b
+            </div>
+            <div class="p-1 mb-0">
+             Inverse kinematics and nullspace control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             5a
+            </div>
+            <div class="p-1 mb-0">
+             Forward dynamics
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             5b
+            </div>
+            <div class="p-1 mb-0">
+             Inverse dynamics and impedance control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             6a
+            </div>
+            <div class="p-1 mb-0">
+             Planning with linear quadratic regulator
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             6b
+            </div>
+            <div class="p-1 mb-0">
+             Planning in joint space with LQR
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise07.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             07
+            </div>
+            <div class="p-1 mb-0">
+             Iterative linear quadratic regulator (iLQR)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise08.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             08
+            </div>
+            <div class="p-1 mb-0">
+             Exploration with ergodic control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise09.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             09
+            </div>
+            <div class="p-1 mb-0">
+             Orientation with Riemannian manifold
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          1 Introduction
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#Newtonsmethodforminimization-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         2 Newton’s method for minimization
+        </button>
+        <div class="collapse show" id="Newtonsmethodforminimization-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html">
+            <span class="p-1 mb-0">
+             2 Newton’s method for minimization
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:GaussNewton">
+            <span class="p-1 mb-0">
+             2.1 Gauss–Newton algorithm
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LS">
+            <span class="p-1 mb-0">
+             2.2 Least squares
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LSconstraints">
+            <span class="p-1 mb-0">
+             2.3 Least squares with constraints
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="S3.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          3 Forward kinematics (FK) for a planar robot manipulator
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#InversekinematicsIKforaplanarrobotmanipulator-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         4 Inverse kinematics (IK) for a planar robot manipulator
+        </button>
+        <div class="collapse show" id="InversekinematicsIKforaplanarrobotmanipulator-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html">
+            <span class="p-1 mb-0">
+             4 Inverse kinematics (IK) for a planar robot manipulator
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IKnum">
+            <span class="p-1 mb-0">
+             4.1 Numerical estimation of the Jacobian
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IK_nullspace">
+            <span class="p-1 mb-0">
+             4.2 Inverse kinematics (IK) with task prioritization
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#Encodingwithbasisfunctions-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         5 Encoding with basis functions
+        </button>
+        <div class="collapse show" id="Encodingwithbasisfunctions-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html">
+            <span class="p-1 mb-0">
+             5 Encoding with basis functions
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS1">
+            <span class="p-1 mb-0">
+             5.1 Univariate trajectories
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS2">
+            <span class="p-1 mb-0">
+             5.2 Multivariate trajectories
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS3">
+            <span class="p-1 mb-0">
+             5.3 Multidimensional inputs
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS4">
+            <span class="p-1 mb-0">
+             5.4 Concatenated basis functions
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS5">
+            <span class="p-1 mb-0">
+             5.5 Batch computation of basis functions coefficients
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS6">
+            <span class="p-1 mb-0">
+             5.6 Recursive computation of basis functions coefficients
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#LinearquadratictrackingLQT-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         6 Linear quadratic tracking (LQT)
+        </button>
+        <div class="collapse show" id="LinearquadratictrackingLQT-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html">
+            <span class="p-1 mb-0">
+             6 Linear quadratic tracking (LQT)
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS1">
+            <span class="p-1 mb-0">
+             6.1 LQT with smoothness cost
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS2">
+            <span class="p-1 mb-0">
+             6.2 LQT with control primitives
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRrecursive">
+            <span class="p-1 mb-0">
+             6.3 LQR with a recursive formulation
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:augmState">
+            <span class="p-1 mb-0">
+             6.4 LQT with a recursive formulation and an augmented state space
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRLS">
+            <span class="p-1 mb-0">
+             6.5 Least squares formulation of recursive LQR
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:DMPLQT">
+            <span class="p-1 mb-0">
+             6.6 Dynamical movement primitives (DMP) reformulated as LQT with control primitives
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#iLQRoptimization-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         7 iLQR optimization
+        </button>
+        <div class="collapse show" id="iLQRoptimization-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html">
+            <span class="p-1 mb-0">
+             7 iLQR optimization
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRbatch">
+            <span class="p-1 mb-0">
+             7.1 Batch formulation of iLQR
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRrecursive">
+            <span class="p-1 mb-0">
+             7.2 Recursive formulation of iLQR
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRLS">
+            <span class="p-1 mb-0">
+             7.3 Least squares formulation of recursive iLQR
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS4">
+            <span class="p-1 mb-0">
+             7.4 Updates by considering step sizes
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS5">
+            <span class="p-1 mb-0">
+             7.5 iLQR with quadratic cost on f(x_{t})
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS6">
+            <span class="p-1 mb-0">
+             7.6 iLQR with control primitives
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS7">
+            <span class="p-1 mb-0">
+             7.7 iLQR for spacetime optimization
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS8">
+            <span class="p-1 mb-0">
+             7.8 iLQR with offdiagonal elements in the precision matrix
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS9">
+            <span class="p-1 mb-0">
+             7.9 Car steering
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS10">
+            <span class="p-1 mb-0">
+             7.10 Bicopter
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#ForwarddynamicsFDforaplanarrobotmanipulator-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         8 Forward dynamics (FD) for a planar robot manipulator
+        </button>
+        <div class="collapse show" id="ForwarddynamicsFDforaplanarrobotmanipulator-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html">
+            <span class="p-1 mb-0">
+             8 Forward dynamics (FD) for a planar robot manipulator
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html#SS1">
+            <span class="p-1 mb-0">
+             8.1 Robot manipulator with dynamics equation
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="bib.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          References
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="A1.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          A System dynamics at trajectory level
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="A2.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          B Derivation of motion equation for a planar robot
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="A3.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          C Linear systems used in the bimanual tennis serve example
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="A4.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          D Equivalence between LQT and LQR with augmented state space
+         </button>
+        </a>
+       </li>
+      </ul>
+     </div>
+    </div>
+   </div>
+  </nav>
+  <script defer="" src="https://pyscript.net/latest/pyscript.min.js">
+  </script>
+  <py-config type="toml">
+   packages = ['numpy']
+    [[fetch]]
+        from = './viewer3d/'
+        files = ['viewer3d.py']
+  </py-config>
+  <link href="https://pyscript.net/latest/pyscript.css" rel="stylesheet"/>
+  <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
+  <div class="container-fluid">
+   <div class="row">
+    <div class="col-sm-1">
+    </div>
+    <div class="col-sm-7">
+     <br/>
+     <br/>
+     <script>
+      function clearMsgs() {
+  const el = document.getElementById('repl-err');
+  el.innerText = '';
+  //console.log('event!');
+}
+     </script>
+     <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+       <button aria-controls="posorient-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#posorient-tab-pane" data-bs-toggle="tab" id="posorient-tab" role="tab" type="button">
+        Position + orientation
+       </button>
+      </li>
+      <li class="nav-item" role="presentation">
+       <button aria-controls="pos-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#pos-tab-pane" data-bs-toggle="tab" id="pos-tab" role="tab" type="button">
+        Position
+       </button>
+      </li>
+      <li class="nav-item" role="presentation">
+       <button aria-controls="orient-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#orient-tab-pane" data-bs-toggle="tab" id="orient-tab" role="tab" type="button">
+        Orientation
+       </button>
+      </li>
+     </ul>
+     <div class="tab-content" id="myTabContent">
+      <div aria-labelledby="posorient-tab" class="tab-pane fade show active" id="posorient-tab-pane" role="tabpanel" tabindex="0">
+       <div onclick="clearMsgs()" onkeydown="clearMsgs()">
+        <py-repl std-err="repl-err" std-out="repl-out">
+         x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
+
+def controlCommand(x, mu):
+    J = Jkin(x)
+    f = fkin(x)
+    u = np.linalg.pinv(J) @ logmap(mu, f)  # Position &amp; orientation tracking
+    return u
+        </py-repl>
+       </div>
+      </div>
+      <div aria-labelledby="pos-tab" class="tab-pane fade show" id="pos-tab-pane" role="tabpanel" tabindex="0">
+       <div onclick="clearMsgs()" onkeydown="clearMsgs()">
+        <py-repl std-err="repl-err" std-out="repl-out">
+         x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
+
+def controlCommand(x, mu):
+    J = Jkin(x)
+    f = fkin(x)
+    u = np.linalg.pinv(J[0:3,:]) @ (mu[0:3] - f[0:3])  # Position tracking
+    return u
+        </py-repl>
+       </div>
+      </div>
+      <div aria-labelledby="orient-tab" class="tab-pane fade show" id="orient-tab-pane" role="tabpanel" tabindex="0">
+       <div onclick="clearMsgs()" onkeydown="clearMsgs()">
+        <py-repl std-err="repl-err" std-out="repl-out">
+         x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
+
+def controlCommand(x, mu):
+    J = Jkin(x)
+    f = fkin(x)
+    u = np.linalg.pinv(J[3:,:]) @ logmap_S3(mu[3:], f[3:])  # Orientation tracking
+    return u
+        </py-repl>
+       </div>
+      </div>
+     </div>
+     <p id="repl-out" style="font-size: 70%; color: #777777;">
+      (click on the green run button to run the code; the blue target can be moved with the mouse)
+     </p>
+     <p id="repl-err" style="font-size: 70%; color: #880000;">
+     </p>
+    </div>
+    <!--sm-7-->
+    <div class="col-sm-4">
+     <div class="sticky-sm-top">
+      <div id="viewer3d" style="width: 100%; height: 400px;">
+      </div>
+     </div>
+    </div>
+    <!--sm-4-->
+   </div>
+   <!--row-->
+   <!-- Import all the necessary JavaScript dependency modules
+Sadly, can't be imported from an external file for the moment, this is not supported by Chrome
+-->
+   <script async="" src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js">
+   </script>
+   <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.141.0/build/three.module.js",
+            "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.141.0/examples/jsm/",
+            "xacro-parser": "https://cdn.jsdelivr.net/npm/xacro-parser@0.3.1/src/index.js",
+            "urdf-loader": "https://cdn.jsdelivr.net/npm/urdf-loader@0.10.4/src/URDFLoader.js",
+            "expr-eval": "https://cdn.jsdelivr.net/npm/expr-eval@2.0.2/dist/index.mjs"
+        }
+    }
+   </script>
+   <!-- We need to import our 'Viewer3D' JavaScript module, otherwise it is not
+accessible from Python -->
+   <script type="module">
+    import { Viewer3D } from './viewer3d/viewer3d.js';
+   </script>
+   <py-script>
+    from viewer3d import Viewer3D
+        from js import document, Themes
+        import math
+        import numpy as np
+
+
+        # The function that will be called once the 3D viewer has finished loading
+        robot = None
+        def onSceneReady():
+            global robot
+            robot = viewer3D.robot
+
+
+        # Create the Viewer3D object
+        viewer3D = Viewer3D(
+            document.getElementById('viewer3d'),
+            parameters=dict(
+                logmap_sphere=True,
+                theme=Themes.Simple,
+            ),
+            onready=onSceneReady,
+        )
+
+        # Disable the manipulation of the joints
+        viewer3D.jointsManipulationEnabled = False
+
+        # Add one target
+        viewer3D.addTarget("target", [0.0, 0.4, 0.5], [0.57, 0.57, 0.42, -0.42], '#FF3399')
+        viewer3D.logmapTarget = "target"
+
+        # The function that will be called once per frame
+        x = None
+
+        def ikUpdate(delta):
+            global x
+
+            if x is None:
+                x = robot.jointPositions
+            elif not isinstance(x, np.ndarray):
+                x = np.array(x)
+
+            target = viewer3D.getTarget("target")
+
+            u = controlCommand(x, target.transforms)
+
+            x += u * 0.1
+            robot.jointPositions = x
+
+        viewer3D.setRenderingCallback(ikUpdate)
+
+
+        # Placeholder for the function to implement
+        def controlCommand(x, mu):
+            return np.zeros(x.shape)
+
+
+        # Forward kinematics function (allows to not care about 'robot')
+        def fkin(x):
+            return robot.fkin(x)
+
+
+        # Jacobian with numerical computation
+        def Jkin(x):
+            eps = 1e-6
+            D = len(x)
+
+            # Matrix computation
+            X = np.tile(x.reshape((-1,1)), [1,D])
+            F1 = fkin(X)
+            F2 = fkin(X + np.identity(D) * eps)
+            J = logmap(F2, F1) / eps
+
+            return J
+
+
+        # Matrix form of quaternion
+        def QuatMatrix(q):
+            # Note: quaternions elements are ordered as [x, y, z, w]
+            return np.array([
+                [q[3], -q[2], q[1], q[0]],
+                [q[2], q[3], -q[0], q[1]],
+                [-q[1], q[0], q[3], q[2]],
+                [-q[0], -q[1], -q[2], q[3]],
+            ])
+
+
+        # Arcosine redefinition to make sure the distance between antipodal quaternions is zero
+        def acoslog(x):
+            try:
+                y = math.acos(x)
+            except ValueError:
+                return math.nan
+
+            if x &lt; 0:
+                y = y - np.pi
+            return y
+
+
+        # Logarithmic map for S^3 manifold (with e in tangent space)
+        def logmap_S3(x, x0):
+            R = QuatMatrix(x0)
+            x = R.T @ x
+            sc = acoslog(x[3]) / np.sqrt(1.0 - x[3]**2)
+            if math.isnan(sc):
+                sc = 1.0
+            return x[:3] * sc
+
+
+        # Logarithmic map for R^3 x S^3 manifold (with e in tangent space)
+        def logmap(f, f0):
+            if len(f.shape) == 1:
+                e = np.ndarray((6,))
+                e[0:3] = (f[0:3] - f0[0:3])
+                e[3:] = logmap_S3(f[3:], f0[3:])
+            else:
+                e = np.ndarray((6, f.shape[1]))
+                e[0:3,:] = (f[0:3,:] - f0[0:3,:])
+                for t in range(f.shape[1]):
+                    e[3:,t] = logmap_S3(f[3:,t], f0[3:,t])
+            return e
+   </py-script>
+  </div>
+  <!--container-->
+ </body>
+</html>
