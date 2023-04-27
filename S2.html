@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta content="My awesome project" name="description"/>
+  <meta content="awesome" name="keywords"/>
+  <meta content="John Doe" name="author"/>
+  <title>
+   My awesome project
+  </title>
+  <link href="static_images/favicon.ico" rel="icon" sizes="any"/>
+  <link href="static_images/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <link href="css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="css/bootstrap-icons-1.10.4/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="css/permanent_marker.css" rel="stylesheet"/>
+  <link href="css/main-template.css" rel="stylesheet"/>
+  <link href="css/sidebars.css" rel="stylesheet"/>
+  <link href="css/katex.min.css" rel="stylesheet"/>
+  <script src="js/jquery-3.6.4.min.js">
+  </script>
+  <script src="js/bootstrap.bundle.min.js">
+  </script>
+  <script src="js/katex.min.js">
+  </script>
+  <script>
+   function initialize(){
+                convertMath();
+                alignImages();
+            }
+
+            function convertMath(){
+                const elements = document.getElementsByClassName("ltx_Math");
+                const macros = {};
+                for(let element of elements){
+                    katex.render(element.textContent, element, {
+                        throwOnError: false,
+                        macros
+                    });
+                }
+            }
+
+            function alignImages(){
+
+                document.getElementsByTagName('style').innerHTML = '';
+
+                let txt_height = document.querySelector('#txt-col').offsetHeight;
+                let img_height = document.querySelector('#img-col').offsetHeight;
+
+                let margin = 50;
+
+                if(txt_height > img_height && screen.width >= 576){
+                    let nb_figures = document.querySelectorAll('.figure_main').length;
+                    let computed_margin = (txt_height - img_height) / nb_figures;
+
+                    if(computed_margin > margin){
+                        margin = computed_margin;
+                    }
+                }
+
+                const style = document.createElement('style');
+                style.innerHTML = '.figure_main{ padding-top:'+Math.round(margin/2)+'px; padding-bottom:'+Math.round(margin/2)+'px; }';
+                document.head.appendChild(style);
+            }
+
+            window.onload = initialize;
+            window.onorientationchange = alignImages;
+  </script>
+ </head>
+ <body>
+  <nav aria-label="Light offcanvas navbar" class="navbar fixed-top" style="width: 50px;">
+   <div class="container-fluid">
+    <button aria-controls="offcanvasNavbarLight" class="navbar-toggler" data-bs-target="#offcanvasNavbarLight" data-bs-toggle="offcanvas" type="button">
+     <span class="navbar-toggler-icon" style="cursor: pointer;">
+     </span>
+    </button>
+    <div aria-labelledby="offcanvasNavbarLightLabel" class="offcanvas offcanvas-start" id="offcanvasNavbarLight" style="width: 500px;" tabindex="-1">
+     <div class="offcanvas-header">
+      <!--style='height: 50px;'-->
+      <a class="navbar-brand" href="index.html">
+       <h4 class="offcanvas-title" id="offcanvasNavbarLightLabel">
+        <i class="bi bi-robot">
+        </i>
+        <i class="bi bi-code-slash">
+        </i>
+        RCFS
+       </h4>
+      </a>
+      <button aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" type="button">
+      </button>
+     </div>
+     <div class="offcanvas-body">
+      <!--Menu goes here-->
+      <ul class="list-unstyled ps-0" id="menu_container">
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#general-collapse" data-bs-toggle="collapse">
+         General information
+        </button>
+        <div class="collapse show" id="general-collapse">
+         <!--<li><a href='index.html' class='link-dark d-inline-flex text-decoration-none rounded'>Home</a></li>-->
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="about.html">
+            <div class="p-1 mb-0">
+             About
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes2d-collapse" data-bs-toggle="collapse">
+         2D sandboxes
+        </button>
+        <div class="collapse show" id="sandboxes2d-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_FK.html">
+            <div class="p-1 mb-0">
+             Forward kinematics (FK)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_IK.html">
+            <div class="p-1 mb-0">
+             Inverse kinematics (IK)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_bimanual.html">
+            <div class="p-1 mb-0">
+             Bimanual robot
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_humanoid.html">
+            <div class="p-1 mb-0">
+             Humanoid robot (CoM and coordination matrix)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR.html">
+            <div class="p-1 mb-0">
+             Iterative linear quadratic regulator (iLQR)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_car.html">
+            <div class="p-1 mb-0">
+             iLQR for car
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_bicopter.html">
+            <div class="p-1 mb-0">
+             iLQR for bicopter
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes3d-collapse" data-bs-toggle="collapse">
+         3D sandboxes
+        </button>
+        <div class="collapse show" id="sandboxes3d-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox3d_IK.html">
+            <div class="p-1 mb-0">
+             Inverse kinematics (IK)
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#exercises-collapse" data-bs-toggle="collapse">
+         Exercises
+        </button>
+        <div class="collapse show" id="exercises-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise01.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             01
+            </div>
+            <div class="p-1 mb-0">
+             Linear algebra in Python
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise02.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             02
+            </div>
+            <div class="p-1 mb-0">
+             Movement primitives and Newton's method
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise03.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             03
+            </div>
+            <div class="p-1 mb-0">
+             Gaussian Distributions
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             4a
+            </div>
+            <div class="p-1 mb-0">
+             Forward kinematics
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             4b
+            </div>
+            <div class="p-1 mb-0">
+             Inverse kinematics and nullspace control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             5a
+            </div>
+            <div class="p-1 mb-0">
+             Forward dynamics
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             5b
+            </div>
+            <div class="p-1 mb-0">
+             Inverse dynamics and impedance control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             6a
+            </div>
+            <div class="p-1 mb-0">
+             Planning with linear quadratic regulator
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             6b
+            </div>
+            <div class="p-1 mb-0">
+             Planning in joint space with LQR
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise07.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             07
+            </div>
+            <div class="p-1 mb-0">
+             Iterative linear quadratic regulator (iLQR)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise08.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             08
+            </div>
+            <div class="p-1 mb-0">
+             Exploration with ergodic control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise09.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             09
+            </div>
+            <div class="p-1 mb-0">
+             Orientation with Riemannian manifold
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          1 Introduction
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#Newtonsmethodforminimization-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         2 Newton’s method for minimization
+        </button>
+        <div class="collapse show" id="Newtonsmethodforminimization-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html">
+            <span class="p-1 mb-0">
+             2 Newton’s method for minimization
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:GaussNewton">
+            <span class="p-1 mb-0">
+             2.1 Gauss–Newton algorithm
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LS">
+            <span class="p-1 mb-0">
+             2.2 Least squares
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LSconstraints">
+            <span class="p-1 mb-0">
+             2.3 Least squares with constraints
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="S3.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          3 Forward kinematics (FK) for a planar robot manipulator
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#InversekinematicsIKforaplanarrobotmanipulator-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         4 Inverse kinematics (IK) for a planar robot manipulator
+        </button>
+        <div class="collapse show" id="InversekinematicsIKforaplanarrobotmanipulator-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html">
+            <span class="p-1 mb-0">
+             4 Inverse kinematics (IK) for a planar robot manipulator
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IKnum">
+            <span class="p-1 mb-0">
+             4.1 Numerical estimation of the Jacobian
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IK_nullspace">
+            <span class="p-1 mb-0">
+             4.2 Inverse kinematics (IK) with task prioritization
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#Encodingwithbasisfunctions-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         5 Encoding with basis functions
+        </button>
+        <div class="collapse show" id="Encodingwithbasisfunctions-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html">
+            <span class="p-1 mb-0">
+             5 Encoding with basis functions
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS1">
+            <span class="p-1 mb-0">
+             5.1 Univariate trajectories
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS2">
+            <span class="p-1 mb-0">
+             5.2 Multivariate trajectories
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS3">
+            <span class="p-1 mb-0">
+             5.3 Multidimensional inputs
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS4">
+            <span class="p-1 mb-0">
+             5.4 Concatenated basis functions
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS5">
+            <span class="p-1 mb-0">
+             5.5 Batch computation of basis functions coefficients
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS6">
+            <span class="p-1 mb-0">
+             5.6 Recursive computation of basis functions coefficients
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#LinearquadratictrackingLQT-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         6 Linear quadratic tracking (LQT)
+        </button>
+        <div class="collapse show" id="LinearquadratictrackingLQT-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html">
+            <span class="p-1 mb-0">
+             6 Linear quadratic tracking (LQT)
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS1">
+            <span class="p-1 mb-0">
+             6.1 LQT with smoothness cost
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS2">
+            <span class="p-1 mb-0">
+             6.2 LQT with control primitives
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRrecursive">
+            <span class="p-1 mb-0">
+             6.3 LQR with a recursive formulation
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:augmState">
+            <span class="p-1 mb-0">
+             6.4 LQT with a recursive formulation and an augmented state space
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRLS">
+            <span class="p-1 mb-0">
+             6.5 Least squares formulation of recursive LQR
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:DMPLQT">
+            <span class="p-1 mb-0">
+             6.6 Dynamical movement primitives (DMP) reformulated as LQT with control primitives
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#iLQRoptimization-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         7 iLQR optimization
+        </button>
+        <div class="collapse show" id="iLQRoptimization-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html">
+            <span class="p-1 mb-0">
+             7 iLQR optimization
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRbatch">
+            <span class="p-1 mb-0">
+             7.1 Batch formulation of iLQR
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRrecursive">
+            <span class="p-1 mb-0">
+             7.2 Recursive formulation of iLQR
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRLS">
+            <span class="p-1 mb-0">
+             7.3 Least squares formulation of recursive iLQR
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS4">
+            <span class="p-1 mb-0">
+             7.4 Updates by considering step sizes
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS5">
+            <span class="p-1 mb-0">
+             7.5 iLQR with quadratic cost on f(x_{t})
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS6">
+            <span class="p-1 mb-0">
+             7.6 iLQR with control primitives
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS7">
+            <span class="p-1 mb-0">
+             7.7 iLQR for spacetime optimization
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS8">
+            <span class="p-1 mb-0">
+             7.8 iLQR with offdiagonal elements in the precision matrix
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS9">
+            <span class="p-1 mb-0">
+             7.9 Car steering
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS10">
+            <span class="p-1 mb-0">
+             7.10 Bicopter
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#ForwarddynamicsFDforaplanarrobotmanipulator-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         8 Forward dynamics (FD) for a planar robot manipulator
+        </button>
+        <div class="collapse show" id="ForwarddynamicsFDforaplanarrobotmanipulator-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html">
+            <span class="p-1 mb-0">
+             8 Forward dynamics (FD) for a planar robot manipulator
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html#SS1">
+            <span class="p-1 mb-0">
+             8.1 Robot manipulator with dynamics equation
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="bib.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          References
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="A1.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          A System dynamics at trajectory level
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="A2.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          B Derivation of motion equation for a planar robot
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="A3.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          C Linear systems used in the bimanual tennis serve example
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="A4.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          D Equivalence between LQT and LQR with augmented state space
+         </button>
+        </a>
+       </li>
+      </ul>
+     </div>
+    </div>
+   </div>
+  </nav>
+  <div class="container-fluid">
+   <!--<center><h1 class="title">My Title</h1></center>-->
+   <div id="data_container">
+    <div class="row">
+     <div class="col-sm-7 offset-1">
+      <div id="txt-col">
+       <h1 class="ltx_title ltx_title_section">
+        <span class="ltx_tag ltx_tag_section">
+         <span class="ltx_text">
+          2
+         </span>
+        </span>
+        <span class="ltx_text">
+         Newton’s method for minimization
+        </span>
+       </h1>
+       <div class="ltx_para" id="p1">
+        <p class="ltx_p">
+         We would like the find the value of a decision variable
+         <span class="ltx_Math" id="p1.m1">
+          x
+         </span>
+         that would give us a cost
+         <span class="ltx_Math" id="p1.m2">
+          c(x)
+         </span>
+         that is a small as possible, see Figure
+         <a class="ltx_ref" href="#fig:NewtonProblem" title="Figure 1 ‣ 2 Newton’s method for minimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           1
+          </span>
+         </a>
+         . Imagine that we start from an initial guess
+         <span class="ltx_Math" id="p1.m3">
+          x_{1}
+         </span>
+         and that can observe the behavior of this cost function within a very small region around our initial guess. Now let’s assume that we can make several consecutive guesses that will each time provide us with similar local information about the behavior of the cost around the points that we guessed. From this information, what point would you select as second guess (see question marks in the figure), based on the information that you obtained from the first guess? There were two relevant information in the small portion of curve that we can observe in the figure to make a smart choice. First, the trend of the curve indicates that the cost seems to decrease if we move on the left side, and increase if we move on the right side. Namely, the slope
+         <span class="ltx_Math" id="p1.m4">
+          c^{\prime}(x_{1})
+         </span>
+         of the function
+         <span class="ltx_Math" id="p1.m5">
+          c(x)
+         </span>
+         at point
+         <span class="ltx_Math" id="p1.m6">
+          x_{1}
+         </span>
+         is positive. Second, we can observe that the portion of the curve has some curvature that can be also be informative about the way the trend of the curve
+         <span class="ltx_Math" id="p1.m7">
+          c(x)
+         </span>
+         will change by moving to the left or to the right. Namely, how much the slope
+         <span class="ltx_Math" id="p1.m8">
+          c^{\prime}(x_{1})
+         </span>
+         will change, corresponding to an acceleration
+         <span class="ltx_Math" id="p1.m9">
+          c^{\prime\prime}(x_{1})
+         </span>
+         around our first guess
+         <span class="ltx_Math" id="p1.m10">
+          x_{1}
+         </span>
+         . This is informative to estimate how much we should move to the left of the first guess to wisely select a second guess.
+        </p>
+       </div>
+       <div class="ltx_para" id="p2">
+        <p class="ltx_p">
+         Now that we have this intuition, we can move to a more formal problem formulation. Newton’s method attempts to solve
+         <span class="ltx_Math" id="p2.m1">
+          \min_{x}c(x)
+         </span>
+         or
+         <span class="ltx_Math" id="p2.m2">
+          \max_{x}c(x)
+         </span>
+         from an initial guess
+         <span class="ltx_Math" id="p2.m3">
+          x_{1}
+         </span>
+         by using a sequence of
+         <span class="ltx_text ltx_font_bold">
+          second-order Taylor approximations
+         </span>
+         of
+         <span class="ltx_Math" id="p2.m4">
+          c(x)
+         </span>
+         around the iterates, see Fig.
+         <a class="ltx_ref" href="#fig:Newton" title="Figure 2 ‣ 2 Newton’s method for minimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           2
+          </span>
+         </a>
+         .
+        </p>
+       </div>
+       <div class="ltx_para" id="p3">
+        <p class="ltx_p">
+         The second-order Taylor expansion around the point
+         <span class="ltx_Math" id="p3.m1">
+          x_{k}
+         </span>
+         can be expressed as
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="eq:Taylor_1D">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E1.m1">
+            c(x_{k}\!+\!\Delta x_{k})\approx c(x_{k})+c^{\prime}(x_{k})\;\Delta x_{k}+\frac{1}{2}c^{\prime\prime}(x_{k})\;\Delta x_{k}^{2},
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (1)
+           </span>
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         where
+         <span class="ltx_Math" id="p3.m2">
+          c^{\prime}(x_{k})
+         </span>
+         and
+         <span class="ltx_Math" id="p3.m3">
+          c^{\prime\prime}(x_{k})
+         </span>
+         are the first and second derivatives at point
+         <span class="ltx_Math" id="p3.m4">
+          x_{k}
+         </span>
+         .
+        </p>
+       </div>
+       <div class="ltx_para" id="p4">
+        <p class="ltx_p">
+         We are interested in solving minimization problems with this approximation. If the second derivative
+         <span class="ltx_Math" id="p4.m1">
+          c^{\prime\prime}(x_{k})
+         </span>
+         is positive, the quadratic approximation is a convex function of
+         <span class="ltx_Math" id="p4.m2">
+          \Delta x_{k}
+         </span>
+         , and its minimum can be found by setting the derivative to zero.
+        </p>
+       </div>
+       <div class="ltx_para" id="p5">
+        <p class="ltx_p">
+         To find the local optima of a function, we can localize the points whose derivatives are zero, see Figure
+         <a class="ltx_ref" href="#fig:optimPrinciple" title="Figure 3 ‣ 2 Newton’s method for minimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           3
+          </span>
+         </a>
+         for an illustration.
+        </p>
+       </div>
+       <div class="ltx_para" id="p6">
+        <p class="ltx_p">
+         Thus, by differentiating (
+         <a class="ltx_ref" href="#eq:Taylor_1D" title="(1) ‣ 2 Newton’s method for minimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           1
+          </span>
+         </a>
+         ) w.r.t.
+         <span class="ltx_Math" id="p6.m1">
+          \Delta x_{k}
+         </span>
+         and equating to zero, we obtain
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="Ex1">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="Ex1.m1">
+            c^{\prime}(x_{k})+c^{\prime\prime}(x_{k})\,\Delta x_{k}=0,
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         meaning that the minimum is given by
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="Ex2">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="Ex2.m1">
+            \Delta\hat{x}_{k}=-\frac{c^{\prime}(x_{k})}{c^{\prime\prime}(x_{k})}
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         which corresponds to the offset to apply to
+         <span class="ltx_Math" id="p6.m2">
+          x_{k}
+         </span>
+         to minimize the second-order polynomial approximation of the cost at this point.
+        </p>
+       </div>
+       <div class="ltx_para" id="p7">
+        <p class="ltx_p">
+         It is important that
+         <span class="ltx_Math" id="p7.m1">
+          c^{\prime\prime}(x_{k})
+         </span>
+         is positive if we want to find local minima, see Figure
+         <a class="ltx_ref" href="#fig:NewtonNegativeHessian" title="Figure 4 ‣ 2 Newton’s method for minimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           4
+          </span>
+         </a>
+         for an illustration.
+        </p>
+       </div>
+       <div class="ltx_para" id="p8">
+        <p class="ltx_p">
+         By starting from an initial estimate
+         <span class="ltx_Math" id="p8.m1">
+          x_{1}
+         </span>
+         and by recursively refining the current estimate by computing the offset that would minimize the polynomial approximation of the cost at the current estimate, we obtain at each iteration
+         <span class="ltx_Math" id="p8.m2">
+          k
+         </span>
+         the recursion
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="eq:Taylor_1D_update">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E2.m1">
+            x_{k+1}=x_{k}-\frac{c^{\prime}(x_{k})}{c^{\prime\prime}(x_{k})}.
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (2)
+           </span>
+          </td>
+         </tr>
+        </table>
+       </div>
+       <div class="ltx_para" id="p9">
+        <p class="ltx_p">
+         The geometric interpretation of Newton’s method is that at each iteration, it amounts to the fitting of a paraboloid to the surface of
+         <span class="ltx_Math" id="p9.m1">
+          c(x)
+         </span>
+         at
+         <span class="ltx_Math" id="p9.m2">
+          x_{k}
+         </span>
+         , having the same slopes and curvature as the surface at that point, and then proceeding to the maximum or minimum of that paraboloid. Note that if
+         <span class="ltx_Math" id="p9.m3">
+          c(x)
+         </span>
+         is a quadratic function, then the exact extremum is found in one step, which corresponds to the resolution of a least-squares problem.
+        </p>
+       </div>
+       <h3 class="ltx_title ltx_title_subsubsection">
+        Multidimensional case
+       </h3>
+       <div class="ltx_para" id="SS0.SSSx1.p1">
+        <p class="ltx_p">
+         For functions that depend on multiple variables stored as multidimensional vectors
+         <span class="ltx_Math" id="SS0.SSSx1.p1.m1">
+          \bm{x}
+         </span>
+         , the cost function
+         <span class="ltx_Math" id="SS0.SSSx1.p1.m2">
+          c(\bm{x})
+         </span>
+         can similarly be approximated by a second-order Taylor expansion around the point
+         <span class="ltx_Math" id="SS0.SSSx1.p1.m3">
+          \bm{x}_{k}
+         </span>
+         with
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="eq:Taylor_nD">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E3.m1">
+            c(\bm{x}_{k}\!+\!\Delta\bm{x}_{k})\approx c(\bm{x}_{k})+\Delta\bm{x}_{k}^{\scriptscriptstyle\top}\,\frac{\partial c}{\partial\bm{x}}\Big|_{\bm{x}_{k}}+\frac{1}{2}\Delta\bm{x}_{k}^{\scriptscriptstyle\top}\,\frac{\partial^{2}c}{\partial\bm{x}^{2}}\Big|_{\bm{x}_{k}}\Delta\bm{x}_{k},
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (3)
+           </span>
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         which can also be rewritten in augmented vector form as
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="Ex3">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="Ex3.m1">
+            c(\bm{x}_{k}\!+\!\Delta\bm{x}_{k})\approx c(\bm{x}_{k})+\frac{1}{2}\begin{bmatrix}1\\
+\Delta\bm{x}_{k}\end{bmatrix}^{\!{\scriptscriptstyle\top}}\begin{bmatrix}0&amp;\bm{g}_{\bm{x}}^{\scriptscriptstyle\top}\\
+\bm{g}_{\bm{x}}&amp;\bm{H}_{\bm{x}\bm{x}}\end{bmatrix}\begin{bmatrix}1\\
+\Delta\bm{x}_{k}\end{bmatrix},
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         with gradient vector
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="eq:Taylor_grad">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E4.m1">
+            \bm{g}(\bm{x}_{k})=\frac{\partial c}{\partial\bm{x}}\Big|_{\bm{x}_{k}},
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (4)
+           </span>
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         and Hessian matrix
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="eq:Taylor_Hess">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E5.m1">
+            \bm{H}(\bm{x}_{k})=\frac{\partial^{2}c}{\partial\bm{x}^{2}}\Big|_{\bm{x}_{k}}.
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (5)
+           </span>
+          </td>
+         </tr>
+        </table>
+       </div>
+       <div class="ltx_para" id="SS0.SSSx1.p2">
+        <p class="ltx_p">
+         We are interested in solving minimization problems with this approximation. If the Hessian matrix
+         <span class="ltx_Math" id="SS0.SSSx1.p2.m1">
+          \bm{H}(\bm{x}_{k})
+         </span>
+         is positive definite, the quadratic approximation is a convex function of
+         <span class="ltx_Math" id="SS0.SSSx1.p2.m2">
+          \Delta\bm{x}_{k}
+         </span>
+         , and its minimum can be found by setting the derivatives to zero, see Figure
+         <a class="ltx_ref" href="#fig:Newton2D" title="Figure 5 ‣ Multidimensional case ‣ 2 Newton’s method for minimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           5
+          </span>
+         </a>
+         .
+        </p>
+       </div>
+       <div class="ltx_para" id="SS0.SSSx1.p3">
+        <p class="ltx_p">
+         By differentiating (
+         <a class="ltx_ref" href="#eq:Taylor_nD" title="(3) ‣ Multidimensional case ‣ 2 Newton’s method for minimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           3
+          </span>
+         </a>
+         ) w.r.t.
+         <span class="ltx_Math" id="SS0.SSSx1.p3.m1">
+          \Delta\bm{x}_{k}
+         </span>
+         and equation to zero, we obtain that
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="Ex4">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="Ex4.m1">
+            \Delta\bm{\hat{x}}_{k}=-{\bm{H}(\bm{x}_{k})}^{-1}\,\bm{g}(\bm{x}_{k}),
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         is the offset to apply to
+         <span class="ltx_Math" id="SS0.SSSx1.p3.m2">
+          \bm{x}_{k}
+         </span>
+         to minimize the second-order polynomial approximation of the cost at this point.
+        </p>
+       </div>
+       <div class="ltx_para" id="SS0.SSSx1.p4">
+        <p class="ltx_p">
+         By starting from an initial estimate
+         <span class="ltx_Math" id="SS0.SSSx1.p4.m1">
+          \bm{x}_{1}
+         </span>
+         and by recursively refining the current estimate by computing the offset that would minimize the polynomial approximation of the cost at the current estimate, we obtain at each iteration
+         <span class="ltx_Math" id="SS0.SSSx1.p4.m2">
+          k
+         </span>
+         the recursion
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="eq:Taylor_nD_update">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E6.m1">
+            \bm{x}_{k+1}=\bm{x}_{k}-{\bm{H}(\bm{x}_{k})}^{-1}\,\bm{g}(\bm{x}_{k}).
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (6)
+           </span>
+          </td>
+         </tr>
+        </table>
+       </div>
+       <h2 class="ltx_title ltx_title_subsection">
+        <span class="ltx_tag ltx_tag_subsection">
+         <span class="ltx_text">
+          2.1
+         </span>
+        </span>
+        <span class="ltx_text">
+         Gauss–Newton algorithm
+        </span>
+       </h2>
+       <div class="ltx_para" id="SS1.p1">
+        <p class="ltx_p">
+         The Gauss–Newton algorithm is a special case of Newton’s method in which the cost is quadratic (sum of squared function values), with
+         <span class="ltx_Math" id="SS1.p1.m1">
+          c(\bm{x})=\sum_{i=1}^{R}r_{i}^{2}(\bm{x})=\bm{r}^{\scriptscriptstyle\top}\bm{r}
+         </span>
+         , where
+         <span class="ltx_Math" id="SS1.p1.m2">
+          \bm{r}
+         </span>
+         are residual vectors. We neglect in this case the second-order derivative terms of the Hessian. The gradient and Hessian can in this case be computed with
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="Ex5">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="Ex5.m1">
+            \bm{g}=2\bm{J}_{\bm{r}}^{\scriptscriptstyle\top}\bm{r},\quad\bm{H}\approx 2\bm{J}_{\bm{r}}^{\scriptscriptstyle\top}\bm{J}_{\bm{r}},
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         where
+         <span class="ltx_Math" id="SS1.p1.m3">
+          \bm{J}_{\bm{r}}\in\mathbb{R}^{R\times D}
+         </span>
+         is the Jacobian matrix of
+         <span class="ltx_Math" id="SS1.p1.m4">
+          \bm{r}\in\mathbb{R}^{R}
+         </span>
+         . This definition of the Hessian matrix makes it positive definite, which is useful to solve minimization problems as for well conditioned Jacobian matrices, we do not need to verify the positive definiteness of the Hessian matrix at each iteration.
+        </p>
+       </div>
+       <div class="ltx_para" id="SS1.p2">
+        <p class="ltx_p">
+         The update rule in (
+         <a class="ltx_ref" href="#eq:Taylor_nD_update" title="(6) ‣ Multidimensional case ‣ 2 Newton’s method for minimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           6
+          </span>
+         </a>
+         ) then becomes
+        </p>
+        <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx1">
+         <tbody id="Ex6">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_td ltx_align_right ltx_eqn_cell">
+            <span class="ltx_Math" id="Ex6.m1">
+             \displaystyle\bm{x}_{k+1}
+            </span>
+           </td>
+           <td class="ltx_td ltx_align_left ltx_eqn_cell">
+            <span class="ltx_Math" id="Ex6.m2">
+             \displaystyle=\bm{x}_{k}-{\big(\bm{J}_{\bm{r}}^{\scriptscriptstyle\top}(\bm{x}_{k})\bm{J}_{\bm{r}}(\bm{x}_{k})\big)}^{-1}\,\bm{J}_{\bm{r}}^{\scriptscriptstyle\top}(\bm{x}_{k})\,\bm{r}(\bm{x}_{k})
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </tbody>
+         <tbody id="Ex7">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_td ltx_eqn_cell">
+           </td>
+           <td class="ltx_td ltx_align_left ltx_eqn_cell">
+            <span class="ltx_Math" id="Ex7.m1">
+             \displaystyle=\bm{x}_{k}-\bm{J}_{\bm{r}}^{\dagger}(\bm{x}_{k})\,\bm{r}(\bm{x}_{k}),
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </tbody>
+        </table>
+        <p class="ltx_p">
+         where
+         <span class="ltx_Math" id="SS1.p2.m1">
+          \bm{J}_{\bm{r}}^{\dagger}
+         </span>
+         denotes the pseudoinverse of
+         <span class="ltx_Math" id="SS1.p2.m2">
+          \bm{J}_{\bm{r}}
+         </span>
+         .
+        </p>
+       </div>
+       <div class="ltx_para" id="SS1.p3">
+        <p class="ltx_p">
+         The Gauss–Newton algorithm is the workhorse of many robotics problems, including inverse kinematics and optimal control, as we will see in the next sections.
+        </p>
+       </div>
+       <h2 class="ltx_title ltx_title_subsection">
+        <span class="ltx_tag ltx_tag_subsection">
+         <span class="ltx_text">
+          2.2
+         </span>
+        </span>
+        <span class="ltx_text">
+         Least squares
+        </span>
+       </h2>
+       <div class="ltx_para" id="SS2.p1">
+        <p class="ltx_p">
+         When the cost
+         <span class="ltx_Math" id="SS2.p1.m1">
+          c(\bm{x})
+         </span>
+         is a quadratic function w.r.t.
+         <span class="ltx_Math" id="SS2.p1.m2">
+          \bm{x}
+         </span>
+         , the optimization problem can be solved directly, without requiring iterative steps. Indeed, for any matrix
+         <span class="ltx_Math" id="SS2.p1.m3">
+          \bm{A}
+         </span>
+         and vector
+         <span class="ltx_Math" id="SS2.p1.m4">
+          \bm{b}
+         </span>
+         , we can see that if
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="Ex8">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="Ex8.m1">
+            c(\bm{x})=(\bm{A}\bm{x}-\bm{b})^{\scriptscriptstyle\top}(\bm{A}\bm{x}-\bm{b}),
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         derivating
+         <span class="ltx_Math" id="SS2.p1.m5">
+          c(\bm{x})
+         </span>
+         w.r.t.
+         <span class="ltx_Math" id="SS2.p1.m6">
+          \bm{x}
+         </span>
+         and equating to zero yields
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="Ex9">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="Ex9.m1">
+            \bm{A}\bm{x}-\bm{b}=\bm{0}\iff\bm{x}=\bm{A}^{\dagger}\bm{b},
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         which corresponds to the standard analytic least squares estimate. We will see later in the inverse kinematics section that for the complete solution can also include a nullspace structure.
+        </p>
+       </div>
+       <h2 class="ltx_title ltx_title_subsection">
+        <span class="ltx_tag ltx_tag_subsection">
+         <span class="ltx_text">
+          2.3
+         </span>
+        </span>
+        <span class="ltx_text">
+         Least squares with constraints
+        </span>
+       </h2>
+       <div class="ltx_para" id="SS3.p1">
+        <p class="ltx_p">
+         A constrained minimization problem of the form
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="eq:LSconstraints">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="E7.m1">
+            \min_{\bm{x}}\;(\bm{A}\bm{x}-\bm{b})^{\scriptscriptstyle\top}(\bm{A}\bm{x}-\bm{b}),\quad\text{s.t.}\quad\bm{C}\bm{x}=\bm{h},
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+           <span class="ltx_tag ltx_tag_equation ltx_align_right">
+            (7)
+           </span>
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         can also be solved analytically by considering a Lagrange multiplier variable
+         <span class="ltx_Math" id="SS3.p1.m1">
+          \bm{\lambda}
+         </span>
+         allowing us to rewrite the objective as
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="Ex10">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="Ex10.m1">
+            \min_{\bm{x},\bm{\lambda}}\;(\bm{A}\bm{x}-\bm{b})^{\scriptscriptstyle\top}(\bm{A}\bm{x}-\bm{b})+\bm{\lambda}^{\scriptscriptstyle\top}(\bm{C}\bm{x}-\bm{h}).
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+         </tr>
+        </table>
+       </div>
+       <div class="ltx_para" id="SS3.p2">
+        <p class="ltx_p">
+         Differentiating with respect to
+         <span class="ltx_Math" id="SS3.p2.m1">
+          \bm{x}
+         </span>
+         and
+         <span class="ltx_Math" id="SS3.p2.m2">
+          \bm{\lambda}
+         </span>
+         and equating to zero yields
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="Ex11">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="Ex11.m1">
+            \bm{A}^{\scriptscriptstyle\top}(\bm{A}\bm{x}-\bm{b})+\bm{C}^{\scriptscriptstyle\top}\bm{\lambda}=\bm{0},\quad\bm{C}\bm{x}-\bm{h}=\bm{0},
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         which can rewritten in matrix form as
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="Ex12">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="Ex12.m1">
+            \begin{bmatrix}\bm{A}^{\scriptscriptstyle\top}\!\bm{A}&amp;\bm{C}^{\scriptscriptstyle\top}\\
+\bm{C}&amp;\bm{0}\end{bmatrix}\begin{bmatrix}\bm{x}\\
+\bm{\lambda}\end{bmatrix}=\begin{bmatrix}\bm{A}^{\scriptscriptstyle\top}\bm{b}\\
+\bm{h}\end{bmatrix}.
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+         </tr>
+        </table>
+       </div>
+       <div class="ltx_para" id="SS3.p3">
+        <p class="ltx_p">
+         With this augmented state representation, we can then see that
+        </p>
+        <table class="ltx_equation ltx_eqn_table" id="Ex13">
+         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+          <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+          </td>
+          <td class="ltx_eqn_cell ltx_align_center">
+           <span class="ltx_Math" id="Ex13.m1">
+            \begin{bmatrix}\bm{x}\\
+\bm{\lambda}\end{bmatrix}=\begin{bmatrix}\bm{A}^{\scriptscriptstyle\top}\!\bm{A}&amp;\bm{C}^{\scriptscriptstyle\top}\\
+\bm{C}&amp;\bm{0}\end{bmatrix}^{-1}\begin{bmatrix}\bm{A}^{\scriptscriptstyle\top}\bm{b}\\
+\bm{h}\end{bmatrix}
+           </span>
+          </td>
+          <td class="ltx_eqn_cell ltx_eqn_center_padright">
+          </td>
+         </tr>
+        </table>
+        <p class="ltx_p">
+         minimizes the constrained cost. The first part of this augmented state then gives us the solution of (
+         <a class="ltx_ref" href="#eq:LSconstraints" title="(7) ‣ 2.3 Least squares with constraints ‣ 2 Newton’s method for minimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           7
+          </span>
+         </a>
+         ).
+        </p>
+       </div>
+       <div class="ltx_pagination ltx_role_newpage">
+       </div>
+      </div>
+     </div>
+     <div class="col-sm-3">
+      <div id="img-col">
+       <figure class="ltx_figure ltx_align_floatright figure_main" id="fig:NewtonProblem">
+        <img class="ltx_graphics ltx_centering" id="F1.g1" src="images/NewtonMethod1D_problem01.png"/>
+        <figcaption class="ltx_caption ltx_centering">
+         <span class="ltx_tag ltx_tag_figure">
+          <span class="ltx_text">
+           Figure 1
+          </span>
+          :
+         </span>
+         <span class="ltx_text">
+          Problem formulation.
+         </span>
+        </figcaption>
+       </figure>
+       <figure class="ltx_figure ltx_align_floatright figure_main" id="fig:Newton">
+        <img class="ltx_graphics ltx_centering" id="F2.g1" src="images/NewtonMethod1D01.png"/>
+        <figcaption class="ltx_caption ltx_centering">
+         <span class="ltx_tag ltx_tag_figure">
+          <span class="ltx_text">
+           Figure 2
+          </span>
+          :
+         </span>
+         <span class="ltx_text">
+          Newton’s method for minimization, starting from an initial estimate
+          <span class="ltx_Math" id="F2.m2">
+           x_{1}
+          </span>
+          and converging to a local minimum (red point) after 5 iterations.
+         </span>
+        </figcaption>
+       </figure>
+       <figure class="ltx_figure ltx_align_floatright figure_main" id="fig:optimPrinciple">
+        <img class="ltx_graphics" id="F3.g1" src="images/optim_principle01.png"/>
+        <figcaption class="ltx_caption">
+         <span class="ltx_tag ltx_tag_figure">
+          <span class="ltx_text">
+           Figure 3
+          </span>
+          :
+         </span>
+         <span class="ltx_text">
+          Finding local optima by localizing the points whose derivatives are zero (horizontal slopes).
+         </span>
+        </figcaption>
+       </figure>
+       <figure class="ltx_figure ltx_align_floatright figure_main" id="fig:NewtonNegativeHessian">
+        <img class="ltx_graphics ltx_centering" id="F4.g1" src="images/NewtonMethod_negativeHessian01.png"/>
+        <figcaption class="ltx_caption ltx_centering">
+         <span class="ltx_tag ltx_tag_figure">
+          <span class="ltx_text">
+           Figure 4
+          </span>
+          :
+         </span>
+         <span class="ltx_text">
+          Newton update that would be achieved when the second derivative is negative.
+         </span>
+        </figcaption>
+       </figure>
+       <figure class="ltx_figure ltx_align_floatright figure_main" id="fig:Newton2D">
+        <img class="ltx_graphics ltx_centering" id="F5.g1" src="images/NewtonMethod2D01.jpg"/>
+        <figcaption class="ltx_caption ltx_centering">
+         <span class="ltx_tag ltx_tag_figure">
+          <span class="ltx_text">
+           Figure 5
+          </span>
+          :
+         </span>
+         <span class="ltx_text">
+          Newton’s method for minimization with 2D decision variables.
+         </span>
+        </figcaption>
+       </figure>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </body>
+</html>

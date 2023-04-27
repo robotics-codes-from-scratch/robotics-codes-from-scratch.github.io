@@ -1,0 +1,1246 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta content="My awesome project" name="description"/>
+  <meta content="awesome" name="keywords"/>
+  <meta content="John Doe" name="author"/>
+  <title>
+   My awesome project
+  </title>
+  <link href="static_images/favicon.ico" rel="icon" sizes="any"/>
+  <link href="static_images/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <link href="css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="css/bootstrap-icons-1.10.4/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="css/permanent_marker.css" rel="stylesheet"/>
+  <link href="css/main-template.css" rel="stylesheet"/>
+  <link href="css/sidebars.css" rel="stylesheet"/>
+  <link href="css/katex.min.css" rel="stylesheet"/>
+  <script src="js/jquery-3.6.4.min.js">
+  </script>
+  <script src="js/bootstrap.bundle.min.js">
+  </script>
+  <script src="js/katex.min.js">
+  </script>
+  <script>
+   function initialize(){
+			convertMath();
+		}
+
+		function convertMath(){
+			const elements = document.getElementsByClassName("ltx_Math");
+			const macros = {};
+			for(let element of elements){
+				katex.render(element.textContent, element, {
+					throwOnError: false,
+					macros
+				});
+			}
+		}
+
+		window.onload = initialize;
+  </script>
+ </head>
+ <body>
+  <nav aria-label="Light offcanvas navbar" class="navbar fixed-top" style="width: 50px;">
+   <div class="container-fluid">
+    <button aria-controls="offcanvasNavbarLight" class="navbar-toggler" data-bs-target="#offcanvasNavbarLight" data-bs-toggle="offcanvas" type="button">
+     <span class="navbar-toggler-icon" style="cursor: pointer;">
+     </span>
+    </button>
+    <div aria-labelledby="offcanvasNavbarLightLabel" class="offcanvas offcanvas-start" id="offcanvasNavbarLight" style="width: 500px;" tabindex="-1">
+     <div class="offcanvas-header">
+      <!--style='height: 50px;'-->
+      <a class="navbar-brand" href="index.html">
+       <h4 class="offcanvas-title" id="offcanvasNavbarLightLabel">
+        <i class="bi bi-robot">
+        </i>
+        <i class="bi bi-code-slash">
+        </i>
+        RCFS
+       </h4>
+      </a>
+      <button aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" type="button">
+      </button>
+     </div>
+     <div class="offcanvas-body">
+      <!--Menu goes here-->
+      <ul class="list-unstyled ps-0" id="menu_container">
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#general-collapse" data-bs-toggle="collapse">
+         General information
+        </button>
+        <div class="collapse show" id="general-collapse">
+         <!--<li><a href='index.html' class='link-dark d-inline-flex text-decoration-none rounded'>Home</a></li>-->
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="about.html">
+            <div class="p-1 mb-0">
+             About
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes2d-collapse" data-bs-toggle="collapse">
+         2D sandboxes
+        </button>
+        <div class="collapse show" id="sandboxes2d-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_FK.html">
+            <div class="p-1 mb-0">
+             Forward kinematics (FK)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_IK.html">
+            <div class="p-1 mb-0">
+             Inverse kinematics (IK)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_bimanual.html">
+            <div class="p-1 mb-0">
+             Bimanual robot
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_humanoid.html">
+            <div class="p-1 mb-0">
+             Humanoid robot (CoM and coordination matrix)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR.html">
+            <div class="p-1 mb-0">
+             Iterative linear quadratic regulator (iLQR)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_car.html">
+            <div class="p-1 mb-0">
+             iLQR for car
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_bicopter.html">
+            <div class="p-1 mb-0">
+             iLQR for bicopter
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes3d-collapse" data-bs-toggle="collapse">
+         3D sandboxes
+        </button>
+        <div class="collapse show" id="sandboxes3d-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox3d_IK.html">
+            <div class="p-1 mb-0">
+             Inverse kinematics (IK)
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#exercises-collapse" data-bs-toggle="collapse">
+         Exercises
+        </button>
+        <div class="collapse show" id="exercises-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise01.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             01
+            </div>
+            <div class="p-1 mb-0">
+             Linear algebra in Python
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise02.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             02
+            </div>
+            <div class="p-1 mb-0">
+             Movement primitives and Newton's method
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise03.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             03
+            </div>
+            <div class="p-1 mb-0">
+             Gaussian Distributions
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             4a
+            </div>
+            <div class="p-1 mb-0">
+             Forward kinematics
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             4b
+            </div>
+            <div class="p-1 mb-0">
+             Inverse kinematics and nullspace control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             5a
+            </div>
+            <div class="p-1 mb-0">
+             Forward dynamics
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             5b
+            </div>
+            <div class="p-1 mb-0">
+             Inverse dynamics and impedance control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             6a
+            </div>
+            <div class="p-1 mb-0">
+             Planning with linear quadratic regulator
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             6b
+            </div>
+            <div class="p-1 mb-0">
+             Planning in joint space with LQR
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise07.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             07
+            </div>
+            <div class="p-1 mb-0">
+             Iterative linear quadratic regulator (iLQR)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise08.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             08
+            </div>
+            <div class="p-1 mb-0">
+             Exploration with ergodic control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise09.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             09
+            </div>
+            <div class="p-1 mb-0">
+             Orientation with Riemannian manifold
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          1 Introduction
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#Newtonsmethodforminimization-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         2 Newton’s method for minimization
+        </button>
+        <div class="collapse show" id="Newtonsmethodforminimization-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html">
+            <span class="p-1 mb-0">
+             2 Newton’s method for minimization
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:GaussNewton">
+            <span class="p-1 mb-0">
+             2.1 Gauss–Newton algorithm
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LS">
+            <span class="p-1 mb-0">
+             2.2 Least squares
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LSconstraints">
+            <span class="p-1 mb-0">
+             2.3 Least squares with constraints
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="S3.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          3 Forward kinematics (FK) for a planar robot manipulator
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#InversekinematicsIKforaplanarrobotmanipulator-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         4 Inverse kinematics (IK) for a planar robot manipulator
+        </button>
+        <div class="collapse show" id="InversekinematicsIKforaplanarrobotmanipulator-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html">
+            <span class="p-1 mb-0">
+             4 Inverse kinematics (IK) for a planar robot manipulator
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IKnum">
+            <span class="p-1 mb-0">
+             4.1 Numerical estimation of the Jacobian
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IK_nullspace">
+            <span class="p-1 mb-0">
+             4.2 Inverse kinematics (IK) with task prioritization
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#Encodingwithbasisfunctions-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         5 Encoding with basis functions
+        </button>
+        <div class="collapse show" id="Encodingwithbasisfunctions-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html">
+            <span class="p-1 mb-0">
+             5 Encoding with basis functions
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS1">
+            <span class="p-1 mb-0">
+             5.1 Univariate trajectories
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS2">
+            <span class="p-1 mb-0">
+             5.2 Multivariate trajectories
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS3">
+            <span class="p-1 mb-0">
+             5.3 Multidimensional inputs
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS4">
+            <span class="p-1 mb-0">
+             5.4 Concatenated basis functions
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS5">
+            <span class="p-1 mb-0">
+             5.5 Batch computation of basis functions coefficients
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS6">
+            <span class="p-1 mb-0">
+             5.6 Recursive computation of basis functions coefficients
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#LinearquadratictrackingLQT-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         6 Linear quadratic tracking (LQT)
+        </button>
+        <div class="collapse show" id="LinearquadratictrackingLQT-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html">
+            <span class="p-1 mb-0">
+             6 Linear quadratic tracking (LQT)
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS1">
+            <span class="p-1 mb-0">
+             6.1 LQT with smoothness cost
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS2">
+            <span class="p-1 mb-0">
+             6.2 LQT with control primitives
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRrecursive">
+            <span class="p-1 mb-0">
+             6.3 LQR with a recursive formulation
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:augmState">
+            <span class="p-1 mb-0">
+             6.4 LQT with a recursive formulation and an augmented state space
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRLS">
+            <span class="p-1 mb-0">
+             6.5 Least squares formulation of recursive LQR
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:DMPLQT">
+            <span class="p-1 mb-0">
+             6.6 Dynamical movement primitives (DMP) reformulated as LQT with control primitives
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#iLQRoptimization-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         7 iLQR optimization
+        </button>
+        <div class="collapse show" id="iLQRoptimization-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html">
+            <span class="p-1 mb-0">
+             7 iLQR optimization
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRbatch">
+            <span class="p-1 mb-0">
+             7.1 Batch formulation of iLQR
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRrecursive">
+            <span class="p-1 mb-0">
+             7.2 Recursive formulation of iLQR
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRLS">
+            <span class="p-1 mb-0">
+             7.3 Least squares formulation of recursive iLQR
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS4">
+            <span class="p-1 mb-0">
+             7.4 Updates by considering step sizes
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS5">
+            <span class="p-1 mb-0">
+             7.5 iLQR with quadratic cost on f(x_{t})
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS6">
+            <span class="p-1 mb-0">
+             7.6 iLQR with control primitives
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS7">
+            <span class="p-1 mb-0">
+             7.7 iLQR for spacetime optimization
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS8">
+            <span class="p-1 mb-0">
+             7.8 iLQR with offdiagonal elements in the precision matrix
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS9">
+            <span class="p-1 mb-0">
+             7.9 Car steering
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS10">
+            <span class="p-1 mb-0">
+             7.10 Bicopter
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#ForwarddynamicsFDforaplanarrobotmanipulator-collapse" data-bs-toggle="collapse" style="text-align:left;">
+         8 Forward dynamics (FD) for a planar robot manipulator
+        </button>
+        <div class="collapse show" id="ForwarddynamicsFDforaplanarrobotmanipulator-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html">
+            <span class="p-1 mb-0">
+             8 Forward dynamics (FD) for a planar robot manipulator
+            </span>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html#SS1">
+            <span class="p-1 mb-0">
+             8.1 Robot manipulator with dynamics equation
+            </span>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="bib.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          References
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="A1.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          A System dynamics at trajectory level
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="A2.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          B Derivation of motion equation for a planar robot
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="A3.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          C Linear systems used in the bimanual tennis serve example
+         </button>
+        </a>
+       </li>
+       <li class="mb-1">
+        <a class="link-dark d-inline-flex text-decoration-none rounded" href="A4.html">
+         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0" data-bs-toggle="collapse" style="text-align:left;">
+          D Equivalence between LQT and LQR with augmented state space
+         </button>
+        </a>
+       </li>
+      </ul>
+     </div>
+    </div>
+   </div>
+  </nav>
+  <script defer="" src="https://pyscript.net/latest/pyscript.min.js">
+  </script>
+  <py-config type="toml">
+   packages = ['numpy', 'matplotlib']
+  </py-config>
+  <link href="https://pyscript.net/latest/pyscript.css" rel="stylesheet"/>
+  <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
+  <div class="container-fluid">
+   <!--
+<style>
+code {
+  font-family: Consolas,'courier new';
+  color: black;
+  background-color: #f1f1f1;
+  padding: 2px;
+  font-size: 100%;
+}
+</style>
+-->
+   <script>
+    function clearMsgs() {
+  const el = document.getElementById('errors');
+  el.innerText = '';
+  //console.log('event!');
+}
+function clearMsgsOutput() {
+  const el = document.getElementById('output');
+  el.innerText = '';
+  //console.log('event!');
+}
+const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b','#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
+   </script>
+   <!-- Template for nav tab question-answer -->
+   <!-- <ul class="nav nav-tabs" id="myTab" role="tablist">
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link active" id="question-tab" data-bs-toggle="tab" data-bs-target="#question-tab-pane" type="button" role="tab" aria-controls="question-tab-pane" aria-selected="true">Question</button>
+	</li>
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link" id="answer-tab" data-bs-toggle="tab" data-bs-target="#answer-tab-pane" type="button" role="tab" aria-controls="answer-tab-pane" aria-selected="false">Answer</button>
+	</li>
+  </ul>
+  <div class="tab-content" id="myTabContent">
+	<div class="tab-pane fade show active" id="question-tab-pane" role="tabpanel" aria-labelledby="question-tab" tabindex="0">
+		<py-repl std-out='output' std-err='errors'>
+			</py-repl>
+	</div>
+	<div class="tab-pane fade" id="answer-tab-pane" role="tabpanel" aria-labelledby="answer-tab" tabindex="0">
+		<py-repl std-out='output' std-err='errors'>
+			</py-repl>
+	</div>
+  </div> -->
+   <py-script>
+    def print(x):
+        display(x, target='output')
+   </py-script>
+   <py-script std-err="errors" std-out="output">
+    import numpy as np
+import matplotlib.pyplot as plt
+from js import document, console
+from pyodide.ffi import create_proxy
+
+def sqrtm(a):
+	# Computing diagonalization
+	evalues, evectors = np.linalg.eig(a)
+	# Ensuring square root matrix exists
+	# assert (evalues &gt;= 0).all()
+	return evectors @ np.diag(np.sqrt(evalues)) @ np.linalg.inv(evectors)
+
+def plot_gaussian(mu, sigma, ax, dim=None, color='r', alpha=0.5, lw=1, markersize=6, **kwargs):
+	nb_segm=24
+	mu, sigma = np.array(mu), np.array(sigma)
+	t = np.linspace(-np.pi, np.pi, nb_segm)
+	R = np.real(sqrtm(1.0 * sigma))
+	points = np.einsum('ij,ja-&gt;ia', R, np.array([np.cos(t), np.sin(t)])) + mu[:, None]
+	center, = ax.plot(mu[0], mu[1], '.', color=color, alpha=alpha)  # Mean
+	line, =	ax.plot(points[0], points[1], color=color, linewidth=lw,
+				markersize=markersize, **kwargs)  # Contour
+	return center, line
+
+def condition_gaussian(x1, slice1, slice2, mu, sigma):
+	mu1 = mu[slice1]
+	mu2 = mu[slice2]
+	sigma11 = sigma[slice1, slice1]
+	sigma22 = sigma[slice2, slice2]
+	sigma12 = sigma[slice1, slice2]
+	sigma11_inv = np.linalg.inv(sigma11)
+	mu_C = mu2 + sigma12 @ sigma11_inv @ (x1 - mu1)
+	sigma_C = sigma22 - sigma12 @ sigma11_inv @ sigma12
+	return mu_C, sigma_C
+   </py-script>
+   <div class="row">
+    <div class="col-sm-1">
+    </div>
+    <div class="col-sm-7">
+     <h1>
+      Exercise 3
+      <br/>
+      Gaussian Distributions
+     </h1>
+     <p>
+      Multivariate Gaussian distributions have many computationally favorable properties that have been used extensively in robotics.
+In this exercise, we focus on some operations with Gaussian densities that result in another Gaussian density, namely,
+linear combination and product of Gaussians. We will see how one can use these operations in regression problems.
+     </p>
+     <!-- Question 1 -->
+     <h5>
+      1. Multivariate Gaussian Distribution
+     </h5>
+     <p>
+      Fill in the code below to implement
+      <code>
+       linear_combination
+      </code>
+      and
+      <code>
+       product_gaussians
+      </code>
+      .
+     </p>
+     <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+       <button aria-controls="question-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#question-tab-pane" data-bs-toggle="tab" id="question-tab" role="tab" type="button">
+        Question
+       </button>
+      </li>
+      <li class="nav-item" role="presentation">
+       <button aria-controls="answer-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#answer-tab-pane" data-bs-toggle="tab" id="answer-tab" role="tab" type="button">
+        Answer
+       </button>
+      </li>
+     </ul>
+     <div class="tab-content" id="myTabContent">
+      <div aria-labelledby="question-tab" class="tab-pane fade show active" id="question-tab-pane" role="tabpanel" tabindex="0">
+       <py-repl std-err="errors" std-out="output">
+        def gaussian_nD(x, mu, sigma):
+			  D = x.shape[0]
+			  cons = ((2*np.pi)**(-D/2)) * (np.linalg.det(sigma)**(-0.5))
+			  return cons*np.exp(-0.5*(x-mu).dot(np.linalg.inv(sigma))@ (x-mu))
+
+			def linear_combination(A1, A2, c, mu1, mu2, sigma1, sigma2):
+			  mu_L = np.zeros(2) # Implement here
+			  sigma_L = np.eye(2) # Implement here
+			  return mu_L, sigma_L
+
+			def product_gaussians(mu1, mu2, sigma1, sigma2):
+			  sigma1_inv = np.linalg.inv(sigma1)
+			  sigma2_inv = np.linalg.inv(sigma2)
+			  sigma_P = np.eye(2)# Implement here
+			  mu_P = np.zeros(2) # Implement here
+			  c = 0. # Implement here
+			  return mu_P, sigma_P, c
+       </py-repl>
+      </div>
+      <div aria-labelledby="answer-tab" class="tab-pane fade" id="answer-tab-pane" role="tabpanel" tabindex="0">
+       <py-repl std-err="errors" std-out="output">
+        def gaussian_nD(x, mu, sigma):
+			  D = x.shape[0]
+			  cons = ((2*np.pi)**(-D/2)) * (np.linalg.det(sigma)**(-0.5))
+			  return cons*np.exp(-0.5*(x-mu).dot(np.linalg.inv(sigma))@ (x-mu))
+
+			def linear_combination(A1, A2, c, mu1, mu2, sigma1, sigma2):
+			  mu_L = A1 @ mu1 + A2 @ mu2 + c
+			  sigma_L = A1 @ sigma1 @ A1.T + A2 @ sigma2 @ A2.T
+			  return mu_L, sigma_L
+
+			def product_gaussians(mu1, mu2, sigma1, sigma2):
+			  sigma1_inv = np.linalg.inv(sigma1)
+			  sigma2_inv = np.linalg.inv(sigma2)
+			  sigma_P = np.linalg.inv(sigma1_inv + sigma2_inv)
+			  mu_P = sigma_P @ (sigma1_inv @ mu1 + sigma2_inv @ mu2)
+			  c = gaussian_nD(mu1, mu2, sigma1 + sigma2)
+			  return mu_P, sigma_P, c
+       </py-repl>
+      </div>
+     </div>
+     <br/>
+     <p>
+      You have access to a plotting function called
+      <code>
+       plot_gaussian(mu, sigma, ax, dim=None, color='r', alpha=0.5, lw=1, markersize=6, **kwargs)
+      </code>
+      .
+ You need to give
+      <code>
+       mu : ndarray(N,)
+      </code>
+      ,
+      <code>
+       sigma : ndarray(N,N)
+      </code>
+      and
+      <code>
+       ax : subplot object
+      </code>
+      to the function (you can also give other arguments that matplotlib accepts).
+     </p>
+     <p>
+      Implement
+      <code>
+       product_gaussians
+      </code>
+      in the code above and run the code below to test your answer. You can verify your answer by clicking on the button below the code.
+     </p>
+     <py-repl std-err="errors" std-out="chart">
+      mu1 = np.zeros(2)
+	mu2 = np.ones(2)
+	sigma1 = np.diag([.5,.1])
+	sigma2 = np.diag([1,1])
+	mu_P, sigma_P, c = product_gaussians(mu1, mu2, sigma1, sigma2)
+
+	plt.close('all')
+	fig,ax = plt.subplots(figsize=(5,5))
+	plot_gaussian(mu1, sigma1, ax, color='r', label='first Gaussian')
+	plot_gaussian(mu2, sigma2, ax, color='b', label='second Gaussian')
+	plot_gaussian(mu_P, sigma_P, ax, color='k', label='product of Gaussians' )
+	ax.legend()
+	ax.axis('off')
+	ax.set_aspect('equal')
+	fig
+     </py-repl>
+     <div class="col-auto">
+      <button aria-controls="answer1" aria-expanded="false" class="btn btn-light btn-sm" data-bs-target="#answer1" data-bs-toggle="collapse">
+       Show/hide answer
+      </button>
+     </div>
+     <div class="collapse" id="answer1">
+      <img src="static_images/Ex3-1.png"/>
+     </div>
+     <br/>
+     <p>
+      Implement
+      <code>
+       linear_combination
+      </code>
+      in the code above and run the code below to test your answer. You can verify your answer by clicking on the button below the code (the plot in the answer is generated with
+      <span class="ltx_Math">
+       c=0
+      </span>
+      ).
+     </p>
+     <py-repl std-err="errors" std-out="chart">
+      mu1 = np.zeros(2)
+  mu2 = np.ones(2)
+  sigma1 = np.diag([1,1])
+  sigma2 = np.diag([1,1])
+  A1 = np.diag([1., 1])
+  A2 = np.diag([1., 1])
+  c  = np.random.randn(2)
+  mu_L, sigma_L = linear_combination(A1, A2, c, mu1, mu2, sigma1, sigma2)
+
+  plt.close('all')
+  fig,ax = plt.subplots(figsize=(5,5))
+  plot_gaussian(mu1, sigma1, ax, color='r', label='first Gaussian')
+  plot_gaussian(mu2, sigma2, ax, color='b', label='second Gaussian')
+  plot_gaussian(mu_L, sigma_L, ax, color='k', label='Linear combination' )
+  ax.legend()
+  ax.axis('off')
+  fig
+     </py-repl>
+     <div class="col-auto">
+      <button aria-controls="answer2" aria-expanded="false" class="btn btn-light btn-sm" data-bs-target="#answer2" data-bs-toggle="collapse">
+       Show/hide answer
+      </button>
+     </div>
+     <div class="collapse" id="answer2">
+      <img src="static_images/Ex3-2.png"/>
+     </div>
+     <br/>
+     <!-- Question 2 -->
+     <h5>
+      2. Fitting a Gaussian distribution to demonstrations
+     </h5>
+     <p>
+      Given a dataset
+      <code>
+       X
+      </code>
+      with
+      <span class="ltx_Math">
+       \bm{X} \in \mathcal{R}^{2\times\mathrm{nb\_data}}
+      </span>
+      , implement a function
+      <code>
+       fit_gaussian
+      </code>
+      that fits a Gaussian distribution onto this dataset and returns its mean and covariance.
+     </p>
+     <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+       <button aria-controls="question2-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#question2-tab-pane" data-bs-toggle="tab" id="question2-tab" role="tab" type="button">
+        Question
+       </button>
+      </li>
+      <li class="nav-item" role="presentation">
+       <button aria-controls="answer2-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#answer2-tab-pane" data-bs-toggle="tab" id="answer2-tab" role="tab" type="button">
+        Answer
+       </button>
+      </li>
+     </ul>
+     <div class="tab-content" id="myTabContent">
+      <div aria-labelledby="question2-tab" class="tab-pane fade show active" id="question2-tab-pane" role="tabpanel" tabindex="0">
+       <py-repl std-err="errors" std-out="output">
+        def fit_gaussian(X):
+				mu = np.zeros(2) # implement here
+				sigma = np.eye(2) # implement here
+				return mu, sigma
+       </py-repl>
+      </div>
+      <div aria-labelledby="answer2-tab" class="tab-pane fade" id="answer2-tab-pane" role="tabpanel" tabindex="0">
+       <py-repl std-err="errors" std-out="output">
+        def fit_gaussian(X):
+				mu = np.mean(X, axis=-1)
+				sigma = (X-mu[:,None]).dot((X-mu[:,None]).T) / nb_data
+				return mu, sigma
+       </py-repl>
+      </div>
+     </div>
+     <br/>
+     <p>
+      Verify your function by plotting the resulting Gaussian distribution along with the dataset. To do this, you can run the code below by changing the noise level.
+You can also click on the button below to verify your answer (the answer is generated with
+      <code>
+       noise_scale=0.01
+      </code>
+      ).
+     </p>
+     <py-repl std-err="errors" std-out="chart">
+      noise_scale = 0.05 # change this to the noise level you want
+nb_data = 100
+x1 = np.linspace(0,1,nb_data)
+y1 = 0.3*x1 + 0.1 + np.random.randn(nb_data)*noise_scale
+X1 = np.stack([x1,y1])
+mu1, sigma1 = fit_gaussian(X1)
+
+plt.close('all')
+fig,ax = plt.subplots(figsize=(5,5))
+plot_gaussian(mu1, sigma1, ax=ax)
+ax.plot(x1,y1, '.')
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+fig.tight_layout()
+fig
+     </py-repl>
+     <div class="col-auto">
+      <button aria-controls="answer3" aria-expanded="false" class="btn btn-light btn-sm" data-bs-target="#answer3" data-bs-toggle="collapse">
+       Show/hide answer
+      </button>
+     </div>
+     <div class="collapse" id="answer3">
+      <img src="static_images/Ex3-3.png"/>
+     </div>
+     <br/>
+     <!-- Question 3 -->
+     <h5>
+      3. Intersection or union?
+     </h5>
+     <p>
+      We are given two different sets of demonstration data, each represented by a Gaussian distribution. Depending on the application, we may be interested
+only in capturing the common parts in both demonstrations, which we will call
+      <em>
+       intersection
+      </em>
+      , or capturing both demonstration datasets together,
+which we will call
+      <em>
+       union
+      </em>
+      . Intersection and union correspond to the functions that we implemented in this session.
+Which ones do you think fit to these specifications?
+     </p>
+     <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+       <button aria-controls="question3-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#question3-tab-pane" data-bs-toggle="tab" id="question3-tab" role="tab" type="button">
+        Question
+       </button>
+      </li>
+      <li class="nav-item" role="presentation">
+       <button aria-controls="answer3-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#answer3-tab-pane" data-bs-toggle="tab" id="answer3-tab" role="tab" type="button">
+        Answer
+       </button>
+      </li>
+     </ul>
+     <div class="tab-content" id="myTabContent">
+      <div aria-labelledby="question3-tab" class="tab-pane fade show active" id="question3-tab-pane" role="tabpanel" tabindex="0">
+       <py-repl std-err="errors" std-out="output">
+        # Create a new dataset X2
+			x2 = np.linspace(0,1,nb_data)
+			y2 = 1.5*x2 + np.random.randn(nb_data)*noise_scale
+			X2 = np.stack([x2,y2])
+
+			# Fit another Gaussian distribution
+			mu2, sigma2 = fit_gaussian(X2)
+
+			# Compute the resulting Gaussian for the intersection case
+			mu_intersection, sigma_intersection = np.zeros(2), np.eye(2) # implement here
+
+			# Compute the resulting Gaussian for the union case
+			mu_union, sigma_union = np.zeros(2), np.eye(2) # implement here
+       </py-repl>
+      </div>
+      <div aria-labelledby="answer3-tab" class="tab-pane fade" id="answer3-tab-pane" role="tabpanel" tabindex="0">
+       <py-repl std-err="errors" std-out="output">
+        # Create a new dataset X2
+			x2 = np.linspace(0,1,nb_data)
+			y2 = 1.5*x2 + np.random.randn(nb_data)*noise_scale
+			X2 = np.stack([x2,y2])
+
+			# Fit another Gaussian distribution
+			mu2, sigma2 = fit_gaussian(X2)
+
+			# Compute the resulting Gaussian for the intersection case
+			mu_intersection, sigma_intersection, c = product_gaussians(mu1, mu2, sigma1, sigma2) # implement here
+			# Compute the resulting Gaussian for the union case
+			mu_union, sigma_union = fit_gaussian(np.concatenate([X1, X2], axis=-1)) # implement here
+       </py-repl>
+      </div>
+     </div>
+     <br/>
+     <p>
+      Plot these Gaussian distributions to verify your results with the button below.
+     </p>
+     <py-repl std-err="errors" std-out="chart">
+      plt.close('all')
+fig,ax = plt.subplots(figsize=(5,5))
+plot_gaussian(mu2, sigma2, ax, color='b', label='2nd demo')
+plot_gaussian(mu1, sigma1, ax, color='orange', label='1st demo')
+plot_gaussian(mu_intersection, sigma_intersection, ax, color='k', label='intersection')
+plot_gaussian(mu_union, sigma_union, ax, color='g', label='union')
+
+ax.legend()
+ax.plot(x2,y2, '.')
+ax.plot(x1,y1, '.')
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+fig.tight_layout()
+fig
+     </py-repl>
+     <div class="col-auto">
+      <button aria-controls="answer4" aria-expanded="false" class="btn btn-light btn-sm" data-bs-target="#answer4" data-bs-toggle="collapse">
+       Show/hide answer
+      </button>
+     </div>
+     <div class="collapse" id="answer4">
+      <img src="static_images/Ex3-4.png"/>
+     </div>
+     <br/>
+     <p>
+      Now consider the case where our coordinate system is rotated
+      <span class="ltx_Math">
+       \pi/3
+      </span>
+      radians counterclockwise, which also rotated our dataset. Instead of refitting a distribution onto this new rotated dataset, we would like to reuse the
+      <code>
+       mu_union, sigma_union
+      </code>
+      and
+      <code>
+       mu_intersection, sigma_intersection
+      </code>
+      and the rotation matrix
+      <code>
+       R
+      </code>
+      to encode our new rotated dataset.
+     </p>
+     <p>
+      One function implemented in this section can accomplish this. Call this function with the appropriate arguments and plot the results. You can verify your answer with the button below the code (that you can also use as a hint).
+     </p>
+     <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+       <button aria-controls="question4-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#question4-tab-pane" data-bs-toggle="tab" id="question4-tab" role="tab" type="button">
+        Question
+       </button>
+      </li>
+      <li class="nav-item" role="presentation">
+       <button aria-controls="answer4-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#answer4-tab-pane" data-bs-toggle="tab" id="answer4-tab" role="tab" type="button">
+        Answer
+       </button>
+      </li>
+     </ul>
+     <div class="tab-content" id="myTabContent">
+      <div aria-labelledby="question2-tab" class="tab-pane fade show active" id="question4-tab-pane" role="tabpanel" tabindex="0">
+       <py-repl std-err="errors" std-out="chart">
+        angle = np.pi/3
+			R = np.array([[np.cos(angle), -np.sin(angle)],
+						  [np.sin(angle), np.cos(angle)]])
+
+			# Find mu_rotated and sigma_rotated without refitting.
+			mu_intersection_rotated, sigma_intersection_rotated = np.zeros(2), np.eye(2) #implement here
+			mu_union_rotated, sigma_union_rotated = np.zeros(2), np.eye(2) #implement here
+
+			# Plotting
+			plt.close('all')
+			fig,ax = plt.subplots(figsize=(5,5))
+			plot_gaussian(mu_intersection, sigma_intersection, ax=ax, color='k', label='intersection')
+			plot_gaussian(mu_intersection_rotated, sigma_intersection_rotated, ax=ax, color='gray', label='intersection rotated')
+			plot_gaussian(mu_union, sigma_union, ax, color='g', label='union')
+			plot_gaussian(mu_union_rotated, sigma_union_rotated, ax=ax, color='g', alpha=0.7, label='union rotated')
+
+			X2_rotated = R @ X2
+			X1_rotated = R @ X1
+			ax.plot(x2,y2, 'r.', alpha=0.1)
+			ax.plot(x1,y1, 'b.', alpha=0.1)
+			ax.plot(X2_rotated[0],X2_rotated[1], 'r.', alpha=0.1)
+			ax.plot(X1_rotated[0],X1_rotated[1], 'b.', alpha=0.1)
+			ax.set_xlabel('x')
+			ax.set_ylabel('y')
+			ax.legend()
+			fig.tight_layout()
+			fig
+       </py-repl>
+      </div>
+      <div aria-labelledby="answer4-tab" class="tab-pane fade" id="answer4-tab-pane" role="tabpanel" tabindex="0">
+       <py-repl std-err="errors" std-out="chart">
+        angle = np.pi/3
+			R = np.array([[np.cos(angle), -np.sin(angle)],
+						  [np.sin(angle), np.cos(angle)]])
+
+			# Find mu_rotated and sigma_rotated without refitting.
+			mu_intersection_rotated, sigma_intersection_rotated = linear_combination(R, R*0, 0, mu_intersection, mu_intersection, sigma_intersection, sigma_intersection) #implement here
+			mu_union_rotated, sigma_union_rotated = linear_combination(R, R*0, 0, mu_union, mu_union, sigma_union, sigma_union) #implement here
+
+
+			# Plotting
+			plt.close('all')
+			fig,ax = plt.subplots(figsize=(5,5))
+			plot_gaussian(mu_intersection, sigma_intersection, ax=ax, color='k', label='intersection')
+			plot_gaussian(mu_intersection_rotated, sigma_intersection_rotated, ax=ax, color='gray', label='intersection rotated')
+			plot_gaussian(mu_union, sigma_union, ax, color='g', label='union')
+			plot_gaussian(mu_union_rotated, sigma_union_rotated, ax=ax, color='g', alpha=0.7, label='union rotated')
+
+			X2_rotated = R @ X2
+			X1_rotated = R @ X1
+			ax.plot(x2,y2, 'r.', alpha=0.1)
+			ax.plot(x1,y1, 'b.', alpha=0.1)
+			ax.plot(X2_rotated[0],X2_rotated[1], 'r.', alpha=0.1)
+			ax.plot(X1_rotated[0],X1_rotated[1], 'b.', alpha=0.1)
+			ax.set_xlabel('x')
+			ax.set_ylabel('y')
+			ax.legend()
+			fig.tight_layout()
+			fig
+       </py-repl>
+      </div>
+     </div>
+     <div class="col-auto">
+      <button aria-controls="answer5" aria-expanded="false" class="btn btn-light btn-sm" data-bs-target="#answer5" data-bs-toggle="collapse">
+       Show/hide answer
+      </button>
+     </div>
+     <div class="collapse" id="answer5">
+      <img src="static_images/Ex3-5.png"/>
+     </div>
+     <br/>
+    </div>
+    <!-- col-sm-7 -->
+    <div class="col-sm-4" id="div1">
+     <div class="sticky-sm-top" style="padding: 2rem 1rem 1rem 1rem;">
+      <hr/>
+      <div class="row justify-content-between">
+       <div class="col-auto">
+        <button class="btn btn-light btn-sm" disabled="">
+         Output
+        </button>
+       </div>
+       <div class="col-auto">
+        <button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgsOutput()">
+         Clear
+        </button>
+       </div>
+      </div>
+      <div id="output">
+      </div>
+      <hr/>
+      <div class="row justify-content-between">
+       <div class="col-auto">
+        <button class="btn btn-light btn-sm" disabled="">
+         Error
+        </button>
+       </div>
+       <div class="col-auto">
+        <button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgs()">
+         Clear
+        </button>
+       </div>
+      </div>
+      <div id="errors">
+      </div>
+      <hr/>
+      <div id="chart">
+      </div>
+     </div>
+    </div>
+    <!-- col-sm-4 -->
+   </div>
+   <!-- row -->
+  </div>
+  <!--container-->
+ </body>
+</html>
