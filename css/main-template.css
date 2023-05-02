@@ -1,6 +1,6 @@
-html {
+body {
   font-size: 125%;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Raleway', sans-serif !important;;
 }
 
 h1, .h1,
