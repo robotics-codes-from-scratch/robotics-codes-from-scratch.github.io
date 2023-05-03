@@ -1,6 +1,14 @@
 body {
   font-size: 125%;
-  font-family: 'Raleway', sans-serif !important;;
+  font-family: 'Raleway', sans-serif;
+}
+
+a{
+  text-decoration: none;
+}
+
+#data_container{
+  text-align: justify;
 }
 
 h1, .h1,
@@ -18,9 +26,13 @@ form label {
 .ltx_eqn_table{
   margin-left: auto;
   margin-right: auto;
-
   margin-top: 10px;
   margin-bottom: 20px;
+}
+
+.ltx_eqn_eqno{
+  float: right;
+  padding-right: 50px;
 }
 
 .ltx_graphics{
