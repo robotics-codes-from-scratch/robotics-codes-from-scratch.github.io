@@ -11,6 +11,10 @@ a{
   text-align: justify;
 }
 
+.container-fluid{
+  text-align: justify;
+}
+
 h1, .h1,
 h2, .h2,
 h3, .h3 {
@@ -23,17 +27,21 @@ form label {
   width: 200px;
 }
 
-.ltx_eqn_table{
-  margin-left: auto;
-  margin-right: auto;
+.equation{
   margin-top: 10px;
   margin-bottom: 20px;
 }
 
+.ltx_eqn_table{
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/*
 .ltx_eqn_eqno{
   float: right;
   padding-right: 50px;
-}
+}*/
 
 .ltx_graphics{
   width:100%;

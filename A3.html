@@ -320,14 +320,14 @@
          </ul>
         </div>
        </li>
+       <li class="border-top my-1">
+       </li>
        <li class="mb-1">
         <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#doc-collapse" data-bs-toggle="collapse">
          Documentation
         </button>
         <div class="collapse show" id="doc-collapse">
          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small" id="menu_container">
-          <li class="border-top my-1">
-          </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html" style="font-weight:bold;">
             1 Introduction
@@ -335,9 +335,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             2 Newton’s method for minimization
-            </span>
+            2 Newton’s method for minimization
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -372,9 +370,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             4 Inverse kinematics (IK) for a planar robot manipulator
-            </span>
+            4 Inverse kinematics (IK) for a planar robot manipulator
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -397,9 +393,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             5 Encoding with basis functions
-            </span>
+            5 Encoding with basis functions
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -457,9 +451,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             6 Linear quadratic tracking (LQT)
-            </span>
+            6 Linear quadratic tracking (LQT)
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -510,9 +502,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             7 iLQR optimization
-            </span>
+            7 iLQR optimization
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -591,9 +581,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             8 Forward dynamics (FD) for a planar robot manipulator
-            </span>
+            8 Forward dynamics (FD) for a planar robot manipulator
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -748,14 +736,14 @@ For
          </span>
          (left hand holding the ball), we have
         </p>
-        <div class="ltx_eqn_eqno">
-         (114)
-        </div>
-        <table class="ltx_equation ltx_eqn_table" id="E114">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E114.m1">
-            \underbrace{\left[\begin{array}{c}\mathbf{\dot{x}}_{1,t}\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="E114">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E114.m1">
+             \underbrace{\left[\begin{array}{c}\mathbf{\dot{x}}_{1,t}\\
 \mathbf{\ddot{x}}_{1,t}\\
 \bm{\dot{f}}_{1,t}\\
 \hline\cr\mathbf{\dot{x}}_{2,t}\\
@@ -789,10 +777,18 @@ For
 \bm{0}&amp;\bm{0}\\
 \bm{0}&amp;\bm{0}\end{array}\right]}_{\bm{B}^{c}_{t}}\underbrace{\left[\begin{array}{c}\bm{u}_{1,t}\\
 \hline\cr\bm{u}_{2,t}\end{array}\right]}_{\bm{u}_{t}}.
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (114)
+          </div>
+         </div>
+        </div>
         <p class="ltx_p">
          At
          <span class="ltx_Math" id="p2.m3">
@@ -800,14 +796,14 @@ For
          </span>
          (right hand hitting the ball), we have
         </p>
-        <div class="ltx_eqn_eqno">
-         (115)
-        </div>
-        <table class="ltx_equation ltx_eqn_table" id="E115">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E115.m1">
-            \underbrace{\left[\begin{array}{c}\mathbf{\dot{x}}_{1,t}\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="E115">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E115.m1">
+             \underbrace{\left[\begin{array}{c}\mathbf{\dot{x}}_{1,t}\\
 \mathbf{\ddot{x}}_{1,t}\\
 \bm{\dot{f}}_{1,t}\\
 \hline\cr\mathbf{\dot{x}}_{2,t}\\
@@ -841,10 +837,18 @@ For
 \bm{0}&amp;\bm{0}\\
 \bm{0}&amp;\bm{0}\end{array}\right]}_{\bm{B}^{c}_{t}}\underbrace{\left[\begin{array}{c}\bm{u}_{1,t}\\
 \hline\cr\bm{u}_{2,t}\end{array}\right]}_{\bm{u}_{t}}.
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (115)
+          </div>
+         </div>
+        </div>
         <p class="ltx_p">
          For
          <span class="ltx_Math" id="p2.m4">
@@ -856,14 +860,14 @@ For
          </span>
          (free motion of the ball), we have
         </p>
-        <div class="ltx_eqn_eqno">
-         (116)
-        </div>
-        <table class="ltx_equation ltx_eqn_table" id="E116">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E116.m1">
-            \underbrace{\left[\begin{array}{c}\mathbf{\dot{x}}_{1,t}\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="E116">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E116.m1">
+             \underbrace{\left[\begin{array}{c}\mathbf{\dot{x}}_{1,t}\\
 \mathbf{\ddot{x}}_{1,t}\\
 \bm{\dot{f}}_{1,t}\\
 \hline\cr\mathbf{\dot{x}}_{2,t}\\
@@ -897,10 +901,18 @@ For
 \bm{0}&amp;\bm{0}\\
 \bm{0}&amp;\bm{0}\end{array}\right]}_{\bm{B}^{c}_{t}}\underbrace{\left[\begin{array}{c}\bm{u}_{1,t}\\
 \hline\cr\bm{u}_{2,t}\end{array}\right]}_{\bm{u}_{t}}.
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (116)
+          </div>
+         </div>
+        </div>
        </div>
        <div class="ltx_para" id="p3">
         <p class="ltx_p">
@@ -923,18 +935,26 @@ For
          </span>
          , describing a continuous system, are first converted to their discrete forms with
         </p>
-        <div class="ltx_eqn_eqno">
-         (117)
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:AdAc">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E117.m1">
+             \bm{A}_{t}=\bm{I}+\bm{A}^{c}_{t}\Delta t,\quad\bm{B}_{t}=\bm{B}^{c}_{t}\Delta t,\quad\forall t\in\{1,\ldots,T\},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (117)
+          </div>
+         </div>
         </div>
-        <table class="ltx_equation ltx_eqn_table" id="eq:AdAc">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E117.m1">
-            \bm{A}_{t}=\bm{I}+\bm{A}^{c}_{t}\Delta t,\quad\bm{B}_{t}=\bm{B}^{c}_{t}\Delta t,\quad\forall t\in\{1,\ldots,T\},
-           </span>
-          </td>
-         </tr>
-        </table>
         <p class="ltx_p">
          which can then be used to define sparse transfer matrices
          <span class="ltx_Math" id="p3.m5">

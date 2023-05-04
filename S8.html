@@ -320,14 +320,14 @@
          </ul>
         </div>
        </li>
+       <li class="border-top my-1">
+       </li>
        <li class="mb-1">
         <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#doc-collapse" data-bs-toggle="collapse">
          Documentation
         </button>
         <div class="collapse show" id="doc-collapse">
          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small" id="menu_container">
-          <li class="border-top my-1">
-          </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html" style="font-weight:bold;">
             1 Introduction
@@ -335,9 +335,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             2 Newton’s method for minimization
-            </span>
+            2 Newton’s method for minimization
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -372,9 +370,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             4 Inverse kinematics (IK) for a planar robot manipulator
-            </span>
+            4 Inverse kinematics (IK) for a planar robot manipulator
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -397,9 +393,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             5 Encoding with basis functions
-            </span>
+            5 Encoding with basis functions
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -457,9 +451,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             6 Linear quadratic tracking (LQT)
-            </span>
+            6 Linear quadratic tracking (LQT)
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -510,9 +502,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             7 iLQR optimization
-            </span>
+            7 iLQR optimization
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -591,9 +581,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             8 Forward dynamics (FD) for a planar robot manipulator
-            </span>
+            8 Forward dynamics (FD) for a planar robot manipulator
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -670,35 +658,49 @@
          </em>
          mass can be written as
         </p>
-        <div class="ltx_eqn_eqno">
-         (105)
-        </div>
-        <table class="ltx_equation ltx_eqn_table" id="eq:position">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E105.m1">
-            \bm{f}_{j}=\begin{bmatrix}f_{j,1}\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:position">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E105.m1">
+             \bm{f}_{j}=\begin{bmatrix}f_{j,1}\\
 f_{j,2}\end{bmatrix}=\begin{bmatrix}\sum_{k=1}^{j}l_{k}c_{k}\\
 \sum_{k=1}^{j}l_{k}s_{k}\end{bmatrix},\quad\text{where}\quad c_{k}=\cos(\sum_{i=1}^{k}x_{i}),\ \ \ s_{k}=\sin(\sum_{i=1}^{k}x_{i}),
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (105)
+          </div>
+         </div>
+        </div>
        </div>
        <div class="ltx_para" id="p2">
         <p class="ltx_p">
          whose corresponding velocity can be calculated as
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex113">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex113.m1">
-            \bm{\dot{f}}_{j}=\begin{bmatrix}-\sum_{k=1}^{j}l_{k}(\sum_{i=1}^{k}\dot{x}_{i})s_{k}\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex113">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex113.m1">
+             \bm{\dot{f}}_{j}=\begin{bmatrix}-\sum_{k=1}^{j}l_{k}(\sum_{i=1}^{k}\dot{x}_{i})s_{k}\\
 \sum_{k=1}^{j}l_{k}(\sum_{i=1}^{k}\dot{x}_{i})c_{k}\end{bmatrix}.
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
        </div>
        <div class="ltx_para" id="p3">
         <p class="ltx_p">
@@ -708,27 +710,39 @@ f_{j,2}\end{bmatrix}=\begin{bmatrix}\sum_{k=1}^{j}l_{k}c_{k}\\
          </em>
          point kinetic energy can be expressed as
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex114">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex114.m1">
-            T_{j}=\frac{1}{2}m_{j}\big(\dot{f}_{j,1}^{2}+\dot{f}_{j,2}^{2}\big)=\frac{1}{2}m_{j}\Bigg(\!\!\Big(\!-\sum_{k=1}^{j}l_{k}\Big(\sum_{i=1}^{k}\dot{x}_{i}\Big)s_{k}\!\Big)^{\!2}\!+\!\Big(\sum_{k=1}^{j}l_{k}\Big(\sum_{i=1}^{k}\dot{x}_{i}\Big)c_{k}\!\Big)^{\!2}\!\Bigg),
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex114">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex114.m1">
+             T_{j}=\frac{1}{2}m_{j}\big(\dot{f}_{j,1}^{2}+\dot{f}_{j,2}^{2}\big)=\frac{1}{2}m_{j}\Bigg(\!\!\Big(\!-\sum_{k=1}^{j}l_{k}\Big(\sum_{i=1}^{k}\dot{x}_{i}\Big)s_{k}\!\Big)^{\!2}\!+\!\Big(\sum_{k=1}^{j}l_{k}\Big(\sum_{i=1}^{k}\dot{x}_{i}\Big)c_{k}\!\Big)^{\!2}\!\Bigg),
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          and its potential energy as
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex115">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex115.m1">
-            U_{j}=m_{j}\,g\,f_{j,2}=m_{j}g\Big(\sum_{k=1}^{j}l_{k}s_{k}\Big).
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex115">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex115.m1">
+             U_{j}=m_{j}\,g\,f_{j,2}=m_{j}g\Big(\sum_{k=1}^{j}l_{k}s_{k}\Big).
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
        </div>
        <div class="ltx_para" id="p4">
         <p class="ltx_p">
@@ -742,41 +756,59 @@ f_{j,2}\end{bmatrix}=\begin{bmatrix}\sum_{k=1}^{j}l_{k}c_{k}\\
          </span>
          . This is because the energies of the system are coordinate invariant and are dependent on absolute values. For simplicity, we define the absolute angles as
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex116">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex116.m1">
-            q_{k}=\sum_{i=1}^{k}x_{i},
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex116">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex116.m1">
+             q_{k}=\sum_{i=1}^{k}x_{i},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          so the kinetic energy can be redefined as
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="eq:kinetic">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex117.m1">
-            T_{j}=\frac{1}{2}m_{j}\Big(\Big(-\sum_{k=1}^{j}l_{k}\dot{q}_{k}S_{k}\Big)^{2}+\Big(\sum_{k=1}^{j}l_{k}\dot{q}_{k}C_{k}\Big)^{2}\Big).
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:kinetic">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex117.m1">
+             T_{j}=\frac{1}{2}m_{j}\Big(\Big(-\sum_{k=1}^{j}l_{k}\dot{q}_{k}S_{k}\Big)^{2}+\Big(\sum_{k=1}^{j}l_{k}\dot{q}_{k}C_{k}\Big)^{2}\Big).
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
        </div>
        <div class="ltx_para" id="p5">
         <p class="ltx_p">
          The robot’s total kinetic and potential energies are the sum of their corresponding values in each point mass. So, the Lagrangian of the whole system can be written as
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex118">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex118.m1">
-            E_{\text{lag}}=\sum_{j=1}^{N}T_{j}-U_{j},
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex118">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex118.m1">
+             E_{\text{lag}}=\sum_{j=1}^{N}T_{j}-U_{j},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          where
          <span class="ltx_Math" id="p5.m1">
@@ -784,18 +816,26 @@ f_{j,2}\end{bmatrix}=\begin{bmatrix}\sum_{k=1}^{j}l_{k}c_{k}\\
          </span>
          is the number of links. Using the Euler-Lagrange equation, we can write
         </p>
-        <div class="ltx_eqn_eqno">
-         (106)
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:Lag_with_generalized_forces">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E106.m1">
+             u_{z}=\frac{d}{dt}\frac{\partial E_{\text{lag}}}{\partial\dot{q}_{z}}-\frac{\partial E_{\text{lag}}}{\partial q_{z}}\quad=\frac{d}{dt}\frac{\partial(\sum_{j=z}^{N}T_{j})}{\partial\dot{q}_{z}}-\frac{\partial\sum_{j=z}^{N}(T_{j}-U_{j})}{\partial q_{z}}\quad=\sum_{j=z}^{N}\Big(\frac{d}{dt}\frac{\partial T_{j}}{\partial\dot{q}_{z}}-\frac{\partial T_{j}}{\partial q_{z}}+\frac{\partial U_{j}}{\partial q_{z}}\Big),
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (106)
+          </div>
+         </div>
         </div>
-        <table class="ltx_equation ltx_eqn_table" id="eq:Lag_with_generalized_forces">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E106.m1">
-            u_{z}=\frac{d}{dt}\frac{\partial E_{\text{lag}}}{\partial\dot{q}_{z}}-\frac{\partial E_{\text{lag}}}{\partial q_{z}}\quad=\frac{d}{dt}\frac{\partial(\sum_{j=z}^{N}T_{j})}{\partial\dot{q}_{z}}-\frac{\partial\sum_{j=z}^{N}(T_{j}-U_{j})}{\partial q_{z}}\quad=\sum_{j=z}^{N}\Big(\frac{d}{dt}\frac{\partial T_{j}}{\partial\dot{q}_{z}}-\frac{\partial T_{j}}{\partial q_{z}}+\frac{\partial U_{j}}{\partial q_{z}}\Big),
-           </span>
-          </td>
-         </tr>
-        </table>
         <p class="ltx_p">
          where
          <span class="ltx_Math" id="p5.m2">
@@ -811,19 +851,27 @@ f_{j,2}\end{bmatrix}=\begin{bmatrix}\sum_{k=1}^{j}l_{k}c_{k}\\
          </span>
          , which can be described by
         </p>
-        <div class="ltx_eqn_eqno">
-         (107)
-        </div>
-        <table class="ltx_equation ltx_eqn_table" id="eq:generalized_work">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E107.m1">
-            w_{z}=\begin{cases}(\tau_{z}-\tau_{z+1})\dot{q}_{z}&amp;z&lt;N\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:generalized_work">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E107.m1">
+             w_{z}=\begin{cases}(\tau_{z}-\tau_{z+1})\dot{q}_{z}&amp;z&lt;N\\
 \tau_{N}\dot{q}_{N}&amp;z=N\end{cases},
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (107)
+          </div>
+         </div>
+        </div>
         <p class="ltx_p">
          where
          <span class="ltx_Math" id="p5.m5">
@@ -861,16 +909,22 @@ f_{j,2}\end{bmatrix}=\begin{bmatrix}\sum_{k=1}^{j}l_{k}c_{k}\\
          </span>
          ). That said, generalized forces can be defined as
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex119">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex119.m1">
-            u_{z}=\frac{\partial w_{z}}{\partial\dot{q}_{z}}=\begin{cases}(\tau_{z}-\tau_{z+1})&amp;z&lt;N\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex119">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex119.m1">
+             u_{z}=\frac{\partial w_{z}}{\partial\dot{q}_{z}}=\begin{cases}(\tau_{z}-\tau_{z+1})&amp;z&lt;N\\
 \tau_{N}&amp;z=N\end{cases}.
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
        </div>
        <div class="ltx_para" id="p6">
         <p class="ltx_p">
@@ -888,19 +942,27 @@ f_{j,2}\end{bmatrix}=\begin{bmatrix}\sum_{k=1}^{j}l_{k}c_{k}\\
          </a>
          )
         </p>
-        <div class="ltx_eqn_eqno">
-         (108)
-        </div>
-        <table class="ltx_equation ltx_eqn_table" id="eq:arranged_dyn_eq">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E108.m1">
-            \sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}c_{z-k}\ddot{q}_{k}\Big)=u_{z}-\sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}s_{z-k}\dot{q}_{k}^{2}\Big)-\sum_{j=z}^{N}m_{j}gl_{z}c_{z},\quad\text{where}\quad\left\{{\begin{aligned} c_{h-k}&amp;=c_{h}c_{k}-s_{h}s_{k},\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:arranged_dyn_eq">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E108.m1">
+             \sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}c_{z-k}\ddot{q}_{k}\Big)=u_{z}-\sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}s_{z-k}\dot{q}_{k}^{2}\Big)-\sum_{j=z}^{N}m_{j}gl_{z}c_{z},\quad\text{where}\quad\left\{{\begin{aligned} c_{h-k}&amp;=c_{h}c_{k}-s_{h}s_{k},\\
 s_{h-k}&amp;=s_{h}c_{k}-c_{h}s_{k}.\end{aligned}}\right.
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (108)
+          </div>
+         </div>
+        </div>
        </div>
        <div class="ltx_para" id="p7">
         <p class="ltx_p">
@@ -916,15 +978,21 @@ s_{h-k}&amp;=s_{h}c_{k}-c_{h}s_{k}.\end{aligned}}\right.
          </span>
          can be written as
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex120">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex120.m1">
-            l_{z}l_{k}c_{z-k}\sum_{j=z}^{N}m_{j}\bm{1}(j-k),
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex120">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex120.m1">
+             l_{z}l_{k}c_{z-k}\sum_{j=z}^{N}m_{j}\bm{1}(j-k),
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          where
          <span class="ltx_Math" id="p7.m2">
@@ -936,40 +1004,57 @@ s_{h-k}&amp;=s_{h}c_{k}-c_{h}s_{k}.\end{aligned}}\right.
          </span>
          can be found in a similar way as
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex121">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex121.m1">
-            -l_{z}l_{k}s_{z-k}\sum_{j=z}^{N}m_{j}\bm{1}(j-k).
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex121">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex121.m1">
+             -l_{z}l_{k}s_{z-k}\sum_{j=z}^{N}m_{j}\bm{1}(j-k).
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
        </div>
        <div class="ltx_para" id="p8">
         <p class="ltx_p">
          By concatenation of the results for all z’s, the dynamic equation of the whole system can be expressed as
         </p>
-        <div class="ltx_eqn_eqno">
-         (109)
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:matix_form_dynamic_abs_angle_net_forces">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E109.m1">
+             \tilde{\bm{M}}\ddot{\bm{q}}+\tilde{\bm{g}}+\tilde{\bm{C}}\text{diag}(\bm{\dot{q}})\bm{\dot{q}}=\bm{u},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (109)
+          </div>
+         </div>
         </div>
-        <table class="ltx_equation ltx_eqn_table" id="eq:matix_form_dynamic_abs_angle_net_forces">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E109.m1">
-            \tilde{\bm{M}}\ddot{\bm{q}}+\tilde{\bm{g}}+\tilde{\bm{C}}\text{diag}(\bm{\dot{q}})\bm{\dot{q}}=\bm{u},
-           </span>
-          </td>
-         </tr>
-        </table>
         <p class="ltx_p">
          where
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex122">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex122.m1">
-            \bm{q}=\begin{bmatrix}q_{1}\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex122">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex122.m1">
+             \bm{q}=\begin{bmatrix}q_{1}\\
 q_{2}\\
 \vdots\\
 q_{N-1}\\
@@ -978,33 +1063,45 @@ u_{2}\\
 \vdots\\
 u_{N-1}\\
 u_{N}\end{bmatrix},\quad\tilde{\bm{M}}(z,k)=l_{z}l_{k}C_{z-k}\sum_{j=z}^{N}m_{j}\bm{1}(j-k),\quad\tilde{\bm{C}}(z,k)=l_{z}l_{k}S_{z-k}\sum_{j=z}^{N}m_{j}\bm{1}(j-k),
-           </span>
-          </td>
-         </tr>
-        </table>
-        <table class="ltx_equation ltx_eqn_table" id="Ex123">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex123.m1">
-            \tilde{\bm{g}}=\begin{bmatrix}\sum_{j=1}^{N}m_{j}l_{1}g\cos(q_{1})\\
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex123">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex123.m1">
+             \tilde{\bm{g}}=\begin{bmatrix}\sum_{j=1}^{N}m_{j}l_{1}g\cos(q_{1})\\
 \sum_{j=2}^{N}m_{j}l_{2}g\cos(q_{2})\\
 \vdots\\
 \sum_{j={N-1}}^{N}m_{j}l_{N-1}g\cos(q_{N-1})\\
 m_{N}l_{N}g\cos(q_{N})\end{bmatrix}.
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
        </div>
        <div class="ltx_para" id="p9">
         <p class="ltx_p">
          To use this equation with relative angles and torque commands, one can replace the absolute angles and general forces by
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex124">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex124.m1">
-            \bm{q}=\bm{L}\bm{x},\ \ \ \bm{u}=\bm{L}^{-{\scriptscriptstyle\top}}\bm{\tau},\quad\text{where}\quad\bm{x}=\begin{bmatrix}x_{1}\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex124">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex124.m1">
+             \bm{q}=\bm{L}\bm{x},\ \ \ \bm{u}=\bm{L}^{-{\scriptscriptstyle\top}}\bm{\tau},\quad\text{where}\quad\bm{x}=\begin{bmatrix}x_{1}\\
 x_{2}\\
 \vdots\\
 x_{N-1}\\
@@ -1013,10 +1110,13 @@ x_{N}\end{bmatrix},\ \ \ \bm{\tau}=\begin{bmatrix}\tau_{1}\\
 \vdots\\
 \tau_{N-1}\\
 \tau_{N}\end{bmatrix}.
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
        </div>
        <div class="ltx_para" id="p10">
         <p class="ltx_p">
@@ -1028,30 +1128,44 @@ x_{N}\end{bmatrix},\ \ \ \bm{\tau}=\begin{bmatrix}\tau_{1}\\
          </a>
          ), we would have
         </p>
-        <div class="ltx_eqn_eqno">
-         (110)
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:matix_form_dynamic_rel_angle_abs_forces">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E110.m1">
+             \bm{M}\ddot{\bm{x}}+\bm{g}+\bm{C}\text{diag}(\bm{L\dot{x}})\bm{L\dot{x}}=\bm{\tau},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (110)
+          </div>
+         </div>
         </div>
-        <table class="ltx_equation ltx_eqn_table" id="eq:matix_form_dynamic_rel_angle_abs_forces">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E110.m1">
-            \bm{M}\ddot{\bm{x}}+\bm{g}+\bm{C}\text{diag}(\bm{L\dot{x}})\bm{L\dot{x}}=\bm{\tau},
-           </span>
-          </td>
-         </tr>
-        </table>
         <p class="ltx_p">
          where
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex125">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex125.m1">
-            \bm{M}=\bm{L}^{\scriptscriptstyle\top}\tilde{\bm{M}}\bm{L},\quad\bm{C}=\bm{L}^{\scriptscriptstyle\top}\tilde{\bm{C}},\quad\bm{g}=\bm{L}^{\scriptscriptstyle\top}\tilde{\bm{g}}
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex125">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex125.m1">
+             \bm{M}=\bm{L}^{\scriptscriptstyle\top}\tilde{\bm{M}}\bm{L},\quad\bm{C}=\bm{L}^{\scriptscriptstyle\top}\tilde{\bm{C}},\quad\bm{g}=\bm{L}^{\scriptscriptstyle\top}\tilde{\bm{g}}
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          Please note that elements in
          <span class="ltx_Math" id="p10.m1">
@@ -1063,15 +1177,21 @@ x_{N}\end{bmatrix},\ \ \ \bm{\tau}=\begin{bmatrix}\tau_{1}\\
          </span>
          are defined with absolute angles, which can be replaced with the relative angles by
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex126">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex126.m1">
-            q_{i}=\bm{L}_{i}\bm{x},
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex126">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex126.m1">
+             q_{i}=\bm{L}_{i}\bm{x},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          where
          <span class="ltx_Math" id="p10.m3">
@@ -1114,20 +1234,28 @@ x_{N}\end{bmatrix},\ \ \ \bm{\tau}=\begin{bmatrix}\tau_{1}\\
          </span>
          can be expressed as
         </p>
-        <div class="ltx_eqn_eqno">
-         (111)
-        </div>
-        <table class="ltx_equation ltx_eqn_table" id="eq:dis_dynamic">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E111.m1">
-            \begin{bmatrix}\bm{q}_{t+1}\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:dis_dynamic">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E111.m1">
+             \begin{bmatrix}\bm{q}_{t+1}\\
 \dot{\bm{q}}_{t+1}\end{bmatrix}=\begin{bmatrix}\bm{q}_{t}+\dot{\bm{q}}_{t}dt\\
 \dot{\bm{q}}_{t}+\tilde{\bm{M}}^{-1}\Big(\bm{u}-\tilde{\bm{g}}-\tilde{\bm{C}}\text{diag}(\bm{\dot{q}}_{t})\bm{\dot{q}_{t}}\Big)dt\end{bmatrix}.
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (111)
+          </div>
+         </div>
+        </div>
        </div>
        <div class="ltx_para" id="SS1.p2">
         <p class="ltx_p">
@@ -1159,17 +1287,23 @@ x_{N}\end{bmatrix},\ \ \ \bm{\tau}=\begin{bmatrix}\tau_{1}\\
          </a>
          ) as
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex127">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex127.m1">
-            \bm{A}_{t}=\begin{bmatrix}\bm{I}&amp;\bm{I}dt\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex127">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex127.m1">
+             \bm{A}_{t}=\begin{bmatrix}\bm{I}&amp;\bm{I}dt\\
 \bm{A}_{21}dt&amp;\bm{I}-2\tilde{\bm{M}}^{-1}\tilde{\bm{C}}\text{diag}(\dot{\bm{q}}_{t})dt\end{bmatrix},\quad\bm{B}_{t}=\begin{bmatrix}\bm{0}\\
 \tilde{\bm{M}}^{-1}dt\end{bmatrix}.
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
        </div>
        <div class="ltx_para" id="SS1.p3">
         <p class="ltx_p">
@@ -1219,15 +1353,21 @@ x_{N}\end{bmatrix},\ \ \ \bm{\tau}=\begin{bmatrix}\tau_{1}\\
          </span>
          which can be formulated as
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex128">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex128.m1">
-            \frac{\partial\ddot{\bm{q}}_{t}}{\partial q_{t}^{p}}=\frac{\partial\tilde{\bm{M}}^{-1}}{\partial q_{t}^{p}}\Big(\bm{u}-\tilde{\bm{g}}-\tilde{\bm{C}}\text{diag}(\bm{\dot{q}}_{t})\bm{\dot{q}}_{t}\Big)-\tilde{\bm{M}}^{-1}\Big(\frac{\partial\tilde{\bm{g}}}{\partial q_{t}^{p}}+\frac{\partial\tilde{\bm{C}}}{\partial q_{t}^{p}}\text{diag}(\dot{\bm{q}}_{t})\dot{\bm{q}}_{t}\Big).
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex128">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex128.m1">
+             \frac{\partial\ddot{\bm{q}}_{t}}{\partial q_{t}^{p}}=\frac{\partial\tilde{\bm{M}}^{-1}}{\partial q_{t}^{p}}\Big(\bm{u}-\tilde{\bm{g}}-\tilde{\bm{C}}\text{diag}(\bm{\dot{q}}_{t})\bm{\dot{q}}_{t}\Big)-\tilde{\bm{M}}^{-1}\Big(\frac{\partial\tilde{\bm{g}}}{\partial q_{t}^{p}}+\frac{\partial\tilde{\bm{C}}}{\partial q_{t}^{p}}\text{diag}(\dot{\bm{q}}_{t})\dot{\bm{q}}_{t}\Big).
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
        </div>
        <div class="ltx_para" id="SS1.p4">
         <p class="ltx_p">
@@ -1241,59 +1381,89 @@ x_{N}\end{bmatrix},\ \ \ \bm{\tau}=\begin{bmatrix}\tau_{1}\\
          </span>
          , we can write
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex129">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex129.m1">
-            \frac{\partial\ddot{\bm{q}}_{t}}{\partial\bm{q}_{t}}=\Big(\tilde{\bm{M}}^{-1}\Big)^{\prime}\Big(\bm{u}-\tilde{\bm{g}}-\tilde{\bm{C}}\text{diag}(\bm{\dot{q}}_{t})\bm{\dot{q}}_{t}\Big)-\tilde{\bm{M}}^{-1}\Big(\tilde{\bm{g}}^{\prime}+\tilde{\bm{C}}^{\prime}\text{diag}(\dot{\bm{q}}_{t})\dot{\bm{q}}_{t}\Big),
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex129">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex129.m1">
+             \frac{\partial\ddot{\bm{q}}_{t}}{\partial\bm{q}_{t}}=\Big(\tilde{\bm{M}}^{-1}\Big)^{\prime}\Big(\bm{u}-\tilde{\bm{g}}-\tilde{\bm{C}}\text{diag}(\bm{\dot{q}}_{t})\bm{\dot{q}}_{t}\Big)-\tilde{\bm{M}}^{-1}\Big(\tilde{\bm{g}}^{\prime}+\tilde{\bm{C}}^{\prime}\text{diag}(\dot{\bm{q}}_{t})\dot{\bm{q}}_{t}\Big),
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          where
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex130">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex130.m1">
-            \tilde{\bm{g}}^{\prime}(i,j)=\begin{cases}-\sum_{j=i}^{N}m_{j}l_{i}gs_{i}&amp;\text{if }i=j\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex130">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex130.m1">
+             \tilde{\bm{g}}^{\prime}(i,j)=\begin{cases}-\sum_{j=i}^{N}m_{j}l_{i}gs_{i}&amp;\text{if }i=j\\
 0&amp;\text{otherwise}\end{cases},
-           </span>
-          </td>
-         </tr>
-        </table>
-        <table class="ltx_equation ltx_eqn_table" id="Ex131">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex131.m1">
-            \tilde{\bm{C}}^{\prime}=\begin{bmatrix}\frac{\partial\tilde{\bm{C}}}{\partial q_{1}^{t}}&amp;\frac{\partial\tilde{\bm{C}}}{\partial q_{2}^{t}}&amp;\cdots&amp;\frac{\partial\tilde{\bm{C}}}{\partial q_{N}^{t}}\end{bmatrix},\quad\tilde{\bm{C}}^{\prime}(h,k,p)=\begin{cases}l_{h}l_{k}c_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=h\neq k\\
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex131">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex131.m1">
+             \tilde{\bm{C}}^{\prime}=\begin{bmatrix}\frac{\partial\tilde{\bm{C}}}{\partial q_{1}^{t}}&amp;\frac{\partial\tilde{\bm{C}}}{\partial q_{2}^{t}}&amp;\cdots&amp;\frac{\partial\tilde{\bm{C}}}{\partial q_{N}^{t}}\end{bmatrix},\quad\tilde{\bm{C}}^{\prime}(h,k,p)=\begin{cases}l_{h}l_{k}c_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=h\neq k\\
 -l_{h}l_{k}c_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=k\neq h\\
 0&amp;\text{otherwise}\end{cases},
-           </span>
-          </td>
-         </tr>
-        </table>
-        <table class="ltx_equation ltx_eqn_table" id="Ex132">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex132.m1">
-            (\tilde{\bm{M}}^{-1})^{\prime}=\begin{bmatrix}\frac{\partial\tilde{\bm{M}}^{-1}}{\partial q_{t}^{1}}&amp;\frac{\partial\tilde{\bm{M}}^{-1}}{\partial q_{t}^{2}}&amp;\cdots&amp;\frac{\partial\tilde{\bm{M}}^{-1}}{\partial q_{t}^{N}}\end{bmatrix},\quad\Big(\tilde{\bm{M}}^{-1}\Big)^{\prime}=-\tilde{\bm{M}}^{-1}\tilde{\bm{M}}^{\prime}\tilde{\bm{M}}^{-1},
-           </span>
-          </td>
-         </tr>
-        </table>
-        <table class="ltx_equation ltx_eqn_table" id="Ex133">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex133.m1">
-            \tilde{\bm{M}}^{\prime}(h,k,p)=\begin{cases}-l_{h}l_{k}s_{h-k}\sum_{j=k}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=h\neq k\\
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex132">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex132.m1">
+             (\tilde{\bm{M}}^{-1})^{\prime}=\begin{bmatrix}\frac{\partial\tilde{\bm{M}}^{-1}}{\partial q_{t}^{1}}&amp;\frac{\partial\tilde{\bm{M}}^{-1}}{\partial q_{t}^{2}}&amp;\cdots&amp;\frac{\partial\tilde{\bm{M}}^{-1}}{\partial q_{t}^{N}}\end{bmatrix},\quad\Big(\tilde{\bm{M}}^{-1}\Big)^{\prime}=-\tilde{\bm{M}}^{-1}\tilde{\bm{M}}^{\prime}\tilde{\bm{M}}^{-1},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex133">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex133.m1">
+             \tilde{\bm{M}}^{\prime}(h,k,p)=\begin{cases}-l_{h}l_{k}s_{h-k}\sum_{j=k}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=h\neq k\\
 l_{h}l_{k}s_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=k\neq h\\
 0&amp;\text{otherwise}\end{cases}.
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
        </div>
        <div class="ltx_para" id="SS1.p5">
         <p class="ltx_p">
@@ -1305,14 +1475,14 @@ l_{h}l_{k}s_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=k\neq h\\
          </a>
          , we can concatenate the results for all time steps as
         </p>
-        <div class="ltx_eqn_eqno">
-         (112)
-        </div>
-        <table class="ltx_equation ltx_eqn_table" id="eq:transfer_matrix_abs_ang_gen_force">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E112.m1">
-            \begin{bmatrix}\Delta\bm{q}_{1}\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:transfer_matrix_abs_ang_gen_force">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E112.m1">
+             \begin{bmatrix}\Delta\bm{q}_{1}\\
 \Delta\bm{\dot{q}}_{1}\\
 \vdots\\
 \Delta\bm{q}_{T}\\
@@ -1320,10 +1490,18 @@ l_{h}l_{k}s_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=k\neq h\\
 \Delta\bm{u}_{2}\\
 \vdots\\
 \Delta\bm{u}_{T-1}\end{bmatrix},
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (112)
+          </div>
+         </div>
+        </div>
         <p class="ltx_p">
          where
          <span class="ltx_Math" id="SS1.p5.m1">
@@ -1331,11 +1509,14 @@ l_{h}l_{k}s_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=k\neq h\\
          </span>
          is the total time horizon. These variables can be converted to relative angles and joint torque commands by
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex134">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex134.m1">
-            \begin{bmatrix}\Delta\bm{q}_{1}\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex134">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex134.m1">
+             \begin{bmatrix}\Delta\bm{q}_{1}\\
 \Delta\bm{\dot{q}}_{1}\\
 \vdots\\
 \Delta\bm{q}_{T}\\
@@ -1356,10 +1537,13 @@ l_{h}l_{k}s_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=k\neq h\\
 \Delta\bm{\tau}_{2}\\
 \vdots\\
 \Delta\bm{\tau}_{T-1}\end{bmatrix},
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          so (
          <a class="ltx_ref" href="#eq:transfer_matrix_abs_ang_gen_force" title="(112) ‣ 8.1 Robot manipulator with dynamics equation ‣ 8 Forward dynamics (FD) for a planar robot manipulator ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
@@ -1369,11 +1553,14 @@ l_{h}l_{k}s_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=k\neq h\\
          </a>
          ) can be rewritten as
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex135">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex135.m1">
-            \begin{bmatrix}\Delta\bm{x}_{1}\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex135">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex135.m1">
+             \begin{bmatrix}\Delta\bm{x}_{1}\\
 \Delta\bm{\dot{x}}_{1}\\
 \vdots\\
 \Delta\bm{x}_{T}\\
@@ -1384,10 +1571,13 @@ l_{h}l_{k}s_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=k\neq h\\
 \Delta\bm{\tau}_{2}\\
 \vdots\\
 \Delta\bm{\tau}_{T-1}\end{bmatrix}.
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
        </div>
        <div class="ltx_pagination ltx_role_newpage">
        </div>

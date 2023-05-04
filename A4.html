@@ -320,14 +320,14 @@
          </ul>
         </div>
        </li>
+       <li class="border-top my-1">
+       </li>
        <li class="mb-1">
         <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#doc-collapse" data-bs-toggle="collapse">
          Documentation
         </button>
         <div class="collapse show" id="doc-collapse">
          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small" id="menu_container">
-          <li class="border-top my-1">
-          </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html" style="font-weight:bold;">
             1 Introduction
@@ -335,9 +335,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             2 Newton’s method for minimization
-            </span>
+            2 Newton’s method for minimization
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -372,9 +370,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             4 Inverse kinematics (IK) for a planar robot manipulator
-            </span>
+            4 Inverse kinematics (IK) for a planar robot manipulator
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -397,9 +393,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             5 Encoding with basis functions
-            </span>
+            5 Encoding with basis functions
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -457,9 +451,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             6 Linear quadratic tracking (LQT)
-            </span>
+            6 Linear quadratic tracking (LQT)
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -510,9 +502,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             7 iLQR optimization
-            </span>
+            7 iLQR optimization
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -591,9 +581,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             8 Forward dynamics (FD) for a planar robot manipulator
-            </span>
+            8 Forward dynamics (FD) for a planar robot manipulator
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -656,19 +644,25 @@
         <p class="ltx_p">
          The equivalence between the original LQT problem and the corresponding LQR problem with an augmented state space can be shown by using the block matrices composition rule
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex152">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex152.m1">
-            \bm{M}=\footnotesize\begin{bmatrix}\bm{M}_{11}&amp;\bm{M}_{12}\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex152">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex152.m1">
+             \bm{M}=\footnotesize\begin{bmatrix}\bm{M}_{11}&amp;\bm{M}_{12}\\
 \bm{M}_{21}&amp;\bm{M}_{22}\end{bmatrix}\quad\iff\quad\bm{M}^{-1}=\footnotesize\begin{bmatrix}\bm{I}&amp;\bm{0}\\
 -\bm{M}_{22}^{-1}\bm{M}_{21}&amp;\bm{I}\end{bmatrix}\begin{bmatrix}\bm{S}^{-1}&amp;\bm{0}\\
 \bm{0}&amp;\bm{M}_{22}^{-1}\end{bmatrix}\begin{bmatrix}\bm{I}&amp;-\bm{M}_{12}\bm{M}_{22}^{-1}\\
 \bm{0}&amp;\bm{I}\end{bmatrix},
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          where
          <span class="ltx_Math" id="p1.m1">
@@ -702,34 +696,46 @@ and
         <p class="ltx_p">
          In our case, we have
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex153">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex153.m1">
-            \begin{bmatrix}\bm{Q}^{-1}\!+\!\bm{\mu}\bm{\mu}^{\scriptscriptstyle\top}&amp;\bm{\mu}\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex153">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex153.m1">
+             \begin{bmatrix}\bm{Q}^{-1}\!+\!\bm{\mu}\bm{\mu}^{\scriptscriptstyle\top}&amp;\bm{\mu}\\
 \bm{\mu}^{\scriptscriptstyle\top}&amp;1\end{bmatrix}^{-1}=\begin{bmatrix}\bm{I}&amp;\bm{0}\\
 -\bm{\mu}^{\scriptscriptstyle\top}&amp;1\end{bmatrix}\begin{bmatrix}\bm{Q}&amp;\bm{0}\\
 \bm{0}&amp;1\end{bmatrix}\begin{bmatrix}\bm{I}&amp;-\bm{\mu}\\
 \bm{0}&amp;1\end{bmatrix},
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          and it is easy to see that
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex154">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex154.m1">
-            {(\bm{x}-\bm{\mu})}^{\scriptscriptstyle\top}\bm{Q}(\bm{x}-\bm{\mu})=\begin{bmatrix}\bm{x}\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex154">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex154.m1">
+             {(\bm{x}-\bm{\mu})}^{\scriptscriptstyle\top}\bm{Q}(\bm{x}-\bm{\mu})=\begin{bmatrix}\bm{x}\\
 1\end{bmatrix}^{\scriptscriptstyle\top}\begin{bmatrix}\bm{Q}^{-1}\!+\!\bm{\mu}\bm{\mu}^{\scriptscriptstyle\top}&amp;\bm{\mu}\\
 \bm{\mu}^{\scriptscriptstyle\top}&amp;1\end{bmatrix}^{-1}\begin{bmatrix}\bm{x}\\
 1\end{bmatrix}-1.
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
        </div>
        <ul class="pagination justify-content-center small_menu">
         <li class="page-item previous_file">

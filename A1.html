@@ -320,14 +320,14 @@
          </ul>
         </div>
        </li>
+       <li class="border-top my-1">
+       </li>
        <li class="mb-1">
         <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#doc-collapse" data-bs-toggle="collapse">
          Documentation
         </button>
         <div class="collapse show" id="doc-collapse">
          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small" id="menu_container">
-          <li class="border-top my-1">
-          </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html" style="font-weight:bold;">
             1 Introduction
@@ -335,9 +335,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             2 Newton’s method for minimization
-            </span>
+            2 Newton’s method for minimization
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -372,9 +370,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             4 Inverse kinematics (IK) for a planar robot manipulator
-            </span>
+            4 Inverse kinematics (IK) for a planar robot manipulator
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -397,9 +393,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             5 Encoding with basis functions
-            </span>
+            5 Encoding with basis functions
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -457,9 +451,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             6 Linear quadratic tracking (LQT)
-            </span>
+            6 Linear quadratic tracking (LQT)
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -510,9 +502,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             7 iLQR optimization
-            </span>
+            7 iLQR optimization
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -591,9 +581,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             8 Forward dynamics (FD) for a planar robot manipulator
-            </span>
+            8 Forward dynamics (FD) for a planar robot manipulator
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -656,15 +644,21 @@
         <p class="ltx_p">
          A linear system is described by
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="eq:AB">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex136.m1">
-            \bm{x}_{t+1}=\bm{A}_{t}\;\bm{x}_{t}+\bm{B}_{t}\;\bm{u}_{t},\quad\forall t\in\{1,\ldots,T\}
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:AB">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex136.m1">
+             \bm{x}_{t+1}=\bm{A}_{t}\;\bm{x}_{t}+\bm{B}_{t}\;\bm{u}_{t},\quad\forall t\in\{1,\ldots,T\}
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          with states
          <span class="ltx_Math" id="p1.m1">
@@ -690,59 +684,79 @@
          .
 By writing
         </p>
-        <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx24">
-         <tbody id="Ex137">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_right ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex137.m1">
-             \displaystyle\bm{x}_{2}
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex137.m2">
-             \displaystyle=\bm{A}_{1}\bm{x}_{1}+\bm{B}_{1}\bm{u}_{1},
-            </span>
-           </td>
-          </tr>
-         </tbody>
-         <tbody id="Ex138">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_right ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex138.m1">
-             \displaystyle\bm{x}_{3}
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex138.m2">
-             \displaystyle=\bm{A}_{2}\bm{x}_{2}+\bm{B}_{2}\bm{u}_{2}=\bm{A}_{2}(\bm{A}_{1}\bm{x}_{1}+\bm{B}_{1}\bm{u}_{1})+\bm{B}_{2}\bm{u}_{2},
-            </span>
-           </td>
-          </tr>
-         </tbody>
-         <tbody id="Ex139">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex139.m1">
-             \displaystyle\vdots
-            </span>
-           </td>
-          </tr>
-         </tbody>
-         <tbody id="Ex140">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_right ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex140.m1">
-             \displaystyle\bm{x}_{T}
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex140.m2">
-             \displaystyle=\left(\prod_{t=1}^{T-1}\bm{A}_{T-t}\right)\bm{x}_{1}\;+\left(\prod_{t=1}^{T-2}\bm{A}_{T-t}\right)\bm{B}_{1}\bm{u}_{1}+\left(\prod_{t=1}^{T-3}\bm{A}_{T-t}\right)\bm{B}_{2}\bm{u}_{2}\;+\;\cdots\;+\;\bm{B}_{T-1}\bm{u}_{T-1},
-            </span>
-           </td>
-          </tr>
-         </tbody>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx24">
+          <tbody id="Ex137">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_align_right ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex137.m1">
+              \displaystyle\bm{x}_{2}
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex137.m2">
+              \displaystyle=\bm{A}_{1}\bm{x}_{1}+\bm{B}_{1}\bm{u}_{1},
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+          <tbody id="Ex138">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_align_right ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex138.m1">
+              \displaystyle\bm{x}_{3}
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex138.m2">
+              \displaystyle=\bm{A}_{2}\bm{x}_{2}+\bm{B}_{2}\bm{u}_{2}=\bm{A}_{2}(\bm{A}_{1}\bm{x}_{1}+\bm{B}_{1}\bm{u}_{1})+\bm{B}_{2}\bm{u}_{2},
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+          <tbody id="Ex139">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_eqn_cell">
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex139.m1">
+              \displaystyle\vdots
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+          <tbody id="Ex140">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_align_right ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex140.m1">
+              \displaystyle\bm{x}_{T}
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex140.m2">
+              \displaystyle=\left(\prod_{t=1}^{T-1}\bm{A}_{T-t}\right)\bm{x}_{1}\;+\left(\prod_{t=1}^{T-2}\bm{A}_{T-t}\right)\bm{B}_{1}\bm{u}_{1}+\left(\prod_{t=1}^{T-3}\bm{A}_{T-t}\right)\bm{B}_{2}\bm{u}_{2}\;+\;\cdots\;+\;\bm{B}_{T-1}\bm{u}_{T-1},
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+         </table>
+        </div>
         <p class="ltx_p">
          in a matrix form, we get an expression of the form
          <span class="ltx_Math" id="p2.m3">
@@ -750,14 +764,14 @@ By writing
          </span>
          , with
         </p>
-        <div class="ltx_eqn_eqno">
-         (113)
-        </div>
-        <table class="ltx_equation ltx_eqn_table" id="eq:SxSu">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E113.m1">
-            \footnotesize\underbrace{\begin{bmatrix}\bm{x}_{1}\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:SxSu">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E113.m1">
+             \footnotesize\underbrace{\begin{bmatrix}\bm{x}_{1}\\
 \bm{x}_{2}\\
 \bm{x}_{3}\\
 \vdots\\
@@ -773,10 +787,18 @@ By writing
 \bm{u}_{2}\\
 \vdots\\
 \bm{u}_{T\!-\!1}\end{bmatrix}}_{\bm{u}},
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (113)
+          </div>
+         </div>
+        </div>
         <p class="ltx_p">
          where
          <span class="ltx_Math" id="p2.m4">

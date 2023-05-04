@@ -320,14 +320,14 @@
          </ul>
         </div>
        </li>
+       <li class="border-top my-1">
+       </li>
        <li class="mb-1">
         <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#doc-collapse" data-bs-toggle="collapse">
          Documentation
         </button>
         <div class="collapse show" id="doc-collapse">
          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small" id="menu_container">
-          <li class="border-top my-1">
-          </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html" style="font-weight:bold;">
             1 Introduction
@@ -335,9 +335,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             2 Newton’s method for minimization
-            </span>
+            2 Newton’s method for minimization
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -372,9 +370,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             4 Inverse kinematics (IK) for a planar robot manipulator
-            </span>
+            4 Inverse kinematics (IK) for a planar robot manipulator
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -397,9 +393,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             5 Encoding with basis functions
-            </span>
+            5 Encoding with basis functions
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -457,9 +451,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             6 Linear quadratic tracking (LQT)
-            </span>
+            6 Linear quadratic tracking (LQT)
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -510,9 +502,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             7 iLQR optimization
-            </span>
+            7 iLQR optimization
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -591,9 +581,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             8 Forward dynamics (FD) for a planar robot manipulator
-            </span>
+            8 Forward dynamics (FD) for a planar robot manipulator
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -746,18 +734,26 @@
          </span>
          can be expressed as
         </p>
-        <div class="ltx_eqn_eqno">
-         (1)
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:Taylor_1D">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E1.m1">
+             c(x_{k}\!+\!\Delta x_{k})\approx c(x_{k})+c^{\prime}(x_{k})\;\Delta x_{k}+\frac{1}{2}c^{\prime\prime}(x_{k})\;\Delta x_{k}^{2},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (1)
+          </div>
+         </div>
         </div>
-        <table class="ltx_equation ltx_eqn_table" id="eq:Taylor_1D">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E1.m1">
-            c(x_{k}\!+\!\Delta x_{k})\approx c(x_{k})+c^{\prime}(x_{k})\;\Delta x_{k}+\frac{1}{2}c^{\prime\prime}(x_{k})\;\Delta x_{k}^{2},
-           </span>
-          </td>
-         </tr>
-        </table>
         <p class="ltx_p">
          where
          <span class="ltx_Math" id="p3.m2">
@@ -812,27 +808,39 @@
          </span>
          and equating to zero, we obtain
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex1">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex1.m1">
-            c^{\prime}(x_{k})+c^{\prime\prime}(x_{k})\,\Delta x_{k}=0,
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex1">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex1.m1">
+             c^{\prime}(x_{k})+c^{\prime\prime}(x_{k})\,\Delta x_{k}=0,
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          meaning that the minimum is given by
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex2">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex2.m1">
-            \Delta\hat{x}_{k}=-\frac{c^{\prime}(x_{k})}{c^{\prime\prime}(x_{k})}
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex2">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex2.m1">
+             \Delta\hat{x}_{k}=-\frac{c^{\prime}(x_{k})}{c^{\prime\prime}(x_{k})}
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          which corresponds to the offset to apply to
          <span class="ltx_Math" id="p6.m2">
@@ -868,18 +876,26 @@
          </span>
          the recursion
         </p>
-        <div class="ltx_eqn_eqno">
-         (2)
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:Taylor_1D_update">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E2.m1">
+             x_{k+1}=x_{k}-\frac{c^{\prime}(x_{k})}{c^{\prime\prime}(x_{k})}.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (2)
+          </div>
+         </div>
         </div>
-        <table class="ltx_equation ltx_eqn_table" id="eq:Taylor_1D_update">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E2.m1">
-            x_{k+1}=x_{k}-\frac{c^{\prime}(x_{k})}{c^{\prime\prime}(x_{k})}.
-           </span>
-          </td>
-         </tr>
-        </table>
        </div>
        <div class="ltx_para" id="p9">
         <p class="ltx_p">
@@ -919,63 +935,93 @@
          </span>
          with
         </p>
-        <div class="ltx_eqn_eqno">
-         (3)
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:Taylor_nD">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E3.m1">
+             c(\bm{x}_{k}\!+\!\Delta\bm{x}_{k})\approx c(\bm{x}_{k})+\Delta\bm{x}_{k}^{\scriptscriptstyle\top}\,\frac{\partial c}{\partial\bm{x}}\Big|_{\bm{x}_{k}}+\frac{1}{2}\Delta\bm{x}_{k}^{\scriptscriptstyle\top}\,\frac{\partial^{2}c}{\partial\bm{x}^{2}}\Big|_{\bm{x}_{k}}\Delta\bm{x}_{k},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (3)
+          </div>
+         </div>
         </div>
-        <table class="ltx_equation ltx_eqn_table" id="eq:Taylor_nD">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E3.m1">
-            c(\bm{x}_{k}\!+\!\Delta\bm{x}_{k})\approx c(\bm{x}_{k})+\Delta\bm{x}_{k}^{\scriptscriptstyle\top}\,\frac{\partial c}{\partial\bm{x}}\Big|_{\bm{x}_{k}}+\frac{1}{2}\Delta\bm{x}_{k}^{\scriptscriptstyle\top}\,\frac{\partial^{2}c}{\partial\bm{x}^{2}}\Big|_{\bm{x}_{k}}\Delta\bm{x}_{k},
-           </span>
-          </td>
-         </tr>
-        </table>
         <p class="ltx_p">
          which can also be rewritten in augmented vector form as
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex3">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex3.m1">
-            c(\bm{x}_{k}\!+\!\Delta\bm{x}_{k})\approx c(\bm{x}_{k})+\frac{1}{2}\begin{bmatrix}1\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex3">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex3.m1">
+             c(\bm{x}_{k}\!+\!\Delta\bm{x}_{k})\approx c(\bm{x}_{k})+\frac{1}{2}\begin{bmatrix}1\\
 \Delta\bm{x}_{k}\end{bmatrix}^{\!{\scriptscriptstyle\top}}\begin{bmatrix}0&amp;\bm{g}_{\bm{x}}^{\scriptscriptstyle\top}\\
 \bm{g}_{\bm{x}}&amp;\bm{H}_{\bm{x}\bm{x}}\end{bmatrix}\begin{bmatrix}1\\
 \Delta\bm{x}_{k}\end{bmatrix},
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          with gradient vector
         </p>
-        <div class="ltx_eqn_eqno">
-         (4)
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:Taylor_grad">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E4.m1">
+             \bm{g}(\bm{x}_{k})=\frac{\partial c}{\partial\bm{x}}\Big|_{\bm{x}_{k}},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (4)
+          </div>
+         </div>
         </div>
-        <table class="ltx_equation ltx_eqn_table" id="eq:Taylor_grad">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E4.m1">
-            \bm{g}(\bm{x}_{k})=\frac{\partial c}{\partial\bm{x}}\Big|_{\bm{x}_{k}},
-           </span>
-          </td>
-         </tr>
-        </table>
         <p class="ltx_p">
          and Hessian matrix
         </p>
-        <div class="ltx_eqn_eqno">
-         (5)
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:Taylor_Hess">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E5.m1">
+             \bm{H}(\bm{x}_{k})=\frac{\partial^{2}c}{\partial\bm{x}^{2}}\Big|_{\bm{x}_{k}}.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (5)
+          </div>
+         </div>
         </div>
-        <table class="ltx_equation ltx_eqn_table" id="eq:Taylor_Hess">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E5.m1">
-            \bm{H}(\bm{x}_{k})=\frac{\partial^{2}c}{\partial\bm{x}^{2}}\Big|_{\bm{x}_{k}}.
-           </span>
-          </td>
-         </tr>
-        </table>
        </div>
        <div class="ltx_para" id="SS0.SSSx1.p2">
         <p class="ltx_p">
@@ -1010,15 +1056,21 @@
          </span>
          and equation to zero, we obtain that
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex4">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex4.m1">
-            \Delta\bm{\hat{x}}_{k}=-{\bm{H}(\bm{x}_{k})}^{-1}\,\bm{g}(\bm{x}_{k}),
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex4">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex4.m1">
+             \Delta\bm{\hat{x}}_{k}=-{\bm{H}(\bm{x}_{k})}^{-1}\,\bm{g}(\bm{x}_{k}),
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          is the offset to apply to
          <span class="ltx_Math" id="SS0.SSSx1.p3.m2">
@@ -1039,18 +1091,26 @@
          </span>
          the recursion
         </p>
-        <div class="ltx_eqn_eqno">
-         (6)
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:Taylor_nD_update">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E6.m1">
+             \bm{x}_{k+1}=\bm{x}_{k}-{\bm{H}(\bm{x}_{k})}^{-1}\,\bm{g}(\bm{x}_{k}).
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (6)
+          </div>
+         </div>
         </div>
-        <table class="ltx_equation ltx_eqn_table" id="eq:Taylor_nD_update">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E6.m1">
-            \bm{x}_{k+1}=\bm{x}_{k}-{\bm{H}(\bm{x}_{k})}^{-1}\,\bm{g}(\bm{x}_{k}).
-           </span>
-          </td>
-         </tr>
-        </table>
        </div>
        <div id="sec:GaussNewton">
        </div>
@@ -1076,15 +1136,21 @@
          </span>
          are residual vectors. We neglect in this case the second-order derivative terms of the Hessian. The gradient and Hessian can in this case be computed with
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex5">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex5.m1">
-            \bm{g}=2\bm{J}_{\bm{r}}^{\scriptscriptstyle\top}\bm{r},\quad\bm{H}\approx 2\bm{J}_{\bm{r}}^{\scriptscriptstyle\top}\bm{J}_{\bm{r}},
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex5">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex5.m1">
+             \bm{g}=2\bm{J}_{\bm{r}}^{\scriptscriptstyle\top}\bm{r},\quad\bm{H}\approx 2\bm{J}_{\bm{r}}^{\scriptscriptstyle\top}\bm{J}_{\bm{r}},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          where
          <span class="ltx_Math" id="SS1.p1.m3">
@@ -1107,39 +1173,51 @@
          </a>
          ) then becomes
         </p>
-        <div class="ltx_eqn_eqno">
-         (7)
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx1">
+          <tbody id="E7">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_align_right ltx_eqn_cell">
+             <span class="ltx_Math" id="E7.m1">
+              \displaystyle\bm{x}_{k+1}
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="E7.m2">
+              \displaystyle=\bm{x}_{k}-{\big(\bm{J}_{\bm{r}}^{\scriptscriptstyle\top}(\bm{x}_{k})\bm{J}_{\bm{r}}(\bm{x}_{k})\big)}^{-1}\,\bm{J}_{\bm{r}}^{\scriptscriptstyle\top}(\bm{x}_{k})\,\bm{r}(\bm{x}_{k})
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+          <tbody id="eq:GaussNewtonUpdate">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_eqn_cell">
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="E8.m1">
+              \displaystyle=\bm{x}_{k}-\bm{J}_{\bm{r}}^{\dagger}(\bm{x}_{k})\,\bm{r}(\bm{x}_{k}),
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (7)
+          </div>
+          <div>
+           (8)
+          </div>
+         </div>
         </div>
-        <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx1">
-         <tbody id="E7">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_right ltx_eqn_cell">
-            <span class="ltx_Math" id="E7.m1">
-             \displaystyle\bm{x}_{k+1}
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="E7.m2">
-             \displaystyle=\bm{x}_{k}-{\big(\bm{J}_{\bm{r}}^{\scriptscriptstyle\top}(\bm{x}_{k})\bm{J}_{\bm{r}}(\bm{x}_{k})\big)}^{-1}\,\bm{J}_{\bm{r}}^{\scriptscriptstyle\top}(\bm{x}_{k})\,\bm{r}(\bm{x}_{k})
-            </span>
-           </td>
-          </tr>
-         </tbody>
-         <tbody id="eq:GaussNewtonUpdate">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="E8.m1">
-             \displaystyle=\bm{x}_{k}-\bm{J}_{\bm{r}}^{\dagger}(\bm{x}_{k})\,\bm{r}(\bm{x}_{k}),
-            </span>
-           </td>
-           <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
-            <span class="ltx_tag ltx_tag_equation ltx_align_right">
-             (8)
-            </span>
-           </td>
-          </tr>
-         </tbody>
-        </table>
         <p class="ltx_p">
          where
          <span class="ltx_Math" id="SS1.p2.m1">
@@ -1189,15 +1267,21 @@
          </span>
          , we can see that if
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex6">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex6.m1">
-            c(\bm{x})=(\bm{A}\bm{x}-\bm{b})^{\scriptscriptstyle\top}(\bm{A}\bm{x}-\bm{b}),
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex6">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex6.m1">
+             c(\bm{x})=(\bm{A}\bm{x}-\bm{b})^{\scriptscriptstyle\top}(\bm{A}\bm{x}-\bm{b}),
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          derivating
          <span class="ltx_Math" id="SS2.p1.m5">
@@ -1209,15 +1293,21 @@
          </span>
          and equating to zero yields
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex7">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex7.m1">
-            \bm{A}\bm{x}-\bm{b}=\bm{0}\iff\bm{x}=\bm{A}^{\dagger}\bm{b},
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex7">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex7.m1">
+             \bm{A}\bm{x}-\bm{b}=\bm{0}\iff\bm{x}=\bm{A}^{\dagger}\bm{b},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          which corresponds to the standard analytic least squares estimate. We will see later in the inverse kinematics section that for the complete solution can also include a nullspace structure.
         </p>
@@ -1238,18 +1328,26 @@
         <p class="ltx_p">
          A constrained minimization problem of the form
         </p>
-        <div class="ltx_eqn_eqno">
-         (9)
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:LSconstraints">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E9.m1">
+             \min_{\bm{x}}\;(\bm{A}\bm{x}-\bm{b})^{\scriptscriptstyle\top}(\bm{A}\bm{x}-\bm{b}),\quad\text{s.t.}\quad\bm{C}\bm{x}=\bm{h},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (9)
+          </div>
+         </div>
         </div>
-        <table class="ltx_equation ltx_eqn_table" id="eq:LSconstraints">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E9.m1">
-            \min_{\bm{x}}\;(\bm{A}\bm{x}-\bm{b})^{\scriptscriptstyle\top}(\bm{A}\bm{x}-\bm{b}),\quad\text{s.t.}\quad\bm{C}\bm{x}=\bm{h},
-           </span>
-          </td>
-         </tr>
-        </table>
         <p class="ltx_p">
          can also be solved analytically by considering a Lagrange multiplier variable
          <span class="ltx_Math" id="SS3.p1.m1">
@@ -1257,15 +1355,21 @@
          </span>
          allowing us to rewrite the objective as
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex8">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex8.m1">
-            \min_{\bm{x},\bm{\lambda}}\;(\bm{A}\bm{x}-\bm{b})^{\scriptscriptstyle\top}(\bm{A}\bm{x}-\bm{b})+\bm{\lambda}^{\scriptscriptstyle\top}(\bm{C}\bm{x}-\bm{h}).
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex8">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex8.m1">
+             \min_{\bm{x},\bm{\lambda}}\;(\bm{A}\bm{x}-\bm{b})^{\scriptscriptstyle\top}(\bm{A}\bm{x}-\bm{b})+\bm{\lambda}^{\scriptscriptstyle\top}(\bm{C}\bm{x}-\bm{h}).
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
        </div>
        <div class="ltx_para" id="SS3.p2">
         <p class="ltx_p">
@@ -1279,47 +1383,65 @@
          </span>
          and equating to zero yields
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex9">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex9.m1">
-            \bm{A}^{\scriptscriptstyle\top}(\bm{A}\bm{x}-\bm{b})+\bm{C}^{\scriptscriptstyle\top}\bm{\lambda}=\bm{0},\quad\bm{C}\bm{x}-\bm{h}=\bm{0},
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex9">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex9.m1">
+             \bm{A}^{\scriptscriptstyle\top}(\bm{A}\bm{x}-\bm{b})+\bm{C}^{\scriptscriptstyle\top}\bm{\lambda}=\bm{0},\quad\bm{C}\bm{x}-\bm{h}=\bm{0},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          which can rewritten in matrix form as
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex10">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex10.m1">
-            \begin{bmatrix}\bm{A}^{\scriptscriptstyle\top}\!\bm{A}&amp;\bm{C}^{\scriptscriptstyle\top}\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex10">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex10.m1">
+             \begin{bmatrix}\bm{A}^{\scriptscriptstyle\top}\!\bm{A}&amp;\bm{C}^{\scriptscriptstyle\top}\\
 \bm{C}&amp;\bm{0}\end{bmatrix}\begin{bmatrix}\bm{x}\\
 \bm{\lambda}\end{bmatrix}=\begin{bmatrix}\bm{A}^{\scriptscriptstyle\top}\bm{b}\\
 \bm{h}\end{bmatrix}.
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
        </div>
        <div class="ltx_para" id="SS3.p3">
         <p class="ltx_p">
          With this augmented state representation, we can then see that
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex11">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex11.m1">
-            \begin{bmatrix}\bm{x}\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex11">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex11.m1">
+             \begin{bmatrix}\bm{x}\\
 \bm{\lambda}\end{bmatrix}=\begin{bmatrix}\bm{A}^{\scriptscriptstyle\top}\!\bm{A}&amp;\bm{C}^{\scriptscriptstyle\top}\\
 \bm{C}&amp;\bm{0}\end{bmatrix}^{-1}\begin{bmatrix}\bm{A}^{\scriptscriptstyle\top}\bm{b}\\
 \bm{h}\end{bmatrix}
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          minimizes the constrained cost. The first part of this augmented state then gives us the solution of (
          <a class="ltx_ref" href="#eq:LSconstraints" title="(9) ‣ 2.3 Least squares with constraints ‣ 2 Newton’s method for minimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">

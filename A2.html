@@ -320,14 +320,14 @@
          </ul>
         </div>
        </li>
+       <li class="border-top my-1">
+       </li>
        <li class="mb-1">
         <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#doc-collapse" data-bs-toggle="collapse">
          Documentation
         </button>
         <div class="collapse show" id="doc-collapse">
          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small" id="menu_container">
-          <li class="border-top my-1">
-          </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html" style="font-weight:bold;">
             1 Introduction
@@ -335,9 +335,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             2 Newton’s method for minimization
-            </span>
+            2 Newton’s method for minimization
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -372,9 +370,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             4 Inverse kinematics (IK) for a planar robot manipulator
-            </span>
+            4 Inverse kinematics (IK) for a planar robot manipulator
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -397,9 +393,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             5 Encoding with basis functions
-            </span>
+            5 Encoding with basis functions
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -457,9 +451,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             6 Linear quadratic tracking (LQT)
-            </span>
+            6 Linear quadratic tracking (LQT)
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -510,9 +502,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             7 iLQR optimization
-            </span>
+            7 iLQR optimization
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -591,9 +581,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             8 Forward dynamics (FD) for a planar robot manipulator
-            </span>
+            8 Forward dynamics (FD) for a planar robot manipulator
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -672,39 +660,57 @@
          </a>
          ), we can write
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex141">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex141.m1">
-            \frac{\partial T_{j}}{\partial\dot{q}_{z}}=m_{j}\Big(\frac{\partial\dot{f}_{j,1}}{\partial\dot{q}_{z}}\dot{f}_{j,1}+\frac{\partial\dot{f}_{j,2}}{\partial\dot{q}_{z}}\dot{f}_{j,2}\Big)=m_{j}\Big(\Big(-l_{z}s_{z}\Big)\dot{f}_{j,1}+\Big(l_{z}c_{z}\Big)\dot{f}_{j,2}\Big),
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex141">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex141.m1">
+             \frac{\partial T_{j}}{\partial\dot{q}_{z}}=m_{j}\Big(\frac{\partial\dot{f}_{j,1}}{\partial\dot{q}_{z}}\dot{f}_{j,1}+\frac{\partial\dot{f}_{j,2}}{\partial\dot{q}_{z}}\dot{f}_{j,2}\Big)=m_{j}\Big(\Big(-l_{z}s_{z}\Big)\dot{f}_{j,1}+\Big(l_{z}c_{z}\Big)\dot{f}_{j,2}\Big),
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          whose time derivative can be expressed as
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex142">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex142.m1">
-            \frac{d}{dt}\frac{\partial T_{j}}{\partial\dot{q}_{z}}=m_{j}\Big(\Big(-l_{z}\dot{q}_{z}c_{z}\Big)\dot{f}_{j,1}-\Big(l_{z}s_{z}\Big)\ddot{f}_{j,1}-\Big(l_{z}\dot{q}_{z}s_{z}\Big)\dot{f}_{j,2}+\Big(l_{z}c_{z}\Big)\ddot{f}_{j,2}\Big),
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex142">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex142.m1">
+             \frac{d}{dt}\frac{\partial T_{j}}{\partial\dot{q}_{z}}=m_{j}\Big(\Big(-l_{z}\dot{q}_{z}c_{z}\Big)\dot{f}_{j,1}-\Big(l_{z}s_{z}\Big)\ddot{f}_{j,1}-\Big(l_{z}\dot{q}_{z}s_{z}\Big)\dot{f}_{j,2}+\Big(l_{z}c_{z}\Big)\ddot{f}_{j,2}\Big),
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          where
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex143">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex143.m1">
-            \ddot{f}_{j,1}=-\sum_{k=1}^{j}l_{k}\ddot{q}_{k}s_{k}-\sum_{k=1}^{j}l_{k}\dot{q}_{k}^{2}c_{k},\quad\ddot{f}_{j,2}=\sum_{k=1}^{j}l_{k}\ddot{q}_{k}c_{k}-\sum_{k=1}^{j}l_{k}\dot{q}_{k}^{2}s_{k}.
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex143">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex143.m1">
+             \ddot{f}_{j,1}=-\sum_{k=1}^{j}l_{k}\ddot{q}_{k}s_{k}-\sum_{k=1}^{j}l_{k}\dot{q}_{k}^{2}c_{k},\quad\ddot{f}_{j,2}=\sum_{k=1}^{j}l_{k}\ddot{q}_{k}c_{k}-\sum_{k=1}^{j}l_{k}\dot{q}_{k}^{2}s_{k}.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
        </div>
        <div class="ltx_para" id="p2">
         <p class="ltx_p">
@@ -716,27 +722,39 @@
          </a>
          ), we can write
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="eq:lagrangian_second_term">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex144.m1">
-            \frac{\partial T_{j}}{\partial q_{z}}=m_{j}\Big(\frac{\partial\dot{f}_{j,1}}{\partial q_{z}}\dot{f}_{j,1}+\frac{\partial\dot{f}_{j,2}}{\partial q_{z}}\dot{f}_{j,2}\Big)=m_{j}\Bigg(\Big(-l_{z}\dot{q}_{z}c_{z}\Big)\dot{f}_{j,1}-\Big(l_{z}\dot{q}_{z}s_{z}\Big)\dot{f}_{j,2}\Bigg),
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:lagrangian_second_term">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex144.m1">
+             \frac{\partial T_{j}}{\partial q_{z}}=m_{j}\Big(\frac{\partial\dot{f}_{j,1}}{\partial q_{z}}\dot{f}_{j,1}+\frac{\partial\dot{f}_{j,2}}{\partial q_{z}}\dot{f}_{j,2}\Big)=m_{j}\Bigg(\Big(-l_{z}\dot{q}_{z}c_{z}\Big)\dot{f}_{j,1}-\Big(l_{z}\dot{q}_{z}s_{z}\Big)\dot{f}_{j,2}\Bigg),
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          and finally, the potential energy term can be calculated as
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex145">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex145.m1">
-            \frac{\partial U_{j}}{\partial q_{z}}=m_{j}gl_{z}c_{z}.
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex145">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex145.m1">
+             \frac{\partial U_{j}}{\partial q_{z}}=m_{j}gl_{z}c_{z}.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
        </div>
        <div class="ltx_para" id="p3">
         <p class="ltx_p">
@@ -752,75 +770,111 @@
          </a>
          ) as
         </p>
-        <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx25">
-         <tbody id="Ex146">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_right ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex146.m1">
-             \displaystyle u_{z}
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex146.m2">
-             \displaystyle=\sum_{j=z}^{N}\Big(m_{j}\Big(\Big(-l_{z}\dot{q}_{z}c_{z}\Big)\dot{r}_{j,1}-\Big(l_{z}s_{k}\Big)\ddot{r}_{j,1}-\Big(l_{z}\dot{q}_{z}s_{z}\Big)\dot{r}_{j,2}+\Big(l_{z}c_{z}\Big)\ddot{r}_{j,2}\Big)-m_{j}\Big(\Big(-l_{z}\dot{q}_{z}c_{z}\Big)\dot{r}_{j,1}-\Big(l_{z}\dot{q}_{z}s_{z}\Big)\dot{r}_{j,2}\Big)+m_{j}gl_{z}c_{z}\Big)
-            </span>
-           </td>
-          </tr>
-         </tbody>
-         <tbody id="Ex147">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex147.m1">
-             \displaystyle=\sum_{j=z}^{N}\Big(m_{j}\Big(\Big(-l_{z}s_{z}\Big)\ddot{r}_{j,1}+\Big(l_{z}c_{z}\Big)\ddot{r}_{j,2}\Big)+m_{j}gl_{z}c_{z}\Big)
-            </span>
-           </td>
-          </tr>
-         </tbody>
-         <tbody id="Ex148">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex148.m1">
-             \displaystyle=\sum_{j=z}^{N}\Big(m_{j}\Big(\Big(-l_{z}s_{z}\Big)\Big(-\sum_{k=1}^{j}l_{k}\ddot{q}_{k}s_{k}-\sum_{k=1}^{j}l_{k}\dot{q}_{k}^{2}c_{k}\Big)+\Big(l_{z}c_{z}\Big)\Big(\sum_{k=1}^{j}l_{k}\ddot{q}_{k}c_{k}-\sum_{k=1}^{j}l_{k}\dot{q}_{k}^{2}s_{k}\Big)\Big)+m_{j}gl_{z}c_{z}\Big)
-            </span>
-           </td>
-          </tr>
-         </tbody>
-         <tbody id="Ex149">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex149.m1">
-             \displaystyle=\sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}c_{z-k}\ddot{q}_{k}+\sum_{k=1}^{j}l_{z}l_{k}s_{z-k}\dot{q}_{k}^{2}\Big)+\sum_{j=z}^{N}m_{j}gl_{z}c_{z},
-            </span>
-           </td>
-          </tr>
-         </tbody>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx25">
+          <tbody id="Ex146">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_align_right ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex146.m1">
+              \displaystyle u_{z}
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex146.m2">
+              \displaystyle=\sum_{j=z}^{N}\Big(m_{j}\Big(\Big(-l_{z}\dot{q}_{z}c_{z}\Big)\dot{r}_{j,1}-\Big(l_{z}s_{k}\Big)\ddot{r}_{j,1}-\Big(l_{z}\dot{q}_{z}s_{z}\Big)\dot{r}_{j,2}+\Big(l_{z}c_{z}\Big)\ddot{r}_{j,2}\Big)-m_{j}\Big(\Big(-l_{z}\dot{q}_{z}c_{z}\Big)\dot{r}_{j,1}-\Big(l_{z}\dot{q}_{z}s_{z}\Big)\dot{r}_{j,2}\Big)+m_{j}gl_{z}c_{z}\Big)
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+          <tbody id="Ex147">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_eqn_cell">
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex147.m1">
+              \displaystyle=\sum_{j=z}^{N}\Big(m_{j}\Big(\Big(-l_{z}s_{z}\Big)\ddot{r}_{j,1}+\Big(l_{z}c_{z}\Big)\ddot{r}_{j,2}\Big)+m_{j}gl_{z}c_{z}\Big)
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+          <tbody id="Ex148">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_eqn_cell">
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex148.m1">
+              \displaystyle=\sum_{j=z}^{N}\Big(m_{j}\Big(\Big(-l_{z}s_{z}\Big)\Big(-\sum_{k=1}^{j}l_{k}\ddot{q}_{k}s_{k}-\sum_{k=1}^{j}l_{k}\dot{q}_{k}^{2}c_{k}\Big)+\Big(l_{z}c_{z}\Big)\Big(\sum_{k=1}^{j}l_{k}\ddot{q}_{k}c_{k}-\sum_{k=1}^{j}l_{k}\dot{q}_{k}^{2}s_{k}\Big)\Big)+m_{j}gl_{z}c_{z}\Big)
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+          <tbody id="Ex149">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_eqn_cell">
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex149.m1">
+              \displaystyle=\sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}c_{z-k}\ddot{q}_{k}+\sum_{k=1}^{j}l_{z}l_{k}s_{z-k}\dot{q}_{k}^{2}\Big)+\sum_{j=z}^{N}m_{j}gl_{z}c_{z},
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+         </table>
+        </div>
         <p class="ltx_p">
          where
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex150">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex150.m1">
-            c_{h-k}=c_{h}c_{k}-s_{h}s_{k},\ \ \ s_{h-k}=s_{h}c_{k}-c_{h}s_{k}.
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex150">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex150.m1">
+             c_{h-k}=c_{h}c_{k}-s_{h}s_{k},\ \ \ s_{h-k}=s_{h}c_{k}-c_{h}s_{k}.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
        </div>
        <div class="ltx_para" id="p4">
         <p class="ltx_p">
          By rearranging the order of elements, we can write
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex151">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex151.m1">
-            \sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}c_{z-k}\ddot{q}_{k}\Big)=u_{z}-\sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}s_{z-k}\dot{q}_{k}^{2}\Big)-\sum_{j=z}^{N}m_{j}gl_{z}c_{z}.
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex151">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex151.m1">
+             \sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}c_{z-k}\ddot{q}_{k}\Big)=u_{z}-\sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}s_{z-k}\dot{q}_{k}^{2}\Big)-\sum_{j=z}^{N}m_{j}gl_{z}c_{z}.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
        </div>
        <ul class="pagination justify-content-center small_menu">
         <li class="page-item previous_file">

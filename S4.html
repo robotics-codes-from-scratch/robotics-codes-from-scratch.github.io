@@ -320,14 +320,14 @@
          </ul>
         </div>
        </li>
+       <li class="border-top my-1">
+       </li>
        <li class="mb-1">
         <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#doc-collapse" data-bs-toggle="collapse">
          Documentation
         </button>
         <div class="collapse show" id="doc-collapse">
          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small" id="menu_container">
-          <li class="border-top my-1">
-          </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html" style="font-weight:bold;">
             1 Introduction
@@ -335,9 +335,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             2 Newton’s method for minimization
-            </span>
+            2 Newton’s method for minimization
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -372,9 +370,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             4 Inverse kinematics (IK) for a planar robot manipulator
-            </span>
+            4 Inverse kinematics (IK) for a planar robot manipulator
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -397,9 +393,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             5 Encoding with basis functions
-            </span>
+            5 Encoding with basis functions
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -457,9 +451,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             6 Linear quadratic tracking (LQT)
-            </span>
+            6 Linear quadratic tracking (LQT)
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -510,9 +502,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             7 iLQR optimization
-            </span>
+            7 iLQR optimization
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -591,9 +581,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             8 Forward dynamics (FD) for a planar robot manipulator
-            </span>
+            8 Forward dynamics (FD) for a planar robot manipulator
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -660,18 +648,26 @@
         <p class="ltx_p">
          By differentiating the forward kinematics function, a least norm inverse kinematics solution can be computed with
         </p>
-        <div class="ltx_eqn_eqno">
-         (14)
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:IK_LS">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E14.m1">
+             \bm{\dot{\bm{x}}}=\bm{J}^{\dagger}\!(\bm{x})\;\bm{\dot{f}},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (14)
+          </div>
+         </div>
         </div>
-        <table class="ltx_equation ltx_eqn_table" id="eq:IK_LS">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E14.m1">
-            \bm{\dot{\bm{x}}}=\bm{J}^{\dagger}\!(\bm{x})\;\bm{\dot{f}},
-           </span>
-          </td>
-         </tr>
-        </table>
         <p class="ltx_p">
          where the Jacobian
          <span class="ltx_Math" id="p1.m1">
@@ -683,98 +679,124 @@
          </span>
          can be computed as (with a simplification for the orientation part by ignoring the manifold aspect)
         </p>
-        <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx5">
-         <tbody id="Ex27">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_right ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex27.m1">
-             \displaystyle\bm{J}
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex27.m2">
-             \displaystyle=\begin{bmatrix}\textstyle-\sin(\bm{L}\bm{x})^{\scriptscriptstyle\top}\mathrm{diag}(\bm{\ell})\bm{L}\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx5">
+          <tbody id="Ex27">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_align_right ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex27.m1">
+              \displaystyle\bm{J}
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex27.m2">
+              \displaystyle=\begin{bmatrix}\textstyle-\sin(\bm{L}\bm{x})^{\scriptscriptstyle\top}\mathrm{diag}(\bm{\ell})\bm{L}\\
 \textstyle\cos(\bm{L}\bm{x})^{\scriptscriptstyle\top}\mathrm{diag}(\bm{\ell})\bm{L}\\
 \textstyle\bm{1}^{\scriptscriptstyle\top}\end{bmatrix}
-            </span>
-           </td>
-          </tr>
-         </tbody>
-         <tbody id="Ex31">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex31.m1">
-             \displaystyle=\begin{bmatrix}\textstyle J_{1,1}&amp;J_{1,2}&amp;J_{1,3}&amp;\ldots\\
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+          <tbody id="Ex31">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_eqn_cell">
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex31.m1">
+              \displaystyle=\begin{bmatrix}\textstyle J_{1,1}&amp;J_{1,2}&amp;J_{1,3}&amp;\ldots\\
 \textstyle J_{2,1}&amp;J_{2,2}&amp;J_{2,3}&amp;\ldots\\
 \textstyle J_{3,1}&amp;J_{3,2}&amp;J_{3,3}&amp;\ldots\\
 \end{bmatrix}\!\!,
-            </span>
-           </td>
-          </tr>
-         </tbody>
-        </table>
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+         </table>
+        </div>
         <p class="ltx_p">
          with
         </p>
-        <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx6">
-         <tbody id="Ex32">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex32.m1">
-             \displaystyle J_{1,1}=-\ell_{1}\!\sin(x_{1})\!-\!\ell_{2}\!\sin(x_{1}\!+\!x_{2})\!-\!\ell_{3}\!\sin(x_{1}\!+\!x_{2}\!+\!x_{3})\!-\!\ldots,\quad
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex32.m2">
-             \displaystyle J_{1,2}=-\ell_{2}\!\sin(x_{1}\!+\!x_{2})\!-\!\ell_{3}\!\sin(x_{1}\!+\!x_{2}\!+\!x_{3})\!-\!\ldots,\quad
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex32.m3">
-             \displaystyle J_{1,3}=-\ell_{3}\!\sin(x_{1}\!+\!x_{2}\!+\!x_{3})\!-\!\ldots,
-            </span>
-           </td>
-          </tr>
-         </tbody>
-         <tbody id="Ex33">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex33.m1">
-             \displaystyle J_{2,1}=\ell_{1}\!\cos(x_{1})\!+\!\ell_{2}\!\cos(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3})\!+\!\ldots,
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex33.m2">
-             \displaystyle J_{2,2}=\ell_{2}\!\cos(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3})\!+\!\ldots,
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex33.m3">
-             \displaystyle J_{2,3}=\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3})\!+\!\ldots,\quad\ldots
-            </span>
-           </td>
-          </tr>
-         </tbody>
-         <tbody id="Ex34">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex34.m1">
-             \displaystyle J_{3,1}=1,
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex34.m2">
-             \displaystyle J_{3,2}=1,
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex34.m3">
-             \displaystyle J_{3,3}=1,
-            </span>
-           </td>
-          </tr>
-         </tbody>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx6">
+          <tbody id="Ex32">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex32.m1">
+              \displaystyle J_{1,1}=-\ell_{1}\!\sin(x_{1})\!-\!\ell_{2}\!\sin(x_{1}\!+\!x_{2})\!-\!\ell_{3}\!\sin(x_{1}\!+\!x_{2}\!+\!x_{3})\!-\!\ldots,\quad
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex32.m2">
+              \displaystyle J_{1,2}=-\ell_{2}\!\sin(x_{1}\!+\!x_{2})\!-\!\ell_{3}\!\sin(x_{1}\!+\!x_{2}\!+\!x_{3})\!-\!\ldots,\quad
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex32.m3">
+              \displaystyle J_{1,3}=-\ell_{3}\!\sin(x_{1}\!+\!x_{2}\!+\!x_{3})\!-\!\ldots,
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+          <tbody id="Ex33">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex33.m1">
+              \displaystyle J_{2,1}=\ell_{1}\!\cos(x_{1})\!+\!\ell_{2}\!\cos(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3})\!+\!\ldots,
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex33.m2">
+              \displaystyle J_{2,2}=\ell_{2}\!\cos(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3})\!+\!\ldots,
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex33.m3">
+              \displaystyle J_{2,3}=\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3})\!+\!\ldots,\quad\ldots
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+          <tbody id="Ex34">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex34.m1">
+              \displaystyle J_{3,1}=1,
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex34.m2">
+              \displaystyle J_{3,2}=1,
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex34.m3">
+              \displaystyle J_{3,3}=1,
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+         </table>
+        </div>
        </div>
        <div class="ltx_para" id="p2">
         <p class="ltx_p">
@@ -1016,15 +1038,21 @@
          </span>
          above presented an analytical solution for the Jacobian. A numerical solution can alternatively be estimated by computing
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex35">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex35.m1">
-            J_{i,j}=\frac{\partial f_{i}(\bm{x})}{\partial x_{j}}\approx\frac{f_{i}(\bm{x}^{(j)})-f_{i}(\bm{x})}{\Delta}\quad\forall i,\forall j,
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex35">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex35.m1">
+             J_{i,j}=\frac{\partial f_{i}(\bm{x})}{\partial x_{j}}\approx\frac{f_{i}(\bm{x}^{(j)})-f_{i}(\bm{x})}{\Delta}\quad\forall i,\forall j,
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          with
          <span class="ltx_Math" id="SS1.p1.m1">
@@ -1036,16 +1064,22 @@
          </span>
          with elements
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex36">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex36.m1">
-            x^{(j)}_{k}=\begin{cases}x_{k}+\Delta,&amp;\text{if}\ k=j,\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex36">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex36.m1">
+             x^{(j)}_{k}=\begin{cases}x_{k}+\Delta,&amp;\text{if}\ k=j,\\
 x_{k},&amp;\text{otherwise},\end{cases}
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          where
          <span class="ltx_Math" id="SS1.p1.m3">
@@ -1076,18 +1110,26 @@ x_{k},&amp;\text{otherwise},\end{cases}
          </a>
          ), the pseudoinverse provides a single least norm solution. This result can be generalized to obtain all solutions of the linear system with
         </p>
-        <div class="ltx_eqn_eqno">
-         (15)
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:IK_nullspace">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E15.m1">
+             \bm{\dot{\bm{x}}}=\bm{J}^{\dagger}\!(\bm{x})\;\bm{\dot{f}}+\bm{N}\!(\bm{x})\;\bm{g}(\bm{x}),
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (15)
+          </div>
+         </div>
         </div>
-        <table class="ltx_equation ltx_eqn_table" id="eq:IK_nullspace">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="E15.m1">
-            \bm{\dot{\bm{x}}}=\bm{J}^{\dagger}\!(\bm{x})\;\bm{\dot{f}}+\bm{N}\!(\bm{x})\;\bm{g}(\bm{x}),
-           </span>
-          </td>
-         </tr>
-        </table>
         <p class="ltx_p">
          where
          <span class="ltx_Math" id="SS2.p1.m1">
@@ -1102,15 +1144,21 @@ x_{k},&amp;\text{otherwise},\end{cases}
           nullspace projection operator
          </span>
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex37">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex37.m1">
-            \bm{N}\!(\bm{x})=\bm{I}-\bm{J}(\bm{x})^{\dagger}\bm{J}(\bm{x}).
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex37">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex37.m1">
+             \bm{N}\!(\bm{x})=\bm{I}-\bm{J}(\bm{x})^{\dagger}\bm{J}(\bm{x}).
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
        </div>
        <div class="ltx_para" id="SS2.p2">
         <p class="ltx_p">
@@ -1129,27 +1177,39 @@ x_{k},&amp;\text{otherwise},\end{cases}
         <p class="ltx_p">
          An alternative way of computing the nullspace projection matrix, numerically more robust, is to exploit the singular value decomposition
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex38">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex38.m1">
-            \bm{J}^{\dagger}\!=\!\bm{U}\bm{\Sigma}\bm{V}^{\scriptscriptstyle\top},
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex38">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex38.m1">
+             \bm{J}^{\dagger}\!=\!\bm{U}\bm{\Sigma}\bm{V}^{\scriptscriptstyle\top},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          to compute
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex39">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex39.m1">
-            \bm{N}=\bm{\tilde{U}}\bm{\tilde{U}}^{\scriptscriptstyle\top},
-           </span>
-          </td>
-         </tr>
-        </table>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex39">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex39.m1">
+             \bm{N}=\bm{\tilde{U}}\bm{\tilde{U}}^{\scriptscriptstyle\top},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
         <p class="ltx_p">
          where
          <span class="ltx_Math" id="SS2.p3.m1">
@@ -1182,18 +1242,24 @@ x_{k},&amp;\text{otherwise},\end{cases}
          </a>
          shows a robot controller keeping its end-effector still as primary objective, while trying to move the first joint as secondary objective, which is achieved with the controller
         </p>
-        <table class="ltx_equation ltx_eqn_table" id="Ex40">
-         <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-          <td class="ltx_eqn_cell ltx_align_center">
-           <span class="ltx_Math" id="Ex40.m1">
-            \bm{\dot{\bm{x}}}=\bm{J}^{\dagger}\!(\bm{x})\!\begin{bmatrix}0\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex40">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex40.m1">
+             \bm{\dot{\bm{x}}}=\bm{J}^{\dagger}\!(\bm{x})\!\begin{bmatrix}0\\
 0\end{bmatrix}+\bm{N}\!(\bm{x})\!\begin{bmatrix}1\\
 0\\
 0\end{bmatrix}.
-           </span>
-          </td>
-         </tr>
-        </table>
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
        </div>
        <ul class="pagination justify-content-center small_menu">
         <li class="page-item previous_file">

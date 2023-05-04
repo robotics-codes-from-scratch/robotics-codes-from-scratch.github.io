@@ -320,14 +320,14 @@
          </ul>
         </div>
        </li>
+       <li class="border-top my-1">
+       </li>
        <li class="mb-1">
         <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#doc-collapse" data-bs-toggle="collapse">
          Documentation
         </button>
         <div class="collapse show" id="doc-collapse">
          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small" id="menu_container">
-          <li class="border-top my-1">
-          </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html" style="font-weight:bold;">
             1 Introduction
@@ -335,9 +335,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             2 Newton’s method for minimization
-            </span>
+            2 Newton’s method for minimization
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -372,9 +370,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             4 Inverse kinematics (IK) for a planar robot manipulator
-            </span>
+            4 Inverse kinematics (IK) for a planar robot manipulator
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -397,9 +393,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             5 Encoding with basis functions
-            </span>
+            5 Encoding with basis functions
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -457,9 +451,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             6 Linear quadratic tracking (LQT)
-            </span>
+            6 Linear quadratic tracking (LQT)
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -510,9 +502,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             7 iLQR optimization
-            </span>
+            7 iLQR optimization
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -591,9 +581,7 @@
           </li>
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html" style="font-weight:bold;">
-            <span class="p-1 mb-0">
-             8 Forward dynamics (FD) for a planar robot manipulator
-            </span>
+            8 Forward dynamics (FD) for a planar robot manipulator
            </a>
            <div>
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -664,35 +652,47 @@
          </em>
          (FK) function of a planar robot manipulator is defined as
         </p>
-        <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx2">
-         <tbody id="Ex15">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_right ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex15.m1">
-             \displaystyle\bm{f}
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex15.m2">
-             \displaystyle=\begin{bmatrix}\textstyle\bm{\ell}^{\scriptscriptstyle\top}\cos(\bm{L}\bm{x})\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx2">
+          <tbody id="Ex15">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_align_right ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex15.m1">
+              \displaystyle\bm{f}
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex15.m2">
+              \displaystyle=\begin{bmatrix}\textstyle\bm{\ell}^{\scriptscriptstyle\top}\cos(\bm{L}\bm{x})\\
 \textstyle\bm{\ell}^{\scriptscriptstyle\top}\sin(\bm{L}\bm{x})\\
 \textstyle\bm{1}^{\scriptscriptstyle\top}\bm{x}\end{bmatrix}
-            </span>
-           </td>
-          </tr>
-         </tbody>
-         <tbody id="Ex19">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex19.m1">
-             \displaystyle=\begin{bmatrix}\textstyle\ell_{1}\!\cos(x_{1})\!+\!\ell_{2}\!\cos(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3})\!+\!\ldots\\
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+          <tbody id="Ex19">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_eqn_cell">
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex19.m1">
+              \displaystyle=\begin{bmatrix}\textstyle\ell_{1}\!\cos(x_{1})\!+\!\ell_{2}\!\cos(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3})\!+\!\ldots\\
 \textstyle\ell_{1}\sin(x_{1})\!+\!\ell_{2}\!\sin(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\sin(x_{1}\!+\!x_{2}\!+\!x_{3})\!+\!\ldots\\
 \textstyle x_{1}+x_{2}+x_{3}+\ldots\end{bmatrix}\!\!,
-            </span>
-           </td>
-          </tr>
-         </tbody>
-        </table>
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+         </table>
+        </div>
         <p class="ltx_p">
          with
          <span class="ltx_Math" id="p1.m1">
@@ -727,101 +727,133 @@
         <p class="ltx_p">
          The position and orientation of all articulations can similarly be computed with the forward kinematics function
         </p>
-        <div class="ltx_eqn_eqno">
-         (13)
-        </div>
-        <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx3">
-         <tbody id="Ex20">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_right ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex20.m1">
-             \displaystyle\bm{\tilde{f}}
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex20.m2">
-             \displaystyle={\Big[\bm{L}\;\mathrm{diag}(\bm{\ell})\cos(\bm{L}\bm{x}),\quad\bm{L}\;\mathrm{diag}(\bm{\ell})\sin(\bm{L}\bm{x}),\quad\bm{L}\bm{x}\Big]}^{\scriptscriptstyle\top}
-            </span>
-           </td>
-          </tr>
-         </tbody>
-         <tbody id="eq:FKall">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="E13.m1">
-             \displaystyle=\begin{bmatrix}\textstyle\tilde{f}_{1,1}&amp;\tilde{f}_{1,2}&amp;\tilde{f}_{1,3}&amp;\ldots\\
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx3">
+          <tbody id="Ex20">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_align_right ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex20.m1">
+              \displaystyle\bm{\tilde{f}}
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex20.m2">
+              \displaystyle={\Big[\bm{L}\;\mathrm{diag}(\bm{\ell})\cos(\bm{L}\bm{x}),\quad\bm{L}\;\mathrm{diag}(\bm{\ell})\sin(\bm{L}\bm{x}),\quad\bm{L}\bm{x}\Big]}^{\scriptscriptstyle\top}
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+          <tbody id="eq:FKall">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_eqn_cell">
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="E13.m1">
+              \displaystyle=\begin{bmatrix}\textstyle\tilde{f}_{1,1}&amp;\tilde{f}_{1,2}&amp;\tilde{f}_{1,3}&amp;\ldots\\
 \textstyle\tilde{f}_{2,1}&amp;\tilde{f}_{2,2}&amp;\tilde{f}_{2,3}&amp;\ldots\\
 \textstyle\tilde{f}_{3,1}&amp;\tilde{f}_{3,2}&amp;\tilde{f}_{3,3}&amp;\ldots\\
 \end{bmatrix}\!\!,
-            </span>
-           </td>
-          </tr>
-         </tbody>
-        </table>
-        <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx4">
-         <tbody id="Ex21">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex21.m1">
-             \displaystyle\tilde{f}_{1,1}=\ell_{1}\!\cos(x_{1}),\quad
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex21.m2">
-             \displaystyle\tilde{f}_{1,2}=\ell_{1}\!\cos(x_{1})\!+\!\ell_{2}\!\cos(x_{1}\!+\!x_{2}),\quad
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex21.m3">
-             \displaystyle\tilde{f}_{1,3}=\ell_{1}\!\cos(x_{1})\!+\!\ell_{2}\!\cos(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3}),
-            </span>
-           </td>
-          </tr>
-         </tbody>
-         <tbody id="Ex22">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_right ltx_eqn_cell">
-            <span class="ltx_text ltx_markedasmath">
-             with
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex22.m2">
-             \displaystyle\tilde{f}_{2,1}=\ell_{1}\sin(x_{1}),
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex22.m3">
-             \displaystyle\tilde{f}_{2,2}=\ell_{1}\sin(x_{1})\!+\!\ell_{2}\!\sin(x_{1}\!+\!x_{2}),
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex22.m4">
-             \displaystyle\tilde{f}_{2,3}=\ell_{1}\sin(x_{1})\!+\!\ell_{2}\!\sin(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\sin(x_{1}\!+\!x_{2}\!+\!x_{3}),\quad\ldots
-            </span>
-           </td>
-          </tr>
-         </tbody>
-         <tbody id="Ex23">
-          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex23.m1">
-             \displaystyle\tilde{f}_{3,1}=x_{1},
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex23.m2">
-             \displaystyle\tilde{f}_{3,2}=x_{1}+x_{2},
-            </span>
-           </td>
-           <td class="ltx_td ltx_align_left ltx_eqn_cell">
-            <span class="ltx_Math" id="Ex23.m3">
-             \displaystyle\tilde{f}_{3,3}=x_{1}+x_{2}+x_{3}.
-            </span>
-           </td>
-          </tr>
-         </tbody>
-        </table>
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (13)
+          </div>
+         </div>
+        </div>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx4">
+          <tbody id="Ex21">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_eqn_cell">
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex21.m1">
+              \displaystyle\tilde{f}_{1,1}=\ell_{1}\!\cos(x_{1}),\quad
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex21.m2">
+              \displaystyle\tilde{f}_{1,2}=\ell_{1}\!\cos(x_{1})\!+\!\ell_{2}\!\cos(x_{1}\!+\!x_{2}),\quad
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex21.m3">
+              \displaystyle\tilde{f}_{1,3}=\ell_{1}\!\cos(x_{1})\!+\!\ell_{2}\!\cos(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3}),
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+          <tbody id="Ex22">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_align_right ltx_eqn_cell">
+             <span class="ltx_text ltx_markedasmath">
+              with
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex22.m2">
+              \displaystyle\tilde{f}_{2,1}=\ell_{1}\sin(x_{1}),
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex22.m3">
+              \displaystyle\tilde{f}_{2,2}=\ell_{1}\sin(x_{1})\!+\!\ell_{2}\!\sin(x_{1}\!+\!x_{2}),
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex22.m4">
+              \displaystyle\tilde{f}_{2,3}=\ell_{1}\sin(x_{1})\!+\!\ell_{2}\!\sin(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\sin(x_{1}\!+\!x_{2}\!+\!x_{3}),\quad\ldots
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+          <tbody id="Ex23">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_eqn_cell">
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex23.m1">
+              \displaystyle\tilde{f}_{3,1}=x_{1},
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex23.m2">
+              \displaystyle\tilde{f}_{3,2}=x_{1}+x_{2},
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex23.m3">
+              \displaystyle\tilde{f}_{3,3}=x_{1}+x_{2}+x_{3}.
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+         </table>
+        </div>
        </div>
        <div class="ltx_para" id="p3">
         <p class="ltx_p">
