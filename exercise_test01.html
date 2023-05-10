@@ -27,7 +27,14 @@
 
 		function convertMath(){
 			const elements = document.getElementsByClassName("ltx_Math");
-			const macros = {};
+			const macros = {
+				'\\tp': '\\text{\\tiny{#1}}',
+				'\\trsp' : '\\top',
+				'\\psin' : '\\dagger',
+				'\\eqref': '\\href{###1}{(\\text{#1})}',
+				'\\ref': '\\href{###1}{\\text{#1}}',
+				'\\label': '\\htmlId{#1}{}'
+			};
 			for(let element of elements){
 				katex.render(element.textContent, element, {
 					throwOnError: false,
@@ -65,8 +72,8 @@
 </li>
 <li class="border-top my-1"></li>
 <li class="mb-1">
-<button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes2d-collapse" data-bs-toggle="collapse">2D sandboxes</button>
-<div class="collapse show" id="sandboxes2d-collapse">
+<button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes2d-collapse" data-bs-toggle="collapse">2D sandboxes</button>
+<div class="collapse" id="sandboxes2d-collapse">
 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
 <li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_FK.html">
 <div class="p-1 mb-0">Forward kinematics (FK)</div></a></li>
@@ -87,8 +94,8 @@
 </li>
 <li class="border-top my-1"></li>
 <li class="mb-1">
-<button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes3d-collapse" data-bs-toggle="collapse">3D sandboxes</button>
-<div class="collapse show" id="sandboxes3d-collapse">
+<button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes3d-collapse" data-bs-toggle="collapse">3D sandboxes</button>
+<div class="collapse" id="sandboxes3d-collapse">
 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
 <li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox3d_IK.html">
 <div class="p-1 mb-0">Inverse kinematics (IK)</div></a></li>
@@ -97,8 +104,8 @@
 </li>
 <li class="border-top my-1"></li>
 <li class="mb-1">
-<button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#exercises-collapse" data-bs-toggle="collapse">Exercises</button>
-<div class="collapse show" id="exercises-collapse">
+<button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#exercises-collapse" data-bs-toggle="collapse">Exercises</button>
+<div class="collapse" id="exercises-collapse">
 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
 <li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise01.html">
 <div class="p-1 mb-0 bg-dark text-white font-monospace">01</div>
@@ -141,8 +148,8 @@
 </li>
 <li class="border-top my-1"></li>
 <li class="mb-1">
-<button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#doc-collapse" data-bs-toggle="collapse">Documentation</button>
-<div class="collapse show" id="doc-collapse">
+<button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#doc-collapse" data-bs-toggle="collapse">Online courses</button>
+<div class="collapse" id="doc-collapse">
 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small" id="menu_container">
 <li class="mb-1"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html" style="font-weight:bold;">1 Introduction</a></li><li class="mb-1"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html" style="font-weight:bold;">2 Newton’s method for minimization</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:GaussNewton"><span class="p-1 mb-0">2.1 Gauss–Newton algorithm</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LS"><span class="p-1 mb-0">2.2 Least squares</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LSconstraints"><span class="p-1 mb-0">2.3 Least squares with constraints</span></a></li></ul></div></li><li class="mb-1"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S3.html" style="font-weight:bold;">3 Forward kinematics (FK) for a planar robot manipulator</a></li><li class="mb-1"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html" style="font-weight:bold;">4 Inverse kinematics (IK) for a planar robot manipulator</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IKnum"><span class="p-1 mb-0">4.1 Numerical estimation of the Jacobian</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IK_nullspace"><span class="p-1 mb-0">4.2 Inverse kinematics (IK) with task prioritization</span></a></li></ul></div></li><li class="mb-1"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html" style="font-weight:bold;">5 Encoding with basis functions</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS1"><span class="p-1 mb-0">5.1 Univariate trajectories</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS2"><span class="p-1 mb-0">5.2 Multivariate trajectories</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS3"><span class="p-1 mb-0">5.3 Multidimensional inputs</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS4"><span class="p-1 mb-0">5.4 Derivatives</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS5"><span class="p-1 mb-0">5.5 Concatenated basis functions</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS6"><span class="p-1 mb-0">5.6 Batch computation of basis functions coefficients</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS7"><span class="p-1 mb-0">5.7 Recursive computation of basis functions coefficients</span></a></li></ul></div></li><li class="mb-1"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html" style="font-weight:bold;">6 Linear quadratic tracking (LQT)</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS1"><span class="p-1 mb-0">6.1 LQT with smoothness cost</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS2"><span class="p-1 mb-0">6.2 LQT with control primitives</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRrecursive"><span class="p-1 mb-0">6.3 LQR with a recursive formulation</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:augmState"><span class="p-1 mb-0">6.4 LQT with a recursive formulation and an augmented state space</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRLS"><span class="p-1 mb-0">6.5 Least squares formulation of recursive LQR</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:DMPLQT"><span class="p-1 mb-0">6.6 Dynamical movement primitives (DMP) reformulated as LQT with control primitives</span></a></li></ul></div></li><li class="mb-1"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html" style="font-weight:bold;">7 iLQR optimization</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRbatch"><span class="p-1 mb-0">7.1 Batch formulation of iLQR</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRrecursive"><span class="p-1 mb-0">7.2 Recursive formulation of iLQR</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRLS"><span class="p-1 mb-0">7.3 Least squares formulation of recursive iLQR</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS4"><span class="p-1 mb-0">7.4 Updates by considering step sizes</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS5"><span class="p-1 mb-0">7.5 iLQR with quadratic cost on f(x_{t})</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS6"><span class="p-1 mb-0">7.6 iLQR with control primitives</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS7"><span class="p-1 mb-0">7.7 iLQR for spacetime optimization</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS8"><span class="p-1 mb-0">7.8 iLQR with offdiagonal elements in the precision matrix</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS9"><span class="p-1 mb-0">7.9 Car steering</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS10"><span class="p-1 mb-0">7.10 Bicopter</span></a></li></ul></div></li><li class="mb-1"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html" style="font-weight:bold;">8 Forward dynamics (FD) for a planar robot manipulator</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html#SS1"><span class="p-1 mb-0">8.1 Robot manipulator with dynamics equation</span></a></li></ul></div></li><li class="mb-1"><a class="link-dark d-inline-flex text-decoration-none rounded" href="bib.html" style="font-weight:bold;">References</a></li><li class="mb-1"><a class="link-dark d-inline-flex text-decoration-none rounded" href="A1.html" style="font-weight:bold;">A System dynamics at trajectory level</a></li><li class="mb-1"><a class="link-dark d-inline-flex text-decoration-none rounded" href="A2.html" style="font-weight:bold;">B Derivation of motion equation for a planar robot</a></li><li class="mb-1"><a class="link-dark d-inline-flex text-decoration-none rounded" href="A3.html" style="font-weight:bold;">C Linear systems used in the bimanual tennis serve example</a></li><li class="mb-1"><a class="link-dark d-inline-flex text-decoration-none rounded" href="A4.html" style="font-weight:bold;">D Equivalence between LQT and LQR with augmented state space</a></li></ul>
 </div>

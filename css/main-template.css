@@ -109,17 +109,23 @@ form label {
   font-weight: bold;
 }
 
-/*
-.py-overlay {
-    position: fixed;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 1);
+.py-repl-editor{
+  background: #EEEEEE;
+  box-sizing: border-box;
+  border-width: 0px;
+  border-style: solid;
+  border-color: rgb(209, 13, 19)
 }
-*/
+
+.py-overlay {
+  top: 0;
+  bottom: 0;
+  left: 66.666%;
+  right: 0;
+  opacity: 0.5;
+  background: rgba(0, 0, 0, 1);
+}
+
+.py-repl-run-button {
+  opacity: 1;
+}

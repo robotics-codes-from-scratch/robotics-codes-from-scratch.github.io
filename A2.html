@@ -31,7 +31,14 @@
 
             function convertMath(){
                 const elements = document.getElementsByClassName("ltx_Math");
-                const macros = {};
+                const macros = {
+				'\\tp': '\\text{\\tiny{#1}}',
+				'\\trsp' : '\\top',
+				'\\psin' : '\\dagger',
+				'\\eqref': '\\href{###1}{(\\text{#1})}',
+				'\\ref': '\\href{###1}{\\text{#1}}',
+				'\\label': '\\htmlId{#1}{}'
+			};
                 for(let element of elements){
                     katex.render(element.textContent, element, {
                         throwOnError: false,
@@ -114,10 +121,10 @@
        <li class="border-top my-1">
        </li>
        <li class="mb-1">
-        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes2d-collapse" data-bs-toggle="collapse">
+        <button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes2d-collapse" data-bs-toggle="collapse">
          2D sandboxes
         </button>
-        <div class="collapse show" id="sandboxes2d-collapse">
+        <div class="collapse" id="sandboxes2d-collapse">
          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
           <li>
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_FK.html">
@@ -174,10 +181,10 @@
        <li class="border-top my-1">
        </li>
        <li class="mb-1">
-        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes3d-collapse" data-bs-toggle="collapse">
+        <button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes3d-collapse" data-bs-toggle="collapse">
          3D sandboxes
         </button>
-        <div class="collapse show" id="sandboxes3d-collapse">
+        <div class="collapse" id="sandboxes3d-collapse">
          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
           <li>
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox3d_IK.html">
@@ -192,10 +199,10 @@
        <li class="border-top my-1">
        </li>
        <li class="mb-1">
-        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#exercises-collapse" data-bs-toggle="collapse">
+        <button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#exercises-collapse" data-bs-toggle="collapse">
          Exercises
         </button>
-        <div class="collapse show" id="exercises-collapse">
+        <div class="collapse" id="exercises-collapse">
          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
           <li>
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise01.html">
@@ -323,10 +330,10 @@
        <li class="border-top my-1">
        </li>
        <li class="mb-1">
-        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#doc-collapse" data-bs-toggle="collapse">
-         Documentation
+        <button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#doc-collapse" data-bs-toggle="collapse">
+         Online courses
         </button>
-        <div class="collapse show" id="doc-collapse">
+        <div class="collapse" id="doc-collapse">
          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small" id="menu_container">
           <li class="mb-1">
            <a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html" style="font-weight:bold;">
