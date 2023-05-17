@@ -126,6 +126,10 @@ form label {
   background: rgba(0, 0, 0, 1);
 }
 
+.generated-menu-item{
+  text-align: left;
+}
+
 .py-repl-run-button {
   opacity: 1;
 }
