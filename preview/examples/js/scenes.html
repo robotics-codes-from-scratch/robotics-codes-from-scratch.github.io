@@ -1,0 +1,110 @@
+<!--
+SPDX-FileCopyrightText: 2023 Idiap Research Institute <contact@idiap.ch>
+
+SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+
+SPDX-License-Identifier: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Scenes example (JavaScript version)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+
+
+<body style="font-family: MONOSPACE;">
+    <h2>Scenes example (JavaScript version)</h2>
+
+    <p>This example allows to switch between different scenes. Some contain a robot that can be manipulated, others
+        are examples from <i>MuJoCo</i> (to check the rendering), some others are used to test the implementation.</p>
+
+    <p>Note that due to the differences in the way <i>MuJoCo</i> and <i>three.js</i> are defining materials and
+        lights, colors are usually brighter that in the MuJoCo visualization tool. You might need to adjust
+        the lights and materials in your scene to obtain the rendering you want.</p>
+
+    <label for="scenes">Choose a scene:</label>
+
+    <select id="scenes">
+      <option value="panda.xml">Panda robot</option>
+      <option value="panda_box.xml">Panda robot with one box to push</option>
+      <option disabled>──────────</option>
+      <option value="mujoco/humanoid.xml">(MuJoCo) humanoid</option>
+      <option value="mujoco/mug/mug.xml">(MuJoCo) mug</option>
+      <option value="mujoco/composite/particle.xml">(MuJoCo) particle</option>
+    </select>
+
+    <br/>
+
+    <div id="viewer3d" style="height: 700px"></div>
+
+
+    <!-- Import all the necessary JavaScript dependency modules
+    Sadly, can't be imported from an external file for the moment, this is not supported by Chrome
+    -->
+    <script src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.141.0/build/three.module.js",
+                "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.141.0/examples/jsm/",
+                "mujoco": "../../jsm/mujoco_wasm.js",
+                "xacro-parser": "https://cdn.jsdelivr.net/npm/xacro-parser@0.3.1/src/index.js",
+                "urdf-loader": "https://cdn.jsdelivr.net/npm/urdf-loader@0.10.4/src/URDFLoader.js",
+                "expr-eval": "https://cdn.jsdelivr.net/npm/expr-eval@2.0.2/dist/index.mjs",
+                "katex": "https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.mjs"
+            }
+        }
+    </script>
+
+
+    <!-- Create the Viewer3D from JavaScript -->
+    <script type="module">
+        import { Viewer3D } from '../../viewer3d/viewer3d.js';
+        import { downloadScene, downloadPandaRobot, downloadFiles } from '../../viewer3d/loading.js';
+        import PandaConfiguration from '../../viewer3d/robots/configurations/panda.js';
+
+        const selector = document.getElementById('scenes');
+
+        // Function to load the scene selected by the user
+        function loadSelectedScene() {
+            // Load the scene and retrieve the robot (if any)
+            viewer3D.loadScene('/scenes/' + selector.value);
+            const robot = viewer3D.createRobot('panda', new PandaConfiguration());
+
+            // Start the physics simulation
+            viewer3D.physicsSimulator.paused = false;
+        }
+
+        // Download the assets
+        await downloadPandaRobot();
+        await downloadFiles('/scenes/mujoco/composite', '../scenes/mujoco/composite/', ['scene.xml', 'marble.png']);
+        await downloadFiles('/scenes/mujoco/mug', '../scenes/mujoco/mug/', ['mug.obj', 'mug.png']);
+
+        for (const option of selector.options) {
+            if (option.disabled)
+                continue;
+
+            let sceneName = option.value;
+
+            let destFolder = '/scenes'
+
+            const offset = sceneName.lastIndexOf('/');
+            if (offset != -1)
+                destFolder += '/' + sceneName.substring(0, offset + 1);
+
+            await downloadScene('../scenes/' + sceneName, destFolder);
+        }
+
+        // Create the Viewer3D
+        const viewer3D = new Viewer3D(document.getElementById('viewer3d'));
+
+        // Event handling to change the scene when the user selects one
+        selector.addEventListener('change', loadSelectedScene);
+
+        loadSelectedScene();
+    </script>
+</body>
+</html>
