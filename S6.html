@@ -1,0 +1,2491 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta content="Robotics codes from scratch (RCFS) is a collection of source codes to study and test learning and optimization problems in robotics through simple 2D examples." name="description"/>
+  <meta content="robotics codes, robotics tutorial, rcfs, robotics from scratch" name="keywords"/>
+  <meta content="Sylvain Calinon" name="author"/>
+  <title>
+   RCFS
+  </title>
+  <link href="static_images/favicon.ico" rel="icon" sizes="any"/>
+  <link href="static_images/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <link href="css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="css/bootstrap-icons-1.10.4/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="css/permanent_marker.css" rel="stylesheet"/>
+  <link href="css/main-template.css" rel="stylesheet"/>
+  <link href="css/sidebars.css" rel="stylesheet"/>
+  <link href="css/katex.min.css" rel="stylesheet"/>
+  <script src="js/jquery-3.6.4.min.js">
+  </script>
+  <script src="js/bootstrap.bundle.min.js">
+  </script>
+  <script src="js/katex.min.js">
+  </script>
+  <script>
+   function initialize(){
+                convertMath();
+                alignImages();
+            }
+
+            function convertMath(){
+                const elements = document.getElementsByClassName("ltx_Math");
+                const macros = {
+				'\\tp': '\\text{\\tiny{#1}}',
+				'\\trsp' : '\\top',
+				'\\psin' : '\\dagger',
+				'\\eqref': '\\href{###1}{(\\text{#1})}',
+				'\\ref': '\\href{###1}{\\text{#1}}',
+				'\\label': '\\htmlId{#1}{}'
+			};
+                for(let element of elements){
+                    katex.render(element.textContent, element, {
+                        throwOnError: false,
+                        macros
+                    });
+                }
+            }
+
+            function alignImages(){
+
+                document.getElementsByTagName('style').innerHTML = '';
+
+                let txt_height = document.querySelector('#txt-col').offsetHeight;
+                let img_height = document.querySelector('#img-col').offsetHeight;
+
+                let margin = 50;
+
+                if(txt_height > img_height && screen.width >= 576){
+                    let nb_figures = document.querySelectorAll('.figure_main').length;
+                    let computed_margin = (txt_height - img_height) / nb_figures;
+
+                    if(computed_margin > margin){
+                        margin = computed_margin;
+                    }
+                }
+
+                const style = document.createElement('style');
+                style.innerHTML = '.figure_main{ padding-top:'+Math.round(margin/2)+'px; padding-bottom:'+Math.round(margin/2)+'px; }';
+                document.head.appendChild(style);
+            }
+
+            window.onload = initialize;
+            window.onorientationchange = alignImages;
+  </script>
+ </head>
+ <body>
+  <nav aria-label="Light offcanvas navbar" class="navbar fixed-top" style="width: 50px;">
+   <div class="container-fluid">
+    <button aria-controls="offcanvasNavbarLight" class="navbar-toggler" data-bs-target="#offcanvasNavbarLight" data-bs-toggle="offcanvas" type="button">
+     <span class="navbar-toggler-icon" style="cursor: pointer;">
+     </span>
+    </button>
+    <div aria-labelledby="offcanvasNavbarLightLabel" class="offcanvas offcanvas-start" id="offcanvasNavbarLight" style="width: 500px;" tabindex="-1">
+     <div class="offcanvas-header">
+      <!--style='height: 50px;'-->
+      <a class="navbar-brand" href="index.html">
+       <h4 class="offcanvas-title" id="offcanvasNavbarLightLabel">
+        <i class="bi bi-code-slash">
+        </i>
+        RCFS
+       </h4>
+      </a>
+      <button aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" type="button">
+      </button>
+     </div>
+     <div class="offcanvas-body">
+      <!--Menu goes here-->
+      <ul class="list-unstyled ps-0">
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#general-collapse" data-bs-toggle="collapse">
+         General information
+        </button>
+        <div class="collapse show" id="general-collapse">
+         <!--<li><a href='index.html' class='link-dark d-inline-flex text-decoration-none rounded'>Home</a></li>-->
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="about.html">
+            <div class="p-1 mb-0">
+             About
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes2d-collapse" data-bs-toggle="collapse">
+         2D sandboxes
+        </button>
+        <div class="collapse" id="sandboxes2d-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_FK.html">
+            <div class="p-1 mb-0">
+             Forward kinematics (FK)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_IK.html">
+            <div class="p-1 mb-0">
+             Inverse kinematics (IK)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_bimanual.html">
+            <div class="p-1 mb-0">
+             Bimanual robot
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_humanoid.html">
+            <div class="p-1 mb-0">
+             Humanoid robot (CoM and coordination matrix)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR.html">
+            <div class="p-1 mb-0">
+             Iterative linear quadratic regulator (iLQR)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_car.html">
+            <div class="p-1 mb-0">
+             iLQR for car
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_bicopter.html">
+            <div class="p-1 mb-0">
+             iLQR for bicopter
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes3d-collapse" data-bs-toggle="collapse">
+         3D sandboxes
+        </button>
+        <div class="collapse" id="sandboxes3d-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox3d_IK.html">
+            <div class="p-1 mb-0">
+             Inverse kinematics (IK)
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#exercises-collapse" data-bs-toggle="collapse">
+         Exercises
+        </button>
+        <div class="collapse" id="exercises-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise01.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             01
+            </div>
+            <div class="p-1 mb-0">
+             Linear algebra in Python
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise02.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             02
+            </div>
+            <div class="p-1 mb-0">
+             Movement primitives and Newton's method
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise03.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             03
+            </div>
+            <div class="p-1 mb-0">
+             Gaussian Distributions
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             4a
+            </div>
+            <div class="p-1 mb-0">
+             Forward kinematics
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             4b
+            </div>
+            <div class="p-1 mb-0">
+             Inverse kinematics and nullspace control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             5a
+            </div>
+            <div class="p-1 mb-0">
+             Forward dynamics
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             5b
+            </div>
+            <div class="p-1 mb-0">
+             Inverse dynamics and impedance control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             6a
+            </div>
+            <div class="p-1 mb-0">
+             Planning with linear quadratic regulator
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             6b
+            </div>
+            <div class="p-1 mb-0">
+             Planning in joint space with LQR
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise07.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             07
+            </div>
+            <div class="p-1 mb-0">
+             Iterative linear quadratic regulator (iLQR)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise08.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             08
+            </div>
+            <div class="p-1 mb-0">
+             Exploration with ergodic control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise09.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             09
+            </div>
+            <div class="p-1 mb-0">
+             Orientation with Riemannian manifold
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#doc-collapse" data-bs-toggle="collapse">
+         Online courses
+        </button>
+        <div class="collapse" id="doc-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small" id="menu_container">
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="toc.html" style="font-weight:bold;">
+            Table of contents
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html" style="font-weight:bold;">
+            1 Introduction
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html" style="font-weight:bold;">
+            2 Newton’s method for minimization
+           </a>
+           <div>
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:GaussNewton">
+               <span class="p-1 mb-0">
+                2.1 Gauss–Newton algorithm
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LS">
+               <span class="p-1 mb-0">
+                2.2 Least squares
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LSconstraints">
+               <span class="p-1 mb-0">
+                2.3 Least squares with constraints
+               </span>
+              </a>
+             </li>
+            </ul>
+           </div>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S3.html" style="font-weight:bold;">
+            3 Forward kinematics (FK) for a planar robot manipulator
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html" style="font-weight:bold;">
+            4 Inverse kinematics (IK) for a planar robot manipulator
+           </a>
+           <div>
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IKnum">
+               <span class="p-1 mb-0">
+                4.1 Numerical estimation of the Jacobian
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IK_nullspace">
+               <span class="p-1 mb-0">
+                4.2 Inverse kinematics (IK) with task prioritization
+               </span>
+              </a>
+             </li>
+            </ul>
+           </div>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html" style="font-weight:bold;">
+            5 Encoding with basis functions
+           </a>
+           <div>
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS1">
+               <span class="p-1 mb-0">
+                5.1 Univariate trajectories
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS2">
+               <span class="p-1 mb-0">
+                5.2 Multivariate trajectories
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS3">
+               <span class="p-1 mb-0">
+                5.3 Multidimensional inputs
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS4">
+               <span class="p-1 mb-0">
+                5.4 Derivatives
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS5">
+               <span class="p-1 mb-0">
+                5.5 Concatenated basis functions
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS6">
+               <span class="p-1 mb-0">
+                5.6 Batch computation of basis functions coefficients
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS7">
+               <span class="p-1 mb-0">
+                5.7 Recursive computation of basis functions coefficients
+               </span>
+              </a>
+             </li>
+            </ul>
+           </div>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html" style="font-weight:bold;">
+            6 Linear quadratic tracking (LQT)
+           </a>
+           <div>
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS1">
+               <span class="p-1 mb-0">
+                6.1 LQT with smoothness cost
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS2">
+               <span class="p-1 mb-0">
+                6.2 LQT with control primitives
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRrecursive">
+               <span class="p-1 mb-0">
+                6.3 LQR with a recursive formulation
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:augmState">
+               <span class="p-1 mb-0">
+                6.4 LQT with a recursive formulation and an augmented state space
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRLS">
+               <span class="p-1 mb-0">
+                6.5 Least squares formulation of recursive LQR
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:DMPLQT">
+               <span class="p-1 mb-0">
+                6.6 Dynamical movement primitives (DMP) reformulated as LQT with control primitives
+               </span>
+              </a>
+             </li>
+            </ul>
+           </div>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html" style="font-weight:bold;">
+            7 iLQR optimization
+           </a>
+           <div>
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRbatch">
+               <span class="p-1 mb-0">
+                7.1 Batch formulation of iLQR
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRrecursive">
+               <span class="p-1 mb-0">
+                7.2 Recursive formulation of iLQR
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRLS">
+               <span class="p-1 mb-0">
+                7.3 Least squares formulation of recursive iLQR
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS4">
+               <span class="p-1 mb-0">
+                7.4 Updates by considering step sizes
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS5">
+               <span class="p-1 mb-0">
+                7.5 iLQR with quadratic cost on f(x_{t})
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS6">
+               <span class="p-1 mb-0">
+                7.6 iLQR with control primitives
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS7">
+               <span class="p-1 mb-0">
+                7.7 iLQR for spacetime optimization
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS8">
+               <span class="p-1 mb-0">
+                7.8 iLQR with offdiagonal elements in the precision matrix
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS9">
+               <span class="p-1 mb-0">
+                7.9 Car steering
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS10">
+               <span class="p-1 mb-0">
+                7.10 Bicopter
+               </span>
+              </a>
+             </li>
+            </ul>
+           </div>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html" style="font-weight:bold;">
+            8 Forward dynamics (FD) for a planar robot manipulator
+           </a>
+           <div>
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html#SS1">
+               <span class="p-1 mb-0">
+                8.1 Robot manipulator with dynamics equation
+               </span>
+              </a>
+             </li>
+            </ul>
+           </div>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="bib.html" style="font-weight:bold;">
+            References
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="A1.html" style="font-weight:bold;">
+            A System dynamics at trajectory level
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="A2.html" style="font-weight:bold;">
+            B Derivation of motion equation for a planar robot
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="A3.html" style="font-weight:bold;">
+            C Linear systems used in the bimanual tennis serve example
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="A4.html" style="font-weight:bold;">
+            D Equivalence between LQT and LQR with augmented state space
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+      </ul>
+     </div>
+    </div>
+   </div>
+  </nav>
+  <div class="container-fluid">
+   <!--<center><h1 class="title">My Title</h1></center>-->
+   <div id="data_container">
+    <div class="row">
+     <div class="col-sm-7 offset-1">
+      <div id="txt-col">
+       <h1 class="ltx_title ltx_title_section">
+        <span class="ltx_tag ltx_tag_section">
+         <span class="ltx_text">
+          6
+         </span>
+        </span>
+        <span class="ltx_text">
+         Linear quadratic tracking (LQT)
+        </span>
+       </h1>
+       <div class="ltx_para" id="p1">
+        <p class="ltx_p">
+         Linear quadratic tracking (LQT) is a simple form of optimal control that trades off tracking and control costs expressed as quadratic terms over a time horizon, with the evolution of the state described in a linear form. The LQT problem is formulated as the minimization of the cost
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx10">
+          <tbody id="Ex44">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_align_right ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex44.m1">
+              \displaystyle c
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex44.m2">
+              \displaystyle={\big(\bm{\mu}_{T}\!-\!\bm{x}_{T}\big)}^{\scriptscriptstyle\top}\bm{Q}_{T}\big(\bm{\mu}_{T}\!-\!\bm{x}_{T}\big)+\sum_{t=1}^{T-1}\Big({\big(\bm{\mu}_{t}\!-\!\bm{x}_{t}\big)}^{\scriptscriptstyle\top}\bm{Q}_{t}\big(\bm{\mu}_{t}\!-\!\bm{x}_{t}\big)\;+\;\bm{u}_{t}^{\scriptscriptstyle\top}\bm{R}_{t}\;\bm{u}_{t}\Big)
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+          <tbody id="eq:cBatch">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_eqn_cell">
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="E52.m1">
+              \displaystyle={\big(\bm{\mu}-\bm{x}\big)}^{\scriptscriptstyle\top}\bm{Q}\big(\bm{\mu}-\bm{x}\big)\;+\;\bm{u}^{\scriptscriptstyle\top}\!\bm{R}\bm{u},
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (52)
+          </div>
+         </div>
+        </div>
+        <p class="ltx_p">
+         with
+         <span class="ltx_Math" id="p1.m1">
+          \bm{x}\!=\!{\begin{bmatrix}\bm{x}_{1}^{\scriptscriptstyle\top},\bm{x}_{2}^{\scriptscriptstyle\top},\ldots,\bm{x}_{T}^{\scriptscriptstyle\top}\end{bmatrix}}^{\scriptscriptstyle\top}
+         </span>
+         the evolution of the state variables,
+         <span class="ltx_Math" id="p1.m2">
+          \bm{u}\!=\!{\begin{bmatrix}\bm{u}_{1}^{\scriptscriptstyle\top},\bm{u}_{2}^{\scriptscriptstyle\top},\ldots,\bm{u}_{T-1}^{\scriptscriptstyle\top}\end{bmatrix}}^{\scriptscriptstyle\top}
+         </span>
+         the evolution of the control commands, and
+         <span class="ltx_Math" id="p1.m3">
+          \bm{\mu}\!=\!{\begin{bmatrix}\bm{\mu}_{1}^{\scriptscriptstyle\top},\bm{\mu}_{2}^{\scriptscriptstyle\top},\ldots,\bm{\mu}_{T}^{\scriptscriptstyle\top}\end{bmatrix}}^{\scriptscriptstyle\top}
+         </span>
+         the evolution of the tracking targets.
+         <span class="ltx_Math" id="p1.m4">
+          \bm{Q}\!=\!\mathrm{blockdiag}(\bm{Q}_{1},\bm{Q}_{2},\ldots,\bm{Q}_{T})
+         </span>
+         represents the evolution of the precision matrices
+         <span class="ltx_Math" id="p1.m5">
+          \bm{Q}_{t}
+         </span>
+         , and
+         <span class="ltx_Math" id="p1.m6">
+          \bm{R}\!=\!\mathrm{blockdiag}(\bm{R}_{1},\bm{R}_{2},\ldots,\bm{R}_{T-1})
+         </span>
+         represents the evolution of the control weight matrices
+         <span class="ltx_Math" id="p1.m7">
+          \bm{R}_{t}
+         </span>
+         .
+        </p>
+       </div>
+       <div class="ltx_para" id="p2">
+        <p class="ltx_p">
+         The evolution of the system is linear, described by
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:linSys">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E53.m1">
+             \bm{x}_{t+1}=\bm{A}_{t}\bm{x}_{t}+\bm{B}_{t}\bm{u}_{t},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (53)
+          </div>
+         </div>
+        </div>
+        <p class="ltx_p">
+         yielding at trajectory level
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:linSysTraj">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E54.m1">
+             \bm{x}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{u},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (54)
+          </div>
+         </div>
+        </div>
+        <p class="ltx_p">
+         see Appendix
+         <a class="ltx_ref" href="A1.html" title="Appendix A System dynamics at trajectory level ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           A
+          </span>
+         </a>
+         for details.
+        </p>
+       </div>
+       <div class="ltx_para" id="p3">
+        <p class="ltx_p">
+         With open loop control commands organized as a vector
+         <span class="ltx_Math" id="p3.m1">
+          \bm{u}
+         </span>
+         , the solution of (
+         <a class="ltx_ref" href="#eq:cBatch" title="(52) ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           52
+          </span>
+         </a>
+         ) subject to
+         <span class="ltx_Math" id="p3.m2">
+          \bm{x}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{u}
+         </span>
+         is analytic, given by
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:uLQT">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E55.m1">
+             \bm{\hat{u}}={\big(\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{u}}+\bm{R}\big)}^{-1}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\big(\bm{\mu}-\bm{S}_{\bm{x}}\bm{x}_{1}\big).
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (55)
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="ltx_para" id="p4">
+        <p class="ltx_p">
+         The residuals of this least squares solution provides information about the uncertainty of this estimate, in the form of a full covariance matrix (at control trajectory level)
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:uSigma">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E56.m1">
+             \bm{\hat{\Sigma}}^{\bm{u}}={\big(\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{u}}+\bm{R}\big)}^{-1},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (56)
+          </div>
+         </div>
+        </div>
+        <p class="ltx_p">
+         which provides a probabilistic interpretation of LQT.
+        </p>
+       </div>
+       <div class="ltx_para" id="p5">
+        <p class="ltx_p">
+         The batch computation approach facilitates the creation of bridges between learning and control. For example, in learning from demonstration, the observed (co)variations in a task can be formulated as an LQT objective function, which then provides a trajectory distribution in control space that can be converted to a trajectory distribution in state space. All the operations are analytic and only exploit basic linear algebra.
+        </p>
+       </div>
+       <div class="ltx_para" id="p6">
+        <p class="ltx_p">
+         The approach can also be extended to model predictive control (MPC), iterative LQR (iLQR) and differential dynamic programming (DDP), whose solution needs this time to be interpreted locally at each iteration step of the algorithm, as we will see later in the technical report.
+        </p>
+       </div>
+       <div id="SS0.SSSx1">
+       </div>
+       <h3 class="ltx_title ltx_title_subsubsection">
+        Example: Bimanual tennis serve
+       </h3>
+       <div class="ltx_para" id="SS0.SSSx1.p1">
+        <p class="ltx_p">
+         LQT can be used to solve a ballistic task mimicking a bimanual tennis serve problem. In this problem, a ball is thrown by one hand and then hit by the other, with the goal of bringing the ball to a desired target, see Fig.
+         <a class="ltx_ref" href="#fig:LQT_tennis" title="Figure 11 ‣ Example: Bimanual tennis serve ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           11
+          </span>
+         </a>
+         .
+The problem is formulated as in (
+         <a class="ltx_ref" href="#eq:cBatch" title="(52) ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           52
+          </span>
+         </a>
+         ), namely
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:cTennis">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E57.m1">
+             \min_{\bm{u}}{(\bm{\mu}-\bm{x})}^{\!{\scriptscriptstyle\top}}\bm{Q}(\bm{\mu}-\bm{x})\;+\;\bm{u}^{\!{\scriptscriptstyle\top}}\!\bm{R}\bm{u},\;\text{s.t.}\;\bm{x}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{u},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (57)
+          </div>
+         </div>
+        </div>
+        <p class="ltx_p">
+         where
+         <span class="ltx_Math" id="SS0.SSSx1.p1.m1">
+          \bm{x}
+         </span>
+         represents the state trajectory of the 3 agents (left hand, right hand and ball), where only the hands can be controlled by a series of acceleration commands
+         <span class="ltx_Math" id="SS0.SSSx1.p1.m2">
+          \bm{u}
+         </span>
+         that can be estimated by LQT.
+        </p>
+       </div>
+       <div class="ltx_para" id="SS0.SSSx1.p2">
+        <p class="ltx_p">
+         In the above problem,
+         <span class="ltx_Math" id="SS0.SSSx1.p2.m1">
+          \bm{Q}
+         </span>
+         is a precision matrix and
+         <span class="ltx_Math" id="SS0.SSSx1.p2.m2">
+          \bm{\mu}
+         </span>
+         is a reference vector describing at specific time steps the targets that the three agents must reach. The linear systems are described according to the different phases of the task, see Appendix
+         <a class="ltx_ref" href="A3.html" title="Appendix C Linear systems used in the bimanual tennis serve example ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           C
+          </span>
+         </a>
+         for details. As shown above, the constrained objective in (
+         <a class="ltx_ref" href="#eq:cTennis" title="(57) ‣ Example: Bimanual tennis serve ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           57
+          </span>
+         </a>
+         ) can be solved by least squares, providing an analytical solution given by (
+         <a class="ltx_ref" href="#eq:uLQT" title="(55) ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           55
+          </span>
+         </a>
+         ), see also Fig.
+         <a class="ltx_ref" href="#fig:LQT_tennis" title="Figure 11 ‣ Example: Bimanual tennis serve ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           11
+          </span>
+         </a>
+         for the visualization of the result for a given target and for given initial poses of the hands.
+        </p>
+       </div>
+       <div id="SS1">
+       </div>
+       <h2 class="ltx_title ltx_title_subsection">
+        <span class="ltx_tag ltx_tag_subsection">
+         <span class="ltx_text">
+          6.1
+         </span>
+        </span>
+        <span class="ltx_text">
+         LQT with smoothness cost
+        </span>
+       </h2>
+       <div class="ltx_para" id="SS1.p1">
+        <p class="ltx_p">
+         Linear quadratic tracking (LQT) can be used with dynamical systems described as simple integrators. With single integrators, the states correspond to positions, with velocity control commands. With double integrators, the states correspond to positions and velocities, with acceleration control commands. With triple integrators, the states correspond to positions, velocities and accelerations, with jerk control commands, etc.
+        </p>
+       </div>
+       <div class="ltx_para" id="SS1.p2">
+        <p class="ltx_p">
+         Figure
+         <a class="ltx_ref" href="#fig:LQT_smooth" title="Figure 12 ‣ 6.1 LQT with smoothness cost ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           12
+          </span>
+         </a>
+         shows an example of LQT for a task that consist of passing through a set of viapoints. The left and right graphs show the result for single and double integrators, respectively. The graph in the center also considers a single integrator, by redefining the weight matrix
+         <span class="ltx_Math" id="SS1.p2.m1">
+          \bm{R}
+         </span>
+         of the control cost to ensure smoothness. This can be done by replacing the standard diagonal
+         <span class="ltx_Math" id="SS1.p2.m2">
+          \bm{R}
+         </span>
+         matrix in (
+         <a class="ltx_ref" href="#eq:cBatch" title="(52) ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           52
+          </span>
+         </a>
+         ) with
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex45">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex45.m1">
+             \bm{R}=\left[\begin{matrix}2&amp;-1&amp;0&amp;0&amp;\cdots&amp;0&amp;0\\
+-1&amp;2&amp;-1&amp;0&amp;\cdots&amp;0&amp;0\\
+0&amp;-1&amp;2&amp;-1&amp;\cdots&amp;0&amp;0\\
+\vdots&amp;\vdots&amp;\vdots&amp;\vdots&amp;\ddots&amp;\vdots&amp;\vdots\\
+0&amp;0&amp;0&amp;0&amp;\cdots&amp;2&amp;-1\\
+0&amp;0&amp;0&amp;0&amp;\cdots&amp;-1&amp;2\end{matrix}\right]\otimes\bm{I}_{D}.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+       </div>
+       <div class="ltx_pagination ltx_role_newpage">
+       </div>
+       <div id="SS2">
+       </div>
+       <h2 class="ltx_title ltx_title_subsection">
+        <span class="ltx_tag ltx_tag_subsection">
+         <span class="ltx_text">
+          6.2
+         </span>
+        </span>
+        <span class="ltx_text">
+         LQT with control primitives
+        </span>
+       </h2>
+       <div class="ltx_para" id="SS2.p1">
+        <p class="ltx_p">
+         If we assume that the control commands profile
+         <span class="ltx_Math" id="SS2.p1.m1">
+          \bm{u}
+         </span>
+         is composed of
+         <em class="ltx_emph ltx_font_italic">
+          control primitives
+         </em>
+         (CP) with
+         <span class="ltx_Math" id="SS2.p1.m2">
+          \bm{u}=\bm{\Psi}\bm{w}
+         </span>
+         , the objective becomes
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex46">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex46.m1">
+             \min_{\bm{w}}{(\bm{x}-\bm{\mu})}^{\!{\scriptscriptstyle\top}}\bm{Q}(\bm{x}-\bm{\mu})\;+\;\bm{w}^{\!{\scriptscriptstyle\top}}\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{R}\bm{\Psi}\bm{w},\quad\text{s.t.}\quad\bm{x}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{\Psi}\bm{w},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <p class="ltx_p">
+         with a solution given by
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex47">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex47.m1">
+             \bm{\hat{w}}={\big(\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{u}}\bm{\Psi}+\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{R}\bm{\Psi}\big)}^{-1}\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\big(\bm{\mu}-\bm{S}_{\bm{x}}\bm{x}_{1}\big),
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <p class="ltx_p">
+         which is used to compute the trajectory
+         <span class="ltx_Math" id="SS2.p1.m3">
+          \bm{\hat{u}}=\bm{\Psi}\bm{\hat{w}}
+         </span>
+         in control space, corresponding to the list of control commands organized in vector form. Similarly to (
+         <a class="ltx_ref" href="#eq:uSigma" title="(56) ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           56
+          </span>
+         </a>
+         ), the residuals of the least squares solution provides a probabilistic approach to LQT with control primitives. Note also that the trajectory in control space can be converted to a trajectory in state space with
+         <span class="ltx_Math" id="SS2.p1.m4">
+          \bm{\hat{x}}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{\hat{u}}
+         </span>
+         . Thus, since all operations are linear, a covariance matrix on
+         <span class="ltx_Math" id="SS2.p1.m5">
+          \bm{w}
+         </span>
+         can be converted to a covariance on
+         <span class="ltx_Math" id="SS2.p1.m6">
+          \bm{u}
+         </span>
+         and on
+         <span class="ltx_Math" id="SS2.p1.m7">
+          \bm{x}
+         </span>
+         . A similar linear transformation is used in the context of probabilistic movement primitives (ProMP)
+         <cite class="ltx_cite ltx_citemacro_cite">
+          [
+          <a class="ltx_ref" href="bib.html#bib1" title="Probabilistic movement primitives">
+           12
+          </a>
+          ]
+         </cite>
+         to map a covariance matrix on
+         <span class="ltx_Math" id="SS2.p1.m8">
+          \bm{w}
+         </span>
+         to a covariance on
+         <span class="ltx_Math" id="SS2.p1.m9">
+          \bm{x}
+         </span>
+         . LQT with control primitives provides a more general approach by considering both control and state spaces. It also has the advantage of reframing the method to the more general context of optimal control, thus providing various extension opportunities.
+        </p>
+       </div>
+       <div class="ltx_para" id="SS2.p2">
+        <p class="ltx_p">
+         Several forms of basis functions can be considered, including stepwise control commands, radial basis functions (RBFs), Bernstein polynomials, Fourier series, or learned basis functions, which are organized as a dictionary matrix
+         <span class="ltx_Math" id="SS2.p2.m1">
+          \bm{\Psi}
+         </span>
+         . Dictionaries for multivariate control commands can be generated with a Kronecker product operator
+         <span class="ltx_Math" id="SS2.p2.m2">
+          \otimes
+         </span>
+         as
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:Psi2">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E58.m1">
+             \bm{\Psi}=\bm{\phi}\otimes\bm{C},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (58)
+          </div>
+         </div>
+        </div>
+        <p class="ltx_p">
+         where the matrix
+         <span class="ltx_Math" id="SS2.p2.m3">
+          \bm{\phi}
+         </span>
+         is a horizontal concatenation of univariate basis functions, and
+         <span class="ltx_Math" id="SS2.p2.m4">
+          \bm{C}
+         </span>
+         is a coordination matrix, which can be set to an identity matrix
+         <span class="ltx_Math" id="SS2.p2.m5">
+          \bm{I}_{D}
+         </span>
+         for the generic case of control variables with independent basis functions for each dimension
+         <span class="ltx_Math" id="SS2.p2.m6">
+          d\in\{1,\ldots,D\}
+         </span>
+         .
+        </p>
+       </div>
+       <div class="ltx_para" id="SS2.p3">
+        <p class="ltx_p">
+         Note also that in some situations,
+         <span class="ltx_Math" id="SS2.p3.m1">
+          \bm{R}
+         </span>
+         can be set to zero because the regularization role of
+         <span class="ltx_Math" id="SS2.p3.m2">
+          \bm{R}
+         </span>
+         in the original problem formulation can sometimes be redundant with the use of sparse basis functions.
+        </p>
+       </div>
+       <div id="sec:LQRrecursive">
+       </div>
+       <h2 class="ltx_title ltx_title_subsection">
+        <span class="ltx_tag ltx_tag_subsection">
+         <span class="ltx_text">
+          6.3
+         </span>
+        </span>
+        <span class="ltx_text">
+         LQR with a recursive formulation
+        </span>
+       </h2>
+       <figure class="ltx_float" id="alg:LQRrecursive">
+        <div class="ltx_listing ltx_lst_numbers_left ltx_listing">
+         <div class="ltx_listingline">
+          Define quadratic cost function with
+          <span class="ltx_Math" id="algorithm2.m1">
+           \bm{Q}_{t}
+          </span>
+          ,
+          <span class="ltx_Math" id="algorithm2.m2">
+           \bm{R}_{t}
+          </span>
+         </div>
+         <div class="ltx_listingline">
+          Define dynamics with
+          <span class="ltx_Math" id="algorithm2.m3">
+           \bm{A}_{t}
+          </span>
+          ,
+          <span class="ltx_Math" id="algorithm2.m4">
+           \bm{B}_{t}
+          </span>
+          , and initial state
+          <span class="ltx_Math" id="algorithm2.m5">
+           \bm{x}_{1}
+          </span>
+         </div>
+         <div class="ltx_listingline">
+          <span class="ltx_text ltx_font_typewriter">
+           //
+          </span>
+          <span class="ltx_text ltx_font_typewriter">
+           Backward pass
+          </span>
+         </div>
+         <div class="ltx_listingline">
+          Set
+          <span class="ltx_Math" id="algorithm2.m6">
+           \bm{V}_{T}=\bm{Q}_{T}
+          </span>
+         </div>
+         <div class="ltx_listingline">
+          <span class="ltx_text ltx_font_bold">
+           for
+          </span>
+          <em class="ltx_emph ltx_font_italic">
+           <span class="ltx_Math" id="algorithm2.m7">
+            t\leftarrow T-1
+           </span>
+           to
+           <span class="ltx_Math" id="algorithm2.m8">
+            1
+           </span>
+          </em>
+          <span class="ltx_text ltx_font_bold">
+           do
+          </span>
+         </div>
+         <div class="ltx_listingline">
+          <span class="ltx_rule">
+          </span>
+          Compute
+          <span class="ltx_Math" id="algorithm2.m9">
+           \bm{V}_{t}
+          </span>
+          with (
+          <a class="ltx_ref" href="#eq:V" title="(67) ‣ 6.3 LQR with a recursive formulation ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            67
+           </span>
+          </a>
+          ) and (
+          <a class="ltx_ref" href="#eq:ct1" title="(65) ‣ 6.3 LQR with a recursive formulation ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            65
+           </span>
+          </a>
+          )
+         </div>
+         <div class="ltx_listingline">
+          end for
+         </div>
+         <div class="ltx_listingline">
+          <span class="ltx_text ltx_font_typewriter">
+           //
+          </span>
+          <span class="ltx_text ltx_font_typewriter">
+           Forward pass
+          </span>
+         </div>
+         <div class="ltx_listingline">
+          <span class="ltx_text ltx_font_bold">
+           for
+          </span>
+          <em class="ltx_emph ltx_font_italic">
+           <span class="ltx_Math" id="algorithm2.m10">
+            t\leftarrow 1
+           </span>
+           to
+           <span class="ltx_Math" id="algorithm2.m11">
+            T-1
+           </span>
+          </em>
+          <span class="ltx_text ltx_font_bold">
+           do
+          </span>
+         </div>
+         <div class="ltx_listingline">
+          <span class="ltx_rule">
+          </span>
+          Compute
+          <span class="ltx_Math" id="algorithm2.m12">
+           \bm{K}_{t}
+          </span>
+          and
+          <span class="ltx_Math" id="algorithm2.m13">
+           \bm{\hat{u}}_{t}
+          </span>
+          with (
+          <a class="ltx_ref" href="#eq:uLQRrecursive" title="(66) ‣ 6.3 LQR with a recursive formulation ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            66
+           </span>
+          </a>
+          )
+         </div>
+         <div class="ltx_listingline">
+          <span class="ltx_rule">
+          </span>
+          Compute
+          <span class="ltx_Math" id="algorithm2.m14">
+           \bm{x}_{t+1}
+          </span>
+          with (
+          <a class="ltx_ref" href="#eq:linSys" title="(53) ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            53
+           </span>
+          </a>
+          )
+         </div>
+         <div class="ltx_listingline">
+          end for
+         </div>
+         <div class="ltx_listingline">
+         </div>
+        </div>
+        <figcaption class="ltx_caption">
+         <span class="ltx_tag ltx_tag_float">
+          <span class="ltx_text ltx_font_bold">
+           Algorithm 2
+          </span>
+         </span>
+         Recursive formulation of LQR
+        </figcaption>
+       </figure>
+       <div class="ltx_para" id="SS3.p1">
+        <p class="ltx_p">
+         The LQR problem is formulated as the minimization of the cost
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:cLQR">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E59.m1">
+             c(\bm{x}_{1},\bm{u})=c_{T}(\bm{x}_{T})+\sum_{t=1}^{T-1}c_{t}(\bm{x}_{t},\bm{u}_{t})\;=\bm{x}_{T}^{\scriptscriptstyle\top}\bm{Q}_{T}\bm{x}_{T}+\sum_{t=1}^{T-1}\Big(\bm{x}_{t}^{\scriptscriptstyle\top}\bm{Q}_{t}\bm{x}_{t}+\bm{u}_{t}^{\scriptscriptstyle\top}\bm{R}_{t}\,\bm{u}_{t}\Big),\quad\text{s.t.}\quad\bm{x}_{t+1}=\bm{A}_{t}\bm{x}_{t}+\bm{B}_{t}\bm{u}_{t},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (59)
+          </div>
+         </div>
+        </div>
+        <p class="ltx_p">
+         where
+         <span class="ltx_Math" id="SS3.p1.m1">
+          c
+         </span>
+         without index refers to the total cost (cumulative cost).
+We also define the partial cumulative cost
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:cumulativeCost">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E60.m1">
+             v_{t}(\bm{x}_{t},\bm{u}_{t:T-1})=c_{T}(\bm{x}_{T})+\sum_{s=t}^{T-1}c_{s}(\bm{x}_{t},\bm{u}_{t}),
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (60)
+          </div>
+         </div>
+        </div>
+        <p class="ltx_p">
+         which depends on the states and control commands, except for
+         <span class="ltx_Math" id="SS3.p1.m2">
+          v_{T}
+         </span>
+         that only depends on the state.
+        </p>
+       </div>
+       <div class="ltx_para" id="SS3.p2">
+        <p class="ltx_p">
+         We define the
+         <em class="ltx_emph ltx_font_italic">
+          value function
+         </em>
+         as the value taken by
+         <span class="ltx_Math" id="SS3.p2.m1">
+          v_{t}
+         </span>
+         when applying optimal control commands, namely
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:valueFunction">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E61.m1">
+             \hat{v}_{t}(\bm{x}_{t})=\min_{\bm{u}_{t:T-1}}v_{t}(\bm{x}_{t},\bm{u}_{t:T-1}).
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (61)
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="ltx_para" id="SS3.p3">
+        <p class="ltx_p">
+         We will use the dynamic programming principle to reduce the minimization in (
+         <a class="ltx_ref" href="#eq:valueFunction" title="(61) ‣ 6.3 LQR with a recursive formulation ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           61
+          </span>
+         </a>
+         ) over the entire sequence of control commands
+         <span class="ltx_Math" id="SS3.p3.m1">
+          \bm{u}_{t:T-1}
+         </span>
+         to a sequence of minimization problems over control commands at a single time step, by proceeding backwards in time.
+        </p>
+       </div>
+       <div class="ltx_para" id="SS3.p4">
+        <p class="ltx_p">
+         By inserting (
+         <a class="ltx_ref" href="#eq:cumulativeCost" title="(60) ‣ 6.3 LQR with a recursive formulation ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           60
+          </span>
+         </a>
+         ) in (
+         <a class="ltx_ref" href="#eq:valueFunction" title="(61) ‣ 6.3 LQR with a recursive formulation ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           61
+          </span>
+         </a>
+         ), we observe that
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx11">
+          <tbody id="Ex48">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_align_right ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex48.m1">
+              \displaystyle\hat{v}_{t}(\bm{x}_{t})
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex48.m2">
+              \displaystyle=\min_{\bm{u}_{t:T-1}}\Big(c_{T}(\bm{x}_{T})+\sum_{s=t}^{T-1}c_{s}(\bm{x}_{t},\bm{u}_{t})\Big)
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+          <tbody id="Ex49">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_eqn_cell">
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex49.m1">
+              \displaystyle=\min_{\bm{u}_{t}}c_{t}(\bm{x}_{t},\bm{u}_{t})\!+\!\!\!\min_{\bm{u}_{t+1:T-1}}\!\!\!\Big(\!c_{T}(\bm{x}_{T})\!+\!\!\sum_{s=t+1}^{T-1}\!\!c_{s}(\bm{x}_{t},\bm{u}_{t})\!\Big)
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+          <tbody id="eq:qtLQR">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_eqn_cell">
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="E62.m1">
+              \displaystyle=\min_{\bm{u}_{t}}\underbrace{c_{t}(\bm{x}_{t},\bm{u}_{t})+\hat{v}_{t+1}(\bm{x}_{t+1})}_{q_{t}(\bm{x}_{t},\bm{u}_{t})},
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (62)
+          </div>
+         </div>
+        </div>
+        <p class="ltx_p">
+         where
+         <span class="ltx_Math" id="SS3.p4.m1">
+          q_{t}
+         </span>
+         is called the
+         <em class="ltx_emph ltx_font_italic">
+          q-function
+         </em>
+         .
+        </p>
+       </div>
+       <div class="ltx_para" id="SS3.p5">
+        <p class="ltx_p">
+         By starting from the last time step
+         <span class="ltx_Math" id="SS3.p5.m1">
+          T
+         </span>
+         , and by relabeling
+         <span class="ltx_Math" id="SS3.p5.m2">
+          \bm{Q}_{T}
+         </span>
+         as
+         <span class="ltx_Math" id="SS3.p5.m3">
+          \bm{V}_{T}
+         </span>
+         , we can see that
+         <span class="ltx_Math" id="SS3.p5.m4">
+          \hat{v}_{T}(\bm{x}_{T})=c_{T}(\bm{x}_{T})
+         </span>
+         is independent of the control commands, taking the quadratic error form
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:vhatT">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E63.m1">
+             \hat{v}_{T}=\bm{x}_{T}^{\scriptscriptstyle\top}\bm{V}_{T}\bm{x}_{T},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (63)
+          </div>
+         </div>
+        </div>
+        <p class="ltx_p">
+         which only involves the final state
+         <span class="ltx_Math" id="SS3.p5.m5">
+          \bm{x}_{T}
+         </span>
+         . We will show that
+         <span class="ltx_Math" id="SS3.p5.m6">
+          \hat{v}_{T-1}
+         </span>
+         has the same quadratic form as
+         <span class="ltx_Math" id="SS3.p5.m7">
+          \hat{v}_{T}
+         </span>
+         , enabling the backward recursive computation of
+         <span class="ltx_Math" id="SS3.p5.m8">
+          \hat{v}_{t}
+         </span>
+         from
+         <span class="ltx_Math" id="SS3.p5.m9">
+          t=T-1
+         </span>
+         to
+         <span class="ltx_Math" id="SS3.p5.m10">
+          t=1
+         </span>
+         .
+        </p>
+       </div>
+       <div class="ltx_para" id="SS3.p6">
+        <p class="ltx_p">
+         With (
+         <a class="ltx_ref" href="#eq:qtLQR" title="(62) ‣ 6.3 LQR with a recursive formulation ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           62
+          </span>
+         </a>
+         ), the dynamic programming recursion takes the form
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:ct0">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E64.m1">
+             \hat{v}_{t}=\min_{\bm{u}_{t}}\begin{bmatrix}\bm{x}_{t}\\
+\bm{u}_{t}\end{bmatrix}^{\scriptscriptstyle\top}\begin{bmatrix}\bm{Q}_{t}&amp;\bm{0}\\
+\bm{0}&amp;\bm{R}_{t}\end{bmatrix}\begin{bmatrix}\bm{x}_{t}\\
+\bm{u}_{t}\end{bmatrix}+\bm{x}_{t+1}^{\scriptscriptstyle\top}\bm{V}_{t+1}\bm{x}_{t+1}.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (64)
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="ltx_para" id="SS3.p7">
+        <p class="ltx_p">
+         By substituting
+         <span class="ltx_Math" id="SS3.p7.m1">
+          \bm{x}_{{t+1}}=\bm{A}_{t}\bm{x}_{t}+\bm{B}_{t}\bm{u}_{t}
+         </span>
+         into (
+         <a class="ltx_ref" href="#eq:ct0" title="(64) ‣ 6.3 LQR with a recursive formulation ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           64
+          </span>
+         </a>
+         ),
+         <span class="ltx_Math" id="SS3.p7.m2">
+          \hat{v}_{t}
+         </span>
+         can be rewritten as
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:ct1">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E65.m1">
+             \hat{v}_{t}=\min_{\bm{u}_{t}}\begin{bmatrix}\bm{x}_{t}\\
+\bm{u}_{t}\end{bmatrix}^{\scriptscriptstyle\top}\begin{bmatrix}\bm{Q}_{\bm{x}\bm{x},t}&amp;\bm{Q}_{\bm{u}\bm{x},t}^{\scriptscriptstyle\top}\\
+\bm{Q}_{\bm{u}\bm{x},t}&amp;\bm{Q}_{\bm{u}\bm{u},t}\end{bmatrix}\begin{bmatrix}\bm{x}_{t}\\
+\bm{u}_{t}\end{bmatrix},\quad\text{where}\quad\left\{\begin{aligned} \bm{Q}_{\bm{x}\bm{x},t}&amp;=\bm{A}_{t}^{\scriptscriptstyle\top}\bm{V}_{t+1}\bm{A}_{t}+\bm{Q}_{t},\\
+\bm{Q}_{\bm{u}\bm{u},t}&amp;=\bm{B}_{t}^{\scriptscriptstyle\top}\bm{V}_{t+1}\bm{B}_{t}+\bm{R}_{t},\\
+\bm{Q}_{\bm{u}\bm{x},t}&amp;=\bm{B}_{t}^{\scriptscriptstyle\top}\bm{V}_{t+1}\bm{A}_{t}.\end{aligned}\right.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (65)
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="ltx_para" id="SS3.p8">
+        <p class="ltx_p">
+         An optimal control command
+         <span class="ltx_Math" id="SS3.p8.m1">
+          \bm{\hat{u}}_{t}
+         </span>
+         can be computed by differentiating (
+         <a class="ltx_ref" href="#eq:ct1" title="(65) ‣ 6.3 LQR with a recursive formulation ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           65
+          </span>
+         </a>
+         ) with respect to
+         <span class="ltx_Math" id="SS3.p8.m2">
+          \bm{u}_{t}
+         </span>
+         and equating to zero, providing a feedback law
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:uLQRrecursive">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E66.m1">
+             \bm{\hat{u}}_{t}=-\bm{K}_{t}\,\bm{x}_{t},\quad\text{with}\quad\bm{K}_{t}=\bm{Q}_{\bm{u}\bm{u},t}^{-1}\,\bm{Q}_{\bm{u}\bm{x},t}.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (66)
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="ltx_para" id="SS3.p9">
+        <p class="ltx_p">
+         By introducing (
+         <a class="ltx_ref" href="#eq:uLQRrecursive" title="(66) ‣ 6.3 LQR with a recursive formulation ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           66
+          </span>
+         </a>
+         ) back into (
+         <a class="ltx_ref" href="#eq:ct1" title="(65) ‣ 6.3 LQR with a recursive formulation ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           65
+          </span>
+         </a>
+         ), the resulting value function
+         <span class="ltx_Math" id="SS3.p9.m1">
+          \hat{v}_{t}
+         </span>
+         has the quadratic form
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:V">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E67.m1">
+             \hat{v}_{t}=\bm{x}_{t}^{\scriptscriptstyle\top}\bm{V}_{t}\bm{x}_{t},\quad\text{with}\quad\bm{V}_{t}=\bm{Q}_{\bm{x}\bm{x},t}-\bm{Q}_{\bm{u}\bm{x},t}^{\scriptscriptstyle\top}\,\bm{Q}_{\bm{u}\bm{u},t}^{-1}\,\bm{Q}_{\bm{u}\bm{x},t}.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (67)
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="ltx_para" id="SS3.p10">
+        <p class="ltx_p">
+         We observe that (
+         <a class="ltx_ref" href="#eq:V" title="(67) ‣ 6.3 LQR with a recursive formulation ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           67
+          </span>
+         </a>
+         ) has the same quadratic form as (
+         <a class="ltx_ref" href="#eq:vhatT" title="(63) ‣ 6.3 LQR with a recursive formulation ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           63
+          </span>
+         </a>
+         ), so that (
+         <a class="ltx_ref" href="#eq:qtLQR" title="(62) ‣ 6.3 LQR with a recursive formulation ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           62
+          </span>
+         </a>
+         ) can be solved recursively. We thus obtain a backward recursion procedure in which
+         <span class="ltx_Math" id="SS3.p10.m1">
+          \bm{V}_{t}
+         </span>
+         is evaluated recursively from
+         <span class="ltx_Math" id="SS3.p10.m2">
+          t=T-1
+         </span>
+         to
+         <span class="ltx_Math" id="SS3.p10.m3">
+          t=1
+         </span>
+         , starting from
+         <span class="ltx_Math" id="SS3.p10.m4">
+          \bm{V}_{T}=\bm{Q}_{T}
+         </span>
+         , which corresponds to a Riccati equation.
+        </p>
+       </div>
+       <div class="ltx_para" id="SS3.p11">
+        <p class="ltx_p">
+         After all feedback gain matrices
+         <span class="ltx_Math" id="SS3.p11.m1">
+          \bm{K}_{t}
+         </span>
+         have been computed by backward recursion, a forward recursion can be used to compute the evolution of the state, starting from
+         <span class="ltx_Math" id="SS3.p11.m2">
+          \bm{x}_{1}
+         </span>
+         , by using the linear system
+         <span class="ltx_Math" id="SS3.p11.m3">
+          \bm{x}_{t+1}=\bm{A}_{t}\bm{x}_{t}+\bm{B}_{t}\bm{u}_{t}
+         </span>
+         and the control policy
+         <span class="ltx_Math" id="SS3.p11.m4">
+          \bm{u}_{t}=-\bm{K}_{t}\bm{x}_{t}
+         </span>
+         , see Algorithm
+         <a class="ltx_ref" href="#alg:LQRrecursive" title="Algorithm 2 ‣ 6.3 LQR with a recursive formulation ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           2
+          </span>
+         </a>
+         for the summary of the overall procedure.
+        </p>
+       </div>
+       <div id="sec:augmState">
+       </div>
+       <h2 class="ltx_title ltx_title_subsection">
+        <span class="ltx_tag ltx_tag_subsection">
+         <span class="ltx_text">
+          6.4
+         </span>
+        </span>
+        <span class="ltx_text">
+         LQT with a recursive formulation and an augmented state space
+        </span>
+       </h2>
+       <div class="ltx_para" id="SS4.p1">
+        <p class="ltx_p">
+         In order to extend the above development to linear quadratic tracking (LQT), the problem of tracking a reference signal
+         <span class="ltx_Math" id="SS4.p1.m1">
+          \{\bm{\mu}_{t}\}_{t=1}^{T}
+         </span>
+         can be recast as a regulation problem by considering a dynamical system with an augmented state
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:ABaugm">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E68.m1">
+             \underbrace{\left[\begin{matrix}\bm{x}_{t+1}\\
+1\end{matrix}\right]}_{\bm{\tilde{x}}_{t+1}}=\underbrace{\left[\begin{matrix}\bm{A}&amp;\bm{0}\\
+\bm{0}&amp;1\end{matrix}\right]}_{\bm{\tilde{A}}}\underbrace{\left[\begin{matrix}\bm{x}_{t}\\
+1\end{matrix}\right]}_{\bm{\tilde{x}}_{t}}+\underbrace{\left[\begin{matrix}\bm{B}\\
+0\end{matrix}\right]}_{\bm{\tilde{B}}}\bm{u}_{t},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (68)
+          </div>
+         </div>
+        </div>
+        <p class="ltx_p">
+         and an augmented tracking weight
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex50">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex50.m1">
+             \bm{\tilde{Q}}_{t}=\begin{bmatrix}\bm{Q}_{t}^{-1}\!+\!\bm{\mu}_{t}\bm{\mu}_{t}^{\scriptscriptstyle\top}&amp;\bm{\mu}_{t}\\
+\bm{\mu}_{t}^{\scriptscriptstyle\top}&amp;1\end{bmatrix}^{-1}=\begin{bmatrix}\bm{I}&amp;\bm{0}\\
+-\bm{\mu}_{t}^{\scriptscriptstyle\top}&amp;1\end{bmatrix}\begin{bmatrix}\bm{Q}_{t}&amp;\bm{0}\\
+\bm{0}&amp;1\end{bmatrix}\begin{bmatrix}\bm{I}&amp;-\bm{\mu}_{t}\\
+\bm{0}&amp;1\end{bmatrix},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <p class="ltx_p">
+         which is used to define the cost
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A4.EGx12">
+          <tbody id="Ex51">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_align_right ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex51.m1">
+              \displaystyle c
+             </span>
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="Ex51.m2">
+              \displaystyle={\big(\bm{\mu}_{T}-\bm{x}_{T}\big)}^{\scriptscriptstyle\top}\bm{Q}_{T}\big(\bm{\mu}_{T}-\bm{x}_{T}\big)+\sum_{t=1}^{T-1}\Big({\big(\bm{\mu}_{t}-\bm{x}_{t}\big)}^{\scriptscriptstyle\top}\bm{Q}_{t}\big(\bm{\mu}_{t}-\bm{x}_{t}\big)\;+\;\bm{u}_{t}^{\scriptscriptstyle\top}\bm{R}_{t}\;\bm{u}_{t}\Big)
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+          <tbody id="eq:cBatchAugm">
+           <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+            <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+            </td>
+            <td class="ltx_td ltx_eqn_cell">
+            </td>
+            <td class="ltx_td ltx_align_left ltx_eqn_cell">
+             <span class="ltx_Math" id="E69.m1">
+              \displaystyle=\bm{\tilde{x}}_{T}^{\scriptscriptstyle\top}\bm{\tilde{Q}}_{T}\bm{\tilde{x}}_{T}\;+\;\sum_{t=1}^{T-1}\Big(\bm{\tilde{x}}_{t}^{\scriptscriptstyle\top}\bm{\tilde{Q}}_{t}\bm{\tilde{x}}_{t}\;+\;\bm{u}_{t}^{\scriptscriptstyle\top}\bm{R}_{t}\bm{u}_{t}\Big),
+             </span>
+            </td>
+            <td class="ltx_eqn_cell ltx_eqn_center_padright">
+            </td>
+           </tr>
+          </tbody>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (69)
+          </div>
+         </div>
+        </div>
+        <p class="ltx_p">
+         where the augmented form in (
+         <a class="ltx_ref" href="#eq:cBatchAugm" title="(69) ‣ 6.4 LQT with a recursive formulation and an augmented state space ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           69
+          </span>
+         </a>
+         ) has the same form as the standard LQR cost in (
+         <a class="ltx_ref" href="#eq:cLQR" title="(59) ‣ 6.3 LQR with a recursive formulation ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           59
+          </span>
+         </a>
+         ), allowing the tracking problem to be solved in the same way by using this augmented state representation. Additional verification details can be found in Appendix
+         <a class="ltx_ref" href="A4.html" title="Appendix D Equivalence between LQT and LQR with augmented state space ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           D
+          </span>
+         </a>
+         .
+        </p>
+       </div>
+       <div class="ltx_para" id="SS4.p2">
+        <p class="ltx_p">
+         For a tracking problem, we can see that the resulting optimal control policy takes the form
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:uLQTrecursive">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E70.m1">
+             \bm{\hat{u}}_{t}=-\bm{\tilde{K}}_{t}\;\bm{\tilde{x}}_{t}=\bm{K}_{t}\,(\bm{\mu}_{t}-\bm{x}_{t})+\bm{u}^{\text{ff}}_{t},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (70)
+          </div>
+         </div>
+        </div>
+        <p class="ltx_p">
+         characterized by a feedback gain matrix
+         <span class="ltx_Math" id="SS4.p2.m1">
+          \bm{K}_{t}
+         </span>
+         extracted from
+         <span class="ltx_Math" id="SS4.p2.m2">
+          \bm{\tilde{K}}_{t}=\big[\bm{K}_{t},\bm{k}_{t}\big]
+         </span>
+         , and a feedforward term
+         <span class="ltx_Math" id="SS4.p2.m3">
+          \bm{u}^{\text{ff}}_{t}=-\bm{k}_{t}-\bm{K}_{t}\bm{\mu}_{t}
+         </span>
+         depending on
+         <span class="ltx_Math" id="SS4.p2.m4">
+          \bm{\mu}_{t}
+         </span>
+         .
+        </p>
+       </div>
+       <div id="sec:LQRLS">
+       </div>
+       <h2 class="ltx_title ltx_title_subsection">
+        <span class="ltx_tag ltx_tag_subsection">
+         <span class="ltx_text">
+          6.5
+         </span>
+        </span>
+        <span class="ltx_text">
+         Least squares formulation of recursive LQR
+        </span>
+       </h2>
+       <div class="ltx_para" id="SS5.p1">
+        <p class="ltx_p">
+         We have seen in Section
+         <a class="ltx_ref" href="#sec:LQRrecursive" title="6.3 LQR with a recursive formulation ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           6.3
+          </span>
+         </a>
+         that a standard LQR problem is formulated as
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex52">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex52.m1">
+             \min_{\bm{u}}\;\bm{x}^{\!{\scriptscriptstyle\top}}\bm{Q}\bm{x}+\bm{u}^{\!{\scriptscriptstyle\top}}\!\bm{R}\bm{u},\quad\text{s.t.}\quad\bm{x}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{u},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <p class="ltx_p">
+         whose solution is
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex53">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex53.m1">
+             \bm{\hat{u}}=-\big({\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{u}}+\bm{R}\big)}^{-1}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{x}}\bm{x}_{1},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <p class="ltx_p">
+         corresponding to open loop control commands.
+        </p>
+       </div>
+       <div class="ltx_para" id="SS5.p2">
+        <p class="ltx_p">
+         By introducing a matrix
+         <span class="ltx_Math" id="SS5.p2.m1">
+          \bm{F}
+         </span>
+         to describe
+         <span class="ltx_Math" id="SS5.p2.m2">
+          \bm{u}=-\bm{F}\bm{x}_{1}
+         </span>
+         , we can alternatively define the optimization problem as
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex54">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex54.m1">
+             \min_{\bm{F}}\;\;\bm{x}^{\!{\scriptscriptstyle\top}}\bm{Q}\bm{x}+(-\bm{F}\bm{x}_{1})^{\!{\scriptscriptstyle\top}}\,\bm{R}\,(-\bm{F}\bm{x}_{1}),\quad\text{s.t.}\quad\bm{x}=(\bm{S}_{\bm{x}}-\bm{S}_{\bm{u}}\bm{F})\bm{x}_{1},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <p class="ltx_p">
+         whose least squares solution is
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:LQR_LS_F">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E71.m1">
+             \bm{F}={\big(\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{u}}+\bm{R}\big)}^{-1}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{x}}.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (71)
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="ltx_para" id="SS5.p3">
+        <p class="ltx_p">
+         We decompose
+         <span class="ltx_Math" id="SS5.p3.m1">
+          \bm{F}
+         </span>
+         as block matrices
+         <span class="ltx_Math" id="SS5.p3.m2">
+          \bm{F}_{t}
+         </span>
+         with
+         <span class="ltx_Math" id="SS5.p3.m3">
+          t\in\{1,\ldots,T-1\}
+         </span>
+         .
+         <span class="ltx_Math" id="SS5.p3.m4">
+          \bm{F}
+         </span>
+         can then be used to iteratively reconstruct regulation gains
+         <span class="ltx_Math" id="SS5.p3.m5">
+          \bm{K}_{t}
+         </span>
+         , by starting from
+         <span class="ltx_Math" id="SS5.p3.m6">
+          \bm{K}_{1}=\bm{F}_{1}
+         </span>
+         ,
+         <span class="ltx_Math" id="SS5.p3.m7">
+          \bm{P}_{1}=\bm{I}
+         </span>
+         , and by computing recursively
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:K_from_F">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E72.m1">
+             \bm{P}_{t}=\bm{P}_{t-1}{(\bm{A}_{t-1}-\bm{B}_{t-1}\bm{K}_{t-1})}^{-1},\quad\bm{K}_{t}=\bm{F}_{t}\;\bm{P}_{t},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (72)
+          </div>
+         </div>
+        </div>
+        <p class="ltx_p">
+         which can then be used in a feedback controller as in (
+         <a class="ltx_ref" href="#eq:uLQRrecursive" title="(66) ‣ 6.3 LQR with a recursive formulation ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           66
+          </span>
+         </a>
+         ).
+        </p>
+       </div>
+       <div class="ltx_para" id="SS5.p4">
+        <p class="ltx_p">
+         It is straightforward to extend this least squares formulation of recursive LQR to linear quadratic tracking and use (
+         <a class="ltx_ref" href="#eq:uLQTrecursive" title="(70) ‣ 6.4 LQT with a recursive formulation and an augmented state space ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           70
+          </span>
+         </a>
+         ) as feedback controller on an augmented state space, since the recursive LQT problem can be transformed to a recursive LQR problem with an augmented state space representation (see Section
+         <a class="ltx_ref" href="#sec:augmState" title="6.4 LQT with a recursive formulation and an augmented state space ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           6.4
+          </span>
+         </a>
+         ).
+        </p>
+       </div>
+       <div class="ltx_para" id="SS5.p5">
+        <p class="ltx_p">
+         This least squares formulation of LQT (LQT-LS) yields the same controller as with the standard recursive computation presented in Section
+         <a class="ltx_ref" href="#sec:augmState" title="6.4 LQT with a recursive formulation and an augmented state space ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           6.4
+          </span>
+         </a>
+         . However, the linear form in (
+         <a class="ltx_ref" href="#eq:LQR_LS_F" title="(71) ‣ 6.5 Least squares formulation of recursive LQR ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           71
+          </span>
+         </a>
+         ) used by LQT-LS has several advantages. First, it allows the use of full precision matrices
+         <span class="ltx_Math" id="SS5.p5.m1">
+          \bm{Q}
+         </span>
+         , which will be demonstrated in the example below. It also allows to extend LQT-LS to the use of control primitives, which will be further discussed in Section
+         <a class="ltx_ref" href="#sec:DMPLQT" title="6.6 Dynamical movement primitives (DMP) reformulated as LQT with control primitives ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           6.6
+          </span>
+         </a>
+         . Moreover, it provides a nullspace structure that can be exploited in recursive LQR/LQT problems.
+        </p>
+       </div>
+       <div id="SS5.SSSx1">
+       </div>
+       <h3 class="ltx_title ltx_title_subsubsection">
+        Example with the control of multiple agents
+       </h3>
+       <div class="ltx_para" id="SS5.SSSx1.p1">
+        <p class="ltx_p">
+         Figure
+         <a class="ltx_ref" href="#fig:LQT_recursive_LS_multiAgents" title="Figure 13 ‣ Example with the control of multiple agents ‣ 6.5 Least squares formulation of recursive LQR ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           13
+          </span>
+         </a>
+         presents an example with the control of multiple agents, with a precision matrix involving nonzero offdiagonal elements. The corresponding example code presents two options: it either requests the two agents to meet in the middle of the motion (e.g., for a handover task), or it requests the two agents to find a location to reach at different time steps (e.g., to drop and pick-up an object), involving nonzero offdiagonal elements at different time steps.
+        </p>
+       </div>
+       <div id="sec:DMPLQT">
+       </div>
+       <h2 class="ltx_title ltx_title_subsection">
+        <span class="ltx_tag ltx_tag_subsection">
+         <span class="ltx_text">
+          6.6
+         </span>
+        </span>
+        <span class="ltx_text">
+         Dynamical movement primitives (DMP) reformulated as LQT with control primitives
+        </span>
+       </h2>
+       <div class="ltx_para" id="SS6.p1">
+        <p class="ltx_p">
+         The dynamical movement primitives (DMP)
+         <cite class="ltx_cite ltx_citemacro_cite">
+          [
+          <a class="ltx_ref" href="bib.html#bib4" title="Dynamical movement primitives: learning attractor models for motor behaviors">
+           4
+          </a>
+          ]
+         </cite>
+         approach proposes to reproduce an observed movement by crafting a controller composed of two parts: a closed-loop spring-damper system reaching the final point of the observed movement, and an open-loop system reproducing the acceleration profile of the observed movement. These two controllers are weighted so that the spring-damper system part is progressively increased until it becomes the only active controller. In DMP, the acceleration profile (also called forcing terms) is encoded with radial basis functions
+         <cite class="ltx_cite ltx_citemacro_cite">
+          [
+          <a class="ltx_ref" href="bib.html#bib5" title="Multivariable functional interpolation and adaptive networks">
+           1
+          </a>
+          ]
+         </cite>
+         , and the spring-damper system parameters are defined heuristically, usually as a critically damped system.
+        </p>
+       </div>
+       <div class="ltx_para" id="SS6.p2">
+        <p class="ltx_p">
+         Linear quadratic tracking (LQT) with control primitives can be used in a similar fashion as in DMP, by requesting a target to be reached at the end of the movement and by requesting the observed acceleration profile to be tracked, while encoding the control commands as radial basis functions. The controller can be estimated either as the open-loop control commands (
+         <a class="ltx_ref" href="#eq:uLQT" title="(55) ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           55
+          </span>
+         </a>
+         ), or as the closed-loop controller (
+         <a class="ltx_ref" href="#eq:uLQTrecursive" title="(70) ‣ 6.4 LQT with a recursive formulation and an augmented state space ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           70
+          </span>
+         </a>
+         ).
+        </p>
+       </div>
+       <div class="ltx_para" id="SS6.p3">
+        <p class="ltx_p">
+         In the latter case, the matrix
+         <span class="ltx_Math" id="SS6.p3.m1">
+          \bm{F}
+         </span>
+         in (
+         <a class="ltx_ref" href="#eq:LQR_LS_F" title="(71) ‣ 6.5 Least squares formulation of recursive LQR ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           71
+          </span>
+         </a>
+         ) is estimated by using control primitives and an augmented state space formulation, namely
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex55">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex55.m1">
+             \bm{\hat{W}}={\big(\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{\tilde{Q}}\bm{S}_{\bm{u}}\bm{\Psi}+\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{R}\bm{\Psi}\big)}^{-1}\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{\tilde{Q}}\bm{S}_{\bm{x}},\quad\bm{F}=\bm{\Psi}\bm{\hat{W}},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <p class="ltx_p">
+         which is used to compute feedback gains
+         <span class="ltx_Math" id="SS6.p3.m2">
+          \bm{\tilde{K}}_{t}
+         </span>
+         on the augmented state with (
+         <a class="ltx_ref" href="#eq:K_from_F" title="(72) ‣ 6.5 Least squares formulation of recursive LQR ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           72
+          </span>
+         </a>
+         ).
+        </p>
+       </div>
+       <div class="ltx_para" id="SS6.p4">
+        <p class="ltx_p">
+         The resulting controller
+         <span class="ltx_Math" id="SS6.p4.m1">
+          \bm{\hat{u}}_{t}=-\bm{\tilde{K}}_{t}\bm{\tilde{x}}_{t}
+         </span>
+         tracks the acceleration profile while smoothly reaching the desired goal at the end of the movement, with a smooth transition between the two. The main difference with DMP is that the smooth transition between the two behaviors is directly optimized by the system, and the parameters of the feedback controller are automatically optimized (in DMP, stiffness and damping ratio).
+        </p>
+       </div>
+       <div class="ltx_para" id="SS6.p5">
+        <p class="ltx_p">
+         Figure
+         <a class="ltx_ref" href="#fig:LQT_CP_DMP" title="Figure 14 ‣ 6.6 Dynamical movement primitives (DMP) reformulated as LQT with control primitives ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           14
+          </span>
+         </a>
+         presents an example of reproducing an “S” trajectory with simulation perturbations.
+        </p>
+       </div>
+       <div class="ltx_para" id="SS6.p6">
+        <p class="ltx_p">
+         In addition, the LQT formulation allows the resulting controller to be formalized in the form of a cost function, which allows the approach to be combined more fluently with other optimal control strategies. Notably, the approach can be extended to multiple viapoints without any modification. It allows multiple demonstrations of a movement to be used to estimate a feedback controller that will exploit the (co)variations in the demonstrations to provide a minimal intervention control strategy that will selectively reject perturbations based on the impact they can have on the task to achieve. This is effectively attained by automatically regulating the gains in accordance to the variations in the demonstrations, with low gains in parts of the movement allowing variations, and higher gains for parts of the movement that are invariant in the demonstrations. It is also important to highlight that the solution of the LQT problem formulated as in the above is analytical, corresponding to a simple least squares problem.
+        </p>
+       </div>
+       <div class="ltx_para" id="SS6.p7">
+        <p class="ltx_p">
+         Moreover, the above problem formulation can be extended to iterative LQR, providing an opportunity to consider obstacle avoidance and constraints within the DMP formulation, as well as to describe costs in task space with a DMP acting in joint angle space.
+        </p>
+       </div>
+       <div class="ltx_pagination ltx_role_newpage">
+       </div>
+       <ul class="pagination justify-content-center small_menu">
+        <li class="page-item previous_file">
+         <a class="page-link" href="S5.html">
+          Previous
+         </a>
+        </li>
+        <li class="page-item next_file">
+         <a class="page-link" href="S7.html">
+          Next
+         </a>
+        </li>
+       </ul>
+      </div>
+     </div>
+     <div class="col-sm-3">
+      <div id="img-col">
+       <figure class="ltx_figure figure_main" id="fig:LQT_tennis">
+        <img class="ltx_graphics ltx_centering" id="F11.g1" src="images/LQT_tennisServe01.jpg"/>
+        <figcaption class="ltx_caption ltx_centering">
+         <span class="ltx_tag ltx_tag_figure">
+          <span class="ltx_text">
+           Figure 11
+          </span>
+          :
+         </span>
+         <span class="ltx_text">
+          Tennis serve problem solved by linear quadratic tracking (LQT).
+         </span>
+        </figcaption>
+       </figure>
+       <figure class="ltx_figure ltx_align_floatright figure_main" id="fig:LQT_smooth">
+        <img class="ltx_graphics ltx_centering" id="F12.g1" src="images/LQT_smooth01.png"/>
+        <img class="ltx_graphics ltx_centering" id="F12.g2" src="images/LQT_smooth02.png"/>
+        <img class="ltx_graphics ltx_centering" id="F12.g3" src="images/LQT_smooth03.png"/>
+        <figcaption class="ltx_caption ltx_centering">
+         <span class="ltx_tag ltx_tag_figure">
+          <span class="ltx_text">
+           Figure 12
+          </span>
+          :
+         </span>
+         <span class="ltx_text">
+          Examples of linear quadratic tracking (LQT) applied to the task of reaching a set of viapoints (red dots) by starting from an initial position (black dot).
+          <em class="ltx_emph ltx_font_italic">
+           Top-left:
+          </em>
+          With velocity commands, with a system described as a single integrator and a standard control cost.
+          <em class="ltx_emph ltx_font_italic">
+           Top-right:
+          </em>
+          With velocity commands, with a system described as a single integrator and a control cost ensuring smoothness.
+          <em class="ltx_emph ltx_font_italic">
+           Bottom:
+          </em>
+          With acceleration commands, with a system described as a double integrator and a standard control cost.
+         </span>
+        </figcaption>
+       </figure>
+       <figure class="ltx_figure figure_main" id="fig:LQT_recursive_LS_multiAgents">
+        <img class="ltx_graphics" id="F13.g1" src="images/LQT_recursive_LS_multiAgents01.png"/>
+        <figcaption class="ltx_caption">
+         <span class="ltx_tag ltx_tag_figure">
+          <span class="ltx_text">
+           Figure 13
+          </span>
+          :
+         </span>
+         <span class="ltx_text">
+          Least squares formulation of recursive LQR to control multiple agents (as point mass systems), where the task of each agent is to reach a desired target at the end of the motion, and to meet the other agent in the middle of the motion (e.g., for a handover task, see main text for the alternative option of nonzero offdiagonal elements at different time steps). We then test the adaptation capability of the agents by simulating a perturbation at 1/4 of the movement. The original and adapted movements are depicted in dashed and solid lines, respectively. The initial positions are represented with black points, the targets are in red, the optimized meeting points are in blue, and the perturbation is in green.
+         </span>
+        </figcaption>
+       </figure>
+       <figure class="ltx_figure figure_main" id="fig:LQT_CP_DMP">
+        <img class="ltx_graphics ltx_centering" id="F14.g1" src="images/LQT_CP_DMP01.png"/>
+        <img class="ltx_graphics ltx_centering" id="F14.g2" src="images/LQT_CP_DMP02.png"/>
+        <figcaption class="ltx_caption ltx_centering">
+         <span class="ltx_tag ltx_tag_figure">
+          <span class="ltx_text">
+           Figure 14
+          </span>
+          :
+         </span>
+         <span class="ltx_text">
+          Linear quadratic tracking (LQT) with control primitives applied to a trajectory tracking task, with a formulation similar to dynamical movement primitives (DMP).
+          <em class="ltx_emph ltx_font_italic">
+           Left:
+          </em>
+          The observed “S” shape (in blue) is reproduced by starting from a different initial position (black point), with a perturbation simulated at 1/4 of the movement (green points) to show the capability of the approach to recover from perturbations. The trajectory in dashed line shows the result without perturbation and trajectory in solid line shows the result with perturbation.
+          <em class="ltx_emph ltx_font_italic">
+           Right:
+          </em>
+          The corresponding LQT problem formulation consists of requesting an end-point to be reached (red points) and an acceleration profile to be tracked (red lines), where the control commands
+          <span class="ltx_Math" id="F14.m3">
+           \bm{u}
+          </span>
+          are represented as a superposition of radial basis functions
+          <span class="ltx_Math" id="F14.m4">
+           \bm{\phi}_{k}
+          </span>
+          .
+         </span>
+        </figcaption>
+       </figure>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </body>
+</html>

@@ -1,0 +1,385 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="RCFS" name="description"/>
+<meta content="robotics codes, robotics tutorial, rcfs, robotics from scratch" name="keywords"/>
+<meta content="Sylvain Calinon" name="author"/>
+<title>RCFS</title>
+<link href="static_images/favicon.ico" rel="icon" sizes="any"/>
+<link href="static_images/favicon.svg" rel="icon" type="image/svg+xml"/>
+<link href="css/bootstrap.min.css" rel="stylesheet"/>
+<link href="css/bootstrap-icons-1.10.4/font/bootstrap-icons.css" rel="stylesheet"/>
+<link href="css/permanent_marker.css" rel="stylesheet"/>
+<link href="css/sidebars.css" rel="stylesheet"/>
+<link href="css/katex.min.css" rel="stylesheet"/>
+<script src="js/jquery-3.6.4.min.js"></script>
+<script src="js/bootstrap.bundle.min.js"></script>
+<script src="js/katex.min.js"></script>
+<script>
+
+		function initialize(){
+			convertMath();
+		}
+
+		function convertMath(){
+			const elements = document.getElementsByClassName("ltx_Math");
+			const macros = {};
+			for(let element of elements){
+				katex.render(element.textContent, element, {
+					throwOnError: false,
+					macros
+				});
+			}
+		}
+
+		window.onload = initialize;
+	</script>
+<script defer="" src="https://pyscript.net/latest/pyscript.min.js"></script>
+<py-config type="toml">
+    packages = ['numpy','matplotlib']
+  </py-config>
+<link href="https://pyscript.net/latest/pyscript.css" rel="stylesheet"/> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
+<link href="css/main-template.css" rel="stylesheet"/>
+</head>
+<body><nav aria-label="Light offcanvas navbar" class="navbar fixed-top" style="width: 50px;">
+<div class="container-fluid">
+<button aria-controls="offcanvasNavbarLight" class="navbar-toggler" data-bs-target="#offcanvasNavbarLight" data-bs-toggle="offcanvas" type="button">
+<span class="navbar-toggler-icon" style="cursor: pointer;"></span>
+</button>
+<div aria-labelledby="offcanvasNavbarLightLabel" class="offcanvas offcanvas-start" id="offcanvasNavbarLight" style="width: 500px;" tabindex="-1">
+<div class="offcanvas-header"><!--style='height: 50px;'-->
+<a class="navbar-brand" href="index.html"><h4 class="offcanvas-title" id="offcanvasNavbarLightLabel"> <i class="bi bi-code-slash"></i> RCFS</h4></a>
+<button aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" type="button"></button>
+</div>
+<div class="offcanvas-body">
+<!--Menu goes here-->
+<ul class="list-unstyled ps-0">
+<li class="border-top my-1"></li>
+<li class="mb-1">
+<button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#general-collapse" data-bs-toggle="collapse">General information</button>
+<div class="collapse show" id="general-collapse">
+<!--<li><a href='index.html' class='link-dark d-inline-flex text-decoration-none rounded'>Home</a></li>-->
+<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="about.html">
+<div class="p-1 mb-0">About</div></a></li>
+</ul>
+</div>
+</li>
+<li class="border-top my-1"></li>
+<li class="mb-1">
+<button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes2d-collapse" data-bs-toggle="collapse">2D sandboxes</button>
+<div class="collapse" id="sandboxes2d-collapse">
+<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_FK.html">
+<div class="p-1 mb-0">Forward kinematics (FK)</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_IK.html">
+<div class="p-1 mb-0">Inverse kinematics (IK)</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_bimanual.html">
+<div class="p-1 mb-0">Bimanual robot</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_humanoid.html">
+<div class="p-1 mb-0">Humanoid robot (CoM and coordination matrix)</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR.html">
+<div class="p-1 mb-0">Iterative linear quadratic regulator (iLQR)</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_car.html">
+<div class="p-1 mb-0">iLQR for car</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_bicopter.html">
+<div class="p-1 mb-0">iLQR for bicopter</div></a></li>
+</ul>
+</div>
+</li>
+<li class="border-top my-1"></li>
+<li class="mb-1">
+<button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes3d-collapse" data-bs-toggle="collapse">3D sandboxes</button>
+<div class="collapse" id="sandboxes3d-collapse">
+<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox3d_IK.html">
+<div class="p-1 mb-0">Inverse kinematics (IK)</div></a></li>
+</ul>
+</div>
+</li>
+<li class="border-top my-1"></li>
+<li class="mb-1">
+<button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#exercises-collapse" data-bs-toggle="collapse">Exercises</button>
+<div class="collapse" id="exercises-collapse">
+<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise01.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">01</div>
+<div class="p-1 mb-0">Linear algebra in Python</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise02.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">02</div>
+<div class="p-1 mb-0">Movement primitives and Newton's method</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise03.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">03</div>
+<div class="p-1 mb-0">Gaussian Distributions</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04a.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">4a</div>
+<div class="p-1 mb-0">Forward kinematics</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04b.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">4b</div>
+<div class="p-1 mb-0">Inverse kinematics and nullspace control</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05a.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">5a</div>
+<div class="p-1 mb-0">Forward dynamics</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05b.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">5b</div>
+<div class="p-1 mb-0">Inverse dynamics and impedance control</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06a.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">6a</div>
+<div class="p-1 mb-0">Planning with linear quadratic regulator</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06b.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">6b</div>
+<div class="p-1 mb-0">Planning in joint space with LQR</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise07.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">07</div>
+<div class="p-1 mb-0">Iterative linear quadratic regulator (iLQR)</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise08.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">08</div>
+<div class="p-1 mb-0">Exploration with ergodic control</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise09.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">09</div>
+<div class="p-1 mb-0">Orientation with Riemannian manifold</div></a></li>
+</ul>
+</div>
+</li>
+<li class="border-top my-1"></li>
+<li class="mb-1">
+<button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#doc-collapse" data-bs-toggle="collapse">Online courses</button>
+<div class="collapse" id="doc-collapse">
+<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small" id="menu_container">
+<li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="toc.html" style="font-weight:bold;">Table of contents</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html" style="font-weight:bold;">1 Introduction</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html" style="font-weight:bold;">2 Newton’s method for minimization</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:GaussNewton"><span class="p-1 mb-0">2.1 Gauss–Newton algorithm</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LS"><span class="p-1 mb-0">2.2 Least squares</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LSconstraints"><span class="p-1 mb-0">2.3 Least squares with constraints</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S3.html" style="font-weight:bold;">3 Forward kinematics (FK) for a planar robot manipulator</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html" style="font-weight:bold;">4 Inverse kinematics (IK) for a planar robot manipulator</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IKnum"><span class="p-1 mb-0">4.1 Numerical estimation of the Jacobian</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IK_nullspace"><span class="p-1 mb-0">4.2 Inverse kinematics (IK) with task prioritization</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html" style="font-weight:bold;">5 Encoding with basis functions</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS1"><span class="p-1 mb-0">5.1 Univariate trajectories</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS2"><span class="p-1 mb-0">5.2 Multivariate trajectories</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS3"><span class="p-1 mb-0">5.3 Multidimensional inputs</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS4"><span class="p-1 mb-0">5.4 Derivatives</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS5"><span class="p-1 mb-0">5.5 Concatenated basis functions</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS6"><span class="p-1 mb-0">5.6 Batch computation of basis functions coefficients</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS7"><span class="p-1 mb-0">5.7 Recursive computation of basis functions coefficients</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html" style="font-weight:bold;">6 Linear quadratic tracking (LQT)</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS1"><span class="p-1 mb-0">6.1 LQT with smoothness cost</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS2"><span class="p-1 mb-0">6.2 LQT with control primitives</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRrecursive"><span class="p-1 mb-0">6.3 LQR with a recursive formulation</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:augmState"><span class="p-1 mb-0">6.4 LQT with a recursive formulation and an augmented state space</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRLS"><span class="p-1 mb-0">6.5 Least squares formulation of recursive LQR</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:DMPLQT"><span class="p-1 mb-0">6.6 Dynamical movement primitives (DMP) reformulated as LQT with control primitives</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html" style="font-weight:bold;">7 iLQR optimization</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRbatch"><span class="p-1 mb-0">7.1 Batch formulation of iLQR</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRrecursive"><span class="p-1 mb-0">7.2 Recursive formulation of iLQR</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRLS"><span class="p-1 mb-0">7.3 Least squares formulation of recursive iLQR</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS4"><span class="p-1 mb-0">7.4 Updates by considering step sizes</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS5"><span class="p-1 mb-0">7.5 iLQR with quadratic cost on f(x_{t})</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS6"><span class="p-1 mb-0">7.6 iLQR with control primitives</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS7"><span class="p-1 mb-0">7.7 iLQR for spacetime optimization</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS8"><span class="p-1 mb-0">7.8 iLQR with offdiagonal elements in the precision matrix</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS9"><span class="p-1 mb-0">7.9 Car steering</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS10"><span class="p-1 mb-0">7.10 Bicopter</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html" style="font-weight:bold;">8 Forward dynamics (FD) for a planar robot manipulator</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html#SS1"><span class="p-1 mb-0">8.1 Robot manipulator with dynamics equation</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="bib.html" style="font-weight:bold;">References</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="A1.html" style="font-weight:bold;">A System dynamics at trajectory level</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="A2.html" style="font-weight:bold;">B Derivation of motion equation for a planar robot</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="A3.html" style="font-weight:bold;">C Linear systems used in the bimanual tennis serve example</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="A4.html" style="font-weight:bold;">D Equivalence between LQT and LQR with augmented state space</a></li></ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</nav>
+<div class="container-fluid">
+<!--
+<style>
+code {
+  font-family: Consolas,'courier new';
+  color: black;
+  background-color: #f1f1f1;
+  padding: 2px;
+  font-size: 100%;
+}
+</style>
+-->
+<script>
+function clearMsgs() {
+  const el = document.getElementById('errors');
+  el.innerText = '';
+  //console.log('event!');
+}
+function clearMsgsOutput() {
+  const el = document.getElementById('output');
+  el.innerText = '';
+  //console.log('event!');
+}
+const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b','#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
+</script>
+<py-script>
+    def print(x):
+        display(x, target='output')
+</py-script>
+<py-script std-err="errors" std-out="output">
+import numpy as np
+import matplotlib.pyplot as plt
+from js import document, console
+from pyodide.ffi import create_proxy
+</py-script>
+<div class="row">
+<div class="col-sm-1"> </div>
+<div class="col-sm-7">
+<h1>Exercise 2<br/>Movement primitives, Newton's Method</h1>
+<h5>1. Understanding basis functions</h5>
+<p>You will find below a visualization of basis functions defined by the function <code>build_basis_function</code> which takes
+<code>nb_data</code> (number of timesteps) and <code>nb_fct</code> (number of basis functions) as arguments and returns <code>phi</code>
+the matrix of basis functions.</p>
+<ol>
+<li>Visualize what happens when you change the parameter <code>nb_fct</code>.</li>
+<li>Visualize what happens when you change the parameter <code>param_lambda</code>.</li>
+<li>Change the function below to plot Bézier basis functions (you can compare your result to Figure 1 in the <a href="doc/rcfs.pdf" target="_blank">RCFS documentation</a>).</li>
+</ol>
+<py-repl id="rep0" std-err="errors" std-out="chart">
+param_lambda = 1e2
+nb_data = 100
+nb_fct = 10
+def build_basis_function(nb_data, nb_fct):
+  t = np.linspace(0,1,nb_data).reshape((-1,1))
+  tMu = np.linspace( t[0] , t[-1] , nb_fct )
+  phi = np.exp( - param_lambda * (t.T - tMu)**2 ).T
+  return phi
+
+phi = build_basis_function(nb_data, nb_fct)
+fig,ax = plt.subplots(figsize=(5,5))
+ax.plot(np.linspace(0,1,nb_data), phi)
+ax.set_xlabel('time(s)')
+ax.set_ylabel('basis functions')
+fig.tight_layout()
+fig
+</py-repl>
+<h5>2. Regression with basis functions <span class="ltx_Math">\bm{x} = \bm{\Phi} \bm{w}</span></h5>
+<p>We can use basis functions to encode trajectories in a compact way. Such encoding aims at encoding the movement as a weighted superposition of simpler movements, whose compression aims at working in a subspace of reduced dimensionality, while denoising the signal and capturing the essential aspects of a movement. We first generate a noisy time trajectory using the function <code>generate_data</code>.</p>
+<ol>
+<li>Run the code below to plot the function below in your workspace by choosing an appropriate <code>noise_scale</code>.
+    We will use <span class="ltx_Math">\bm{x}</span> as our dataset vector.</li><br/>
+<py-repl id="rep1" std-err="errors" std-out="output">
+  noise_scale = 1. # change this to the noise level you want
+  nb_data = 100
+  def generate_data(t):
+    return 10*np.sin(50*t+10)*np.cos(10*t)
+  t = np.linspace(0,1,nb_data)
+  x = generate_data(t) + np.random.randn(nb_data)*noise_scale
+</py-repl>
+<br/>
+<py-repl id="rep1_plot" std-err="errors" std-out="chart">
+  fig,ax = plt.subplots(figsize=(5,5))
+  ax.plot(t,x)
+  ax.set_xlabel('t')
+  ax.set_ylabel('x')
+  fig
+</py-repl>
+<br/>
+<li>Using the implemented <code>build_basis_function</code>, write a function that takes the basis function matrix <span class="ltx_Math">\bm{\phi}</span> and determines the Bézier curve
+    parameters <span class="ltx_Math">\bm{w}</span> that represents the data the best in least-square sense.</li><br/>
+<!--w = np.linalg.pinv(psi) @ x # Estimation of superposition weights from data-->
+<py-repl id="rep2" std-err="errors" std-out="output">
+  nbFct = 30
+  psi = build_basis_function(nb_data,nbFct)
+  def estimate_w(x, psi):
+    # w =  # Implement here: Estimation of superposition weights from data
+    return w
+
+  w = estimate_w(x, psi)
+  print(w.shape) # verify the dimension of this to be equal to nbFct
+</py-repl>
+<br/>
+<li>Verify your estimation of <span class="ltx_Math">\bm{w}</span> by reconstructing the data using <span class="ltx_Math">\bm{\hat{x}} = \bm{\Phi} \bm{w}</span> and plot.</li><br/>
+<!--    x_hat = psi @ w # Reconstruction data-->
+<py-repl id="rep3" std-err="errors" std-out="chart">
+  def reconstruct(w, psi):
+    # x_hat = # Implement here: Reconstruction data
+    return x_hat
+
+  x_hat = reconstruct(w, psi)
+  ax.plot(t, x_hat)
+  fig
+</py-repl>
+<div class="col-auto"><button aria-controls="answer1" aria-expanded="false" class="btn btn-light btn-sm" data-bs-target="#answer1" data-bs-toggle="collapse">Show/hide answer</button></div>
+<div class="collapse" id="answer1"><img src="static_images/Ex2-1.png"/></div>
+<br/>
+<li>We would like to quantify how does the number of basis functions affect the reconstruction. Choose 5 different nb_fct and plot the errors between the original data <span class="ltx_Math">\bm{x}</span> and the reconstructed data <span class="ltx_Math">\bm{\hat{x}}</span>.</li><br/>
+<!--      errors.append(np.linalg.norm(x-x_hat))-->
+<py-repl id="rep4" std-err="errors" std-out="chart">
+  nbFcts = [] # Implement here: choose 5 different nbFct
+  errors = []
+  for nbFct in nbFcts:
+    psi = build_basis_function(nb_data, nbFct)
+    w = estimate_w(psi)
+    x_hat = reconstruct(w, psi)
+    # errors.append() # Implement here: compute the error between x and x_hat
+
+  fig,ax = plt.subplots(figsize=(5,5))
+  ax.plot(nbFcts, errors, 'o')
+  ax.set_xlabel('nbFcts')
+  ax.set_ylabel('Error')
+  fig
+</py-repl>
+<div class="col-auto"><button aria-controls="answer2" aria-expanded="false" class="btn btn-light btn-sm" data-bs-target="#answer2" data-bs-toggle="collapse">Show/hide answer</button></div>
+<div class="collapse" id="answer2"><img src="static_images/Ex2-2.png"/></div>
+</ol>
+<h5>3. Newton's Method</h5>
+<p>In this exercise, we will implement a Newton's method with a line search. For Newton's method, you can refer to
+Section 3 of the <a href="doc/rcfs.pdf" target="_blank">RCFS documentation</a> and for a backtracking line search algorithm, you can refer to Section 8.4 of the <a href="doc/rcfs.pdf" target="_blank">RCFS documentation</a>. The goal is to
+solve an unconstrained optimization problem using Newton's method and see how line search can affect the convergence. You are given
+an objective function <span class="ltx_Math">\bm{x}^2 + \bm{x}^3</span>, its first derivative <span class="ltx_Math">2\bm{x} + 3\bm{x}^2 </span> and its second derivative <span class="ltx_Math">2+6\bm{x}</span>.</p>
+<ol>
+<li>Implement Newton's method with a line search and solve the problem.</li>
+<li>In how many iterations do you get convergence? Plot the cost functions obtained during the iterations and
+    discuss how does the line search affect the results.</li>
+<li>Change the objective function and its first and second derivatives to solve for another problem.</li>
+</ol>
+<!--    search_direction = - first_derivative(x) / second_derivative(x)-->
+<!--  x_trial = x + alpha * search_direction-->
+<py-repl id="rep3" std-err="errors" std-out="output">
+  def objective_function(x):
+    return x**2 + x**3
+
+  def first_derivative(x):
+    return 2*x + 3*(x**2)
+
+  def second_derivative(x):
+    return 2 + 6*x
+
+  x = 1.
+  cost = objective_function(x)
+  x_log = [x]
+  cost_log = [cost]
+  for i in range(100):
+    # Implement Newton's method here (one line)
+    # search_direction =
+
+    # Implement line search here (output: alpha)
+    alpha = 1.
+    for j in range(10):
+      # x_trial =  # implement a trial x in the direction of search_direction
+      cost_trial = objective_function(x_trial)
+      if cost_trial &lt; cost:
+        break
+      else:
+        alpha = alpha * 0.5
+
+    # Convergence check
+    prev_cost = np.copy(cost)
+    x = x + alpha * search_direction
+    cost = objective_function(x)
+    cost_log += [cost]
+    if np.abs(cost-prev_cost) &lt; 1e-6:
+      break
+
+    x_log.append(x)
+
+  x_log = np.array(x_log)
+  cost_log = np.array(cost_log)
+  print(x_log)
+</py-repl>
+<br/>
+<py-repl id="rep3_plot" std-err="errors" std-out="chart">
+fig,ax = plt.subplots(figsize=(5,5))
+ax.plot(np.arange(0,i+2), cost_log)
+ax.set_xlabel('Iteration number')
+ax.set_ylabel('Objective function')
+fig.tight_layout()
+fig
+</py-repl>
+<div class="col-auto"><button aria-controls="answer3" aria-expanded="false" class="btn btn-light btn-sm" data-bs-target="#answer3" data-bs-toggle="collapse">Show/hide answer</button></div>
+<div class="collapse" id="answer3"><img src="static_images/Ex2-3.png"/></div>
+<br/>
+</div> <!-- col-sm-7 -->
+<div class="col-sm-4" id="div1">
+<div class="sticky-sm-top" style="padding: 2rem 1rem 1rem 1rem;">
+<hr/>
+<div class="row justify-content-between">
+<div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Output</button></div>
+<div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgsOutput()">Clear</button></div>
+</div>
+<div id="output"></div>
+<hr/>
+<div class="row justify-content-between">
+<div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Error</button></div>
+<div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgs()">Clear</button></div>
+</div>
+<div id="errors"></div>
+<hr/>
+<div id="chart"></div>
+</div>
+</div> <!-- col-sm-4 -->
+</div> <!-- row -->
+</div> <!--container-->
+</body>
+</html>

@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta content="Robotics codes from scratch (RCFS) is a collection of source codes to study and test learning and optimization problems in robotics through simple 2D examples." name="description"/>
+  <meta content="robotics codes, robotics tutorial, rcfs, robotics from scratch" name="keywords"/>
+  <meta content="Sylvain Calinon" name="author"/>
+  <title>
+   RCFS
+  </title>
+  <link href="static_images/favicon.ico" rel="icon" sizes="any"/>
+  <link href="static_images/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <link href="css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="css/bootstrap-icons-1.10.4/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="css/permanent_marker.css" rel="stylesheet"/>
+  <link href="css/main-template.css" rel="stylesheet"/>
+  <link href="css/sidebars.css" rel="stylesheet"/>
+  <link href="css/katex.min.css" rel="stylesheet"/>
+  <script src="js/jquery-3.6.4.min.js">
+  </script>
+  <script src="js/bootstrap.bundle.min.js">
+  </script>
+  <script src="js/katex.min.js">
+  </script>
+  <script>
+   function initialize(){
+                convertMath();
+                alignImages();
+            }
+
+            function convertMath(){
+                const elements = document.getElementsByClassName("ltx_Math");
+                const macros = {
+				'\\tp': '\\text{\\tiny{#1}}',
+				'\\trsp' : '\\top',
+				'\\psin' : '\\dagger',
+				'\\eqref': '\\href{###1}{(\\text{#1})}',
+				'\\ref': '\\href{###1}{\\text{#1}}',
+				'\\label': '\\htmlId{#1}{}'
+			};
+                for(let element of elements){
+                    katex.render(element.textContent, element, {
+                        throwOnError: false,
+                        macros
+                    });
+                }
+            }
+
+            function alignImages(){
+
+                document.getElementsByTagName('style').innerHTML = '';
+
+                let txt_height = document.querySelector('#txt-col').offsetHeight;
+                let img_height = document.querySelector('#img-col').offsetHeight;
+
+                let margin = 50;
+
+                if(txt_height > img_height && screen.width >= 576){
+                    let nb_figures = document.querySelectorAll('.figure_main').length;
+                    let computed_margin = (txt_height - img_height) / nb_figures;
+
+                    if(computed_margin > margin){
+                        margin = computed_margin;
+                    }
+                }
+
+                const style = document.createElement('style');
+                style.innerHTML = '.figure_main{ padding-top:'+Math.round(margin/2)+'px; padding-bottom:'+Math.round(margin/2)+'px; }';
+                document.head.appendChild(style);
+            }
+
+            window.onload = initialize;
+            window.onorientationchange = alignImages;
+  </script>
+ </head>
+ <body>
+  <nav aria-label="Light offcanvas navbar" class="navbar fixed-top" style="width: 50px;">
+   <div class="container-fluid">
+    <button aria-controls="offcanvasNavbarLight" class="navbar-toggler" data-bs-target="#offcanvasNavbarLight" data-bs-toggle="offcanvas" type="button">
+     <span class="navbar-toggler-icon" style="cursor: pointer;">
+     </span>
+    </button>
+    <div aria-labelledby="offcanvasNavbarLightLabel" class="offcanvas offcanvas-start" id="offcanvasNavbarLight" style="width: 500px;" tabindex="-1">
+     <div class="offcanvas-header">
+      <!--style='height: 50px;'-->
+      <a class="navbar-brand" href="index.html">
+       <h4 class="offcanvas-title" id="offcanvasNavbarLightLabel">
+        <i class="bi bi-code-slash">
+        </i>
+        RCFS
+       </h4>
+      </a>
+      <button aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" type="button">
+      </button>
+     </div>
+     <div class="offcanvas-body">
+      <!--Menu goes here-->
+      <ul class="list-unstyled ps-0">
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#general-collapse" data-bs-toggle="collapse">
+         General information
+        </button>
+        <div class="collapse show" id="general-collapse">
+         <!--<li><a href='index.html' class='link-dark d-inline-flex text-decoration-none rounded'>Home</a></li>-->
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="about.html">
+            <div class="p-1 mb-0">
+             About
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes2d-collapse" data-bs-toggle="collapse">
+         2D sandboxes
+        </button>
+        <div class="collapse" id="sandboxes2d-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_FK.html">
+            <div class="p-1 mb-0">
+             Forward kinematics (FK)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_IK.html">
+            <div class="p-1 mb-0">
+             Inverse kinematics (IK)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_bimanual.html">
+            <div class="p-1 mb-0">
+             Bimanual robot
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_humanoid.html">
+            <div class="p-1 mb-0">
+             Humanoid robot (CoM and coordination matrix)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR.html">
+            <div class="p-1 mb-0">
+             Iterative linear quadratic regulator (iLQR)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_car.html">
+            <div class="p-1 mb-0">
+             iLQR for car
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_bicopter.html">
+            <div class="p-1 mb-0">
+             iLQR for bicopter
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes3d-collapse" data-bs-toggle="collapse">
+         3D sandboxes
+        </button>
+        <div class="collapse" id="sandboxes3d-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox3d_IK.html">
+            <div class="p-1 mb-0">
+             Inverse kinematics (IK)
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#exercises-collapse" data-bs-toggle="collapse">
+         Exercises
+        </button>
+        <div class="collapse" id="exercises-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise01.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             01
+            </div>
+            <div class="p-1 mb-0">
+             Linear algebra in Python
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise02.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             02
+            </div>
+            <div class="p-1 mb-0">
+             Movement primitives and Newton's method
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise03.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             03
+            </div>
+            <div class="p-1 mb-0">
+             Gaussian Distributions
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             4a
+            </div>
+            <div class="p-1 mb-0">
+             Forward kinematics
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             4b
+            </div>
+            <div class="p-1 mb-0">
+             Inverse kinematics and nullspace control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             5a
+            </div>
+            <div class="p-1 mb-0">
+             Forward dynamics
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             5b
+            </div>
+            <div class="p-1 mb-0">
+             Inverse dynamics and impedance control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             6a
+            </div>
+            <div class="p-1 mb-0">
+             Planning with linear quadratic regulator
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             6b
+            </div>
+            <div class="p-1 mb-0">
+             Planning in joint space with LQR
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise07.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             07
+            </div>
+            <div class="p-1 mb-0">
+             Iterative linear quadratic regulator (iLQR)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise08.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             08
+            </div>
+            <div class="p-1 mb-0">
+             Exploration with ergodic control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise09.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             09
+            </div>
+            <div class="p-1 mb-0">
+             Orientation with Riemannian manifold
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#doc-collapse" data-bs-toggle="collapse">
+         Online courses
+        </button>
+        <div class="collapse" id="doc-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small" id="menu_container">
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="toc.html" style="font-weight:bold;">
+            Table of contents
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html" style="font-weight:bold;">
+            1 Introduction
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html" style="font-weight:bold;">
+            2 Newton’s method for minimization
+           </a>
+           <div>
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:GaussNewton">
+               <span class="p-1 mb-0">
+                2.1 Gauss–Newton algorithm
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LS">
+               <span class="p-1 mb-0">
+                2.2 Least squares
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LSconstraints">
+               <span class="p-1 mb-0">
+                2.3 Least squares with constraints
+               </span>
+              </a>
+             </li>
+            </ul>
+           </div>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S3.html" style="font-weight:bold;">
+            3 Forward kinematics (FK) for a planar robot manipulator
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html" style="font-weight:bold;">
+            4 Inverse kinematics (IK) for a planar robot manipulator
+           </a>
+           <div>
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IKnum">
+               <span class="p-1 mb-0">
+                4.1 Numerical estimation of the Jacobian
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IK_nullspace">
+               <span class="p-1 mb-0">
+                4.2 Inverse kinematics (IK) with task prioritization
+               </span>
+              </a>
+             </li>
+            </ul>
+           </div>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html" style="font-weight:bold;">
+            5 Encoding with basis functions
+           </a>
+           <div>
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS1">
+               <span class="p-1 mb-0">
+                5.1 Univariate trajectories
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS2">
+               <span class="p-1 mb-0">
+                5.2 Multivariate trajectories
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS3">
+               <span class="p-1 mb-0">
+                5.3 Multidimensional inputs
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS4">
+               <span class="p-1 mb-0">
+                5.4 Derivatives
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS5">
+               <span class="p-1 mb-0">
+                5.5 Concatenated basis functions
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS6">
+               <span class="p-1 mb-0">
+                5.6 Batch computation of basis functions coefficients
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS7">
+               <span class="p-1 mb-0">
+                5.7 Recursive computation of basis functions coefficients
+               </span>
+              </a>
+             </li>
+            </ul>
+           </div>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html" style="font-weight:bold;">
+            6 Linear quadratic tracking (LQT)
+           </a>
+           <div>
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS1">
+               <span class="p-1 mb-0">
+                6.1 LQT with smoothness cost
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS2">
+               <span class="p-1 mb-0">
+                6.2 LQT with control primitives
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRrecursive">
+               <span class="p-1 mb-0">
+                6.3 LQR with a recursive formulation
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:augmState">
+               <span class="p-1 mb-0">
+                6.4 LQT with a recursive formulation and an augmented state space
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRLS">
+               <span class="p-1 mb-0">
+                6.5 Least squares formulation of recursive LQR
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:DMPLQT">
+               <span class="p-1 mb-0">
+                6.6 Dynamical movement primitives (DMP) reformulated as LQT with control primitives
+               </span>
+              </a>
+             </li>
+            </ul>
+           </div>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html" style="font-weight:bold;">
+            7 iLQR optimization
+           </a>
+           <div>
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRbatch">
+               <span class="p-1 mb-0">
+                7.1 Batch formulation of iLQR
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRrecursive">
+               <span class="p-1 mb-0">
+                7.2 Recursive formulation of iLQR
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRLS">
+               <span class="p-1 mb-0">
+                7.3 Least squares formulation of recursive iLQR
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS4">
+               <span class="p-1 mb-0">
+                7.4 Updates by considering step sizes
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS5">
+               <span class="p-1 mb-0">
+                7.5 iLQR with quadratic cost on f(x_{t})
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS6">
+               <span class="p-1 mb-0">
+                7.6 iLQR with control primitives
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS7">
+               <span class="p-1 mb-0">
+                7.7 iLQR for spacetime optimization
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS8">
+               <span class="p-1 mb-0">
+                7.8 iLQR with offdiagonal elements in the precision matrix
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS9">
+               <span class="p-1 mb-0">
+                7.9 Car steering
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS10">
+               <span class="p-1 mb-0">
+                7.10 Bicopter
+               </span>
+              </a>
+             </li>
+            </ul>
+           </div>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html" style="font-weight:bold;">
+            8 Forward dynamics (FD) for a planar robot manipulator
+           </a>
+           <div>
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html#SS1">
+               <span class="p-1 mb-0">
+                8.1 Robot manipulator with dynamics equation
+               </span>
+              </a>
+             </li>
+            </ul>
+           </div>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="bib.html" style="font-weight:bold;">
+            References
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="A1.html" style="font-weight:bold;">
+            A System dynamics at trajectory level
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="A2.html" style="font-weight:bold;">
+            B Derivation of motion equation for a planar robot
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="A3.html" style="font-weight:bold;">
+            C Linear systems used in the bimanual tennis serve example
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="A4.html" style="font-weight:bold;">
+            D Equivalence between LQT and LQR with augmented state space
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+      </ul>
+     </div>
+    </div>
+   </div>
+  </nav>
+  <div class="container-fluid">
+   <!--<center><h1 class="title">My Title</h1></center>-->
+   <div id="data_container">
+    <div class="row">
+     <div class="col-sm-7 offset-1">
+      <div id="txt-col">
+       <h1 class="ltx_title ltx_title_section">
+        <span class="ltx_tag ltx_tag_section">
+         <span class="ltx_text">
+          8
+         </span>
+        </span>
+        <span class="ltx_text">
+         Forward dynamics (FD) for a planar robot manipulator
+        </span>
+       </h1>
+       <div class="ltx_para" id="p1">
+        <p class="ltx_p">
+         The dynamic equation of a planar robot with an arbitrary number of links can be derived using the Lagrangian formulation. The first step to use this method is to represent the kinetic and potential energies of the robot as functions of generalized coordinates, which are joint angles in this case. We assume that all masses are located at the end of each link, and we neglect the terms that contain rotational energies (i.e, zero moments of inertia). To do this, we exploit the formulation derived in Section
+         <a class="ltx_ref" href="S3.html" title="3 Forward kinematics (FK) for a planar robot manipulator ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           3
+          </span>
+         </a>
+         without the orientation part, so the position of the j-
+         <em class="ltx_emph ltx_font_italic">
+          th
+         </em>
+         mass can be written as
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:position">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E105.m1">
+             \bm{f}_{j}=\begin{bmatrix}f_{j,1}\\
+f_{j,2}\end{bmatrix}=\begin{bmatrix}\sum_{k=1}^{j}l_{k}c_{k}\\
+\sum_{k=1}^{j}l_{k}s_{k}\end{bmatrix},\quad\text{where}\quad c_{k}=\cos(\sum_{i=1}^{k}x_{i}),\ \ \ s_{k}=\sin(\sum_{i=1}^{k}x_{i}),
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (105)
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="ltx_para" id="p2">
+        <p class="ltx_p">
+         whose corresponding velocity can be calculated as
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex113">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex113.m1">
+             \bm{\dot{f}}_{j}=\begin{bmatrix}-\sum_{k=1}^{j}l_{k}(\sum_{i=1}^{k}\dot{x}_{i})s_{k}\\
+\sum_{k=1}^{j}l_{k}(\sum_{i=1}^{k}\dot{x}_{i})c_{k}\end{bmatrix}.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+       </div>
+       <div class="ltx_para" id="p3">
+        <p class="ltx_p">
+         By knowing the velocity, the j-
+         <em class="ltx_emph ltx_font_italic">
+          th
+         </em>
+         point kinetic energy can be expressed as
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex114">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex114.m1">
+             T_{j}=\frac{1}{2}m_{j}\big(\dot{f}_{j,1}^{2}+\dot{f}_{j,2}^{2}\big)=\frac{1}{2}m_{j}\Bigg(\!\!\Big(\!-\sum_{k=1}^{j}l_{k}\Big(\sum_{i=1}^{k}\dot{x}_{i}\Big)s_{k}\!\Big)^{\!2}\!+\!\Big(\sum_{k=1}^{j}l_{k}\Big(\sum_{i=1}^{k}\dot{x}_{i}\Big)c_{k}\!\Big)^{\!2}\!\Bigg),
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <p class="ltx_p">
+         and its potential energy as
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex115">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex115.m1">
+             U_{j}=m_{j}\,g\,f_{j,2}=m_{j}g\Big(\sum_{k=1}^{j}l_{k}s_{k}\Big).
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+       </div>
+       <div class="ltx_para" id="p4">
+        <p class="ltx_p">
+         The kinetic and potential energies are more dependent on absolute angles
+         <span class="ltx_Math" id="p4.m1">
+          \sum_{i=1}^{k}x_{i}
+         </span>
+         rather than relative ones
+         <span class="ltx_Math" id="p4.m2">
+          x_{i}
+         </span>
+         . This is because the energies of the system are coordinate invariant and are dependent on absolute values. For simplicity, we define the absolute angles as
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex116">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex116.m1">
+             q_{k}=\sum_{i=1}^{k}x_{i},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <p class="ltx_p">
+         so the kinetic energy can be redefined as
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:kinetic">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex117.m1">
+             T_{j}=\frac{1}{2}m_{j}\Big(\Big(-\sum_{k=1}^{j}l_{k}\dot{q}_{k}S_{k}\Big)^{2}+\Big(\sum_{k=1}^{j}l_{k}\dot{q}_{k}C_{k}\Big)^{2}\Big).
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+       </div>
+       <div class="ltx_para" id="p5">
+        <p class="ltx_p">
+         The robot’s total kinetic and potential energies are the sum of their corresponding values in each point mass. So, the Lagrangian of the whole system can be written as
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex118">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex118.m1">
+             E_{\text{lag}}=\sum_{j=1}^{N}T_{j}-U_{j},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <p class="ltx_p">
+         where
+         <span class="ltx_Math" id="p5.m1">
+          N
+         </span>
+         is the number of links. Using the Euler-Lagrange equation, we can write
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:Lag_with_generalized_forces">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E106.m1">
+             u_{z}=\frac{d}{dt}\frac{\partial E_{\text{lag}}}{\partial\dot{q}_{z}}-\frac{\partial E_{\text{lag}}}{\partial q_{z}}\quad=\frac{d}{dt}\frac{\partial(\sum_{j=z}^{N}T_{j})}{\partial\dot{q}_{z}}-\frac{\partial\sum_{j=z}^{N}(T_{j}-U_{j})}{\partial q_{z}}\quad=\sum_{j=z}^{N}\Big(\frac{d}{dt}\frac{\partial T_{j}}{\partial\dot{q}_{z}}-\frac{\partial T_{j}}{\partial q_{z}}+\frac{\partial U_{j}}{\partial q_{z}}\Big),
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (106)
+          </div>
+         </div>
+        </div>
+        <p class="ltx_p">
+         where
+         <span class="ltx_Math" id="p5.m2">
+          u_{z}
+         </span>
+         is the generalized force related to
+         <span class="ltx_Math" id="p5.m3">
+          q_{z}
+         </span>
+         . This force can be found from the corresponding generalized work
+         <span class="ltx_Math" id="p5.m4">
+          w_{z}
+         </span>
+         , which can be described by
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:generalized_work">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E107.m1">
+             w_{z}=\begin{cases}(\tau_{z}-\tau_{z+1})\dot{q}_{z}&amp;z&lt;N\\
+\tau_{N}\dot{q}_{N}&amp;z=N\end{cases},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (107)
+          </div>
+         </div>
+        </div>
+        <p class="ltx_p">
+         where
+         <span class="ltx_Math" id="p5.m5">
+          \tau_{z}
+         </span>
+         is the torque applied at z-
+         <em class="ltx_emph ltx_font_italic">
+          th
+         </em>
+         joint. The fact that we need subtraction in the first line of (
+         <a class="ltx_ref" href="#eq:generalized_work" title="(107) ‣ 8 Forward dynamics (FD) for a planar robot manipulator ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           107
+          </span>
+         </a>
+         ) is that when
+         <span class="ltx_Math" id="p5.m6">
+          \tau_{z+1}
+         </span>
+         is applied on link
+         <span class="ltx_Math" id="p5.m7">
+          l_{z+1}
+         </span>
+         , its reaction is applied on link
+         <span class="ltx_Math" id="p5.m8">
+          l_{z}
+         </span>
+         , except for the last joint where there is no reaction from the proceeding links. Please note that if we had used relative angles in our formulation, we did not need to consider this reaction as it will be cancelled by itself at link
+         <span class="ltx_Math" id="p5.m9">
+          z+1
+         </span>
+         (as
+         <span class="ltx_Math" id="p5.m10">
+          \dot{q}_{z+1}=\dot{q}_{z}+\dot{x}_{z+1}
+         </span>
+         ). That said, generalized forces can be defined as
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex119">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex119.m1">
+             u_{z}=\frac{\partial w_{z}}{\partial\dot{q}_{z}}=\begin{cases}(\tau_{z}-\tau_{z+1})&amp;z&lt;N\\
+\tau_{N}&amp;z=N\end{cases}.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+       </div>
+       <div class="ltx_para" id="p6">
+        <p class="ltx_p">
+         By substituting the derived equations into (
+         <a class="ltx_ref" href="#eq:Lag_with_generalized_forces" title="(106) ‣ 8 Forward dynamics (FD) for a planar robot manipulator ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           106
+          </span>
+         </a>
+         ), the dynamic equation of a general planar robot with an arbitrary number of links can be expressed as (for more details, please refer to Appendix
+         <a class="ltx_ref" href="A2.html" title="Appendix B Derivation of motion equation for a planar robot ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           B
+          </span>
+         </a>
+         )
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:arranged_dyn_eq">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E108.m1">
+             \sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}c_{z-k}\ddot{q}_{k}\Big)=u_{z}-\sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}s_{z-k}\dot{q}_{k}^{2}\Big)-\sum_{j=z}^{N}m_{j}gl_{z}c_{z},\quad\text{where}\quad\left\{{\begin{aligned} c_{h-k}&amp;=c_{h}c_{k}-s_{h}s_{k},\\
+s_{h-k}&amp;=s_{h}c_{k}-c_{h}s_{k}.\end{aligned}}\right.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (108)
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="ltx_para" id="p7">
+        <p class="ltx_p">
+         In (
+         <a class="ltx_ref" href="#eq:arranged_dyn_eq" title="(108) ‣ 8 Forward dynamics (FD) for a planar robot manipulator ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           108
+          </span>
+         </a>
+         ), the coefficient of
+         <span class="ltx_Math" id="p7.m1">
+          \ddot{q}_{k}
+         </span>
+         can be written as
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex120">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex120.m1">
+             l_{z}l_{k}c_{z-k}\sum_{j=z}^{N}m_{j}\bm{1}(j-k),
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <p class="ltx_p">
+         where
+         <span class="ltx_Math" id="p7.m2">
+          \bm{1}(\cdot)
+         </span>
+         is a function that returns 0 if it receives a negative input, and 1 otherwise. The coefficient of
+         <span class="ltx_Math" id="p7.m3">
+          \dot{q}_{k}^{2}
+         </span>
+         can be found in a similar way as
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex121">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex121.m1">
+             -l_{z}l_{k}s_{z-k}\sum_{j=z}^{N}m_{j}\bm{1}(j-k).
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+       </div>
+       <div class="ltx_para" id="p8">
+        <p class="ltx_p">
+         By concatenation of the results for all z’s, the dynamic equation of the whole system can be expressed as
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:matix_form_dynamic_abs_angle_net_forces">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E109.m1">
+             \tilde{\bm{M}}\ddot{\bm{q}}+\tilde{\bm{g}}+\tilde{\bm{C}}\text{diag}(\bm{\dot{q}})\bm{\dot{q}}=\bm{u},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (109)
+          </div>
+         </div>
+        </div>
+        <p class="ltx_p">
+         where
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex122">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex122.m1">
+             \bm{q}=\begin{bmatrix}q_{1}\\
+q_{2}\\
+\vdots\\
+q_{N-1}\\
+q_{N}\end{bmatrix},\ \ \ \bm{u}=\begin{bmatrix}u_{1}\\
+u_{2}\\
+\vdots\\
+u_{N-1}\\
+u_{N}\end{bmatrix},\quad\tilde{\bm{M}}(z,k)=l_{z}l_{k}C_{z-k}\sum_{j=z}^{N}m_{j}\bm{1}(j-k),\quad\tilde{\bm{C}}(z,k)=l_{z}l_{k}S_{z-k}\sum_{j=z}^{N}m_{j}\bm{1}(j-k),
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex123">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex123.m1">
+             \tilde{\bm{g}}=\begin{bmatrix}\sum_{j=1}^{N}m_{j}l_{1}g\cos(q_{1})\\
+\sum_{j=2}^{N}m_{j}l_{2}g\cos(q_{2})\\
+\vdots\\
+\sum_{j={N-1}}^{N}m_{j}l_{N-1}g\cos(q_{N-1})\\
+m_{N}l_{N}g\cos(q_{N})\end{bmatrix}.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+       </div>
+       <div class="ltx_para" id="p9">
+        <p class="ltx_p">
+         To use this equation with relative angles and torque commands, one can replace the absolute angles and general forces by
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex124">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex124.m1">
+             \bm{q}=\bm{L}\bm{x},\ \ \ \bm{u}=\bm{L}^{-{\scriptscriptstyle\top}}\bm{\tau},\quad\text{where}\quad\bm{x}=\begin{bmatrix}x_{1}\\
+x_{2}\\
+\vdots\\
+x_{N-1}\\
+x_{N}\end{bmatrix},\ \ \ \bm{\tau}=\begin{bmatrix}\tau_{1}\\
+\tau_{2}\\
+\vdots\\
+\tau_{N-1}\\
+\tau_{N}\end{bmatrix}.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+       </div>
+       <div class="ltx_para" id="p10">
+        <p class="ltx_p">
+         By substituting these variables into (
+         <a class="ltx_ref" href="#eq:matix_form_dynamic_abs_angle_net_forces" title="(109) ‣ 8 Forward dynamics (FD) for a planar robot manipulator ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           109
+          </span>
+         </a>
+         ), we would have
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:matix_form_dynamic_rel_angle_abs_forces">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E110.m1">
+             \bm{M}\ddot{\bm{x}}+\bm{g}+\bm{C}\text{diag}(\bm{L\dot{x}})\bm{L\dot{x}}=\bm{\tau},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (110)
+          </div>
+         </div>
+        </div>
+        <p class="ltx_p">
+         where
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex125">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex125.m1">
+             \bm{M}=\bm{L}^{\scriptscriptstyle\top}\tilde{\bm{M}}\bm{L},\quad\bm{C}=\bm{L}^{\scriptscriptstyle\top}\tilde{\bm{C}},\quad\bm{g}=\bm{L}^{\scriptscriptstyle\top}\tilde{\bm{g}}
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <p class="ltx_p">
+         Please note that elements in
+         <span class="ltx_Math" id="p10.m1">
+          \tilde{\bm{M}},\tilde{\bm{C}}
+         </span>
+         and
+         <span class="ltx_Math" id="p10.m2">
+          \tilde{\bm{g}}
+         </span>
+         are defined with absolute angles, which can be replaced with the relative angles by
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex126">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex126.m1">
+             q_{i}=\bm{L}_{i}\bm{x},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <p class="ltx_p">
+         where
+         <span class="ltx_Math" id="p10.m3">
+          \bm{L}_{i}
+         </span>
+         is the
+         <span class="ltx_Math" id="p10.m4">
+          i
+         </span>
+         -
+         <em class="ltx_emph ltx_font_italic">
+          th
+         </em>
+         row of
+         <span class="ltx_Math" id="p10.m5">
+          \bm{L}
+         </span>
+         .
+        </p>
+       </div>
+       <div id="SS1">
+       </div>
+       <h2 class="ltx_title ltx_title_subsection">
+        <span class="ltx_tag ltx_tag_subsection">
+         <span class="ltx_text">
+          8.1
+         </span>
+        </span>
+        <span class="ltx_text">
+         Robot manipulator with dynamics equation
+        </span>
+       </h2>
+       <div class="ltx_para" id="SS1.p1">
+        <p class="ltx_p">
+         The nonlinear dynamic equation of a planar robot presented in Section
+         <span class="ltx_ref ltx_ref_self">
+          <span class="ltx_text ltx_ref_tag">
+           8
+          </span>
+         </span>
+         can be expressed as
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:dis_dynamic">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E111.m1">
+             \begin{bmatrix}\bm{q}_{t+1}\\
+\dot{\bm{q}}_{t+1}\end{bmatrix}=\begin{bmatrix}\bm{q}_{t}+\dot{\bm{q}}_{t}dt\\
+\dot{\bm{q}}_{t}+\tilde{\bm{M}}^{-1}\Big(\bm{u}-\tilde{\bm{g}}-\tilde{\bm{C}}\text{diag}(\bm{\dot{q}}_{t})\bm{\dot{q}_{t}}\Big)dt\end{bmatrix}.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (111)
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="ltx_para" id="SS1.p2">
+        <p class="ltx_p">
+         For simplicity we start with (
+         <a class="ltx_ref" href="#eq:matix_form_dynamic_abs_angle_net_forces" title="(109) ‣ 8 Forward dynamics (FD) for a planar robot manipulator ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           109
+          </span>
+         </a>
+         ), and at the end, we will describe how the result can be converted to the other choice of variables. The iLQR method requires (
+         <a class="ltx_ref" href="#eq:dis_dynamic" title="(111) ‣ 8.1 Robot manipulator with dynamics equation ‣ 8 Forward dynamics (FD) for a planar robot manipulator ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           111
+          </span>
+         </a>
+         ) to be linearized around the current states and inputs.The corresponding
+         <span class="ltx_Math" id="SS1.p2.m1">
+          \bm{A}_{t}
+         </span>
+         and
+         <span class="ltx_Math" id="SS1.p2.m2">
+          \bm{B}_{t}
+         </span>
+         can be found according to (
+         <a class="ltx_ref" href="S7.html#eq:DS" title="(73) ‣ 7 iLQR optimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           73
+          </span>
+         </a>
+         ) as
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex127">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex127.m1">
+             \bm{A}_{t}=\begin{bmatrix}\bm{I}&amp;\bm{I}dt\\
+\bm{A}_{21}dt&amp;\bm{I}-2\tilde{\bm{M}}^{-1}\tilde{\bm{C}}\text{diag}(\dot{\bm{q}}_{t})dt\end{bmatrix},\quad\bm{B}_{t}=\begin{bmatrix}\bm{0}\\
+\tilde{\bm{M}}^{-1}dt\end{bmatrix}.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+       </div>
+       <div class="ltx_para" id="SS1.p3">
+        <p class="ltx_p">
+         <span class="ltx_Math" id="SS1.p3.m1">
+          \bm{A}_{21}=\frac{\partial\ddot{\bm{q}}_{t}}{\partial\bm{q}_{t}}
+         </span>
+         can be found by taking the derivation of (
+         <a class="ltx_ref" href="#eq:matix_form_dynamic_abs_angle_net_forces" title="(109) ‣ 8 Forward dynamics (FD) for a planar robot manipulator ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           109
+          </span>
+         </a>
+         ) w.r.t.
+         <span class="ltx_Math" id="SS1.p3.m2">
+          \bm{q}_{t}
+         </span>
+         . The
+         <span class="ltx_Math" id="SS1.p3.m3">
+          p
+         </span>
+         -
+         <em class="ltx_emph ltx_font_italic">
+          th
+         </em>
+         column of
+         <span class="ltx_Math" id="SS1.p3.m4">
+          \bm{A}_{21}
+         </span>
+         is the partial derivation of
+         <span class="ltx_Math" id="SS1.p3.m5">
+          \ddot{\bm{q}}_{t}
+         </span>
+         w.r.t.
+         <span class="ltx_Math" id="SS1.p3.m6">
+          p
+         </span>
+         -
+         <em class="ltx_emph ltx_font_italic">
+          th
+         </em>
+         joint angle at time
+         <span class="ltx_Math" id="SS1.p3.m7">
+          t
+         </span>
+         <span class="ltx_Math" id="SS1.p3.m8">
+          q_{t}^{p}
+         </span>
+         which can be formulated as
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex128">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex128.m1">
+             \frac{\partial\ddot{\bm{q}}_{t}}{\partial q_{t}^{p}}=\frac{\partial\tilde{\bm{M}}^{-1}}{\partial q_{t}^{p}}\Big(\bm{u}-\tilde{\bm{g}}-\tilde{\bm{C}}\text{diag}(\bm{\dot{q}}_{t})\bm{\dot{q}}_{t}\Big)-\tilde{\bm{M}}^{-1}\Big(\frac{\partial\tilde{\bm{g}}}{\partial q_{t}^{p}}+\frac{\partial\tilde{\bm{C}}}{\partial q_{t}^{p}}\text{diag}(\dot{\bm{q}}_{t})\dot{\bm{q}}_{t}\Big).
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+       </div>
+       <div class="ltx_para" id="SS1.p4">
+        <p class="ltx_p">
+         Having this done for all
+         <em class="ltx_emph ltx_font_italic">
+          p
+         </em>
+         ’s at time
+         <span class="ltx_Math" id="SS1.p4.m1">
+          t
+         </span>
+         , we can write
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex129">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex129.m1">
+             \frac{\partial\ddot{\bm{q}}_{t}}{\partial\bm{q}_{t}}=\Big(\tilde{\bm{M}}^{-1}\Big)^{\prime}\Big(\bm{u}-\tilde{\bm{g}}-\tilde{\bm{C}}\text{diag}(\bm{\dot{q}}_{t})\bm{\dot{q}}_{t}\Big)-\tilde{\bm{M}}^{-1}\Big(\tilde{\bm{g}}^{\prime}+\tilde{\bm{C}}^{\prime}\text{diag}(\dot{\bm{q}}_{t})\dot{\bm{q}}_{t}\Big),
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <p class="ltx_p">
+         where
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex130">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex130.m1">
+             \tilde{\bm{g}}^{\prime}(i,j)=\begin{cases}-\sum_{j=i}^{N}m_{j}l_{i}gs_{i}&amp;\text{if }i=j\\
+0&amp;\text{otherwise}\end{cases},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex131">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex131.m1">
+             \tilde{\bm{C}}^{\prime}=\begin{bmatrix}\frac{\partial\tilde{\bm{C}}}{\partial q_{1}^{t}}&amp;\frac{\partial\tilde{\bm{C}}}{\partial q_{2}^{t}}&amp;\cdots&amp;\frac{\partial\tilde{\bm{C}}}{\partial q_{N}^{t}}\end{bmatrix},\quad\tilde{\bm{C}}^{\prime}(h,k,p)=\begin{cases}l_{h}l_{k}c_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=h\neq k\\
+-l_{h}l_{k}c_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=k\neq h\\
+0&amp;\text{otherwise}\end{cases},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex132">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex132.m1">
+             (\tilde{\bm{M}}^{-1})^{\prime}=\begin{bmatrix}\frac{\partial\tilde{\bm{M}}^{-1}}{\partial q_{t}^{1}}&amp;\frac{\partial\tilde{\bm{M}}^{-1}}{\partial q_{t}^{2}}&amp;\cdots&amp;\frac{\partial\tilde{\bm{M}}^{-1}}{\partial q_{t}^{N}}\end{bmatrix},\quad\Big(\tilde{\bm{M}}^{-1}\Big)^{\prime}=-\tilde{\bm{M}}^{-1}\tilde{\bm{M}}^{\prime}\tilde{\bm{M}}^{-1},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex133">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex133.m1">
+             \tilde{\bm{M}}^{\prime}(h,k,p)=\begin{cases}-l_{h}l_{k}s_{h-k}\sum_{j=k}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=h\neq k\\
+l_{h}l_{k}s_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=k\neq h\\
+0&amp;\text{otherwise}\end{cases}.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+       </div>
+       <div class="ltx_para" id="SS1.p5">
+        <p class="ltx_p">
+         According to Section
+         <a class="ltx_ref" href="S7.html#sec:iLQRbatch" title="7.1 Batch formulation of iLQR ‣ 7 iLQR optimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           7.1
+          </span>
+         </a>
+         , we can concatenate the results for all time steps as
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="eq:transfer_matrix_abs_ang_gen_force">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="E112.m1">
+             \begin{bmatrix}\Delta\bm{q}_{1}\\
+\Delta\bm{\dot{q}}_{1}\\
+\vdots\\
+\Delta\bm{q}_{T}\\
+\Delta\bm{\dot{q}}_{T}\end{bmatrix}=\bm{S}_{u}^{q}\begin{bmatrix}\Delta\bm{u}_{1}\\
+\Delta\bm{u}_{2}\\
+\vdots\\
+\Delta\bm{u}_{T-1}\end{bmatrix},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+         <div class="ltx_eqn_eqno">
+          <div>
+           (112)
+          </div>
+         </div>
+        </div>
+        <p class="ltx_p">
+         where
+         <span class="ltx_Math" id="SS1.p5.m1">
+          T
+         </span>
+         is the total time horizon. These variables can be converted to relative angles and joint torque commands by
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex134">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex134.m1">
+             \begin{bmatrix}\Delta\bm{q}_{1}\\
+\Delta\bm{\dot{q}}_{1}\\
+\vdots\\
+\Delta\bm{q}_{T}\\
+\Delta\bm{\dot{q}}_{T}\end{bmatrix}=\underset{\bm{L}_{x}}{\underbrace{\begin{bmatrix}\bm{L}&amp;\bm{0}&amp;\ldots&amp;\bm{0}\\
+\bm{0}&amp;\bm{L}&amp;\ldots&amp;\bm{0}\\
+\vdots&amp;\vdots&amp;\ddots&amp;\vdots\\
+\bm{0}&amp;\bm{0}&amp;\ldots&amp;\bm{L}\end{bmatrix}}}\begin{bmatrix}\Delta\bm{x}_{1}\\
+\Delta\bm{\dot{x}}_{1}\\
+\vdots\\
+\Delta\bm{x}_{T}\\
+\Delta\bm{\dot{x}}_{T}\end{bmatrix},\quad\begin{bmatrix}\Delta\bm{u}_{1}\\
+\Delta\bm{u}_{2}\\
+\vdots\\
+\Delta\bm{u}_{T-1}\end{bmatrix}=\underset{\bm{L}_{u}}{\underbrace{\begin{bmatrix}\bm{L}^{-{\scriptscriptstyle\top}}&amp;\bm{0}&amp;\ldots&amp;\bm{0}\\
+\bm{0}&amp;\bm{L}^{-{\scriptscriptstyle\top}}&amp;\ldots&amp;\bm{0}\\
+\vdots&amp;\vdots&amp;\ddots&amp;\vdots\\
+\bm{0}&amp;\bm{0}&amp;\ldots&amp;\bm{L}^{-{\scriptscriptstyle\top}}\end{bmatrix}}}\begin{bmatrix}\Delta\bm{\tau}_{1}\\
+\Delta\bm{\tau}_{2}\\
+\vdots\\
+\Delta\bm{\tau}_{T-1}\end{bmatrix},
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+        <p class="ltx_p">
+         so (
+         <a class="ltx_ref" href="#eq:transfer_matrix_abs_ang_gen_force" title="(112) ‣ 8.1 Robot manipulator with dynamics equation ‣ 8 Forward dynamics (FD) for a planar robot manipulator ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+          <span class="ltx_text ltx_ref_tag">
+           112
+          </span>
+         </a>
+         ) can be rewritten as
+        </p>
+        <div class="equation" style="display:flex;align-items:center;">
+         <table class="ltx_equation ltx_eqn_table" id="Ex135">
+          <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+           <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+           </td>
+           <td class="ltx_eqn_cell ltx_align_center">
+            <span class="ltx_Math" id="Ex135.m1">
+             \begin{bmatrix}\Delta\bm{x}_{1}\\
+\Delta\bm{\dot{x}}_{1}\\
+\vdots\\
+\Delta\bm{x}_{T}\\
+\Delta\bm{\dot{x}}_{T}\end{bmatrix}=\bm{S}_{\tau}^{x}\begin{bmatrix}\Delta\bm{\tau}_{1}\\
+\Delta\bm{\tau}_{2}\\
+\vdots\\
+\Delta\bm{\tau}_{T-1}\end{bmatrix}=\bm{L}_{x}^{-1}\bm{S}_{u}^{q}\bm{L}_{u}\begin{bmatrix}\Delta\bm{\tau}_{1}\\
+\Delta\bm{\tau}_{2}\\
+\vdots\\
+\Delta\bm{\tau}_{T-1}\end{bmatrix}.
+            </span>
+           </td>
+           <td class="ltx_eqn_cell ltx_eqn_center_padright">
+           </td>
+          </tr>
+         </table>
+        </div>
+       </div>
+       <div class="ltx_pagination ltx_role_newpage">
+       </div>
+       <ul class="pagination justify-content-center small_menu">
+        <li class="page-item previous_file">
+         <a class="page-link" href="S7.html">
+          Previous
+         </a>
+        </li>
+        <li class="page-item next_file">
+         <a class="page-link" href="bib.html">
+          Next
+         </a>
+        </li>
+       </ul>
+      </div>
+     </div>
+     <div class="col-sm-3">
+      <div id="img-col">
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </body>
+</html>

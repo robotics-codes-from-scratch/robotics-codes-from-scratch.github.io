@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta content="Robotics codes from scratch (RCFS) is a collection of source codes to study and test learning and optimization problems in robotics through simple 2D examples." name="description"/>
+  <meta content="robotics codes, robotics tutorial, rcfs, robotics from scratch" name="keywords"/>
+  <meta content="Sylvain Calinon" name="author"/>
+  <title>
+   RCFS
+  </title>
+  <link href="static_images/favicon.ico" rel="icon" sizes="any"/>
+  <link href="static_images/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <link href="css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="css/bootstrap-icons-1.10.4/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="css/permanent_marker.css" rel="stylesheet"/>
+  <link href="css/main-template.css" rel="stylesheet"/>
+  <link href="css/sidebars.css" rel="stylesheet"/>
+  <link href="css/katex.min.css" rel="stylesheet"/>
+  <script src="js/jquery-3.6.4.min.js">
+  </script>
+  <script src="js/bootstrap.bundle.min.js">
+  </script>
+  <script src="js/katex.min.js">
+  </script>
+  <script>
+   function initialize(){
+                convertMath();
+                alignImages();
+            }
+
+            function convertMath(){
+                const elements = document.getElementsByClassName("ltx_Math");
+                const macros = {
+				'\\tp': '\\text{\\tiny{#1}}',
+				'\\trsp' : '\\top',
+				'\\psin' : '\\dagger',
+				'\\eqref': '\\href{###1}{(\\text{#1})}',
+				'\\ref': '\\href{###1}{\\text{#1}}',
+				'\\label': '\\htmlId{#1}{}'
+			};
+                for(let element of elements){
+                    katex.render(element.textContent, element, {
+                        throwOnError: false,
+                        macros
+                    });
+                }
+            }
+
+            function alignImages(){
+
+                document.getElementsByTagName('style').innerHTML = '';
+
+                let txt_height = document.querySelector('#txt-col').offsetHeight;
+                let img_height = document.querySelector('#img-col').offsetHeight;
+
+                let margin = 50;
+
+                if(txt_height > img_height && screen.width >= 576){
+                    let nb_figures = document.querySelectorAll('.figure_main').length;
+                    let computed_margin = (txt_height - img_height) / nb_figures;
+
+                    if(computed_margin > margin){
+                        margin = computed_margin;
+                    }
+                }
+
+                const style = document.createElement('style');
+                style.innerHTML = '.figure_main{ padding-top:'+Math.round(margin/2)+'px; padding-bottom:'+Math.round(margin/2)+'px; }';
+                document.head.appendChild(style);
+            }
+
+            window.onload = initialize;
+            window.onorientationchange = alignImages;
+  </script>
+ </head>
+ <body>
+  <nav aria-label="Light offcanvas navbar" class="navbar fixed-top" style="width: 50px;">
+   <div class="container-fluid">
+    <button aria-controls="offcanvasNavbarLight" class="navbar-toggler" data-bs-target="#offcanvasNavbarLight" data-bs-toggle="offcanvas" type="button">
+     <span class="navbar-toggler-icon" style="cursor: pointer;">
+     </span>
+    </button>
+    <div aria-labelledby="offcanvasNavbarLightLabel" class="offcanvas offcanvas-start" id="offcanvasNavbarLight" style="width: 500px;" tabindex="-1">
+     <div class="offcanvas-header">
+      <!--style='height: 50px;'-->
+      <a class="navbar-brand" href="index.html">
+       <h4 class="offcanvas-title" id="offcanvasNavbarLightLabel">
+        <i class="bi bi-code-slash">
+        </i>
+        RCFS
+       </h4>
+      </a>
+      <button aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" type="button">
+      </button>
+     </div>
+     <div class="offcanvas-body">
+      <!--Menu goes here-->
+      <ul class="list-unstyled ps-0">
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#general-collapse" data-bs-toggle="collapse">
+         General information
+        </button>
+        <div class="collapse show" id="general-collapse">
+         <!--<li><a href='index.html' class='link-dark d-inline-flex text-decoration-none rounded'>Home</a></li>-->
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="about.html">
+            <div class="p-1 mb-0">
+             About
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes2d-collapse" data-bs-toggle="collapse">
+         2D sandboxes
+        </button>
+        <div class="collapse" id="sandboxes2d-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_FK.html">
+            <div class="p-1 mb-0">
+             Forward kinematics (FK)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_IK.html">
+            <div class="p-1 mb-0">
+             Inverse kinematics (IK)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_bimanual.html">
+            <div class="p-1 mb-0">
+             Bimanual robot
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_humanoid.html">
+            <div class="p-1 mb-0">
+             Humanoid robot (CoM and coordination matrix)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR.html">
+            <div class="p-1 mb-0">
+             Iterative linear quadratic regulator (iLQR)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_car.html">
+            <div class="p-1 mb-0">
+             iLQR for car
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_bicopter.html">
+            <div class="p-1 mb-0">
+             iLQR for bicopter
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes3d-collapse" data-bs-toggle="collapse">
+         3D sandboxes
+        </button>
+        <div class="collapse" id="sandboxes3d-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox3d_IK.html">
+            <div class="p-1 mb-0">
+             Inverse kinematics (IK)
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#exercises-collapse" data-bs-toggle="collapse">
+         Exercises
+        </button>
+        <div class="collapse" id="exercises-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise01.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             01
+            </div>
+            <div class="p-1 mb-0">
+             Linear algebra in Python
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise02.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             02
+            </div>
+            <div class="p-1 mb-0">
+             Movement primitives and Newton's method
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise03.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             03
+            </div>
+            <div class="p-1 mb-0">
+             Gaussian Distributions
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             4a
+            </div>
+            <div class="p-1 mb-0">
+             Forward kinematics
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             4b
+            </div>
+            <div class="p-1 mb-0">
+             Inverse kinematics and nullspace control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             5a
+            </div>
+            <div class="p-1 mb-0">
+             Forward dynamics
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             5b
+            </div>
+            <div class="p-1 mb-0">
+             Inverse dynamics and impedance control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06a.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             6a
+            </div>
+            <div class="p-1 mb-0">
+             Planning with linear quadratic regulator
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06b.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             6b
+            </div>
+            <div class="p-1 mb-0">
+             Planning in joint space with LQR
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise07.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             07
+            </div>
+            <div class="p-1 mb-0">
+             Iterative linear quadratic regulator (iLQR)
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise08.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             08
+            </div>
+            <div class="p-1 mb-0">
+             Exploration with ergodic control
+            </div>
+           </a>
+          </li>
+          <li>
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise09.html">
+            <div class="p-1 mb-0 bg-dark text-white font-monospace">
+             09
+            </div>
+            <div class="p-1 mb-0">
+             Orientation with Riemannian manifold
+            </div>
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+       <li class="border-top my-1">
+       </li>
+       <li class="mb-1">
+        <button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#doc-collapse" data-bs-toggle="collapse">
+         Online courses
+        </button>
+        <div class="collapse" id="doc-collapse">
+         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small" id="menu_container">
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="toc.html" style="font-weight:bold;">
+            Table of contents
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html" style="font-weight:bold;">
+            1 Introduction
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html" style="font-weight:bold;">
+            2 Newton’s method for minimization
+           </a>
+           <div>
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:GaussNewton">
+               <span class="p-1 mb-0">
+                2.1 Gauss–Newton algorithm
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LS">
+               <span class="p-1 mb-0">
+                2.2 Least squares
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LSconstraints">
+               <span class="p-1 mb-0">
+                2.3 Least squares with constraints
+               </span>
+              </a>
+             </li>
+            </ul>
+           </div>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S3.html" style="font-weight:bold;">
+            3 Forward kinematics (FK) for a planar robot manipulator
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html" style="font-weight:bold;">
+            4 Inverse kinematics (IK) for a planar robot manipulator
+           </a>
+           <div>
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IKnum">
+               <span class="p-1 mb-0">
+                4.1 Numerical estimation of the Jacobian
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IK_nullspace">
+               <span class="p-1 mb-0">
+                4.2 Inverse kinematics (IK) with task prioritization
+               </span>
+              </a>
+             </li>
+            </ul>
+           </div>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html" style="font-weight:bold;">
+            5 Encoding with basis functions
+           </a>
+           <div>
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS1">
+               <span class="p-1 mb-0">
+                5.1 Univariate trajectories
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS2">
+               <span class="p-1 mb-0">
+                5.2 Multivariate trajectories
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS3">
+               <span class="p-1 mb-0">
+                5.3 Multidimensional inputs
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS4">
+               <span class="p-1 mb-0">
+                5.4 Derivatives
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS5">
+               <span class="p-1 mb-0">
+                5.5 Concatenated basis functions
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS6">
+               <span class="p-1 mb-0">
+                5.6 Batch computation of basis functions coefficients
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS7">
+               <span class="p-1 mb-0">
+                5.7 Recursive computation of basis functions coefficients
+               </span>
+              </a>
+             </li>
+            </ul>
+           </div>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html" style="font-weight:bold;">
+            6 Linear quadratic tracking (LQT)
+           </a>
+           <div>
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS1">
+               <span class="p-1 mb-0">
+                6.1 LQT with smoothness cost
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS2">
+               <span class="p-1 mb-0">
+                6.2 LQT with control primitives
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRrecursive">
+               <span class="p-1 mb-0">
+                6.3 LQR with a recursive formulation
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:augmState">
+               <span class="p-1 mb-0">
+                6.4 LQT with a recursive formulation and an augmented state space
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRLS">
+               <span class="p-1 mb-0">
+                6.5 Least squares formulation of recursive LQR
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:DMPLQT">
+               <span class="p-1 mb-0">
+                6.6 Dynamical movement primitives (DMP) reformulated as LQT with control primitives
+               </span>
+              </a>
+             </li>
+            </ul>
+           </div>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html" style="font-weight:bold;">
+            7 iLQR optimization
+           </a>
+           <div>
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRbatch">
+               <span class="p-1 mb-0">
+                7.1 Batch formulation of iLQR
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRrecursive">
+               <span class="p-1 mb-0">
+                7.2 Recursive formulation of iLQR
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRLS">
+               <span class="p-1 mb-0">
+                7.3 Least squares formulation of recursive iLQR
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS4">
+               <span class="p-1 mb-0">
+                7.4 Updates by considering step sizes
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS5">
+               <span class="p-1 mb-0">
+                7.5 iLQR with quadratic cost on f(x_{t})
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS6">
+               <span class="p-1 mb-0">
+                7.6 iLQR with control primitives
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS7">
+               <span class="p-1 mb-0">
+                7.7 iLQR for spacetime optimization
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS8">
+               <span class="p-1 mb-0">
+                7.8 iLQR with offdiagonal elements in the precision matrix
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS9">
+               <span class="p-1 mb-0">
+                7.9 Car steering
+               </span>
+              </a>
+             </li>
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS10">
+               <span class="p-1 mb-0">
+                7.10 Bicopter
+               </span>
+              </a>
+             </li>
+            </ul>
+           </div>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html" style="font-weight:bold;">
+            8 Forward dynamics (FD) for a planar robot manipulator
+           </a>
+           <div>
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+             <li>
+              <a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html#SS1">
+               <span class="p-1 mb-0">
+                8.1 Robot manipulator with dynamics equation
+               </span>
+              </a>
+             </li>
+            </ul>
+           </div>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="bib.html" style="font-weight:bold;">
+            References
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="A1.html" style="font-weight:bold;">
+            A System dynamics at trajectory level
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="A2.html" style="font-weight:bold;">
+            B Derivation of motion equation for a planar robot
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="A3.html" style="font-weight:bold;">
+            C Linear systems used in the bimanual tennis serve example
+           </a>
+          </li>
+          <li class="mb-1 generated-menu-item">
+           <a class="link-dark d-inline-flex text-decoration-none rounded" href="A4.html" style="font-weight:bold;">
+            D Equivalence between LQT and LQR with augmented state space
+           </a>
+          </li>
+         </ul>
+        </div>
+       </li>
+      </ul>
+     </div>
+    </div>
+   </div>
+  </nav>
+  <div class="container-fluid">
+   <!--<center><h1 class="title">My Title</h1></center>-->
+   <div id="data_container">
+    <div class="row">
+     <div class="col-sm-7 offset-1">
+      <div id="txt-col">
+       <h1 class="ltx_title ltx_title_bibliography">
+        References
+       </h1>
+       <ul class="ltx_biblist" id="L1">
+        <li class="ltx_bibitem ltx_bib_article" id="bib5">
+         <span class="ltx_tag ltx_bib_key ltx_role_refnum ltx_tag_bibitem">
+          [1]
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_author">
+           D. S. Broomhead and D. Lowe
+          </span>
+          <span class="ltx_text ltx_bib_year">
+           (1988)
+          </span>
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_title">
+           Multivariable functional interpolation and adaptive networks
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_journal">
+           Complex Systems
+          </span>
+          <span class="ltx_text ltx_bib_volume">
+           2
+          </span>
+          (
+          <span class="ltx_text ltx_bib_number">
+           3
+          </span>
+          ),
+          <span class="ltx_text ltx_bib_pages">
+           pp. 321–355
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock ltx_bib_cited">
+          Cited by:
+          <a class="ltx_ref" href="S6.html#SS6.p1" title="6.6 Dynamical movement primitives (DMP) reformulated as LQT with control primitives ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            §6.6
+           </span>
+          </a>
+          .
+         </span>
+        </li>
+        <li class="ltx_bibitem ltx_bib_incollection" id="bib6">
+         <span class="ltx_tag ltx_bib_key ltx_role_refnum ltx_tag_bibitem">
+          [2]
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_author">
+           S. Calinon
+          </span>
+          <span class="ltx_text ltx_bib_year">
+           (2019)
+          </span>
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_title">
+           Mixture models for the analysis, edition, and synthesis of continuous time series
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock">
+          In
+          <span class="ltx_text ltx_bib_inbook">
+           Mixture Models and Applications
+          </span>
+          ,
+          <span class="ltx_text ltx_bib_editor">
+           N. Bouguila and W. Fan (Eds.)
+          </span>
+          ,
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_pages">
+           pp. 39–57
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock">
+          External Links:
+          <span class="ltx_text ltx_bib_links">
+           <a class="ltx_ref doi ltx_bib_external" href="https://dx.doi.org/10.1007/978-3-030-23876-6%5F3" title="">
+            Document
+           </a>
+          </span>
+         </span>
+         <span class="ltx_bibblock ltx_bib_cited">
+          Cited by:
+          <a class="ltx_ref" href="S5.html#SS1.p1" title="5.1 Univariate trajectories ‣ 5 Encoding with basis functions ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            §5.1
+           </span>
+          </a>
+          .
+         </span>
+        </li>
+        <li class="ltx_bibitem ltx_bib_article" id="bib10">
+         <span class="ltx_tag ltx_bib_key ltx_role_refnum ltx_tag_bibitem">
+          [3]
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_author">
+           S. Calinon
+          </span>
+          <span class="ltx_text ltx_bib_year">
+           (2020-06)
+          </span>
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_title">
+           Gaussians on Riemannian manifolds: applications for robot learning and adaptive control
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_journal">
+           IEEE Robotics and Automation Magazine (RAM)
+          </span>
+          <span class="ltx_text ltx_bib_volume">
+           27
+          </span>
+          (
+          <span class="ltx_text ltx_bib_number">
+           2
+          </span>
+          ),
+          <span class="ltx_text ltx_bib_pages">
+           pp. 33–45
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock">
+          External Links:
+          <span class="ltx_text ltx_bib_links">
+           <a class="ltx_ref doi ltx_bib_external" href="https://dx.doi.org/10.1109/MRA.2020.2980548" title="">
+            Document
+           </a>
+          </span>
+         </span>
+         <span class="ltx_bibblock ltx_bib_cited">
+          Cited by:
+          <a class="ltx_ref" href="S7.html#SS5.SSS1.p4" title="7.5.1 Robot manipulator ‣ 7.5 iLQR with quadratic cost on f(xt) ‣ 7 iLQR optimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            §7.5.1
+           </span>
+          </a>
+          ,
+          <a class="ltx_ref" href="S7.html#SS5.SSS9.p1" title="7.5.9 Manipulability tracking ‣ 7.5 iLQR with quadratic cost on f(xt) ‣ 7 iLQR optimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            §7.5.9
+           </span>
+          </a>
+          .
+         </span>
+        </li>
+        <li class="ltx_bibitem ltx_bib_article" id="bib4">
+         <span class="ltx_tag ltx_bib_key ltx_role_refnum ltx_tag_bibitem">
+          [4]
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_author">
+           A. Ijspeert, J. Nakanishi, P. Pastor, H. Hoffmann, and S. Schaal
+          </span>
+          <span class="ltx_text ltx_bib_year">
+           (2013)
+          </span>
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_title">
+           Dynamical movement primitives: learning attractor models for motor behaviors
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_journal">
+           Neural Computation
+          </span>
+          <span class="ltx_text ltx_bib_volume">
+           25
+          </span>
+          (
+          <span class="ltx_text ltx_bib_number">
+           2
+          </span>
+          ),
+          <span class="ltx_text ltx_bib_pages">
+           pp. 328–373
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock ltx_bib_cited">
+          Cited by:
+          <a class="ltx_ref" href="S6.html#SS6.p1" title="6.6 Dynamical movement primitives (DMP) reformulated as LQT with control primitives ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            §6.6
+           </span>
+          </a>
+          .
+         </span>
+        </li>
+        <li class="ltx_bibitem ltx_bib_article" id="bib12">
+         <span class="ltx_tag ltx_bib_key ltx_role_refnum ltx_tag_bibitem">
+          [5]
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_author">
+           N. Jaquier, L. Rozo, D. G. Caldwell, and S. Calinon
+          </span>
+          <span class="ltx_text ltx_bib_year">
+           (2021)
+          </span>
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_title">
+           Geometry-aware manipulability learning, tracking and transfer
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_journal">
+           International Journal of Robotics Research (IJRR)
+          </span>
+          <span class="ltx_text ltx_bib_volume">
+           40
+          </span>
+          (
+          <span class="ltx_text ltx_bib_number">
+           2–3
+          </span>
+          ),
+          <span class="ltx_text ltx_bib_pages">
+           pp. 624–650
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock">
+          External Links:
+          <span class="ltx_text ltx_bib_links">
+           <a class="ltx_ref doi ltx_bib_external" href="https://dx.doi.org/10.1177/0278364920946815" title="">
+            Document
+           </a>
+          </span>
+         </span>
+         <span class="ltx_bibblock ltx_bib_cited">
+          Cited by:
+          <a class="ltx_ref" href="S7.html#SS5.SSS9.p5" title="7.5.9 Manipulability tracking ‣ 7.5 iLQR with quadratic cost on f(xt) ‣ 7 iLQR optimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            §7.5.9
+           </span>
+          </a>
+          ,
+          <a class="ltx_ref" href="S7.html#SS5.SSS9.p6" title="7.5.9 Manipulability tracking ‣ 7.5 iLQR with quadratic cost on f(xt) ‣ 7 iLQR optimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            §7.5.9
+           </span>
+          </a>
+          .
+         </span>
+        </li>
+        <li class="ltx_bibitem ltx_bib_inproceedings" id="bib7">
+         <span class="ltx_tag ltx_bib_key ltx_role_refnum ltx_tag_bibitem">
+          [6]
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_author">
+           W. Li and E. Todorov
+          </span>
+          <span class="ltx_text ltx_bib_year">
+           (2004)
+          </span>
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_title">
+           Iterative linear quadratic regulator design for nonlinear biological movement systems
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock">
+          In
+          <span class="ltx_text ltx_bib_inbook">
+           Proc. Intl Conf. on Informatics in Control, Automation and Robotics (ICINCO)
+          </span>
+          ,
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_pages">
+           pp. 222–229
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock ltx_bib_cited">
+          Cited by:
+          <a class="ltx_ref" href="S7.html#p2" title="7 iLQR optimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            §7
+           </span>
+          </a>
+          .
+         </span>
+        </li>
+        <li class="ltx_bibitem ltx_bib_article" id="bib15">
+         <span class="ltx_tag ltx_bib_key ltx_role_refnum ltx_tag_bibitem">
+          [7]
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_author">
+           F. Marić, L. Petrović, M. Guberina, J. Kelly, and I. Petrović
+          </span>
+          <span class="ltx_text ltx_bib_year">
+           (2021)
+          </span>
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_title">
+           A Riemannian metric for geometry-aware singularity avoidance by articulated robots
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_journal">
+           Robotics and Autonomous Systems
+          </span>
+          <span class="ltx_text ltx_bib_volume">
+           145
+          </span>
+          ,
+          <span class="ltx_text ltx_bib_pages">
+           pp. 103865
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock ltx_bib_cited">
+          Cited by:
+          <a class="ltx_ref" href="S7.html#SS5.SSS9.p6" title="7.5.9 Manipulability tracking ‣ 7.5 iLQR with quadratic cost on f(xt) ‣ 7 iLQR optimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            §7.5.9
+           </span>
+          </a>
+          .
+         </span>
+        </li>
+        <li class="ltx_bibitem ltx_bib_article" id="bib8">
+         <span class="ltx_tag ltx_bib_key ltx_role_refnum ltx_tag_bibitem">
+          [8]
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_author">
+           D. Mayne
+          </span>
+          <span class="ltx_text ltx_bib_year">
+           (1966)
+          </span>
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_title">
+           A second-order gradient method for determining optimal trajectories of non-linear discrete-time systems
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_journal">
+           International Journal of Control
+          </span>
+          <span class="ltx_text ltx_bib_volume">
+           3
+          </span>
+          (
+          <span class="ltx_text ltx_bib_number">
+           1
+          </span>
+          ),
+          <span class="ltx_text ltx_bib_pages">
+           pp. 85–95
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock ltx_bib_cited">
+          Cited by:
+          <a class="ltx_ref" href="S7.html#p2" title="7 iLQR optimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            §7
+           </span>
+          </a>
+          .
+         </span>
+        </li>
+        <li class="ltx_bibitem ltx_bib_article" id="bib17">
+         <span class="ltx_tag ltx_bib_key ltx_role_refnum ltx_tag_bibitem">
+          [9]
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_author">
+           F. A. Mussa-Ivaldi, S. F. Giszter, and E. Bizzi
+          </span>
+          <span class="ltx_text ltx_bib_year">
+           (August)
+          </span>
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_title">
+           Linear combinations of primitives in vertebrate motor control
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_journal">
+           Proc. National Academy of Sciences
+          </span>
+          <span class="ltx_text ltx_bib_volume">
+           91
+          </span>
+          ,
+          <span class="ltx_text ltx_bib_pages">
+           pp. 7534–7538
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock ltx_bib_cited">
+          Cited by:
+          <a class="ltx_ref" href="S5.html#p3" title="5 Encoding with basis functions ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            §5
+           </span>
+          </a>
+          .
+         </span>
+        </li>
+        <li class="ltx_bibitem ltx_bib_book" id="bib18">
+         <span class="ltx_tag ltx_bib_key ltx_role_refnum ltx_tag_bibitem">
+          [10]
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_author">
+           J. Nocedal and S. Wright
+          </span>
+          <span class="ltx_text ltx_bib_year">
+           (2006)
+          </span>
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_title">
+           Numerical optimization
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_publisher">
+           Springer
+          </span>
+          ,
+          <span class="ltx_text ltx_bib_place">
+           New York, NY
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock ltx_bib_cited">
+          Cited by:
+          <a class="ltx_ref" href="S7.html#SS4.p3" title="7.4 Updates by considering step sizes ‣ 7 iLQR optimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            §7.4
+           </span>
+          </a>
+          .
+         </span>
+        </li>
+        <li class="ltx_bibitem ltx_bib_inproceedings" id="bib16">
+         <span class="ltx_tag ltx_bib_key ltx_role_refnum ltx_tag_bibitem">
+          [11]
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_author">
+           D. E. Orin and A. Goswami
+          </span>
+          <span class="ltx_text ltx_bib_year">
+           (2008)
+          </span>
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_title">
+           Centroidal momentum matrix of a humanoid robot: structure and properties
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock">
+          In
+          <span class="ltx_text ltx_bib_inbook">
+           Proc. IEEE/RSJ Intl Conf. on Intelligent Robots and Systems (IROS)
+          </span>
+          ,
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_pages">
+           pp. 653–659
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock ltx_bib_cited">
+          Cited by:
+          <a class="ltx_ref" href="S7.html#SS5.SSS9.p8" title="7.5.9 Manipulability tracking ‣ 7.5 iLQR with quadratic cost on f(xt) ‣ 7 iLQR optimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            §7.5.9
+           </span>
+          </a>
+          .
+         </span>
+        </li>
+        <li class="ltx_bibitem ltx_bib_incollection" id="bib1">
+         <span class="ltx_tag ltx_bib_key ltx_role_refnum ltx_tag_bibitem">
+          [12]
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_author">
+           A. Paraschos, C. Daniel, J. Peters, and G. Neumann
+          </span>
+          <span class="ltx_text ltx_bib_year">
+           (2013)
+          </span>
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_title">
+           Probabilistic movement primitives
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock">
+          In
+          <span class="ltx_text ltx_bib_inbook">
+           Advances in Neural Information Processing Systems (NeurIPS)
+          </span>
+          ,
+          <span class="ltx_text ltx_bib_editor">
+           C. J. C. Burges, L. Bottou, M. Welling, Z. Ghahramani, and K. Q. Weinberger (Eds.)
+          </span>
+          ,
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_pages">
+           pp. 2616–2624
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock ltx_bib_cited">
+          Cited by:
+          <a class="ltx_ref" href="S6.html#SS2.p1" title="6.2 LQT with control primitives ‣ 6 Linear quadratic tracking (LQT) ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            §6.2
+           </span>
+          </a>
+          .
+         </span>
+        </li>
+        <li class="ltx_bibitem ltx_bib_article" id="bib14">
+         <span class="ltx_tag ltx_bib_key ltx_role_refnum ltx_tag_bibitem">
+          [13]
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_author">
+           F. C. Park and J. W. Kim
+          </span>
+          <span class="ltx_text ltx_bib_year">
+           (1998)
+          </span>
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_title">
+           Manipulability of closed kinematic chains
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_journal">
+           Journal of Mechanical Design
+          </span>
+          <span class="ltx_text ltx_bib_volume">
+           120
+          </span>
+          (
+          <span class="ltx_text ltx_bib_number">
+           4
+          </span>
+          ),
+          <span class="ltx_text ltx_bib_pages">
+           pp. 542–548
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock ltx_bib_cited">
+          Cited by:
+          <a class="ltx_ref" href="S7.html#SS5.SSS9.p2" title="7.5.9 Manipulability tracking ‣ 7.5 iLQR with quadratic cost on f(xt) ‣ 7 iLQR optimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            §7.5.9
+           </span>
+          </a>
+          .
+         </span>
+        </li>
+        <li class="ltx_bibitem ltx_bib_article" id="bib9">
+         <span class="ltx_tag ltx_bib_key ltx_role_refnum ltx_tag_bibitem">
+          [14]
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_author">
+           H. H. Rosenbrock
+          </span>
+          <span class="ltx_text ltx_bib_year">
+           (1972)
+          </span>
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_title">
+           Differential dynamic programming
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_journal">
+           The Mathematical Gazette
+          </span>
+          <span class="ltx_text ltx_bib_volume">
+           56
+          </span>
+          (
+          <span class="ltx_text ltx_bib_number">
+           395
+          </span>
+          ),
+          <span class="ltx_text ltx_bib_pages">
+           pp. 78–78
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock ltx_bib_cited">
+          Cited by:
+          <a class="ltx_ref" href="S7.html#p2" title="7 iLQR optimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            §7
+           </span>
+          </a>
+          .
+         </span>
+        </li>
+        <li class="ltx_bibitem ltx_bib_article" id="bib13">
+         <span class="ltx_tag ltx_bib_key ltx_role_refnum ltx_tag_bibitem">
+          [15]
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_author">
+           T. Yoshikawa
+          </span>
+          <span class="ltx_text ltx_bib_year">
+           (1985)
+          </span>
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_title">
+           Dynamic manipulability of robot manipulators
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock">
+          <span class="ltx_text ltx_bib_journal">
+           Robotic Systems
+          </span>
+          <span class="ltx_text ltx_bib_volume">
+           2
+          </span>
+          ,
+          <span class="ltx_text ltx_bib_pages">
+           pp. 113–124
+          </span>
+          .
+         </span>
+         <span class="ltx_bibblock ltx_bib_cited">
+          Cited by:
+          <a class="ltx_ref" href="S7.html#SS5.SSS9.p4" title="7.5.9 Manipulability tracking ‣ 7.5 iLQR with quadratic cost on f(xt) ‣ 7 iLQR optimization ‣ A practical guide to learning and control problems in robotics solved with second-order optimization">
+           <span class="ltx_text ltx_ref_tag">
+            §7.5.9
+           </span>
+          </a>
+          .
+         </span>
+        </li>
+       </ul>
+       <ul class="pagination justify-content-center small_menu">
+        <li class="page-item previous_file">
+         <a class="page-link" href="S8.html">
+          Previous
+         </a>
+        </li>
+        <li class="page-item next_file">
+         <a class="page-link" href="A1.html">
+          Next
+         </a>
+        </li>
+       </ul>
+      </div>
+     </div>
+     <div class="col-sm-3">
+      <div id="img-col">
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </body>
+</html>

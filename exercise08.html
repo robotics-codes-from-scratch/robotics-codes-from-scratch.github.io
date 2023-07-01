@@ -1,0 +1,493 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="RCFS" name="description"/>
+<meta content="robotics codes, robotics tutorial, rcfs, robotics from scratch" name="keywords"/>
+<meta content="Sylvain Calinon" name="author"/>
+<title>RCFS</title>
+<link href="static_images/favicon.ico" rel="icon" sizes="any"/>
+<link href="static_images/favicon.svg" rel="icon" type="image/svg+xml"/>
+<link href="css/bootstrap.min.css" rel="stylesheet"/>
+<link href="css/bootstrap-icons-1.10.4/font/bootstrap-icons.css" rel="stylesheet"/>
+<link href="css/permanent_marker.css" rel="stylesheet"/>
+<link href="css/sidebars.css" rel="stylesheet"/>
+<script src="js/jquery-3.6.4.min.js"></script>
+<script src="js/bootstrap.bundle.min.js"></script>
+<script defer="" src="https://pyscript.net/latest/pyscript.min.js"></script>
+<py-config type="toml">
+		packages = ['numpy']
+	</py-config>
+<link href="https://pyscript.net/latest/pyscript.css" rel="stylesheet"/> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
+<link href="css/main-template.css" rel="stylesheet"/>
+</head>
+<body><nav aria-label="Light offcanvas navbar" class="navbar fixed-top" style="width: 50px;">
+<div class="container-fluid">
+<button aria-controls="offcanvasNavbarLight" class="navbar-toggler" data-bs-target="#offcanvasNavbarLight" data-bs-toggle="offcanvas" type="button">
+<span class="navbar-toggler-icon" style="cursor: pointer;"></span>
+</button>
+<div aria-labelledby="offcanvasNavbarLightLabel" class="offcanvas offcanvas-start" id="offcanvasNavbarLight" style="width: 500px;" tabindex="-1">
+<div class="offcanvas-header"><!--style='height: 50px;'-->
+<a class="navbar-brand" href="index.html"><h4 class="offcanvas-title" id="offcanvasNavbarLightLabel"> <i class="bi bi-code-slash"></i> RCFS</h4></a>
+<button aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" type="button"></button>
+</div>
+<div class="offcanvas-body">
+<!--Menu goes here-->
+<ul class="list-unstyled ps-0">
+<li class="border-top my-1"></li>
+<li class="mb-1">
+<button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#general-collapse" data-bs-toggle="collapse">General information</button>
+<div class="collapse show" id="general-collapse">
+<!--<li><a href='index.html' class='link-dark d-inline-flex text-decoration-none rounded'>Home</a></li>-->
+<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="about.html">
+<div class="p-1 mb-0">About</div></a></li>
+</ul>
+</div>
+</li>
+<li class="border-top my-1"></li>
+<li class="mb-1">
+<button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes2d-collapse" data-bs-toggle="collapse">2D sandboxes</button>
+<div class="collapse" id="sandboxes2d-collapse">
+<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_FK.html">
+<div class="p-1 mb-0">Forward kinematics (FK)</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_IK.html">
+<div class="p-1 mb-0">Inverse kinematics (IK)</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_bimanual.html">
+<div class="p-1 mb-0">Bimanual robot</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_humanoid.html">
+<div class="p-1 mb-0">Humanoid robot (CoM and coordination matrix)</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR.html">
+<div class="p-1 mb-0">Iterative linear quadratic regulator (iLQR)</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_car.html">
+<div class="p-1 mb-0">iLQR for car</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_bicopter.html">
+<div class="p-1 mb-0">iLQR for bicopter</div></a></li>
+</ul>
+</div>
+</li>
+<li class="border-top my-1"></li>
+<li class="mb-1">
+<button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes3d-collapse" data-bs-toggle="collapse">3D sandboxes</button>
+<div class="collapse" id="sandboxes3d-collapse">
+<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox3d_IK.html">
+<div class="p-1 mb-0">Inverse kinematics (IK)</div></a></li>
+</ul>
+</div>
+</li>
+<li class="border-top my-1"></li>
+<li class="mb-1">
+<button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#exercises-collapse" data-bs-toggle="collapse">Exercises</button>
+<div class="collapse" id="exercises-collapse">
+<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise01.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">01</div>
+<div class="p-1 mb-0">Linear algebra in Python</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise02.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">02</div>
+<div class="p-1 mb-0">Movement primitives and Newton's method</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise03.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">03</div>
+<div class="p-1 mb-0">Gaussian Distributions</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04a.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">4a</div>
+<div class="p-1 mb-0">Forward kinematics</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04b.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">4b</div>
+<div class="p-1 mb-0">Inverse kinematics and nullspace control</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05a.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">5a</div>
+<div class="p-1 mb-0">Forward dynamics</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05b.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">5b</div>
+<div class="p-1 mb-0">Inverse dynamics and impedance control</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06a.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">6a</div>
+<div class="p-1 mb-0">Planning with linear quadratic regulator</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06b.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">6b</div>
+<div class="p-1 mb-0">Planning in joint space with LQR</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise07.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">07</div>
+<div class="p-1 mb-0">Iterative linear quadratic regulator (iLQR)</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise08.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">08</div>
+<div class="p-1 mb-0">Exploration with ergodic control</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise09.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">09</div>
+<div class="p-1 mb-0">Orientation with Riemannian manifold</div></a></li>
+</ul>
+</div>
+</li>
+<li class="border-top my-1"></li>
+<li class="mb-1">
+<button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#doc-collapse" data-bs-toggle="collapse">Online courses</button>
+<div class="collapse" id="doc-collapse">
+<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small" id="menu_container">
+<li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="toc.html" style="font-weight:bold;">Table of contents</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html" style="font-weight:bold;">1 Introduction</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html" style="font-weight:bold;">2 Newton’s method for minimization</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:GaussNewton"><span class="p-1 mb-0">2.1 Gauss–Newton algorithm</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LS"><span class="p-1 mb-0">2.2 Least squares</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LSconstraints"><span class="p-1 mb-0">2.3 Least squares with constraints</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S3.html" style="font-weight:bold;">3 Forward kinematics (FK) for a planar robot manipulator</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html" style="font-weight:bold;">4 Inverse kinematics (IK) for a planar robot manipulator</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IKnum"><span class="p-1 mb-0">4.1 Numerical estimation of the Jacobian</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IK_nullspace"><span class="p-1 mb-0">4.2 Inverse kinematics (IK) with task prioritization</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html" style="font-weight:bold;">5 Encoding with basis functions</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS1"><span class="p-1 mb-0">5.1 Univariate trajectories</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS2"><span class="p-1 mb-0">5.2 Multivariate trajectories</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS3"><span class="p-1 mb-0">5.3 Multidimensional inputs</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS4"><span class="p-1 mb-0">5.4 Derivatives</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS5"><span class="p-1 mb-0">5.5 Concatenated basis functions</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS6"><span class="p-1 mb-0">5.6 Batch computation of basis functions coefficients</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS7"><span class="p-1 mb-0">5.7 Recursive computation of basis functions coefficients</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html" style="font-weight:bold;">6 Linear quadratic tracking (LQT)</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS1"><span class="p-1 mb-0">6.1 LQT with smoothness cost</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS2"><span class="p-1 mb-0">6.2 LQT with control primitives</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRrecursive"><span class="p-1 mb-0">6.3 LQR with a recursive formulation</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:augmState"><span class="p-1 mb-0">6.4 LQT with a recursive formulation and an augmented state space</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRLS"><span class="p-1 mb-0">6.5 Least squares formulation of recursive LQR</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:DMPLQT"><span class="p-1 mb-0">6.6 Dynamical movement primitives (DMP) reformulated as LQT with control primitives</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html" style="font-weight:bold;">7 iLQR optimization</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRbatch"><span class="p-1 mb-0">7.1 Batch formulation of iLQR</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRrecursive"><span class="p-1 mb-0">7.2 Recursive formulation of iLQR</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRLS"><span class="p-1 mb-0">7.3 Least squares formulation of recursive iLQR</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS4"><span class="p-1 mb-0">7.4 Updates by considering step sizes</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS5"><span class="p-1 mb-0">7.5 iLQR with quadratic cost on f(x_{t})</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS6"><span class="p-1 mb-0">7.6 iLQR with control primitives</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS7"><span class="p-1 mb-0">7.7 iLQR for spacetime optimization</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS8"><span class="p-1 mb-0">7.8 iLQR with offdiagonal elements in the precision matrix</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS9"><span class="p-1 mb-0">7.9 Car steering</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS10"><span class="p-1 mb-0">7.10 Bicopter</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html" style="font-weight:bold;">8 Forward dynamics (FD) for a planar robot manipulator</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html#SS1"><span class="p-1 mb-0">8.1 Robot manipulator with dynamics equation</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="bib.html" style="font-weight:bold;">References</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="A1.html" style="font-weight:bold;">A System dynamics at trajectory level</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="A2.html" style="font-weight:bold;">B Derivation of motion equation for a planar robot</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="A3.html" style="font-weight:bold;">C Linear systems used in the bimanual tennis serve example</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="A4.html" style="font-weight:bold;">D Equivalence between LQT and LQR with augmented state space</a></li></ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</nav>
+<div class="container-fluid">
+<script>
+function clearMsgs() {
+  const el = document.getElementById('errors');
+  el.innerText = '';
+}
+function clearMsgsOutput() {
+  const el = document.getElementById('output');
+  el.innerText = '';
+}
+const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b','#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
+</script>
+<div class="row">
+<div class="col-sm-1"></div>
+<div class="col-sm-7">
+<h1>Exercise 8<br/>Exploration with ergodic control</h1>
+<p>In this exercise, we will use ergodic control as an exploration mechanism for a point mass agent.</p>
+<p>The goal is to analyze how ergodic control can be used to find a target object with an unknown location but with a prior knowledge on its location in the form of a distribution. The time took by ergodic control to find the hidden target is shown below the animation.</p>
+<p>Ergodic control uses a prior information on the location of the target object in the form of a probability distribution. In this exercise, a mixture of Gaussians is used as distribution (represented as pink ellipsoids to represent the contours of two standard deviations).</p>
+<p>Ergodic control computes control commands to generate a path so that the agent will spend time in the different location of the workspace in proportion to the given spatial distribution. Namely, if we would discretize the workspace and count the number of times the agent passed in each cell of this grid, the controller will ensure that over time, the resulting histogram will match the desired spatial distribution.</p>
+<ul class="list-group list-group-numbered">
+<li class="list-group-item">
+		Change the Gaussian parameters <code>param.nbGaussian</code>, <code>param.Mu</code>, <code>param.Sigma</code> and the initial position <code>param.x0</code> of the agent (point in black in the animation) and observe the search behavior.
+	</li>
+<li class="list-group-item">
+		Set the target position <code>param.target</code> to be a sample from the mixture of Gaussians (with equal mixing coefficients), the means <code>param.Mu</code> and the covariance matrices <code>param.Sigma</code>.<br/>
+		Hint: to sample from a mixture of Gaussians, you can first uniformly sample between 1 and <code>param.nbGaussian</code> to choose the Gaussian component to sample from.
+	</li>
+</ul><br/>
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+<li class="nav-item" role="presentation">
+<button aria-controls="question1-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#question1-tab-pane" data-bs-toggle="tab" id="question1-tab" role="tab" type="button">Question</button>
+</li>
+<li class="nav-item" role="presentation"> <button aria-controls="question2-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#question2-tab-pane" data-bs-toggle="tab" id="question2-tab" role="tab" type="button">Answer</button>
+</li>
+</ul>
+<div class="tab-content" id="myTabContent">
+<div aria-labelledby="question1-tab" class="tab-pane fade show active" id="question1-tab-pane" role="tabpanel" tabindex="0">
+<py-repl error="errors" output="output">
+param.x0 = np.array([.2, .3])
+
+param.nbGaussian = 2
+param.Mu = np.ones((param.nbVar,param.nbGaussian)) * .5 # Implement here
+param.Sigma = np.zeros((param.nbVar,param.nbVar,param.nbGaussian)) # Implement here
+
+# Sampling from GMM to define the target
+param.target = np.array([.5, .5]) # implement here
+
+update_ergodic_control()
+		</py-repl><br/>
+</div>
+<div aria-labelledby="question2-tab" class="tab-pane fade" id="question2-tab-pane" role="tabpanel" tabindex="0">
+<py-repl error="errors" output="output">
+param.x0 = np.array([.2, .3])
+
+param.nbGaussian = 2
+param.Mu = np.zeros((param.nbVar,param.nbGaussian))
+param.Sigma = np.zeros((param.nbVar,param.nbVar,param.nbGaussian))
+for i in range(param.nbGaussian):
+  param.Mu[:,i] = np.random.uniform(0.1,0.9,param.nbVar)
+  sigma_v = np.random.uniform(-1,1,param.nbVar)
+  sigma_scale = np.random.uniform(0,0.1,1)
+  sigma_regularization = np.random.uniform(0,0.01,1)
+  sigma_v = sigma_v / np.linalg.norm(sigma_v)
+  param.Sigma[:,:,i] = np.outer(sigma_v,sigma_v) * sigma_scale + sigma_regularization
+
+# Sampling from GMM to define the target
+gaussian_id = np.random.choice(np.arange(0,param.nbGaussian))
+param.target = np.random.multivariate_normal(param.Mu[:,gaussian_id],param.Sigma[:,:,gaussian_id])
+param.target = np.clip(param.target, 0.01, 0.99) # Target within [0,1]
+
+update_ergodic_control()
+		</py-repl>
+</div><br/>
+</div>
+</div> <!--sm-7-->
+<div class="col-sm-4">
+<div class="sticky-sm-top" style="padding: 2rem 1rem 1rem 1rem;">
+<hr/>
+<div class="row justify-content-between">
+<div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Output</button></div>
+<div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgsOutput()">Clear</button></div>
+</div>
+<div id="output"></div>
+<hr/>
+<div class="row justify-content-between">
+<div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Error</button></div>
+<div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgs()">Clear</button></div>
+</div>
+<div id="errors"></div>
+<hr/>
+<canvas height="900px" id="canvas" style="width:100%;" width="900px"></canvas>
+<form>
+<div class="row">
+<div class="col-md"><center><span id="cost"></span></center></div>
+</div>
+</form>
+</div>
+</div> <!--sm-4-->
+</div> <!--row-->
+<py-script>
+def print(x):
+	display(x, target='output')
+</py-script>
+<py-script std-err="errors" std-out="output">
+from pyodide.ffi import create_proxy
+from js import Path2D, document, console
+import numpy as np
+import asyncio
+from math import sqrt
+
+## Parameters
+# ===============================
+param = lambda: None # Lazy way to define an empty class in python
+param.dt = 1e-2 # Time step length
+param.nbFct = 10 # Number of basis functions along x and y
+param.nbVar = 2 # Dimension of datapoints
+param.nbGaussian = 2  # Number of Gaussians to represent the spatial distribution
+param.target = np.array([.5, .5])
+param.target_radius = .03
+param.x0 = np.array([.2, .3]) # Initial point
+
+canvas = document.getElementById('canvas')
+ctx = canvas.getContext('2d')
+cost_el = document.getElementById('cost')
+
+
+def hadamard_matrix(n: int) -&gt; np.ndarray:
+    if n == 1:
+        return np.array([[1]])
+    # Recursively construct a Hadamard matrix of size n/2
+    half_size = n // 2
+    h_half = hadamard_matrix(half_size)
+    # Construct a matrix of ones with size n/2
+    ones_matrix = np.ones((half_size, half_size), dtype=int)
+    # Construct a matrix of minus ones with size n/2
+    minus_ones_matrix = -1 * ones_matrix
+    # Combine the four sub-matrices to form a Hadamard matrix of size n
+    h = np.empty((n, n), dtype=int)
+    for i in range(half_size):
+        h[i] = np.concatenate((h_half[i], ones_matrix[i]))
+        h[i + half_size] = np.concatenate((h_half[i],
+            minus_ones_matrix[i]))
+    return h
+
+
+def line_segment_and_circle_intersect(cx, cy, radius, x1, y1, x2, y2):
+    # First, we find the equation of the line that passes through the two points (x1, y1) and (x2, y2)
+    # The equation of a line in the form y = mx + b is given by:
+    #   y - y1 = m(x - x1)
+    # We can solve for m as follows:
+    m = (y2 - y1) / ((x2 - x1)+1e-30)
+
+    # The equation of the line can then be written as:
+    #   y = mx - mx1 + y1
+    # We can solve for b as follows:
+    b = y1 - m * x1
+
+    # The distance between a point (x0, y0) and a line y = mx + b is given by:
+    #   distance = abs(y0 - mx0 - b) / sqrt(m**2 + 1)
+    distance = abs(cy - m * cx - b) / sqrt(m**2 + 1)
+
+    # If the distance is greater than the radius of the circle, the line segment and the circle do not intersect
+    if distance &gt; radius:
+        return False
+    else:
+        # If the distance is less than the radius, we need to check if one of the endpoints of the line segment is inside the circle
+        d1 = sqrt((cx - x1)**2 + (cy - y1)**2)
+        d2 = sqrt((cx - x2)**2 + (cy - y2)**2)
+        return d1 &lt;= radius or d2 &lt;= radius
+
+
+def clear_screen():
+	ctx.setTransform(canvas.width, 0, 0, -canvas.height, 0, canvas.height)
+	ctx.fillStyle = 'white'
+	ctx.fillRect(0, 0, 1, 1)
+	cost_el.textContent = ''
+
+
+def draw_Gaussian(id, param, color, color2):
+	ctx.setTransform(canvas.width, 0, 0, -canvas.height, 0, canvas.height)
+	ctx.translate(param.Mu[0,id], param.Mu[1,id])
+
+	s, U = np.linalg.eig(param.Sigma[:2, :2, id])
+
+	# Draw Gaussian
+	al = np.linspace(-np.pi, np.pi, 50)
+	D = np.diag(s) * 2 # Draw contours with two standard deviations
+	R = np.real(U @ np.sqrt(D+0j))
+
+	msh = (R @ np.array([np.cos(al), np.sin(al)])).T #+ param.Mu[:2,id]
+
+	ctx.lineWidth = '0.01'
+	ctx.fillStyle = color
+	ctx.strokeStyle = color2
+
+	ctx.beginPath()
+	ctx.moveTo(msh[0,0], msh[0,1])
+	for i in range(msh.shape[0]-1):
+		ctx.lineTo(msh[i+1,0], msh[i+1,1])
+	ctx.closePath()
+	ctx.fill()
+	ctx.stroke()
+
+
+def draw_scene(param):
+	clear_screen()
+	# Draw initial point
+	ctx.setTransform(canvas.width, 0, 0, -canvas.height, 0, canvas.height)
+	ctx.fillStyle = 'black'
+	ctx.lineWidth = '0.01'
+	ctx.beginPath()
+	ctx.arc(param.x0[0], param.x0[1], 0.006, 0, 2*np.pi)
+	ctx.fill()
+	# Draw Gaussians
+	for k in range(param.nbGaussian):
+		draw_Gaussian(k, param, '#FF3399', '#DD1177')
+	# Draw target object
+	ctx.setTransform(canvas.width, 0, 0, -canvas.height, 0, canvas.height)
+	obj = Path2D.new()
+	obj.arc(param.target[0], param.target[1], param.target_radius, 0, 2*np.pi)
+	ctx.fillStyle = '#3399FF'
+	ctx.fill(obj)
+	return obj
+
+
+def errorHandler(e):
+	msg = 'Error: ' + str(e)
+	console.error(msg)
+	el = document.getElementById('errors')
+	el.innerText = msg
+
+
+def ergodic_control_command(x, t, wt, param):
+	# Depends on the current position only here, outputs: dphi, phix, phiy
+	ang = x[:,np.newaxis] * rg * omega
+	phi1 = np.cos(ang) #Eq.(18)
+	dphi1 = -np.sin(ang) * np.tile(rg,(param.nbVar,1)) * omega
+	phix = phi1[0,xx-1].flatten()
+	phiy = phi1[1,yy-1].flatten()
+	dphix = dphi1[0,xx-1].flatten()
+	dphiy = dphi1[1,yy-1].flatten()
+	dphi = np.vstack([[dphix * phiy], [phix * dphiy]])
+	# Depends on wt, wt starts with zeros, then updates
+	wt = wt + (phix * phiy).T / (L**param.nbVar)
+
+	# Depends on dphi, wt, w_hat, t
+	u = -dphi @ (Lambda * (wt/(t+1) - w_hat)) # Eq.(24)
+	u = u * u_max / (np.linalg.norm(u)+u_norm_reg) # Velocity command
+
+	return u, wt
+
+
+def update_ergodic_control():
+	global w_hat, wt, obj, x, t, found_flag, param
+	Alpha = np.ones(param.nbGaussian) / param.nbGaussian # mixing coeffs. Priors
+
+	## Compute Fourier series coefficients w_hat of desired spatial distribution
+	w_hat = np.zeros(param.nbFct**param.nbVar)
+	for j in range(param.nbGaussian):
+		for n in range(op.shape[1]):
+			MuTmp = np.diag(op[:,n]) @ param.Mu[:,j]
+			SigmaTmp = np.diag(op[:,n]) @ param.Sigma[:,:,j] @ np.diag(op[:,n]).T
+			cos_term = np.cos(kk.T @ MuTmp)
+			exp_term = np.exp(np.diag(-.5 * kk.T @ SigmaTmp @ kk))
+			w_hat = w_hat + Alpha[j] * cos_term * exp_term
+	w_hat = w_hat / (L**param.nbVar) / (op.shape[1])
+	t = 0
+	found_flag = 0
+	wt = np.zeros(param.nbFct**param.nbVar)
+	param.x0 = np.clip(param.x0, 0.01, 0.99) # x0 should be within [0,1]
+	x = param.x0.copy()
+	obj = draw_scene(param)
+
+#########################################################################################
+
+# Gaussian centers
+param.Mu = np.zeros((param.nbVar,param.nbGaussian))
+param.Mu[:,0] = np.array([.5, .7])
+param.Mu[:,1] =  np.array([.6, .3])
+
+# Gaussian covariances
+# direction vectors
+Sigma1_v = np.array([.3,.1])
+Sigma2_v = np.array([.1,.2])
+# scale
+Sigma1_scale = 5E-1
+Sigma2_scale = 3E-1
+# regularization
+Sigma1_regularization = np.eye(param.nbVar)*5E-3
+Sigma2_regularization = np.eye(param.nbVar)*1E-2
+param.Sigma = np.zeros((param.nbVar,param.nbVar,param.nbGaussian))
+# construct the cov. matrix using the outer product
+param.Sigma[:,:,0] = np.outer(Sigma1_v,Sigma1_v) * Sigma1_scale + Sigma1_regularization
+param.Sigma[:,:,1] = np.outer(Sigma2_v,Sigma2_v) * Sigma2_scale + Sigma2_regularization
+
+# mixing coeffs (sums to one)
+Alpha = np.ones(param.nbGaussian) / param.nbGaussian # mixing coeffs. Priors
+
+# Domain limit for each dimension (considered to be 1 for each dimension in this implementation)
+xlim = [0, 1]
+L = (xlim[1] - xlim[0]) * 2 # Size of [-xlim(2),xlim(2)]
+omega = 2 * np.pi / L
+u_max = 1E1 # Maximum speed allowed
+u_norm_reg = 1E-1 # not sure what is this not to divide by zero?
+
+# Range
+rg = np.arange(0, param.nbFct, dtype=float)
+KX = np.zeros((param.nbVar, param.nbFct, param.nbFct))
+KX[0,:,:], KX[1,:,:] = np.meshgrid(rg, rg)
+
+# Weighting vector (Eq.(16))
+sp = (param.nbVar + 1) / 2 # Sobolev norm parameter
+Lambda = np.array(KX[0,:].flatten()**2 + KX[1,:].flatten()**2 + 1).T**(-sp)
+op = hadamard_matrix(2**(param.nbVar-1))
+op = np.array(op)
+kk = KX.reshape(param.nbVar,param.nbFct**2)*omega
+wt = np.zeros(param.nbFct**param.nbVar)
+
+w_hat = np.zeros(param.nbFct**param.nbVar)
+xx, yy = np.meshgrid(np.arange(1,param.nbFct+1), np.arange(1,param.nbFct+1))
+x = param.x0.copy()
+
+obj = draw_scene(param)
+update_ergodic_control()
+ctx.setTransform(canvas.width, 0, 0, -canvas.height, 0, canvas.height)
+
+async def main():
+	global t, wt, x, found_flag, cost_el
+	t = 0
+	while True:
+		t += 1
+		u, wt = ergodic_control_command(x, t, wt, param)
+		x_prev = x.copy()
+		x += u * param.dt # Update of position
+
+		# Draw ergodic control path
+		ctx.lineWidth = '0.005'
+		ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)'
+		ctx.beginPath()
+		ctx.moveTo(x_prev[0], x_prev[1])
+		ctx.lineTo(x[0], x[1])
+		ctx.stroke()
+
+		if line_segment_and_circle_intersect(param.target[0], param.target[1], \
+				 param.target_radius, x_prev[0], x_prev[1], x[0], x[1]) and found_flag==0:
+			cost_el.textContent = 'Target found in ' + '%.1f' % (t*param.dt) + ' seconds'
+			found_flag = 1
+		await asyncio.sleep(1E-6)
+
+pyscript.run_until_complete(main())
+</py-script>
+</div> <!--container-->
+</body>
+</html>

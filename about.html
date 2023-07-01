@@ -1,0 +1,178 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="RCFS" name="description"/>
+<meta content="robotics codes, robotics tutorial, rcfs, robotics from scratch" name="keywords"/>
+<meta content="Sylvain Calinon" name="author"/>
+<title>RCFS</title>
+<link href="static_images/favicon.ico" rel="icon" sizes="any"/>
+<link href="static_images/favicon.svg" rel="icon" type="image/svg+xml"/>
+<link href="css/bootstrap.min.css" rel="stylesheet"/>
+<link href="css/bootstrap-icons-1.10.4/font/bootstrap-icons.css" rel="stylesheet"/>
+<link href="css/permanent_marker.css" rel="stylesheet"/>
+<link href="css/main-template.css" rel="stylesheet"/>
+<link href="css/sidebars.css" rel="stylesheet"/>
+<script src="js/jquery-3.6.4.min.js"></script>
+<script src="js/bootstrap.bundle.min.js"></script>
+</head>
+<body><nav aria-label="Light offcanvas navbar" class="navbar fixed-top" style="width: 50px;">
+<div class="container-fluid">
+<button aria-controls="offcanvasNavbarLight" class="navbar-toggler" data-bs-target="#offcanvasNavbarLight" data-bs-toggle="offcanvas" type="button">
+<span class="navbar-toggler-icon" style="cursor: pointer;"></span>
+</button>
+<div aria-labelledby="offcanvasNavbarLightLabel" class="offcanvas offcanvas-start" id="offcanvasNavbarLight" style="width: 500px;" tabindex="-1">
+<div class="offcanvas-header"><!--style='height: 50px;'-->
+<a class="navbar-brand" href="index.html"><h4 class="offcanvas-title" id="offcanvasNavbarLightLabel"> <i class="bi bi-code-slash"></i> RCFS</h4></a>
+<button aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" type="button"></button>
+</div>
+<div class="offcanvas-body">
+<!--Menu goes here-->
+<ul class="list-unstyled ps-0">
+<li class="border-top my-1"></li>
+<li class="mb-1">
+<button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#general-collapse" data-bs-toggle="collapse">General information</button>
+<div class="collapse show" id="general-collapse">
+<!--<li><a href='index.html' class='link-dark d-inline-flex text-decoration-none rounded'>Home</a></li>-->
+<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="about.html">
+<div class="p-1 mb-0">About</div></a></li>
+</ul>
+</div>
+</li>
+<li class="border-top my-1"></li>
+<li class="mb-1">
+<button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes2d-collapse" data-bs-toggle="collapse">2D sandboxes</button>
+<div class="collapse" id="sandboxes2d-collapse">
+<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_FK.html">
+<div class="p-1 mb-0">Forward kinematics (FK)</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_IK.html">
+<div class="p-1 mb-0">Inverse kinematics (IK)</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_bimanual.html">
+<div class="p-1 mb-0">Bimanual robot</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_humanoid.html">
+<div class="p-1 mb-0">Humanoid robot (CoM and coordination matrix)</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR.html">
+<div class="p-1 mb-0">Iterative linear quadratic regulator (iLQR)</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_car.html">
+<div class="p-1 mb-0">iLQR for car</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_bicopter.html">
+<div class="p-1 mb-0">iLQR for bicopter</div></a></li>
+</ul>
+</div>
+</li>
+<li class="border-top my-1"></li>
+<li class="mb-1">
+<button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes3d-collapse" data-bs-toggle="collapse">3D sandboxes</button>
+<div class="collapse" id="sandboxes3d-collapse">
+<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox3d_IK.html">
+<div class="p-1 mb-0">Inverse kinematics (IK)</div></a></li>
+</ul>
+</div>
+</li>
+<li class="border-top my-1"></li>
+<li class="mb-1">
+<button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#exercises-collapse" data-bs-toggle="collapse">Exercises</button>
+<div class="collapse" id="exercises-collapse">
+<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise01.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">01</div>
+<div class="p-1 mb-0">Linear algebra in Python</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise02.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">02</div>
+<div class="p-1 mb-0">Movement primitives and Newton's method</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise03.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">03</div>
+<div class="p-1 mb-0">Gaussian Distributions</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04a.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">4a</div>
+<div class="p-1 mb-0">Forward kinematics</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04b.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">4b</div>
+<div class="p-1 mb-0">Inverse kinematics and nullspace control</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05a.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">5a</div>
+<div class="p-1 mb-0">Forward dynamics</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05b.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">5b</div>
+<div class="p-1 mb-0">Inverse dynamics and impedance control</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06a.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">6a</div>
+<div class="p-1 mb-0">Planning with linear quadratic regulator</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06b.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">6b</div>
+<div class="p-1 mb-0">Planning in joint space with LQR</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise07.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">07</div>
+<div class="p-1 mb-0">Iterative linear quadratic regulator (iLQR)</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise08.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">08</div>
+<div class="p-1 mb-0">Exploration with ergodic control</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise09.html">
+<div class="p-1 mb-0 bg-dark text-white font-monospace">09</div>
+<div class="p-1 mb-0">Orientation with Riemannian manifold</div></a></li>
+</ul>
+</div>
+</li>
+<li class="border-top my-1"></li>
+<li class="mb-1">
+<button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#doc-collapse" data-bs-toggle="collapse">Online courses</button>
+<div class="collapse" id="doc-collapse">
+<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small" id="menu_container">
+<li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="toc.html" style="font-weight:bold;">Table of contents</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html" style="font-weight:bold;">1 Introduction</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html" style="font-weight:bold;">2 Newton’s method for minimization</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:GaussNewton"><span class="p-1 mb-0">2.1 Gauss–Newton algorithm</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LS"><span class="p-1 mb-0">2.2 Least squares</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LSconstraints"><span class="p-1 mb-0">2.3 Least squares with constraints</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S3.html" style="font-weight:bold;">3 Forward kinematics (FK) for a planar robot manipulator</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html" style="font-weight:bold;">4 Inverse kinematics (IK) for a planar robot manipulator</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IKnum"><span class="p-1 mb-0">4.1 Numerical estimation of the Jacobian</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IK_nullspace"><span class="p-1 mb-0">4.2 Inverse kinematics (IK) with task prioritization</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html" style="font-weight:bold;">5 Encoding with basis functions</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS1"><span class="p-1 mb-0">5.1 Univariate trajectories</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS2"><span class="p-1 mb-0">5.2 Multivariate trajectories</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS3"><span class="p-1 mb-0">5.3 Multidimensional inputs</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS4"><span class="p-1 mb-0">5.4 Derivatives</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS5"><span class="p-1 mb-0">5.5 Concatenated basis functions</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS6"><span class="p-1 mb-0">5.6 Batch computation of basis functions coefficients</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS7"><span class="p-1 mb-0">5.7 Recursive computation of basis functions coefficients</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html" style="font-weight:bold;">6 Linear quadratic tracking (LQT)</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS1"><span class="p-1 mb-0">6.1 LQT with smoothness cost</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS2"><span class="p-1 mb-0">6.2 LQT with control primitives</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRrecursive"><span class="p-1 mb-0">6.3 LQR with a recursive formulation</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:augmState"><span class="p-1 mb-0">6.4 LQT with a recursive formulation and an augmented state space</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRLS"><span class="p-1 mb-0">6.5 Least squares formulation of recursive LQR</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:DMPLQT"><span class="p-1 mb-0">6.6 Dynamical movement primitives (DMP) reformulated as LQT with control primitives</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html" style="font-weight:bold;">7 iLQR optimization</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRbatch"><span class="p-1 mb-0">7.1 Batch formulation of iLQR</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRrecursive"><span class="p-1 mb-0">7.2 Recursive formulation of iLQR</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRLS"><span class="p-1 mb-0">7.3 Least squares formulation of recursive iLQR</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS4"><span class="p-1 mb-0">7.4 Updates by considering step sizes</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS5"><span class="p-1 mb-0">7.5 iLQR with quadratic cost on f(x_{t})</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS6"><span class="p-1 mb-0">7.6 iLQR with control primitives</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS7"><span class="p-1 mb-0">7.7 iLQR for spacetime optimization</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS8"><span class="p-1 mb-0">7.8 iLQR with offdiagonal elements in the precision matrix</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS9"><span class="p-1 mb-0">7.9 Car steering</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS10"><span class="p-1 mb-0">7.10 Bicopter</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html" style="font-weight:bold;">8 Forward dynamics (FD) for a planar robot manipulator</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html#SS1"><span class="p-1 mb-0">8.1 Robot manipulator with dynamics equation</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="bib.html" style="font-weight:bold;">References</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="A1.html" style="font-weight:bold;">A System dynamics at trajectory level</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="A2.html" style="font-weight:bold;">B Derivation of motion equation for a planar robot</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="A3.html" style="font-weight:bold;">C Linear systems used in the bimanual tennis serve example</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="A4.html" style="font-weight:bold;">D Equivalence between LQT and LQR with augmented state space</a></li></ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</nav>
+<div class="container-fluid">
+<div class="row">
+<div class="col-sm-1"></div>
+<div class="col-sm-7">
+<center>
+<h1>Robotics codes from scratch (RCFS)</h1>
+</center>
+<p>RCFS is a website with interactive examples, as well as a collection of source codes to study learning and optimization techniques in robotics. It is currently maintained by <a href="https://calinon.ch" target="_blank">Dr Sylvain Calinon</a> at the <a href="https://www.idiap.ch" target="_blank">Idiap Research Institute</a>.</p>
+<p>Contributors: Sylvain Calinon, Philip Abbet, Jérémy Maceiras, Hakan Girgin</p>
+<p>RCFS is licensed under the <i>MIT License</i>.</p>
+<p>For the 3D examples, some files are based on the corresponding ones found in the <a href="https://github.com/ndahn/Rocksi" target="_blank">Rocksi project</a>, licensed under the <i>MIT License</i>, and are identified as such in their header.</p>
+<p>For the 3D examples, the Franka Emika robot model files are licensed by <i>Franka Emika GmbH</i> under the <i>Apache 2.0 License</i>.</p>
+<h3>What does RCFS contain?</h3>
+<p>RCFS can be used to study and test learning and optimization techniques in robotics through simple 2D examples.</p>
+<p>It is composed of three parts:
+                    <ul>
+<li>Interactive examples to be run directly on webpages, either by using code snippets that can be modified, or by changing parameters with the mouse (changing the location of the objects to be picked by the robot, perturbing the robot with the mouse pointer, adjusting the control parameters with a set of sliders, etc.).</li>
+<li><a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch" target="_blank">Source codes provided in a variety of programming languages</a>, including Python, Matlab (with full compatibility with GNU Octave), C++ and Julia.</li>
+<li><a href="https://rcfs.ch/doc/rcfs.pdf" target="_blank">An accompanying PDF</a> containing the corresponding descriptions of the algorithms.</li>
+</ul>
+</p>
+<p>The technology used for the web-based interactive examples and exercises is built upon <a href="https://pyscript.net/" target="_blank">PyScript</a>, which exploits the same core components as Jupyter Notebooks, but providing more customized functionalities and a modern integration to websites.</p>
+<h3>How to use RCFS for teaching?</h3>
+<p>RCFS can be used for teaching by explicitly mentioning the origin of the codes/examples, by including as a link:</p>
+<p><center><b>https://rcfs.ch/</b></center></p>
+<p>The interactive examples can potentially be integrated in three manners in robotics courses:
+                    <ul>
+<li><b>During lectures</b>, as interactive examples that can be directly run by using the mouse cursor or in the form of live coding that can be fluently integrated within the course, without additional clutter since only very few lines of codes are displayed for each topic (only the lines of interest are displayed for each interactive example).</li>
+<li><b>During labs</b>, in the form of step-by-step exercises that the students can freely use during the labs or after the labs to better understand the learning and optimization algorithms that are taught during the lectures. In particular, this also allows them to observe and assess their potential limitations by direct interaction (by trying to push the models and algorithms to their limits by changing the configurations of the involved objects, by virtually pushing the robot with the mouse cursor to introduce perturbations, or by changing the optimization parameters through sliders).</li>
+<li><b>For individual online learning</b>, by having access to the interactive examples and exercises as standard accessible webpages that do not require any installation or any specific hardware/software.</li>
+</ul>
+</p>
+<h3>Why standalone source codes?</h3>
+<p>RCFS also provides more traditional source code examples in various programming languages, where each example is a standalone program to facilitate the modification and re-use of the codes. The examples use homogeneous variable names between examples and between programming languages, facilitating the passage between one example to another, and also between one language to another. While the majority of users will leverage the Python examples, the effort of replicating the same codes in other languages aim to provide users who would not be more familiar with other languages <b>to focus on the algorithmic part of the programming</b>, instead of focusing on coding/syntax details. The choice of providing only simple graphics rendering and of concentrating on planar robots follows a similar principle, by providing minimal codes that focus on the essential algorithmic aspects to understand learning and optimization techniques in robotics.</p>
+<p>By providing standalone examples, RCFS allow users to more easily master the whole algorithmic pipeline. They can see with basic examples how the topics that they learned can be put in practice with short codes that can be run independently. This approach is aimed to be complementary to the code snippets in the interactive web-based examples of RCFS that focus on very specific parts of the algorithms.</p>
+<h3>Why not providing notebooks?</h3>
+<p>The use of notebooks is nowadays highly popular for teaching. When used correctly, this format has undeniable advantages. However, when providing students with material to study robotics, we believe it is also important to prepare them to the next steps that will require them to move outside notebook environments when considering real robots applications. In this view, the short standalone codes in RCFS can help at facilitating this transition. In the provided codes, the focus on the graphics rendering aspects is minimal. In the web-based examples, since this part is hidden, the examples are created to be visually more appealing and technically more impressive.</p>
+<br/><br/>
+</div> <!--sm-7-->
+<div class="col-sm-4">
+</div> <!--sm-4-->
+</div> <!--row-->
+</div> <!--container-->
+</body>
+</html>
