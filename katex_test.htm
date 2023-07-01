@@ -31,6 +31,8 @@
   {left: '$', right: '$', display: false},
   {left: '\\(', right: '\\)', display: false},
   {left: '\\begin{equation}', right: '\\end{equation}', display: true},
+  {left: '\\begin{align}', right: '\\end{align}', display: true},
+  {left: '\\begin{align*}', right: '\\end{align*}', display: true},
   {left: '\\[', right: '\\]', display: true}
 ],
           // • rendering keys, e.g.:
@@ -103,8 +105,13 @@ a:link {
 
 <body>
 
-<!--<div style='width: 50%;'>-->
+<div style='width: 50%;'>
 <div id="demo">
+
+\begin{align}
+	\bm{x} &= \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k\\
+	&= \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k 
+\end{align}
 
 \begin{equation}
 	\bm{x} = \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k 
@@ -143,6 +150,7 @@ $$ \bm{x} = \sum_{k=1}^{K} \bm{\Psi}_{k} \; w_k = \bm{\Psi} \; \bm{w},
 	\end{matrix}\right] \]
 
 Ref: $\eqref{eq:Psi}{3}$ 
+</div>
 </div>
 
 </body>
