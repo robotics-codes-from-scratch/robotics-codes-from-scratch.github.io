@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<meta name='description' content='Robotics codes from scratch (RCFS) is a collection of source codes to study and test learning and optimization problems in robotics through simple 2D examples.'>
+<meta name='keywords' content='robotics codes, robotics tutorial, rcfs, robotics from scratch'>
+<meta name='author' content='Sylvain Calinon'>
+
+<title>Robotics codes from scratch</title>
+<link rel='canonical' href='https://robotics-codes-from-scratch.github.io/'>
+
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css' integrity='sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi' crossorigin='anonymous'>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+
+<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Permanent+Marker|Raleway&display=swap'>
+
+
+<script defer src='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js' integrity='sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3' crossorigin='anonymous'></script>
+
+
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css' integrity='sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X' crossorigin='anonymous'>
+<script defer src='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js' integrity='sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz' crossorigin='anonymous'></script>
+<script defer src='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js' integrity='sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05' crossorigin='anonymous'></script>
+<script>
+let macros = {
+	'\\tp': '\\text{\\tiny{#1}}',
+	'\\trsp' : '\\top',
+	'\\psin' : '\\dagger',
+	'\\eqref': '\\href{###1}{(\\text{#1})}',
+	'\\ref': '\\href{###1}{\\text{#1}}',
+	'\\label': '\\htmlId{#1}{}'
+};
+document.addEventListener('DOMContentLoaded', function() {
+	renderMathInElement(document.body, {
+		// customised options
+		trust: (context) => ['\\htmlId', '\\href'].includes(context.command),
+		macros: macros,
+		// • auto-render specific keys, e.g.:
+		delimiters: [
+			{left: '$$', right: '$$', display: true},
+			{left: '$', right: '$', display: false},
+			{left: '\\(', right: '\\)', display: false},
+			{left: '\\begin{equation}', right: '\\end{equation}', display: true},
+			{left: '\\begin{equation*}', right: '\\end{equation*}', display: true},
+			{left: '\\begin{align}', right: '\\end{align}', display: true},
+			{left: '\\begin{align*}', right: '\\end{align*}', display: true},
+			{left: '\\begin{alignat}', right: '\\end{alignat}', display: true},
+			{left: '\\begin{gather}', right: '\\end{gather}', display: true},
+			{left: '\\begin{CD}', right: '\\end{CD}', display: true},
+			{left: '\\[', right: '\\]', display: true}
+		],
+		// • rendering keys, e.g.:
+		throwOnError : false
+	});
+});
+</script>
+	
+<!-- <script defer src='https://hypothes.is/embed.js' async></script> --> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
+
+
+<link rel='stylesheet' href='css/sidebars.css'> <!-- main navigation menu -->
+<link rel='stylesheet' href='css/main-template.css'>
+
+</head>
+
+<div class='container-fluid'>
+<head>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<script>
+	function sendAnswers() {
+		// Get user's answers
+		var userAnswers = []; // Array to store user's answers
+		for (var i = 1; i <= 5; i++) {
+			var select = document.getElementById('q' + i);
+			userAnswers.push(select.value);
+		}
+
+		var result = document.getElementById('result');
+
+		var link = document.createElement('a');
+		link.href = "mailto:tobias.loew@idiap.ch?cc=sylvain.calinon@idiap.ch&subject=rcfs_quiz_week5&body=" + encodeURIComponent(JSON.stringify(userAnswers));
+
+		result.appendChild(link);
+
+		link.click();
+	}
+</script>
+
+<div class='container'>
+
+<h1>Impedance Controller</h1>
+
+<h5>Question 1</h5>
+<p>What kind of controller do we need to have on the robot in order to design an impedance controller?</p>
+
+
+<div class='container text-center'>
+<div class='row'>
+<div class='col'>
+	<select class='form-select' id='q1'>
+		<option value='-'>Select an option</option>
+		<option value='a'>Position Controller</option>
+		<option value='b'>Velocity Controller</option>
+		<option value='c'>Torque Controller</option>
+		<option value='d'>All of them are possible</option>
+	</select>
+</div>
+</div>
+</div> <!-- container -->
+
+<p></p>
+<h5>Question 2</h5>
+<p>What is NOT ALWAYS necessary to be known to implement a spring-damper behavior on the robot?</p>
+
+<div class='container text-center'>
+<div class='row'>
+<div class='col'>
+	<select class='form-select' id='q2'>
+		<option value='-'>Select an option</option>
+		<option value='a'>The inertia matrix of the robot</option>
+		<option value='b'>The Gravity terms</option>
+		<option value='c'>The Coriolis effect</option>
+		<option value='d'>The compliance gains (i.e., stiffness and damping parameters)</option>
+	</select>
+</div>
+</div>
+</div> <!-- container -->
+
+<p></p>
+<h5>Question 3</h5>
+<p> If a robot's end-effector Jacobian matrix \(J_{ee}\) has rank 5 (i.e., rank\((J_{ee}) = 5\)), which of the following statements is true:</p>
+
+<div class='container text-center'>
+<div class='row'>
+<div class='col'>
+	<select class='form-select' id='q3'>
+		<option value='-'>Select an option</option>
+		<option value='a'>The robot has 5 degrees of freedom.</option>
+		<option value='b'>There is a direction in which we cannot apply a force on the robot end-effector</option>
+		<option value='c'>There is a direction in which if we apply a force on the robot end-effector, it will have a huge affect on the robot motion </option>
+		<option value='d'>There is a direction in which if we apply a force on the robot end-effector, it will have a zero affect on the robot motion </option>
+	</select>
+</div>
+</div>
+</div> <!-- container -->
+
+<p></p>
+<h5>Question 4</h5>
+<p> Which of the following is NOT NECESSARY to implement an impedance controller on the robot:</p>
+
+<div class='container text-center'>
+<div class='row'>
+<div class='col'>
+	<select class='form-select' id='q4'>
+		<option value='-'>Select an option</option>
+		<option value='a'>Force sensor</option>
+		<option value='b'>Joint torque sensors</option>
+		<option value='c'>Dynamic model of the robot</option>
+		<option value='d'>Joint Encoders</option>
+	</select>
+</div>
+</div>
+</div> <!-- container -->
+
+<p></p>
+<h5>Question 5</h5>
+<p>How does an impedance controller achieve compliant behavior</p>
+
+<div class='container text-center'>
+<div class='row'>
+<div class='col'>
+	<select class='form-select' id='q5'>
+		<option value='-'>Select an option</option>
+		<option value='a'>By executing predefined trajectories with precise joint movements.</option>
+		<option value='b'>By constantly monitoring the robot's position and correcting for any deviations.</option>
+		<option value='c'>By adjusting the robot's position and velocity to respond appropriately to external forces.</option>
+		<option value='d'>By increasing the robot's joint velocities to match the speed of the environment.</option>
+	</select>
+</div>
+</div>
+</div> <!-- container -->
+
+
+
+<br>
+<button type='button' class='btn btn-primary' onclick='sendAnswers()'>Send answers</button>
+</form>
+
+<div id='result'></div>
+
+</div> <!-- container -->
+
+</div> <!--container-->
+</html>
+
