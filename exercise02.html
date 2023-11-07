@@ -280,7 +280,7 @@ fig
   errors = []
   for nbFct in nbFcts:
     psi = build_basis_function(nb_data, nbFct)
-    w = estimate_w(psi)
+    w = estimate_w(x, psi)
     x_hat = reconstruct(w, psi)
     # errors.append() # Implement here: compute the error between x and x_hat
 
