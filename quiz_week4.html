@@ -110,6 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 </div>
 </div> <!-- container -->
+<br><br>
 
 <p></p>
 <h5>Question 2</h5>
@@ -120,36 +121,38 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='col'>
 	<select class='form-select' id='q2'>
 		<option value='-'>Select an option</option>
-		<option value='a'>a. The mass and inertia of robot links</option>
+		<option value='a'>a. The mass and inertia of the robot links</option>
 		<option value='b'>b. The joint limits and actuator specifications</option>
-		<option value='c'>c. The kinematic relationships between consecutive robot links</option>
+		<option value='c'>c. The kinematic relationships between the consecutive robot links</option>
 		<option value='d'>d. The number of links (degrees of freedom) of a serial robot</option>
 	</select>
 </div>
 </div>
 </div> <!-- container -->
+<br><br>
 
 <p></p>
 <h5>Question 3</h5>
-<p> In a set of inverse kinematics equations, which is the INPUT variable?</p>
+<p> In an inverse kinematics problem, which is the input variable?</p>
 
 <div class='container text-center'>
 <div class='row'>
 <div class='col'>
 	<select class='form-select' id='q3'>
 		<option value='-'>Select an option</option>
-		<option value='a'>a. The joint variables</option>
+		<option value='a'>a. The desired joint angles configuration</option>
 		<option value='b'>b. The desired end-effector position</option>
-		<option value='c'>c. The lengths of the links</option>
-		<option value='d'>d. The current joint velocities</option>
+		<option value='c'>c. The desired lengths of the links</option>
+		<option value='d'>d. The desired number of links</option>
 	</select>
 </div>
 </div>
 </div> <!-- container -->
+<br><br>
 
 <p></p>
 <h5>Question 4</h5>
-<p>For a 2D planner with 3 DoF for which we only control the horizontal and vertical postition of the end-effector, what is the maximum possible rank for its end-effector Jacobian matrix?</p>
+<p>For a planar robot with 3 axes, for which we only want to track the horizontal and vertical position of the end-effector, what is the maximum possible rank for the corresponding Jacobian matrix?</p>
 
 <div class='container text-center'>
 <div class='row'>
@@ -164,10 +167,11 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 </div>
 </div> <!-- container -->
+<br><br>
 
 <p></p>
 <h5>Question 5</h5>
-<p>If you want to control the position of the end-effector of a robot in 3D space without considering its orientation, what is the minimum number of articulations (joints) that this robot should have to achieve a secondary task by exploiting nullspace computation?</p>
+<p>If you want to control the position of the end-effector of a real robot manipulatory in 3D space (without considering the orientation of the end-effector), what is the minimum number of articulations (joints) that this robot should have to achieve a secondary task by exploiting nullspace computation?</p>
 
 <div class='container text-center'>
 <div class='row'>
@@ -182,12 +186,12 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 </div>
 </div> <!-- container -->
+<br><br>
 
 
-
-<br>
 <button type='button' class='btn btn-primary' onclick='sendAnswers()'>Send answers</button>
 </form>
+<br><br>
 
 <div id='result'></div>
 
