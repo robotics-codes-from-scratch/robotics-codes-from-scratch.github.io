@@ -102,10 +102,10 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class='col'>
 	<select class='form-select' id='q1'>
 		<option value='-'>Select an option</option>
-		<option value='a'>a. The joint angles from end-effector position</option>
-		<option value='b'>b. The end-effector position and orientation from joint angles</option>
-		<option value='c'>c. The velocity of the robot's links</option>
-		<option value='d'>d. The torque applied at the robot's joints</option>
+		<option value='a'>a. The joint angles configuration of the robot from the end-effector position</option>
+		<option value='b'>b. The end-effector position and orientation of the end-effector from the joint angles configuration of the robot</option>
+		<option value='c'>c. The velocity of each robot link</option>
+		<option value='d'>d. The torque applied to the robot's articulations</option>
 	</select>
 </div>
 </div>
@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <p></p>
 <h5>Question 5</h5>
-<p>If you want to control the position of the end-effector of a real robot manipulatory in 3D space (without considering the orientation of the end-effector), what is the minimum number of articulations (joints) that this robot should have to achieve a secondary task by exploiting nullspace computation?</p>
+<p>If you want to control the position of the end-effector of a real robot manipulator in 3D space (without considering the orientation of the end-effector), what is the minimum number of articulations (joint angles) that this robot should have to achieve a secondary task by exploiting nullspace computation?</p>
 
 <div class='container text-center'>
 <div class='row'>
