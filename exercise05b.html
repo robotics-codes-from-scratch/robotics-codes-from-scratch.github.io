@@ -251,8 +251,7 @@ def controlCommand(state, param):
   u = inverse_dynamics(q, np.zeros(param.nbVarX), np.zeros(param.nbVarX), param)
   return u
 
-print(state)
-		</py-repl>
+</py-repl>
 </div>
 <div aria-labelledby="answer2-tab" class="tab-pane fade" id="answer2-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="errors" std-out="output">
@@ -263,8 +262,7 @@ def controlCommand(state, param):
   u = inverse_dynamics(q, dq, np.zeros(param.nbVarX), param)
   return u
 
-print(state)
-		</py-repl>
+</py-repl>
 </div>
 <div aria-labelledby="answer3-tab" class="tab-pane fade" id="answer3-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="errors" std-out="output">
@@ -279,8 +277,7 @@ def controlCommand(state, param):
   u = Kp * (q_target - q) + Kv * (dq_target - dq) + inverse_dynamics(q, dq, np.zeros(param.nbVarX), param)
   return u
 
-print(state)
-		</py-repl>
+</py-repl>
 </div>
 </div>
 <br/><br/>
