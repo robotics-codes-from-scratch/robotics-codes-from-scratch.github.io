@@ -189,14 +189,14 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 <p>
 <ul class="list-group list-group-numbered">
 <li class="list-group-item">
-		Set the control commands as <span class="ltx_Math"> \bm{\tau} = \bm{g}(\bm{q})</span> by exploiting the function <code>inverse_dynamics(q, dq, ddq, param)</code> to compute the gravity compensation torques <span class="ltx_Math">\bm{g}(\bm{q})</span>. Perturb the robot with the mouse (at the articulations level) and observe the result of the perturbation.
+		You can first run the code with zero torque control commands <code>u</code> and observe the result.
 	</li>
 <li class="list-group-item">
-		Set the control commands as <span class="ltx_Math"> \bm{\tau} = \bm{C}(\bm{q},\bm{\dot{q}}) + \bm{g}(\bm{q})</span>. Perturb the robot with the mouse and observe the result of the perturbation.
+		Specify the control commands so that <span class="ltx_Math"> \bm{\tau} = \bm{g}(\bm{q})</span> by exploiting the function <code>inverse_dynamics(q, dq, ddq, param)</code> to compute the gravity compensation torques <span class="ltx_Math">\bm{g}(\bm{q})</span>. Perturb the robot with the mouse (at the articulations level) and observe the result of the perturbation.
 	</li>
 <li class="list-group-item">
-		We would like the robot to reach an upright position <code>q_target = np.array([np.pi/2, 0])</code> and stay there with zero velocity <code>dq_target = np.array([0, 0])</code>.
-		Set the torque control commands to send to the robot so that the resulting closed-loop robot behavior corresponds to a mass-spring-damper system.
+		We would now like the robot to reach an upright position <code>q_target = np.array([np.pi/2, 0])</code> and stay there with zero velocity <code>dq_target = np.array([0, 0])</code>. First, use the gravity compensation controller that you coded in the above to bring your robot close to an upright position.
+		You can then specify the torque control commands that will be sent to the robot so that the resulting closed-loop robot behavior corresponds to a mass-spring-damper system.
 		You should see that it stabilizes around the upright position. To check how stable your controller is, try to perturb the robot with the mouse.
 		Modify the values of stiffness and damping to see the effect of perturbations on the impedance controller.
 	</li>
@@ -209,8 +209,6 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 </li>
 <li class="nav-item" role="presentation"> <button aria-controls="answer2-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#answer2-tab-pane" data-bs-toggle="tab" id="answer2-tab" role="tab" type="button">Answer 2</button>
 </li>
-<li class="nav-item" role="presentation"> <button aria-controls="answer3-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#answer3-tab-pane" data-bs-toggle="tab" id="answer3-tab" role="tab" type="button">Answer 3</button>
-</li>
 </ul>
 <div class="tab-content" id="myTabContent">
 <div aria-labelledby="question5-tab" class="tab-pane fade show active" id="question5-tab-pane" role="tabpanel" tabindex="0">
@@ -220,23 +218,15 @@ dq_target = np.array([0, 0])
 Kp = 10
 Kv = 1
 def controlCommand(state, param):
-  # Question 1: Gravity Compensation Term (g(q))
-  q = np.zeros(param.nbVarX)   # Implement here
-  dq = np.zeros(param.nbVarX)  # Implement here
-  ddq = np.zeros(param.nbVarX) # Implement here
-  u = inverse_dynamics(q, dq, ddq, param)
+  q = state[:param.nbVarX]
+  dq = state[param.nbVarX:]
+  u = np.zeros(param.nbVarX)
+	
+  # Question 1: Gravity compensation term (g(q))
+  # u = inverse_dynamics(q, dq, ddq, param) # Implement here
 
-  # Question 2: Gravity compensation and Coriolis terms (c(q,dq) + g(q))
-  q = np.zeros(param.nbVarX)   # Implement here
-  dq = np.zeros(param.nbVarX)  # Implement here
-  ddq = np.zeros(param.nbVarX) # Implement here
-  u = inverse_dynamics(q, dq, ddq, param)
-
-  # Question 3: Joint impedance control for reaching upright position
-  q = np.zeros(param.nbVarX)   # Implement here
-  dq = np.zeros(param.nbVarX)  # Implement here
-  ddq = np.zeros(param.nbVarX) # Implement here
-  u = inverse_dynamics(q, dq, ddq, param) 
+  # Question 2: Joint impedance control for reaching upright position
+  # u = ... # Implement here
 
   return u
 
@@ -253,17 +243,6 @@ def controlCommand(state, param):
 </py-repl>
 </div>
 <div aria-labelledby="answer2-tab" class="tab-pane fade" id="answer2-tab-pane" role="tabpanel" tabindex="0">
-<py-repl std-err="errors" std-out="output">
-def controlCommand(state, param):
-  # Question 2: Gravity compensation and Coriolis terms (c(q,dq) + g(q))
-  q = state[:param.nbVarX]
-  dq = state[param.nbVarX:]
-  u = inverse_dynamics(q, dq, np.zeros(param.nbVarX), param)
-  return u
-
-</py-repl>
-</div>
-<div aria-labelledby="answer3-tab" class="tab-pane fade" id="answer3-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="errors" std-out="output">
 q_target = np.array([np.pi/2, 0])
 dq_target = np.array([0, 0])
@@ -343,7 +322,7 @@ def inverse_dynamics(q, dq, ddq, param):
 
 
 # Forward kinematics for end-effector (in robot coordinate system)
-def fdyn(x,u, param):
+def fdyn(x, u, param):
 	l = np.reshape(param.l, [1,param.nbVarX])
 	m = np.reshape(param.l_m, [1,param.nbVarX])
 	T = np.tril(np.ones([param.nbVarX, param.nbVarX]))
@@ -553,7 +532,7 @@ def draw_tip(f, color):
 
 
 def controlCommand(state, param):
-	u = inverse_dynamics(q=state[:param.nbVarX], dq=np.zeros(param.nbVarX), ddq=np.zeros(param.nbVarX), param) # Gravity compensation
+	u = inverse_dynamics(state[:param.nbVarX], np.zeros(param.nbVarX), np.zeros(param.nbVarX), param) # Gravity compensation
 	return u
 
 #########################################################################################
