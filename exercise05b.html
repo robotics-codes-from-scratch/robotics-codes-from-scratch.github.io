@@ -233,10 +233,11 @@ def controlCommand(state, param=param):
   u = inverse_dynamics(q, dq, ddq, param=param)
 
   # Question 3: Joint impedance control for reaching upright position
+  Mq = calcMassMatrix(q, param) # Mass matrix
   q = np.zeros(param.nbVarX)   # Implement here
   dq = np.zeros(param.nbVarX)  # Implement here
   ddq = np.zeros(param.nbVarX) # Implement here
-  u = inverse_dynamics(q, dq, ddq, param=param) # implement here
+  u = inverse_dynamics(q, dq, ddq, param=param) 
 
   return u
 
@@ -391,6 +392,24 @@ def fdyn(x,u, param):
 	q  = x[:param.nbVarX] + x[param.nbVarX:] * param.dt + 0.5 * ddq * (param.dt**2)
 	xt = np.append(q, dq)
 	return xt
+
+
+# Mass matrix computation
+def calcMassMatrix(q,param):
+	l = np.reshape(param.l, [1,param.nbVarX])
+	m = np.reshape(param.l_m, [1,param.nbVarX])
+	T = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+	Tm = np.multiply(np.triu(np.ones([m.shape[1], m.shape[1]])), np.repeat(m, m.shape[1],0))
+
+	
+	M = np.zeros([param.nbVarX, param.nbVarX])
+	for k in range(param.nbVarX):
+		for i in range(param.nbVarX):
+			S = sum(m[0,k:param.nbVarX] * np.heaviside(np.array(range(k, param.nbVarX)) - i, 1))
+			M[k,i] = l[0,k] * l[0,i] * np.cos(T[k,:] @ x[:param.nbVarX] - T[i,:] @ x[:param.nbVarX]) * S
+
+	M = T.T @ M @ T
+	return M
 
 
 # Forward kinematics for all joints (in robot coordinate system)
