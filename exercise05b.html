@@ -554,7 +554,7 @@ def draw_tip(f, color):
 
 
 def controlCommand(state, param):
-	u = inverse_dynamics(q=state[:param.nbVarX], dq=np.zeros(param.nbVarX), ddq=np.zeros(param.nbVarX), param=param) # Gravity compensation
+	u = inverse_dynamics(q=state[:param.nbVarX], dq=np.zeros(param.nbVarX), ddq=np.zeros(param.nbVarX), param) # Gravity compensation
 	return u
 
 #########################################################################################
@@ -577,7 +577,7 @@ async def main():
 
 	while True:
 		try:
-			u = controlCommand(state+np.random.randn(param.nbVarX*2)*param.noise_scale)
+			u = controlCommand(state+np.random.randn(param.nbVarX*2)*param.noise_scale, param)
 		except Exception as e:
 			errorHandler(e)
 			u = np.zeros(param.nbVarX)
