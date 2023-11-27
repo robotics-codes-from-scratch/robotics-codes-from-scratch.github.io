@@ -226,7 +226,7 @@ def controlCommand(state, param):
   ddq = np.zeros(param.nbVarX) # Implement here
   u = inverse_dynamics(q, dq, ddq, param)
 
-  # Question 2: Gravity compensation and coriolis terms (c(q,dq) + g(q))
+  # Question 2: Gravity compensation and Coriolis terms (c(q,dq) + g(q))
   q = np.zeros(param.nbVarX)   # Implement here
   dq = np.zeros(param.nbVarX)  # Implement here
   ddq = np.zeros(param.nbVarX) # Implement here
@@ -257,7 +257,7 @@ print(state)
 <div aria-labelledby="answer2-tab" class="tab-pane fade" id="answer2-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="errors" std-out="output">
 def controlCommand(state, param):
-  # Question 2: Gravity compensation and coriolis terms (c(q,dq) + g(q))
+  # Question 2: Gravity compensation and Coriolis terms (c(q,dq) + g(q))
   q = state[:param.nbVarX]
   dq = state[param.nbVarX:]
   u = inverse_dynamics(q, dq, np.zeros(param.nbVarX), param)
@@ -556,7 +556,7 @@ def draw_tip(f, color):
 	ctx.fill(obj)
 
 
-def controlCommand(state, param=param):
+def controlCommand(state, param):
 	u = inverse_dynamics(q=state[:param.nbVarX], dq=np.zeros(param.nbVarX), ddq=np.zeros(param.nbVarX), param=param) # Gravity compensation
 	return u
 
