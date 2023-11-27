@@ -183,7 +183,6 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 <div class="col-sm-7">
 <h1>Exercise 5.b<br/>Inverse dynamics and impedance control</h1>
 <p>Inverse dynamics is the problem of computing the joint torques of a robot given its joint positions, velocities and accelerations: <span class="ltx_Math">\bm{\tau} = \bm{M}(\bm{q})\bm{\ddot{q}}+ \bm{C}(\bm{q},\bm{\dot{q}}) + \bm{g}(\bm{q})</span>.</p>
-<p>These are physical models that allow us to control the motion of a robot. You can read about inverse dynamics in Section 6 of the <a href="doc/rcfs.pdf" target="_blank">RCFS documentation</a>.</p>
 <p>The goal of this exercise is to understand the terms in the inverse dynamics formulation and to control the robot to reach a desired position using <b>joint space impedance control</b>.</p>
 <p>The function <code>inverse_dynamics(q, dq, ddq, param)</code> implements the inverse dynamics model for a planar manipulator. Its outputs are joint torques.</p>
 <p>The function <code>controlCommand(state, param)</code> takes the current state of the robot <span class="ltx_Math">[\bm{q}, \bm{\dot{q}}]</span> as input and outputs joint torque commands that are sent to the robot.
@@ -197,7 +196,7 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 	</li>
 <li class="list-group-item">
 		We would like the robot to reach an upright position <code>q_target = np.array([np.pi/2, 0])</code> and stay there with zero velocity <code>dq_target = np.array([0, 0])</code>.
-		Set <span class="ltx_Math">\bm{q}</span>, <span class="ltx_Math">\bm{\dot{q}}</span> and <span class="ltx_Math">\bm{\ddot{q}}</span> such that we implement the following impedance controller to achieve our goal: <span class="ltx_Math">\bm{\tau} = \bm{M}(\bm{q})(\bm{K}_p(\bm{q}^d - \bm{q}) + \bm{K}_v(\bm{\dot{q}}^d - \bm{\dot{q}})) + \bm{C}(\bm{q},\bm{\dot{q}}) + \bm{g}(\bm{q})</span>.
+		Set <span class="ltx_Math">\bm{q}</span>, <span class="ltx_Math">\bm{\dot{q}}</span> and <span class="ltx_Math">\bm{\ddot{q}}</span> such that we implement the following impedance controller to achieve our goal: <span class="ltx_Math">\bm{\tau} = \bm{K}_p(\bm{q}^d - \bm{q}) + \bm{K}_v(\bm{\dot{q}}^d - \bm{\dot{q}}) + \bm{C}(\bm{q},\bm{\dot{q}}) + \bm{g}(\bm{q})</span>.
 		You should see that it stabilizes around the upright position. To check how stable is your controller, try to perturb the robot with the mouse.
 		Modify the values of stiffness and damping to see the effect of perturbations on the impedance controller.
 	</li>
@@ -274,13 +273,15 @@ print(state)
 <py-repl std-err="errors" std-out="output">
 q_target = np.array([np.pi/2, 0])
 dq_target = np.array([0, 0])
-Kp = 10
+Kp = 30
 Kv = 1
 def controlCommand(state, param=param):
   # Question 3: Joint impedance control for reaching upright position
   q = state[:param.nbVarX]
   dq = state[param.nbVarX:]
-  ddq = Kp * (q_target - q) + Kv * (dq_target - dq)
+  Mq = calcMassMatrix(q,param)
+  Mq_inv = np.linalg.inv(Mq)
+  ddq = Mq_inv @ (Kp * (q_target - q) + Kv * (dq_target - dq))
   u = inverse_dynamics(q, dq, ddq, param=param)
   return u
 
