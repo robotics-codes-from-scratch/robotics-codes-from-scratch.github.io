@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<meta name='description' content='Robotics codes from scratch (RCFS) is a collection of source codes to study and test learning and optimization problems in robotics through simple 2D examples.'>
+<meta name='keywords' content='robotics codes, robotics tutorial, rcfs, robotics from scratch'>
+<meta name='author' content='Sylvain Calinon'>
+
+<title>Robotics codes from scratch</title>
+<link rel='canonical' href='https://robotics-codes-from-scratch.github.io/'>
+
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css' integrity='sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi' crossorigin='anonymous'>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+
+<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Permanent+Marker|Raleway&display=swap'>
+
+
+<script defer src='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js' integrity='sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3' crossorigin='anonymous'></script>
+
+
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css' integrity='sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X' crossorigin='anonymous'>
+<script defer src='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js' integrity='sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz' crossorigin='anonymous'></script>
+<script defer src='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js' integrity='sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05' crossorigin='anonymous'></script>
+
+<link rel='stylesheet' href='css/sidebars.css'> <!-- main navigation menu -->
+<link rel='stylesheet' href='css/main-template.css'>
+
+</head>
+
+<div class='container-fluid'>
+<head>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var result = document.getElementById('result');
+
+	// Write the result to the innerHTML of the result element using two lines
+	result.innerHTML += 'Question 1:<br>';
+	result.innerHTML += 'The answer is d. For an impedance controller, we calculate torque commands that are sent to the robot.<br>';
+	result.innerHTML += '------------------<br>';
+	result.innerHTML += 'Question 2:<br>';
+	result.innerHTML += 'The answer is c. By using an impedance controller in task space, by setting a reference point below the table, and by using a full (anisotropic) stiffness matrix with null stiffness for the axes parallel to the table and a small stiffness value for the axis perpendicular to the table, the resulting behavior is a robot pushing against the table with the same linear force, which is irrespective of the location of the end-effector on the table.<br>';
+	result.innerHTML += '------------------<br>';
+	result.innerHTML += 'Question 3:<br>';
+result.innerHTML += 'The answer is a. The robot\'s end-effector orientation should be controllable in at least three directions, necessitating a minimum of three articulations (3 DoFs).<br>';
+	result.innerHTML += '------------------<br>';
+	result.innerHTML += 'Question 4:<br>';
+result.innerHTML += 'The answer is a. There is no need for an external force sensor because the robot reacts to the perturbation forces only through the difference between its current state and a reference state.<br>';
+	result.innerHTML += '------------------<br>';
+	result.innerHTML += 'Question 5:<br>';
+result.innerHTML += 'The answer is c. The impedance controller detects errors in motion data (both position and velocity) caused by external forces. It then applies appropriate torque commands to compensate for these errors.<br>';
+});
+</script>
+
+<div class='container'>
+
+<h1>Impedance control</h1>
+
+<div id='result'></div>
+
+</div> <!-- container -->
+
+</div> <!--container-->
+</html>
+
