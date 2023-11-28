@@ -249,7 +249,7 @@ dq_target = np.array([0, 0])
 Kp = 30
 Kv = 1
 def controlCommand(state, param):
-  # Question 3: Joint impedance control for reaching upright position
+  # Question 2: Joint impedance control for reaching upright position
   q = state[:param.nbVarX]
   dq = state[param.nbVarX:]
   u = Kp * (q_target - q) + Kv * (dq_target - dq) + inverse_dynamics(q, dq, np.zeros(param.nbVarX), param)
