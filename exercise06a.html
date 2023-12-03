@@ -206,21 +206,21 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 <div class="tab-content" id="myTabContent">
 <div aria-labelledby="question1-tab" class="tab-pane fade show active" id="question1-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="errors" std-out="output">
-param.nbVarPos = 2 # Dimension of position varaible
+param.nbVarPos = 2 # Dimension of position variable
 param.nbDeriv = 1 # Number of derivatives (1 for velocity commands)
 param.nbVarX = param.nbVarPos * param.nbDeriv # Dimension of the state space
 param.r = 1E-3 # Control command weight
 
-x = np.array([0, 0]) # Initial state
+x = np.array([0, 0]) # Initial position
 
 # Time occurrence of viapoints
 tl = np.array([50, 100])
 
-# Precision matrix of the first viapoint
-# Q1 = np.diag([1.0,1.0])
+# Precision matrix for the first viapoint
+# Q1 = np.diag([1.0, 1.0])
 Q1 = np.eye(param.nbVarX)
 
-# Precision matrix of the second viapoint
+# Precision matrix for the second viapoint
 Q2 = np.eye(param.nbVarX)
 
 xs = solve_LQR(x, param) #Compute trajectory 
@@ -236,15 +236,15 @@ param.nbVarX = param.nbVarPos * param.nbDeriv # Dimension of the state space
 param.r = 1E-3 # Control command weight
 Sx, Su = compute_transfer_matrices(param)
 
-x = np.array([0, 0]) # Initial state
+x = np.array([0, 0]) # Initial position
 
 # Time occurrence of viapoints
 tl = np.array([50, 100])
 
-# Precision matrix of the first viapoint
-Q1 = np.diag([1.0,1.0,0,0])
+# Precision matrix for the first viapoint
+Q1 = np.diag([1.0, 1.0, 0, 0])
 
-# Precision matrix of the second viapoint
+# Precision matrix for the second viapoint
 Q2 = np.eye(param.nbVarX)
 
 xs = solve_LQR(x, param) #Compute trajectory 
@@ -299,7 +299,6 @@ def compute_transfer_matrices(param):
 	# Build Sx and Su transfer matrices
 	Su = np.zeros((param.nbVarX*param.nbData,param.nbVarPos * (param.nbData-1)))
 	Sx = np.kron(np.ones((param.nbData,1)),np.eye(param.nbVarX,param.nbVarX))
-
 	M = B
 	for i in range(1,param.nbData):
 		Sx[i*param.nbVarX:param.nbData*param.nbVarX,:] = np.dot(Sx[i*param.nbVarX:param.nbData*param.nbVarX,:], A)
@@ -308,26 +307,24 @@ def compute_transfer_matrices(param):
 	return Sx, Su
 
 def solve_LQR(x0, param):
-	idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)])
-	#Q = np.identity(param.nbVarX * param.nbPoints)
+	idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)]).flatten() 
 	Q = np.zeros((param.nbVarX * param.nbPoints, param.nbVarX * param.nbPoints))
 	Q[:param.nbVarX, :param.nbVarX] = Q1
 	Q[param.nbVarX:, param.nbVarX:] = Q2
 	R = np.identity((param.nbData-1) * param.nbVarU) * param.r
 	# Batch LQR Reproduction
-	# =====================================
 	Sx, Su = compute_transfer_matrices(param)
 	x0 = np.append(x, np.zeros(param.nbVarX-param.nbVarPos))
 	xd = np.vstack([param.Mu, np.zeros((param.nbVarX-param.nbVarPos, param.nbPoints))]).T.flatten()
-	u_hat = np.linalg.pinv(Su[idx.flatten()].T @ Q @ Su[idx.flatten()] + R) @ Su[idx.flatten()].T @ Q @ (xd - Sx[idx.flatten()] @ x0)
-	x_hat = (Sx @ x0 + Su @ u_hat).reshape((param.nbData, -1))
+	u_hat = np.linalg.pinv(Su[idx,:].T @ Q @ Su[idx,:] + R) @ Su[idx,:].T @ Q @ (xd - Sx[idx,:] @ x0)
+	x_hat = (Sx @ x0 + Su @ u_hat).reshape((param.nbData, -1)).T
 	return x_hat
 
 ## Parameters
 # ===============================
 
 param = lambda: None # Lazy way to define an empty class in python
-param.dt = 1e-1 # Time step length
+param.dt = 1E-1 # Time step length
 param.nbData = 101 # Number of datapoints
 param.nbVarU = 2 # Control space dimension (dx1,dx2)
 param.nbPoints = 2 # Number of viapoints
@@ -335,13 +332,11 @@ param.nbDeriv = 1
 param.nbVarPos = 2
 param.nbVarX = param.nbVarPos * param.nbDeriv
 param.Mu = np.array([[100, 0], [100, 100]]).T # Viapoints
-param.r = 1e-3
-param.tab = 'question1-tab-pane'
-param.prev_tab = 'question1-tab-pane'
+param.r = 1E-3
 
 # Precision matrix
-Q1 = np.eye(param.nbVarX)*1e0
-Q2 = np.eye(param.nbVarX)*1e0
+Q1 = np.eye(param.nbVarX) * 1E0
+Q2 = np.eye(param.nbVarX) * 1E0
 
 # Time occurrence of viapoints
 tl = np.array([50, 100])
@@ -356,7 +351,6 @@ mouse0 = np.zeros(2)
 mouse = np.zeros(2)
 mousedown = 0
 selected_obj = -1
-hover_obj = -1
 
 def onMouseMove(event):
 	global mouse, mouse0
@@ -365,7 +359,6 @@ def onMouseMove(event):
 	mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
 	mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
 	mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
-	
 	
 def onTouchMove(event):
 	global mouse, mouse0
@@ -411,7 +404,7 @@ def clear_screen():
 
 
 def draw_Gaussian(id, param, color, color2):
-	global selected_obj, hover_obj
+	global selected_obj
 	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
 	ctx.translate(param.Mu[0, id], param.Mu[1, id])
 	if id == 0:
@@ -438,8 +431,6 @@ def draw_Gaussian(id, param, color, color2):
 	ctx.fillStyle = color2 
 	ctx.fill(obj)
 
-	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
-		hover_obj = id
 	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
 		selected_obj = id
 
@@ -449,16 +440,15 @@ def draw_lqr_path(xs, param, color):
 	# Draw initial point
 	ctx.fillStyle = color
 	ctx.beginPath()
-	ctx.arc(xs[0,0], xs[0,1], 5, 0, 2*np.pi)
+	ctx.arc(xs[0,0], xs[1,0], 5, 0, 2*np.pi)
 	ctx.fill()
-
 	# Draw path
 	ctx.lineWidth = '3'
 	ctx.strokeStyle = color
 	ctx.beginPath()
-	ctx.moveTo(xs[0,0], xs[0,1])
+	ctx.moveTo(xs[0,0], xs[1,0])
 	for i in range(param.nbData-1):
-		ctx.lineTo(xs[i+1,0], xs[i+1,1])
+		ctx.lineTo(xs[0,i+1], xs[1,i+1])
 	ctx.stroke()
 
 
@@ -484,18 +474,15 @@ def errorHandler(e):
 	#el.textContent = msg
 
 #########################################################################################
-x = np.array([0,0]) # Initial agent state
+x = np.array([0,0]) # Initial position
 u = np.zeros(param.nbVarX)
 Sx, Su = compute_transfer_matrices(param)
 xs = solve_LQR(x, param)
 
 async def main():
-	global hover_obj, param, xs
+	global param, xs
 
 	while True:
-
-		# Reinit hovering variables
-		hover_obj = -1
 		
 		if mousedown==1:
 			xs = solve_LQR(x, param)
@@ -508,7 +495,7 @@ async def main():
 		draw_lqr_path(xs, param, '#000000')
 
 		# Object selection
-		if selected_obj&gt;= 0:
+		if selected_obj >= 0:
 			param.Mu[:2,selected_obj] = mouse
 			param.Mu[0,selected_obj] = max(min(param.Mu[0,selected_obj],225), -225)
 			param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],175), -175)

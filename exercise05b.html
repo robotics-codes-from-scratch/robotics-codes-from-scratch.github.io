@@ -213,9 +213,8 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 <div aria-labelledby="question5-tab" class="tab-pane fade show active" id="question5-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="errors" std-out="output">
 q_target = np.array([np.pi/2, 0])
-dq_target = np.array([0, 0])
-Kp = 10
-Kv = 1
+kP = 30.0 # Stiffness gain
+kV = 1.0 # Damping gain
 def controlCommand(state, param):
   q = state[:param.nbVarX]
   dq = state[param.nbVarX:]
@@ -235,8 +234,7 @@ def controlCommand(state, param):
 <py-repl std-err="errors" std-out="output">
 def controlCommand(state, param):
   # Question 1: Gravity Compensation Term (g(q))
-  q = state[:param.nbVarX]
-  u = inverse_dynamics(q, np.zeros(param.nbVarX), np.zeros(param.nbVarX), param)
+  u = inverse_dynamics(state[:param.nbVarX], np.zeros(param.nbVarX), np.zeros(param.nbVarX), param)
   return u
 
 </py-repl>
@@ -244,14 +242,13 @@ def controlCommand(state, param):
 <div aria-labelledby="answer2-tab" class="tab-pane fade" id="answer2-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="errors" std-out="output">
 q_target = np.array([np.pi/2, 0])
-dq_target = np.array([0, 0])
-Kp = 30
-Kv = 1
+kP = 30.0 # Stiffness gain
+kV = 1.0 # Damping gain
 def controlCommand(state, param):
-  # Question 2: Joint impedance control for reaching upright position
+  # Question 2: Joint impedance control for reaching upright position 
   q = state[:param.nbVarX]
   dq = state[param.nbVarX:]
-  u = Kp * (q_target - q) + Kv * (dq_target - dq) + inverse_dynamics(q, dq, np.zeros(param.nbVarX), param)
+  u = kP * (q_target - q) - kV * dq + inverse_dynamics(q, dq, np.zeros(param.nbVarX), param)
   return u
 
 </py-repl>
@@ -296,13 +293,6 @@ def inverse_dynamics(q, dq, ddq, param):
 	T = np.tril(np.ones([param.nbVarX, param.nbVarX]))
 	Tm = np.multiply(np.triu(np.ones([m.shape[1], m.shape[1]])), np.repeat(m, m.shape[1],0))
 
-	## Computation in matrix form of G,M, and C
-	#G =-np.reshape(np.sum(Tm, 1), [param.nbVarX, 1]) * l.T * np.cos(T @ np.reshape(q, [param.nbVarX, 1])) * param.gravity
-	#G = T.T @ G
-	#M = (l.T * l) * np.cos(np.reshape(T @ q, [param.nbVarX, 1]) - T @ q) * (Tm**.5 @ ((Tm**.5).T))
-	#M = T.T @ M @ T
-	#C = -(l.T * l) * np.sin(np.reshape(T @ q, [param.nbVarX, 1]) - T @ q) * (Tm**.5 @ ((Tm**.5).T))
-
 	# Elementwise computation of G, M, and C
 	G = np.zeros([param.nbVarX, 1])
 	M = np.zeros([param.nbVarX, param.nbVarX])
@@ -313,7 +303,14 @@ def inverse_dynamics(q, dq, ddq, param):
 			S = sum(m[0,k:param.nbVarX] * np.heaviside(np.array(range(k, param.nbVarX)) - i, 1))
 			M[k,i] = l[0,k] * l[0,i] * np.cos(T[k,:] @ q - T[i,:] @ q) * S
 			C[k,i] = -l[0,k] * l[0,i] * np.sin(T[k,:] @ q - T[i,:] @ q) * S
-
+	
+	## Computation in matrix form of G,M, and C
+	#G =-np.reshape(np.sum(Tm, 1), [param.nbVarX, 1]) * l.T * np.cos(T @ np.reshape(q, [param.nbVarX, 1])) * param.gravity
+	#G = T.T @ G
+	#M = (l.T * l) * np.cos(np.reshape(T @ q, [param.nbVarX, 1]) - T @ q) * (Tm**.5 @ ((Tm**.5).T))
+	#M = T.T @ M @ T
+	#C = -(l.T * l) * np.sin(np.reshape(T @ q, [param.nbVarX, 1]) - T @ q) * (Tm**.5 @ ((Tm**.5).T))
+	
 	G = T.T @ G
 	M = T.T @ M @ T
 	param.inertia_matrix = M
@@ -326,14 +323,7 @@ def fdyn(x, u, param):
 	m = np.reshape(param.l_m, [1,param.nbVarX])
 	T = np.tril(np.ones([param.nbVarX, param.nbVarX]))
 	Tm = np.multiply(np.triu(np.ones([m.shape[1], m.shape[1]])), np.repeat(m, m.shape[1],0))
-
-	## Computation in matrix form of G,M, and C
-	#G =-np.reshape(np.sum(Tm, 1), [param.nbVarX, 1]) * l.T * np.cos(T @ np.reshape(x[0:param.nbVarX], [param.nbVarX, 1])) * param.gravity
-	#G = T.T @ G
-	#M = (l.T * l) * np.cos(np.reshape(T @ x[:param.nbVarX], [param.nbVarX, 1]) - T @ x[:param.nbVarX]) * (Tm**.5 @ ((Tm**.5).T))
-	#M = T.T @ M @ T
-	#C = -(l.T * l) * np.sin(np.reshape(T @ x[:param.nbVarX], [param.nbVarX, 1]) - T @ x[:param.nbVarX]) * (Tm**.5 @ ((Tm**.5).T))
-
+	
 	# Elementwise computation of G, M, and C
 	G = np.zeros([param.nbVarX, 1])
 	M = np.zeros([param.nbVarX, param.nbVarX])
@@ -344,7 +334,14 @@ def fdyn(x, u, param):
 			S = sum(m[0,k:param.nbVarX] * np.heaviside(np.array(range(k, param.nbVarX)) - i, 1))
 			M[k,i] = l[0,k] * l[0,i] * np.cos(T[k,:] @ x[:param.nbVarX] - T[i,:] @ x[:param.nbVarX]) * S
 			C[k,i] = -l[0,k] * l[0,i] * np.sin(T[k,:] @ x[:param.nbVarX] - T[i,:] @ x[:param.nbVarX]) * S
-
+	
+	## Computation in matrix form of G,M, and C
+	#G =-np.reshape(np.sum(Tm, 1), [param.nbVarX, 1]) * l.T * np.cos(T @ np.reshape(x[0:param.nbVarX], [param.nbVarX, 1])) * param.gravity
+	#G = T.T @ G
+	#M = (l.T * l) * np.cos(np.reshape(T @ x[:param.nbVarX], [param.nbVarX, 1]) - T @ x[:param.nbVarX]) * (Tm**.5 @ ((Tm**.5).T))
+	#M = T.T @ M @ T
+	#C = -(l.T * l) * np.sin(np.reshape(T @ x[:param.nbVarX], [param.nbVarX, 1]) - T @ x[:param.nbVarX]) * (Tm**.5 @ ((Tm**.5).T))
+	
 	G = T.T @ G
 	M = T.T @ M @ T
 	param.inertia_matrix = M
@@ -378,10 +375,9 @@ param = lambda: None # Lazy way to define an empty class in python
 param.nbVarX = 2 # State space dimension (x1,x2,x3)
 param.l = [2, 2] # Robot links lengths
 param.l_m = [1, 1] # Link masses
-param.damping = 8. # Damping
+param.damping = 8.0 # Damping
 param.gravity = 9.81 # Gravity
-param.dt = 5e-2 # Time step length
-param.noise_scale = 0.
+param.dt = 5E-2 # Time step length
 
 
 #########################################################################################
@@ -554,7 +550,7 @@ async def main():
 
 	while True:
 		try:
-			u = controlCommand(state+np.random.randn(param.nbVarX*2)*param.noise_scale, param)
+			u = controlCommand(state, param)
 		except Exception as e:
 			errorHandler(e)
 			u = np.zeros(param.nbVarX)
@@ -566,7 +562,7 @@ async def main():
 
 		# Rendering
 		clear_screen()
-	#	draw_ground()
+		#draw_ground()
 		draw_robot(x, '#AAAAAA')
 		#draw_tip(f, '#FF3399')
 
