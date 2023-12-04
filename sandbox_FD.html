@@ -2,6 +2,8 @@
 
 <html lang="en">
 <head>
+
+
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta content="RCFS" name="description"/>
@@ -10,17 +12,22 @@
 <title>RCFS</title>
 <link href="static_images/favicon.ico" rel="icon" sizes="any"/>
 <link href="static_images/favicon.svg" rel="icon" type="image/svg+xml"/>
+
 <link href="css/bootstrap.min.css" rel="stylesheet"/>
 <link href="css/bootstrap-icons-1.10.4/font/bootstrap-icons.css" rel="stylesheet"/>
 <link href="css/permanent_marker.css" rel="stylesheet"/>
 <link href="css/sidebars.css" rel="stylesheet"/>
 <script src="js/jquery-3.6.4.min.js"></script>
 <script src="js/bootstrap.bundle.min.js"></script>
+
 <script defer="" src="https://pyscript.net/latest/pyscript.min.js"></script>
 <py-config type="toml">
-		packages = ['numpy']
-	</py-config>
+
+				packages = ['numpy']
+			
+</py-config>
 <link href="https://pyscript.net/latest/pyscript.css" rel="stylesheet"/> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
+
 <link href="css/main-template.css" rel="stylesheet"/>
 </head>
 <body><nav aria-label="Light offcanvas navbar" class="navbar fixed-top" style="width: 50px;">
@@ -44,6 +51,8 @@
 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
 <li><a class="link-dark d-inline-flex text-decoration-none rounded" href="about.html">
 <div class="p-1 mb-0">About</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="license.html">
+<div class="p-1 mb-0">License</div></a></li>
 </ul>
 </div>
 </li>
@@ -271,7 +280,7 @@ def onMouseMove(event):
 	mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
 	mouse[0] = (mouse0[0] - canvas.width * 0.5)
 	mouse[1] = -(mouse0[1] - canvas.height * 0.1)
-#	if move_joint >= 0:
+#	if move_joint &gt;= 0:
 #		x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
 #		hover0 = np.copy(mouse0)
 
@@ -282,19 +291,19 @@ def onTouchMove(event):
 	mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
 	mouse[0] = (mouse0[0] - canvas.width * 0.5)
 	mouse[1] = -(mouse0[1] - canvas.height * 0.1)
-#	if move_joint >= 0:
+#	if move_joint &gt;= 0:
 #		x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
 #		hover0 = np.copy(mouse0)
 
 def onMouseDown(event):
 	global mousedown, move_joint, hover0, param2
 	mousedown = 1
-	if hover_joint >= 0:
+	if hover_joint &gt;= 0:
 		f0 = fkin0(x[:param.nbVarX], param)
 		param2.l = np.append(param.l[:hover_joint], np.linalg.norm(f0[:,hover_joint] - mouse))
 		param2.nbVarX = hover_joint+1
 		move_joint = hover_joint
-#		if param2.l[-1] > 40:
+#		if param2.l[-1] &gt; 40:
 #			move_joint = hover_joint
 #			hover0 = np.copy(mouse0)
 
@@ -305,7 +314,7 @@ def onMouseUp(event):
 
 def onWheel(event):
 	global x
-	if hover_joint >= 0:
+	if hover_joint &gt;= 0:
 		x[hover_joint] -= 0.2 * (event.deltaY/106)
 
 document.addEventListener('mousemove', create_proxy(onMouseMove)) #for standard mouse
@@ -407,7 +416,7 @@ def controlCommand(x, param):
 
 def externalPerturbation(x, param):
 	u = np.zeros(param.nbVarX)
-	if move_joint >= 0:
+	if move_joint &gt;= 0:
 		f = fkin(x[:move_joint+1], param2)
 		J = Jkin(x[:move_joint+1], param2)
 #		u[:move_joint+1] = np.linalg.pinv(J) @ (mouse - f) * 5
@@ -450,7 +459,7 @@ async def main():
 		# Rendering
 		clear_screen()
 		draw_robot(x[:param.nbVarX], '#AAAAAA')
-		if move_joint >= 0:
+		if move_joint &gt;= 0:
 			f = fkin(x[:move_joint+1], param2)
 			draw_selected_point(f, '#777777')
 

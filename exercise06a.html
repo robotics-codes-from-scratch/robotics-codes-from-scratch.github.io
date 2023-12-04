@@ -2,6 +2,8 @@
 
 <html lang="en">
 <head>
+
+
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta content="RCFS" name="description"/>
@@ -10,45 +12,51 @@
 <title>RCFS</title>
 <link href="static_images/favicon.ico" rel="icon" sizes="any"/>
 <link href="static_images/favicon.svg" rel="icon" type="image/svg+xml"/>
+
 <link href="css/bootstrap.min.css" rel="stylesheet"/>
 <link href="css/bootstrap-icons-1.10.4/font/bootstrap-icons.css" rel="stylesheet"/>
 <link href="css/permanent_marker.css" rel="stylesheet"/>
 <link href="css/sidebars.css" rel="stylesheet"/>
-<link href="css/katex.min.css" rel="stylesheet"/>
 <script src="js/jquery-3.6.4.min.js"></script>
 <script src="js/bootstrap.bundle.min.js"></script>
+
+<script defer="" src="https://pyscript.net/latest/pyscript.min.js"></script>
+<py-config type="toml">
+
+				packages = ['numpy']
+			
+</py-config>
+<link href="https://pyscript.net/latest/pyscript.css" rel="stylesheet"/> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
+
+<link href="css/katex.min.css" rel="stylesheet"/>
 <script src="js/katex.min.js"></script>
 <script>
 
-		function initialize(){
-			convertMath();
-		}
+        function initialize(){
+            convertMath();
+        }
 
-		function convertMath(){
-			const elements = document.getElementsByClassName("ltx_Math");
-			const macros = {
-				'\\tp': '\\text{\\tiny{#1}}',
-				'\\trsp' : '\\top',
-				'\\psin' : '\\dagger',
-				'\\eqref': '\\href{###1}{(\\text{#1})}',
-				'\\ref': '\\href{###1}{\\text{#1}}',
-				'\\label': '\\htmlId{#1}{}'
-			};
-			for(let element of elements){
-				katex.render(element.textContent, element, {
-					throwOnError: false,
-					macros
-				});
-			}
-		}
+        function convertMath(){
+            const elements = document.getElementsByClassName("ltx_Math");
+            const macros = {
+                '\\tp': '\\text{\\tiny{#1}}',
+                '\\trsp' : '\\top',
+                '\\psin' : '\\dagger',
+                '\\eqref': '\\href{###1}{(\\text{#1})}',
+                '\\ref': '\\href{###1}{\\text{#1}}',
+                '\\label': '\\htmlId{#1}{}'
+            };
+            for(let element of elements){
+                katex.render(element.textContent, element, {
+                    throwOnError: false,
+                    macros
+                });
+            }
+        }
 
-		window.onload = initialize;
-	</script>
-<script defer="" src="https://pyscript.net/latest/pyscript.min.js"></script>
-<py-config type="toml">
-		packages = ['numpy']
-	</py-config>
-<link href="https://pyscript.net/latest/pyscript.css" rel="stylesheet"/> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
+        window.onload = initialize;
+    </script>
+
 <link href="css/main-template.css" rel="stylesheet"/>
 </head>
 <body><nav aria-label="Light offcanvas navbar" class="navbar fixed-top" style="width: 50px;">
@@ -72,6 +80,8 @@
 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
 <li><a class="link-dark d-inline-flex text-decoration-none rounded" href="about.html">
 <div class="p-1 mb-0">About</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="license.html">
+<div class="p-1 mb-0">License</div></a></li>
 </ul>
 </div>
 </li>
@@ -182,25 +192,25 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 <div class="col-sm-1"></div>
 <div class="col-sm-7">
 <h1>Exercise 6a<br/>Planning with linear quadratic regulator</h1>
-<p>Previously, in exercises 4 and 5, we defined a desired target position <span class="ltx_Math">\bm{x}_{\text{target}}</span> defined either in joint space or task space and we wanted the robot to reach this target position. We did not specify the timings or the viapoints/paths that the robot should follow to reach these target positions.<p>
+<p>Previously, in exercises 4 and 5, a desired target position was defined either in joint space or task space, without specifying the timings when the robot should follow to reach these target positions. We here extend the optimization to problems in which we can describe the timings and consider viapoints or full reference paths to be tracked, which provides the robot with planning and anticipation capability.<p>
 <p>Optimal control is the principled way of planning a robot motion by specifying timings and/or a set of viapoints or a reference trajectory to follow.</p>
 <p>Linear quadratic regulator (LQR) is the most simple form of optimal control. In this exercise, the goal is to understand how LQR works and how it can be applied to robot planning problems.</p>
-<p>This exercise allows you to specify the precision matrices used in LQR and to change the placement of two viapoints. The series of control commands generates a resulting path that can be visualized on the right figure (the black point shows the initial position). The graphs show the corresponding covariance matrices (inverses of precision matrices) for the two viapoints (in pink and green).</p>
+<p>This exercise considers a point mass agent in a 2D space. The two viapoints can be moved with the mouse. The provided code snippet allows you to specify the precision matrices used in LQR and to change the placement of two viapoints. The series of control commands generates a resulting path displayed in the figure (the black point shows the initial position). The figure also shows the corresponding covariance matrices (inverses of precision matrices) for the two viapoints (in pink and green).</p>
 <ul class="list-group list-group-numbered">
 <li class="list-group-item">
-		Change the code so that the point mass system passes through any point on the pink line at timestep 20 and reaches the green point at time step 100. To verify your solution, you can change the positions of the pink and green objects by dragging them and change their shape by redefining the precision matrices.
-	</li>
-<li class="list-group-item">
-		Change the code by setting <code>param.nbDeriv=2</code> so that the point-mass system is controlled with acceleration commands instead of velocity commands (system dynamics defined as a double integrator instead of a simple integrator). Set <code>param.r</code> to a higher value until you see that it does not reach the pink line anymore. Set <code>param.nbDeriv=1</code> again to compare the smoothness of the two trajectories.
+		Modify the code by setting <code>param.nbDeriv=2</code> so that the point-mass system is controlled with acceleration commands instead of velocity commands (system dynamics defined as a double integrator instead of a simple integrator). Try to decrease the values in the diagonal of Q1 and Q2 to change the desired precision requested to pass through the two viapoints. Also try to modidy the control weight <code>param.r</code> and observe the result on the path. 
 	</li>
 <li class="list-group-item">
 		Change the code so that both keypoints should be reached at time step 100. What do you observe? Change the precision matrices so that one of the corresponding covariance is elongated horizontally and the other is elongated vertically (large along one direction and thin anlong the other direction). Try to change the locations of the two viapoints. What do you observe?
+	</li>
+<li class="list-group-item">
+		Change the code so that the point mass system passes through any point on the pink line at timestep 20 and reaches the green point at time step 100. To verify your solution, you can change the positions of the pink and green objects by dragging them and change their shape by redefining the precision matrices.
 	</li>
 </ul><br/>
 <ul class="nav nav-tabs" id="myTab" role="tablist">
 <li class="nav-item" role="presentation"> <button aria-controls="question1-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#question1-tab-pane" data-bs-toggle="tab" id="question1-tab" role="tab" type="button">LQR in task space</button>
 </li>
-<li class="nav-item" role="presentation"> <button aria-controls="answer1-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#answer1-tab-pane" data-bs-toggle="tab" id='answer1-tab' role="tab" type="button">Answer 1</button>
+<li class="nav-item" role="presentation"> <button aria-controls="answer1-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#answer1-tab-pane" data-bs-toggle="tab" id="answer1-tab" role="tab" type="button">Answer 1</button>
 </li>
 </ul>
 <div class="tab-content" id="myTabContent">
@@ -227,7 +237,6 @@ xs = solve_LQR(x, param) #Compute trajectory
 
 </py-repl>
 </div>
-
 <div aria-labelledby="answer1-tab" class="tab-pane fade" id="answer1-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="errors" std-out="output">
 param.nbVarPos = 2 # Dimension of position variable
@@ -495,7 +504,7 @@ async def main():
 		draw_lqr_path(xs, param, '#000000')
 
 		# Object selection
-		if selected_obj >= 0:
+		if selected_obj &gt;= 0:
 			param.Mu[:2,selected_obj] = mouse
 			param.Mu[0,selected_obj] = max(min(param.Mu[0,selected_obj],225), -225)
 			param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],175), -175)

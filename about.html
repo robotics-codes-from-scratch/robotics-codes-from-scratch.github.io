@@ -2,6 +2,8 @@
 
 <html lang="en">
 <head>
+
+
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta content="RCFS" name="description"/>
@@ -10,13 +12,15 @@
 <title>RCFS</title>
 <link href="static_images/favicon.ico" rel="icon" sizes="any"/>
 <link href="static_images/favicon.svg" rel="icon" type="image/svg+xml"/>
+
 <link href="css/bootstrap.min.css" rel="stylesheet"/>
 <link href="css/bootstrap-icons-1.10.4/font/bootstrap-icons.css" rel="stylesheet"/>
 <link href="css/permanent_marker.css" rel="stylesheet"/>
-<link href="css/main-template.css" rel="stylesheet"/>
 <link href="css/sidebars.css" rel="stylesheet"/>
 <script src="js/jquery-3.6.4.min.js"></script>
 <script src="js/bootstrap.bundle.min.js"></script>
+
+<link href="css/main-template.css" rel="stylesheet"/>
 </head>
 <body><nav aria-label="Light offcanvas navbar" class="navbar fixed-top" style="width: 50px;">
 <div class="container-fluid">
@@ -39,6 +43,8 @@
 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
 <li><a class="link-dark d-inline-flex text-decoration-none rounded" href="about.html">
 <div class="p-1 mb-0">About</div></a></li>
+<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="license.html">
+<div class="p-1 mb-0">License</div></a></li>
 </ul>
 </div>
 </li>
@@ -136,9 +142,10 @@
 <div class="col-sm-1"></div>
 <div class="col-sm-7">
 <center>
-<img class="img-fluid" src="images/logo-RCFS.png">
+<img class="img-fluid" src="static_images/logo-RCFS.png"/>
 </center>
-<p>RCFS is a website with interactive examples, as well as a collection of source codes to study learning and optimization techniques in robotics. It is currently maintained by <a href="https://calinon.ch" target="_blank">Dr Sylvain Calinon</a> at the <a href="https://www.idiap.ch" target="_blank">Idiap Research Institute</a>.</p>
+<br/>
+<p>RCFS provides a collection of interactive examples and source codes to study learning and optimization techniques in robotics. It is currently maintained by <a href="https://calinon.ch" target="_blank">Dr Sylvain Calinon</a> at the <a href="https://www.idiap.ch" target="_blank">Idiap Research Institute</a>.</p>
 <p>Contributors: Sylvain Calinon, Philip Abbet, Jérémy Maceiras, Hakan Girgin</p>
 <p>RCFS is licensed under the <i>MIT License</i>.</p>
 <p>For the 3D examples, some files are based on the corresponding ones found in the <a href="https://github.com/ndahn/Rocksi" target="_blank">Rocksi project</a>, licensed under the <i>MIT License</i>, and are identified as such in their header.</p>
@@ -156,6 +163,14 @@
 <h3>How to use RCFS for teaching?</h3>
 <p>RCFS can be used for teaching by explicitly mentioning the origin of the codes/examples, by including as a link:</p>
 <p><center><b>https://rcfs.ch/</b></center></p>
+<p>or as bibtex reference:</p>
+<pre>@techreport{Calinon23rcfs,
+	author="Calinon, S.",
+	title="Learning and Optimization in Robotics, Lecture notes",
+	institution="Idiap Research Institute",
+	year="2023"
+}
+</pre>
 <p>The interactive examples can potentially be integrated in three manners in robotics courses:
                     <ul>
 <li><b>During lectures</b>, as interactive examples that can be directly run by using the mouse cursor or in the form of live coding that can be fluently integrated within the course, without additional clutter since only very few lines of codes are displayed for each topic (only the lines of interest are displayed for each interactive example).</li>
@@ -169,9 +184,8 @@
 <h3>Why not providing notebooks?</h3>
 <p>The use of notebooks is nowadays highly popular for teaching. When used correctly, this format has undeniable advantages. However, when providing students with material to study robotics, we believe it is also important to prepare them to the next steps that will require them to move outside notebook environments when considering real robots applications. In this view, the short standalone codes in RCFS can help at facilitating this transition. In the provided codes, the focus on the graphics rendering aspects is minimal. In the web-based examples, since this part is hidden, the examples are created to be visually more appealing and technically more impressive.</p>
 <h3>RCFS logo</h3>
-<p>The RCFS logo image can be generated from a linux command prompt (see this <a href="images/generate_logo.sh" target="_blank">shell script</a>).
+<p>The RCFS logo image can be generated from a linux command prompt (see this <a href="static_images/generate_logo.sh.txt" target="_blank">shell script</a>).
 You need these three fonts installed on your system before running the script: Courier (public domain), <a href="https://fonts.google.com/specimen/Roboto" target="_blank">Roboto</a> (Apache 2.0 license) and <a href="https://fonts.google.com/specimen/Permanent+Marker" target="_blank">Permanent Marker</a> (Apache 2.0 license).</p>
-
 <br/><br/>
 </div> <!--sm-7-->
 <div class="col-sm-4">
