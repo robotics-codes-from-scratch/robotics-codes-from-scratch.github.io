@@ -163,7 +163,7 @@ function clearMsgs() {
 <py-repl std-err="repl-err" std-out="repl-out">
 x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0])
 x_target = np.array([-np.pi/4, -np.pi/2, np.pi/4])
-param.damping = 10.0 # Viscous friction
+param.damping = 20.0 # Viscous friction
 kP = 400.0 # Stiffness gain
 kV = 10.0 # Damping gain
 #kP = 0.0 # Stiffness gain
@@ -430,7 +430,8 @@ def errorHandler(e):
 	#el.textContent = msg
 
 #########################################################################################
-x = np.zeros(2*param.nbVarX) # Initial robot state (position and velocity)
+#x = np.zeros(2*param.nbVarX) # Initial robot state (position and velocity)
+x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot state (position and velocity)
 
 async def main():
 	global hover_joint, x
