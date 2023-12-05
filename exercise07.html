@@ -3,40 +3,6 @@
 <html lang="en">
 <head>
 
-<script crossorigin="anonymous" defer="" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" src="https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js"></script>
-<script>
-let macros = {
-	'\\tp': '\\text{\\tiny{#1}}',
-	'\\trsp' : '\\top',
-	'\\psin' : '\\dagger',
-	'\\eqref': '\\href{###1}{(\\text{#1})}',
-	'\\ref': '\\href{###1}{\\text{#1}}',
-	'\\label': '\\htmlId{#1}{}'
-};
-document.addEventListener('DOMContentLoaded', function() {
-	renderMathInElement(document.body, {
-		// customised options
-		trust: (context) => ['\\htmlId', '\\href'].includes(context.command),
-		macros: macros,
-		// • auto-render specific keys, e.g.:
-		delimiters: [
-			{left: '$$', right: '$$', display: true},
-			{left: '$', right: '$', display: false},
-			{left: '\\(', right: '\\)', display: false},
-			{left: '\\begin{equation}', right: '\\end{equation}', display: true},
-			{left: '\\begin{equation*}', right: '\\end{equation*}', display: true},
-			{left: '\\begin{align}', right: '\\end{align}', display: true},
-			{left: '\\begin{align*}', right: '\\end{align*}', display: true},
-			{left: '\\begin{alignat}', right: '\\end{alignat}', display: true},
-			{left: '\\begin{gather}', right: '\\end{gather}', display: true},
-			{left: '\\begin{CD}', right: '\\end{CD}', display: true},
-			{left: '\\[', right: '\\]', display: true}
-		],
-		// • rendering keys, e.g.:
-		throwOnError : false
-	});
-});
-</script>
 
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -64,7 +30,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <link href="css/katex.min.css" rel="stylesheet"/>
 <script src="js/katex.min.js"></script>
+<script defer="" src="js/katex-auto-render.js"></script>
 <script>
+        const macros = {
+            '\\tp': '\\text{\\tiny{#1}}',
+            '\\trsp' : '\\top',
+            '\\psin' : '\\dagger',
+            '\\eqref': '\\href{###1}{(\\text{#1})}',
+            '\\ref': '\\href{###1}{\\text{#1}}',
+            '\\label': '\\htmlId{#1}{}'
+        };
 
         function initialize(){
             convertMath();
@@ -72,14 +47,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function convertMath(){
             const elements = document.getElementsByClassName("ltx_Math");
-            const macros = {
-                '\\tp': '\\text{\\tiny{#1}}',
-                '\\trsp' : '\\top',
-                '\\psin' : '\\dagger',
-                '\\eqref': '\\href{###1}{(\\text{#1})}',
-                '\\ref': '\\href{###1}{\\text{#1}}',
-                '\\label': '\\htmlId{#1}{}'
-            };
             for(let element of elements){
                 katex.render(element.textContent, element, {
                     throwOnError: false,
@@ -89,6 +56,30 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         window.onload = initialize;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMathInElement(document.body, {
+                // customised options
+                trust: (context) => ['\\htmlId', '\\href'].includes(context.command),
+                macros: macros,
+                // • auto-render specific keys, e.g.:
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\begin{equation}', right: '\\end{equation}', display: true},
+                    {left: '\\begin{equation*}', right: '\\end{equation*}', display: true},
+                    {left: '\\begin{align}', right: '\\end{align}', display: true},
+                    {left: '\\begin{align*}', right: '\\end{align*}', display: true},
+                    {left: '\\begin{alignat}', right: '\\end{alignat}', display: true},
+                    {left: '\\begin{gather}', right: '\\end{gather}', display: true},
+                    {left: '\\begin{CD}', right: '\\end{CD}', display: true},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                // • rendering keys, e.g.:
+                throwOnError : false
+            });
+        });
     </script>
 
 <link href="css/main-template.css" rel="stylesheet"/>
@@ -241,7 +232,7 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 \begin{equation*}
 	c(\bm{x}_t,\bm{u}_t) = \sum_{i=1}^3\bm{f}_i(\bm{x}_t)^{\!\trsp} \bm{Q}_{i,t} \bm{f}_i(\bm{x}_t) + \bm{u}_t^\trsp \bm{R}_t \, \bm{u}_t,
 \end{equation*}
-where $\bm{Q}_{i,t}$ and $\bm{R}_t$ are weight matrices trading off viapoints tracking and control effort. Such cost is quadratic on $\bm{f}^i(\bm{x}_t)$ but can be non-quadratic on $\bm{x}_t$, which requires iLQR to be used instead of LQR.</p>
+where $\bm{Q}_{i,t}$ and $\bm{R}_t$ are weight matrices trading off viapoints tracking and control effort. Such cost is quadratic on $\bm{f}_i(\bm{x}_t)$ but can be non-quadratic on $\bm{x}_t$, which requires iLQR to be used instead of LQR.</p>
 <p>The solution to this problem results in the following update of the control commands at each iteration of iLQR
 \begin{equation*}
 	\Delta\bm{\hat{u}} \!=\! {\Bigg(\bm{S}_{\bm{u}}^\trsp \sum_{i=1}^3\Big(\bm{J}_i(\bm{x})^\trsp \bm{Q}_i \bm{J}_i(\bm{x})\Big) \bm{S}_{\bm{u}} \!+\! \bm{R}\Bigg)}^{\!\!-1}
@@ -249,7 +240,7 @@ where $\bm{Q}_{i,t}$ and $\bm{R}_t$ are weight matrices trading off viapoints tr
 \end{equation*}</p>
 <ul class="list-group list-group-numbered">
 <li class="list-group-item">
-		Change the code in the <code>compute_fJ()</code> function so that the robot can pass through the set of viapoints defined in joint space and task space. You can verify your answer by moving the objects and changing the joint angle configurations of the robot for both initial pose (in light gray) and viapoint pose (in orange).
+		By looking at the commented code snippets, modify the code in <code>compute_fJ()</code> so that the robot can pass through the set of viapoints defined in joint space and task space. You can verify your answer by moving the objects and changing the joint angle configurations of the robot for both initial pose (in light gray) and viapoint pose (in orange).
 	</li>
 <li class="list-group-item">
 		Move the objects and modify the parameters tl, Q1, Q2 and Q3. Observe the resulting behaviors and the resulting cost.
@@ -276,11 +267,14 @@ Q3 = np.eye(param.nbVarF)
 # Time occurrence of viapoints
 tl = np.array([17, 34, 49])
 
-# # Joint angle configuration at the first viapoint
+# Joint angle configuration at the first viapoint
 # print(x[:,tl[0]])
 
-# # End-effector position at the first viapoint
+# End-effector position at the first viapoint
 # print(fkin(x[:,tl[0]], param))
+
+# Corresponding Jacobian at the first viapoint
+# print(Jkin(x[:,tl[0]], param))
 
 # print(param.viapoint1) #First viapoint
 # print(param.viapoint2) #Second viapoint
