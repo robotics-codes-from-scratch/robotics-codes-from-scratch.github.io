@@ -161,11 +161,13 @@ function clearMsgs() {
 </script>
 <div onclick="clearMsgs()" onkeydown="clearMsgs()">
 <py-repl std-err="repl-err" std-out="repl-out">
+x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0])
 x_target = np.array([-np.pi/4, -np.pi/2, np.pi/4])
-#kP = 500.0 # Stiffness gain
-#kV = 10.0 # Damping gain
-kP = 0.0 # Stiffness gain
-kV = 0.0 # Damping gain
+param.damping = 10.0 # Viscous friction
+kP = 400.0 # Stiffness gain
+kV = 10.0 # Damping gain
+#kP = 0.0 # Stiffness gain
+#kV = 0.0 # Damping gain
 def controlCommand(x, param):
   #xtmp = np.append(x[:param.nbVarX], np.zeros(param.nbVarX))
   #ug = inverse_dynamics(xtmp, np.zeros(param.nbVarX), param) # Torques for gravity compensation
@@ -222,7 +224,7 @@ def computeGCML(x, param):
 	m = np.reshape(param.m, [1, param.nbVarX])
 	Lm = np.triu(np.ones([m.shape[1], m.shape[1]])) * np.repeat(m, m.shape[1],0)
 
-#	# Elementwise computation of G, M, and C
+#	# Elementwise computation of G, C, and M
 #    G = np.zeros(param.nbVarX)
 #    M = np.zeros([param.nbVarX, param.nbVarX])
 #    C =  np.zeros([param.nbVarX, param.nbVarX])
@@ -233,27 +235,44 @@ def computeGCML(x, param):
 #            M[k,i] = l[0,k] * l[0,i] * np.cos(L[k,:] @ x[:param.nbVarX] - L[i,:] @ x[:param.nbVarX]) * S
 #            C[k,i] = -l[0,k] * l[0,i] * np.sin(L[k,:] @ x[:param.nbVarX] - L[i,:] @ x[:param.nbVarX]) * S
 	
-	# Computation in matrix form of G, M, and C
-	G = -np.sum(Lm,1) * param.l/param.drawScale * np.cos(L @ x[:param.nbVarX]) * param.gravity
-	C = -(l.T * l) * np.sin(L @ x[:param.nbVarX] - L @ x[:param.nbVarX]) * (Lm**.5 @ ((Lm**.5).T))
-	M = (l.T * l) * np.cos(L @ x[:param.nbVarX] - L @ x[:param.nbVarX]) * (Lm**.5 @ ((Lm**.5).T))
+	# Computation in matrix form of G, C, and M
+	G = -np.sum(Lm,1) * param.l * np.cos(L @ x[:param.nbVarX]) * param.gravity
+	C = -(l.T * l) * np.sin(np.reshape(L @ x[:param.nbVarX], [param.nbVarX,1]) - L @ x[:param.nbVarX]) * (Lm**.5 @ ((Lm**.5).T))
+	M = (l.T * l) * np.cos(np.reshape(L @ x[:param.nbVarX], [param.nbVarX,1]) - L @ x[:param.nbVarX]) * (Lm**.5 @ ((Lm**.5).T))
 
 	G = L.T @ G
 	C = L.T @ C
 	M = L.T @ M @ L
+	
 	return G,C,M,L
 
 def inverse_dynamics(x, ddx, param):
 	G,C,M,L = computeGCML(x, param)
-	u = M @ ddx - L.T @ C @ (L @ x[param.nbVarX:])**2 - L @ x[param.nbVarX:] * param.damping - G
+#	u = M @ ddx - G - C @ (L @ x[param.nbVarX:])**2 + x[param.nbVarX:] * param.damping # With gravity, Coriolis and viscous friction compensation models
+	u = M @ ddx - G - C @ (L @ x[param.nbVarX:])**2 # With gravity and Coriolis models 
 	return u
 
 def fdyn(x, u, param):
 	G,C,M,L = computeGCML(x, param)
-	ddx = np.linalg.inv(M) @ (u + G + C @ (L @ x[param.nbVarX:])**2) - x[param.nbVarX:] * param.damping
+	ddx = np.linalg.inv(M) @ (u + G + C @ (L @ x[param.nbVarX:])**2 - x[param.nbVarX:] * param.damping)
 	return ddx
 
+def controlCommand(x, param):
+	u = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
+#	u = np.zeros(param.nbVarX)
+	return u
 
+def externalPerturbation(x, param):
+	u = np.zeros(param.nbVarX)
+	if move_joint &gt;= 0:
+		f = fkin(x[:move_joint+1], param2)
+		J = Jkin(x[:move_joint+1], param2)
+#		pinvJ = np.linalg.inv(J.T @ J + np.eye(param2.nbVarX) * 1E-4) @ J.T # Damped pseudoinverse
+		u[:move_joint+1] = J.T @ (mouse - f) * 1E-3 # Torque commands
+#		u[:move_joint+1] = pinvJ @ (mouse - f) * 1E1 # Torque commands
+#		u[:move_joint] = J[:,:move_joint].T @ (mouse - f) * 1E-1 # Torque commands
+	return u
+	
 ## Parameters
 # ===============================
 param = lambda: None # Lazy way to define an empty class in python
@@ -262,7 +281,7 @@ param.nbVarX = 3 # State space dimension
 param.drawScale = 200.0
 param.l = np.ones(param.nbVarX) * param.drawScale # Robot links lengths
 param.m = np.ones(param.nbVarX) # Robot links masses
-param.damping = 8.0 # Damping parameter
+param.damping = 2.0 # Viscous friction
 param.gravity = 9.81 # Gravity
 
 param2 = lambda: None # Lazy way to define an empty class in python
@@ -400,22 +419,6 @@ def draw_selected_point(f, color):
 	ctx.fillStyle = color
 	ctx.fill(obj)
 
-
-def controlCommand(x, param):
-	u = np.zeros(param.nbVarX)
-	return u
-
-
-def externalPerturbation(x, param):
-	u = np.zeros(param.nbVarX)
-	if move_joint &gt;= 0:
-		f = fkin(x[:move_joint+1], param2)
-		J = Jkin(x[:move_joint+1], param2)
-#		pinvJ = np.linalg.inv(J.T @ J + np.eye(param2.nbVarX) * 1E-4) @ J.T # Damped pseudoinverse
-#		u[:move_joint+1] = J.T @ (mouse - f) * 1E-3 # Torque commands
-#		u[:move_joint+1] = pinvJ @ (mouse - f) * 1E1 # Torque commands
-		u[:move_joint] = J[:,:move_joint].T @ (mouse - f) * 1E-3 # Torque commands
-	return u
 
 #########################################################################################
 
