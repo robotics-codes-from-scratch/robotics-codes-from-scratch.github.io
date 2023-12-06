@@ -51,8 +51,6 @@
 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
 <li><a class="link-dark d-inline-flex text-decoration-none rounded" href="about.html">
 <div class="p-1 mb-0">About</div></a></li>
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="license.html">
-<div class="p-1 mb-0">License</div></a></li>
 </ul>
 </div>
 </li>
@@ -273,12 +271,12 @@ def externalPerturbation(x, param):
 ## Parameters
 # ===============================
 param = lambda: None # Lazy way to define an empty class in python
-param.dt = 1E-2 # Time step length
 param.nbVarX = 3 # State space dimension
 param.drawScale = 200.0
 param.l = np.ones(param.nbVarX) * param.drawScale # Robot links lengths
 param.m = np.ones(param.nbVarX) # Robot links masses
-param.damping = 2.0 # Viscous friction
+param.dt = 1E-2 # Time step length
+param.damping = 20.0 # Viscous friction
 param.gravity = 9.81 # Gravity
 
 param2 = lambda: None # Lazy way to define an empty class in python

@@ -51,8 +51,6 @@
 <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
 <li><a class="link-dark d-inline-flex text-decoration-none rounded" href="about.html">
 <div class="p-1 mb-0">About</div></a></li>
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="license.html">
-<div class="p-1 mb-0">License</div></a></li>
 </ul>
 </div>
 </li>
@@ -169,16 +167,19 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 <p>The goal of this exercise is to familiarize with the dynamics of a 2D planar manipulator. You can move the robot by dragging its joints using the left mouse button.</p>
 <ul class="list-group list-group-numbered">
 <li class="list-group-item">
-		Use your mouse to perturb the robot (at the articulations level) and observe the effect of the dynamics.
+		Use your mouse to perturb the robot and observe the effect of the dynamics.
 	</li>
 <li class="list-group-item">
-		Change <code>param.l</code>, <code>param.l_m</code> and <code>param.damping</code> to see how these parameters affect the dynamics. Note that some parameters will produce instable behaviors (if this happens, you can reload the page to restart from a stable initial state).
+		Change <code>param.l</code>, <code>param.m</code>. <code>param.dt</code> and <code>param.damping</code> to see how these parameters affect the dynamics. Note that some parameters will produce instable behaviors (if this happens, you can reload the page to restart from a stable initial state).
 	</li>
 </ul><br/>
 <py-repl std-err="errors" std-out="output">
-param.l = [2, 2] # Robot links lengths
-param.l_m = [1, 1] # Links masses
-param.damping = 5 # Damping
+x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot state (position and velocity)
+param.l = np.array([200.0, 200.0, 200.0]) # Robot links lengths
+param.m = np.array([1.0, 1.0, 1.0]) # Links masses
+param.dt = 1E-2 # Time step length
+param.damping = 20.0 # Viscous friction
+
 </py-repl> <!--output='repl-out' std-out='repl-out'-->
 <br/><br/>
 </div> <!--sm-7-->
@@ -211,6 +212,12 @@ from js import Path2D, document, console
 import numpy as np
 import asyncio
 
+# Forward kinematics for end-effector (in robot coordinate system)
+def fkin(x, param):
+	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+	f = [param.l @ np.cos(L @ x), param.l @ np.sin(L @ x)]
+	return f
+
 # Forward kinematics for all joints (in robot coordinate system)
 def fkin0(x, param):
 	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
@@ -221,91 +228,103 @@ def fkin0(x, param):
 	f = np.hstack([np.zeros([2,1]), f])
 	return f
 
-# Forward kinematics for end-effector (in robot coordinate system)
+# Jacobian with analytical computation (for single time step)
+def Jkin(x, param):
+	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+	J = np.vstack([
+		-np.sin(L @ x).T @ np.diag(param.l) @ L,
+		 np.cos(L @ x).T @ np.diag(param.l) @ L
+	])
+	return J
+
+def computeGCML(x, param):
+	# Auxiliary matrices
+	l = np.reshape(param.l/param.drawScale, [1, param.nbVarX])
+	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+	m = np.reshape(param.m, [1, param.nbVarX])
+	Lm = np.triu(np.ones([m.shape[1], m.shape[1]])) * np.repeat(m, m.shape[1],0)
+
+#	# Elementwise computation of G, C, and M
+#    G = np.zeros(param.nbVarX)
+#    M = np.zeros([param.nbVarX, param.nbVarX])
+#    C =  np.zeros([param.nbVarX, param.nbVarX])
+#    for k in range(param.nbVarX):
+#        G[k] = -sum(m[0,k:]) * param.gravity * l[0,k] * np.cos(L[k,:] @ x[:param.nbVarX])
+#        for i in range(param.nbVarX):
+#            S = sum(m[0,k:param.nbVarX] * np.heaviside(np.array(range(k, param.nbVarX)) - i, 1))
+#            M[k,i] = l[0,k] * l[0,i] * np.cos(L[k,:] @ x[:param.nbVarX] - L[i,:] @ x[:param.nbVarX]) * S
+#            C[k,i] = -l[0,k] * l[0,i] * np.sin(L[k,:] @ x[:param.nbVarX] - L[i,:] @ x[:param.nbVarX]) * S
+	
+	# Computation in matrix form of G, C, and M
+	G = -np.sum(Lm,1) * param.l * np.cos(L @ x[:param.nbVarX]) * param.gravity
+	C = -(l.T * l) * np.sin(np.reshape(L @ x[:param.nbVarX], [param.nbVarX,1]) - L @ x[:param.nbVarX]) * (Lm**.5 @ ((Lm**.5).T))
+	M = (l.T * l) * np.cos(np.reshape(L @ x[:param.nbVarX], [param.nbVarX,1]) - L @ x[:param.nbVarX]) * (Lm**.5 @ ((Lm**.5).T))
+
+	G = L.T @ G
+	C = L.T @ C
+	M = L.T @ M @ L
+	
+	return G,C,M,L
+
 def fdyn(x, u, param):
-	l = np.reshape(param.l, [1,param.nbVarX])
-	m = np.reshape(param.l_m, [1,param.nbVarX])
-	T = np.tril(np.ones([param.nbVarX, param.nbVarX]))
-	Tm = np.multiply(np.triu(np.ones([m.shape[1], m.shape[1]])), np.repeat(m, m.shape[1],0))
+	G,C,M,L = computeGCML(x, param)
+	ddx = np.linalg.inv(M) @ (u + G + C @ (L @ x[param.nbVarX:])**2 - x[param.nbVarX:] * param.damping)
+	return ddx
 
-	## Computation in matrix form of G,M, and C
-	#G =-np.reshape(np.sum(Tm, 1), [param.nbVarX, 1]) * l.T * np.cos(T @ np.reshape(x[0:param.nbVarX], [param.nbVarX, 1])) * param.gravity
-	#G = T.T @ G
-	#M = (l.T * l) * np.cos(np.reshape(T @ x[:param.nbVarX], [param.nbVarX, 1]) - T @ x[:param.nbVarX]) * (Tm**.5 @ ((Tm**.5).T))
-	#M = T.T @ M @ T
-	#C = -(l.T * l) * np.sin(np.reshape(T @ x[:param.nbVarX], [param.nbVarX, 1]) - T @ x[:param.nbVarX]) * (Tm**.5 @ ((Tm**.5).T))
-
-	# Elementwise computation of G, M, and C
-	G = np.zeros([param.nbVarX, 1])
-	M = np.zeros([param.nbVarX, param.nbVarX])
-	C =  np.zeros([param.nbVarX, param.nbVarX])
-	for k in range(param.nbVarX):
-		G[k,0] = -sum(m[0,k:]) * param.gravity * l[0,k] * np.cos(T[k,:] @ x[:param.nbVarX])
-		for i in range(param.nbVarX):
-			S = sum(m[0,k:param.nbVarX] * np.heaviside(np.array(range(k, param.nbVarX)) - i, 1))
-			M[k,i] = l[0,k] * l[0,i] * np.cos(T[k,:] @ x[:param.nbVarX] - T[i,:] @ x[:param.nbVarX]) * S
-			C[k,i] = -l[0,k] * l[0,i] * np.sin(T[k,:] @ x[:param.nbVarX] - T[i,:] @ x[:param.nbVarX]) * S
-
-	G = T.T @ G
-	M = T.T @ M @ T
-
-	# Compute acceleration
-	tau = np.reshape(u, [param.nbVarX, 1])
-	inv_M = np.linalg.inv(M)
-	ddq = inv_M @ (tau + G + T.T @ C @ (T @ np.reshape(x[param.nbVarX:],[param.nbVarX, 1]))**2 - \
-		T @ np.reshape(x[param.nbVarX:],[param.nbVarX, 1]) * param.damping)
-	# compute the next step
-	dq = x[param.nbVarX:] + ddq[:,0] * param.dt
-	q  = x[:param.nbVarX] + x[param.nbVarX:] * param.dt + 0.5 * ddq[:,0] * (param.dt**2)
-	xt = np.append(q, dq)
-	return xt
-
-
+def externalPerturbation(x, param):
+	u = np.zeros(param.nbVarX)
+	if move_joint &gt;= 0:
+		f = fkin(x[:move_joint+1], param2)
+		J = Jkin(x[:move_joint+1], param2)
+		u[:move_joint+1] = J.T @ (mouse - f) * 1E-3 # Torque commands
+	return u
+	
 ## Parameters
 # ===============================
-
 param = lambda: None # Lazy way to define an empty class in python
-param.nbVarX = 2 # State space dimension (x1,x2,x3)
-param.l = [2, 2] # Robot links lengths
-param.l_m = [1, 1] # Link masses
-param.damping = 8. # Damping
-param.gravity = 9.81 # Gravity
-param.dt = 5E-2 # Time step length
+param.nbVarX = 3 # State space dimension
+param.drawScale = 200.0
+param.l = np.ones(param.nbVarX) * param.drawScale # Robot links lengths
+param.m = np.ones(param.nbVarX) # Robot links masses
+param.dt = 1E-2 # Time step length
+param.damping = 20.0 # Viscous friction
+param.gravity = 9.81 * 1E-2 # Gravity
 
+param2 = lambda: None # Lazy way to define an empty class in python
 
 #########################################################################################
 
 # Mouse events
 mouse0 = np.zeros(2)
+mouse = np.zeros(2)
 mousedown = 0
 hover_joint = -1
 move_joint= -1
-hover0 = np.zeros(2)
 
 def onMouseMove(event):
-	global mouse, mouse0, hover0, x
+	global mouse, mouse0
 	offset = canvas.getBoundingClientRect()
 	mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
 	mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
-	if move_joint &gt;= 0:
-		x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
-		hover0 = np.copy(mouse0)
+	mouse[0] = (mouse0[0] - canvas.width * 0.5)
+	mouse[1] = -(mouse0[1] - canvas.height * 0.1)
 
 def onTouchMove(event):
-	global mouse, mouse0, hover0, x
+	global mouse, mouse0
 	offset = event.target.getBoundingClientRect()
 	mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
 	mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
-	if move_joint &gt;= 0:
-		x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
-		hover0 = np.copy(mouse0)
+	mouse[0] = (mouse0[0] - canvas.width * 0.5)
+	mouse[1] = -(mouse0[1] - canvas.height * 0.1)
 
 def onMouseDown(event):
-	global mousedown, move_joint, hover0
+	global mousedown, move_joint
 	mousedown = 1
 	if hover_joint &gt;= 0:
+		f0 = fkin0(x[:param.nbVarX], param)
+		param2.l = np.append(param.l[:hover_joint], np.linalg.norm(f0[:,hover_joint] - mouse))
+		param2.nbVarX = hover_joint+1
 		move_joint = hover_joint
-		hover0 = np.copy(mouse0)
 
 def onMouseUp(event):
 	global mousedown, move_joint
@@ -342,24 +361,11 @@ def clear_screen():
 	ctx.fillRect(0, 0, canvas.width, canvas.height)
 
 
-def draw_ground():
-	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
-	ctx.translate(0, -40)
-	ctx.lineCap = 'round'
-	ctx.lineJoin = 'round'
-	ctx.lineWidth = '5'
-	ctx.strokeStyle = '#CCCCCC'
-	ctx.beginPath()
-	ctx.moveTo(-400, 0)
-	ctx.lineTo(400, 0)
-	ctx.stroke()
-
-
 def draw_robot(x, color):
 	global hover_joint
-	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.5)
+	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.1)
 
-	f = fkin0(x, param)*100
+	f = fkin0(x, param) 
 
 	# Draw base
 	ctx.translate(f[0,0], f[1,0])
@@ -377,43 +383,44 @@ def draw_robot(x, color):
 		ctx.lineTo(-40+i*15, -60)
 		ctx.stroke()
 
-	# Draw links
+	# Draw links and articulations
+	obj_articulation = Path2D.new()
+	obj_articulation.arc(0, 0, 12, 0, 2*np.pi)
 	ctx.lineCap = 'round'
 	ctx.lineJoin = 'round'
 	for i in range(param.nbVarX):
-		# Draw links outlines
-		ctx.lineWidth = '46'
-		ctx.strokeStyle = 'white'
-		ctx.beginPath()
-		ctx.lineTo(f[0,i], f[1,i])
-		ctx.lineTo(f[0,i+1], f[1,i+1])
-		ctx.stroke()
-		# Draw links
-		ctx.lineWidth = '38'
-		ctx.strokeStyle = color
-		ctx.beginPath()
-		ctx.lineTo(f[0,i], f[1,i])
-		ctx.lineTo(f[0,i+1], f[1,i+1])
-		ctx.stroke()
+		if i &lt; param.nbVarX:
+			# Draw links outlines
+			ctx.lineWidth = '46'
+			ctx.strokeStyle = 'white'
+			ctx.beginPath()
+			ctx.lineTo(f[0,i], f[1,i])
+			ctx.lineTo(f[0,i+1], f[1,i+1])
+			ctx.stroke()
+			# Draw links
+			obj = Path2D.new()
+			obj.lineTo(f[0,i], f[1,i])
+			obj.lineTo(f[0,i+1], f[1,i+1])
+			ctx.lineWidth = '38'
+			ctx.strokeStyle = color
+			ctx.stroke(obj)
+			if ctx.isPointInStroke(obj, mouse0[0], mouse0[1]) and move_joint &lt; 0:
+				#console.log(i)
+				hover_joint = i
 
-	# Draw articulations
-	obj = Path2D.new()
-	obj.arc(0, 0, 12, 0, 2*np.pi)
-	ctx.lineWidth = '4'
-	ctx.strokeStyle = 'white'
-	for i in range(param.nbVarX+1):
+		# Draw articulations
+		ctx.lineWidth = '4'
+		ctx.strokeStyle = 'white'
 		ctx.translate(f[0,i], f[1,i])
-		ctx.stroke(obj)
-		if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
-			hover_joint = i
+		ctx.stroke(obj_articulation)
 		ctx.translate(-f[0,i], -f[1,i])
 
 
-def draw_tip(f, color):
-	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
+def draw_selected_point(f, color):
+	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.1)
 	# Draw object
 	obj = Path2D.new()
-	obj.arc(0, 0, 16, 0, 2*np.pi)
+	obj.arc(0, 0, 6, 0, 2*np.pi)
 	ctx.translate(f[0], f[1])
 	ctx.fillStyle = color
 	ctx.fill(obj)
@@ -424,37 +431,36 @@ def draw_tip(f, color):
 def errorHandler(e):
 	msg = 'Error: ' + str(e)
 	console.error(msg)
-	el = document.getElementById('repl-err')
+	el = document.getElementById('errors')
 	el.innerText = msg
 	#el.textContent = msg
 
 #########################################################################################
-x = np.zeros(param.nbVarX) # Initial robot state
-state = np.append(x, np.zeros(param.nbVarX))
-u = np.zeros(param.nbVarX)
+x = np.zeros(2*param.nbVarX) # Initial robot state (position and velocity)
 
 async def main():
-	global hover_joint, x, state
+	global hover_joint, x
 
 	while True:
-
 		try:
-			state = fdyn(state, u, param)
+			u = externalPerturbation(x, param) # Torque commands
+			ddx = fdyn(x, u, param) # Compute accelerations
+			x += np.append(x[param.nbVarX:] + 0.5 * ddx * param.dt, ddx) * param.dt # Update state
 		except Exception as e:
 			errorHandler(e)
-			state = np.zeros(param.nbVarX)
-
-		x = state[:param.nbVarX]
+			x = np.zeros(2*param.nbVarX)
+		
 		# Reinit hovering variables
 		hover_joint = -1
 
 		# Rendering
 		clear_screen()
-	#	draw_ground()
-		draw_robot(x, '#AAAAAA')
-		#draw_tip(f, '#FF3399')
+		draw_robot(x[:param.nbVarX], '#AAAAAA')
+		if move_joint &gt;= 0:
+			f = fkin(x[:move_joint+1], param2)
+			draw_selected_point(f, '#777777')
 
-		await asyncio.sleep(0.01)
+		await asyncio.sleep(0.00001)
 
 pyscript.run_until_complete(main())
 
