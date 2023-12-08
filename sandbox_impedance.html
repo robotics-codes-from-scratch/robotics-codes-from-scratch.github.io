@@ -186,14 +186,17 @@ x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0])
 f_target = fkin(np.array([-np.pi/4, -np.pi/2, np.pi/4]), param)
 
 param.damping = 20.0 # Viscous friction
-kP = 4E-2 # Stiffness gain
-kV = 1E-3 # Damping gain
+#kP = 4E-2 # Stiffness gain
+#kV = 1E-3 # Damping gain
+KP = np.diag([4E-2, 4E-2])
+KV = np.diag([1E-3, 1E-3])
 def controlCommand(x, param):
   ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
   f = fkin(x[:param.nbVarX], param)
   J = Jkin(x[:param.nbVarX], param)
   df = J @ x[param.nbVarX:]
-  u = J.T @ (kP * (f_target[:,0] - f[:,0]) - kV * df) + ug # Impedance controller
+  #u = J.T @ (kP * (f_target[:,0] - f[:,0]) - kV * df) + ug # Impedance controller
+  u = J.T @ (KP @ (f_target[:,0] - f[:,0]) - KV @ df) + ug # Impedance controller
   return u
 
 </py-repl>
