@@ -166,37 +166,40 @@ function clearMsgs() {
 <div class="tab-content" id="myTabContent">
 <div aria-labelledby="impedance-tab" class="tab-pane fade show active" id="impedance-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="repl-err" std-out="repl-out">
-x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0])
-x_target = np.array([-np.pi/4, -np.pi/2, np.pi/4])
+x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
+x_target = np.array([-np.pi/4, -np.pi/2, np.pi/4]) # Target in joint space
 param.damping = 20.0 # Viscous friction
 kP = 400.0 # Stiffness gain
 kV = 10.0 # Damping gain
+
 def controlCommand(x, param):
   # Torques for gravity compensation
   #ug = inverse_dynamics(np.append(x[:param.nbVarX], np.zeros(param.nbVarX)), np.zeros(param.nbVarX), param) 
   ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
-  u = kP * (x_target - x[:param.nbVarX]) - kV * x[param.nbVarX:] + ug # Impedance controller
+  u = kP * (x_target - x[:param.nbVarX]) - kV * x[param.nbVarX:] + ug # Impedance controller in joint space
   return u
 
 </py-repl> <!--output='repl-out' std-out='repl-out'-->
 </div>
 <div aria-labelledby="taskimpedance-tab" class="tab-pane fade" id="taskimpedance-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="errors" std-out="output">
-x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0])
-f_target = fkin(np.array([-np.pi/4, -np.pi/2, np.pi/4]), param)
+x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
+f_target = fkin(np.array([-np.pi/4, -np.pi/2, np.pi/4]), param) # Target in task space
 
 param.damping = 20.0 # Viscous friction
-#kP = 4E-2 # Stiffness gain
-#kV = 1E-3 # Damping gain
-KP = np.diag([4E-2, 4E-2])
-KV = np.diag([1E-3, 1E-3])
+#kP = 4E-2 # Stiffness gain in task space
+#kV = 1E-3 # Damping gain in task space
+KP = np.diag([4E-2, 4E-2, 4E2]) # Task space stiffness (position and orientation)
+KV = np.diag([1E-3, 1E-3, 1E1]) # Task space damping (position and orientation)
+
 def controlCommand(x, param):
   ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
   f = fkin(x[:param.nbVarX], param)
   J = Jkin(x[:param.nbVarX], param)
   df = J @ x[param.nbVarX:]
-  #u = J.T @ (kP * (f_target[:,0] - f[:,0]) - kV * df) + ug # Impedance controller
-  u = J.T @ (KP @ (f_target[:,0] - f[:,0]) - KV @ df) + ug # Impedance controller
+  #u = J.T @ (kP * (f_target - f) - kV * df) + ug # Impedance controller in task space
+  #u = J.T @ (KP @ (f_target - f) - KV @ df) + ug # Impedance controller in task space
+  u = J.T @ (KP @ logmap(f_target, f) - KV @ df) + ug # Impedance controller in task space
   return u
 
 </py-repl>
@@ -217,12 +220,20 @@ from js import Path2D, document, console
 import numpy as np
 import asyncio
 
+# Logarithmic map for R^2 x S^1 manifold
+def logmap(f, f0):
+	diff = np.zeros(3)
+	diff[:2] = f[:2] - f0[:2] # Position residual
+	diff[2] = np.imag(np.log(np.exp(f0[-1]*1j).conj().T * np.exp(f[-1]*1j).T)).conj() # Orientation residual
+	return diff
+
 # Forward kinematics for end-effector (in robot coordinate system)
 def fkin(x, param):
 	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
-	f = np.vstack([
+	f = np.stack([
 		param.l @ np.cos(L @ x),
-		param.l @ np.sin(L @ x)
+		param.l @ np.sin(L @ x),
+		np.mod(np.sum(x,0)+np.pi, 2*np.pi) - np.pi
 	])
 	return f
 
@@ -241,7 +252,8 @@ def Jkin(x, param):
 	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
 	J = np.vstack([
 		-np.sin(L @ x).T @ np.diag(param.l) @ L,
-		 np.cos(L @ x).T @ np.diag(param.l) @ L
+		 np.cos(L @ x).T @ np.diag(param.l) @ L,
+		 np.ones([1,param.nbVarX])
 	])
 	return J
 
@@ -296,7 +308,7 @@ def externalPerturbation(x, param):
 		f = fkin(x[:move_joint+1], param2)
 		J = Jkin(x[:move_joint+1], param2)
 #		pinvJ = np.linalg.inv(J.T @ J + np.eye(param2.nbVarX) * 1E-4) @ J.T # Damped pseudoinverse
-		u[:move_joint+1] = J.T @ (mouse - f[:,0]) * 1E-3 # Torque commands
+		u[:move_joint+1] = J[:2,:].T @ (mouse - f[:2]) * 5E-3 # Torque commands
 #		u[:move_joint+1] = pinvJ @ (mouse - f) * 1E1 # Torque commands
 #		u[:move_joint] = J[:,:move_joint].T @ (mouse - f) * 1E-1 # Torque commands
 	return u
@@ -443,7 +455,7 @@ def draw_selected_point(f, color):
 	# Draw object
 	obj = Path2D.new()
 	obj.arc(0, 0, 6, 0, 2*np.pi)
-	ctx.translate(f[0,0], f[1,0])
+	ctx.translate(f[0], f[1])
 	ctx.fillStyle = color
 	ctx.fill(obj)
 
