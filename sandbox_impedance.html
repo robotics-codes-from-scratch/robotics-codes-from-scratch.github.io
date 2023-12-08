@@ -157,7 +157,14 @@ function clearMsgs() {
   //console.log('event!');
 }
 </script>
-<div onclick="clearMsgs()" onkeydown="clearMsgs()">
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+<li class="nav-item" role="presentation"> <button aria-controls="impedance-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#impedance-tab-pane" data-bs-toggle="tab" id="impedance-tab" role="tab" type="button">Impedance in joint space</button>
+</li>
+<li class="nav-item" role="presentation"> <button aria-controls="taskimpedance-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#taskimpedance-tab-pane" data-bs-toggle="tab" id="taskimpedance-tab" role="tab" type="button">Impedance in task space</button>
+</li>
+</ul>
+<div class="tab-content" id="myTabContent">
+<div aria-labelledby="impedance-tab" class="tab-pane fade show active" id="impedance-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="repl-err" std-out="repl-out">
 x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0])
 x_target = np.array([-np.pi/4, -np.pi/2, np.pi/4])
@@ -165,12 +172,32 @@ param.damping = 20.0 # Viscous friction
 kP = 400.0 # Stiffness gain
 kV = 10.0 # Damping gain
 def controlCommand(x, param):
-  #ug = inverse_dynamics(np.append(x[:param.nbVarX], np.zeros(param.nbVarX)), np.zeros(param.nbVarX), param) # Torques for gravity compensation
+  # Torques for gravity compensation
+  #ug = inverse_dynamics(np.append(x[:param.nbVarX], np.zeros(param.nbVarX)), np.zeros(param.nbVarX), param) 
   ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
   u = kP * (x_target - x[:param.nbVarX]) - kV * x[param.nbVarX:] + ug # Impedance controller
   return u
 
 </py-repl> <!--output='repl-out' std-out='repl-out'-->
+</div>
+<div aria-labelledby="taskimpedance-tab" class="tab-pane fade" id="taskimpedance-tab-pane" role="tabpanel" tabindex="0">
+<py-repl std-err="errors" std-out="output">
+x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0])
+f_target = fkin(np.array([-np.pi/4, -np.pi/2, np.pi/4]), param)
+
+param.damping = 20.0 # Viscous friction
+kP = 4E-2 # Stiffness gain
+kV = 1E-3 # Damping gain
+def controlCommand(x, param):
+  ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
+  f = fkin(x[:param.nbVarX], param)
+  J = Jkin(x[:param.nbVarX], param)
+  df = J @ x[param.nbVarX:]
+  u = J.T @ (kP * (f_target[:,0] - f[:,0]) - kV * df) + ug # Impedance controller
+  return u
+
+</py-repl>
+</div>
 </div>
 <p id="repl-out" style="font-size: 70%; color: #777777;">(click on the green run button to run the code; the robot can be perturbed using the mouse)</p>
 <p id="repl-err" style="font-size: 70%; color: #880000;"></p>
@@ -190,7 +217,10 @@ import asyncio
 # Forward kinematics for end-effector (in robot coordinate system)
 def fkin(x, param):
 	L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
-	f = [param.l @ np.cos(L @ x), param.l @ np.sin(L @ x)]
+	f = np.vstack([
+		param.l @ np.cos(L @ x),
+		param.l @ np.sin(L @ x)
+	])
 	return f
 
 # Forward kinematics for all joints (in robot coordinate system)
@@ -263,7 +293,7 @@ def externalPerturbation(x, param):
 		f = fkin(x[:move_joint+1], param2)
 		J = Jkin(x[:move_joint+1], param2)
 #		pinvJ = np.linalg.inv(J.T @ J + np.eye(param2.nbVarX) * 1E-4) @ J.T # Damped pseudoinverse
-		u[:move_joint+1] = J.T @ (mouse - f) * 1E-3 # Torque commands
+		u[:move_joint+1] = J.T @ (mouse - f[:,0]) * 1E-3 # Torque commands
 #		u[:move_joint+1] = pinvJ @ (mouse - f) * 1E1 # Torque commands
 #		u[:move_joint] = J[:,:move_joint].T @ (mouse - f) * 1E-1 # Torque commands
 	return u
@@ -410,7 +440,7 @@ def draw_selected_point(f, color):
 	# Draw object
 	obj = Path2D.new()
 	obj.arc(0, 0, 6, 0, 2*np.pi)
-	ctx.translate(f[0], f[1])
+	ctx.translate(f[0,0], f[1,0])
 	ctx.fillStyle = color
 	ctx.fill(obj)
 
