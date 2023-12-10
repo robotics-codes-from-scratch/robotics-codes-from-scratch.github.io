@@ -163,12 +163,15 @@ function clearMsgs() {
 </li>
 <li class="nav-item" role="presentation"> <button aria-controls="taskimpedance-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#taskimpedance-tab-pane" data-bs-toggle="tab" id="taskimpedance-tab" role="tab" type="button">Impedance in task space</button>
 </li>
+<li class="nav-item" role="presentation"> <button aria-controls="taskimpedance2-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#taskimpedance2-tab-pane" data-bs-toggle="tab" id="taskimpedance2-tab" role="tab" type="button">Impedance in task space with SDF</button>
+</li>
 </ul>
 <div class="tab-content" id="myTabContent">
 <div aria-labelledby="impedance-tab" class="tab-pane fade show active" id="impedance-tab-pane" role="tabpanel" tabindex="0">
 <py-repl id="myrepl" std-err="repl-err" std-out="repl-out">
 x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
 x_target = np.array([-np.pi/4, -np.pi/2, np.pi/4]) # Target in joint space
+
 param.damping = 20.0 # Viscous friction
 kP = 400.0 # Stiffness gain
 kV = 10.0 # Damping gain
@@ -179,7 +182,6 @@ def controlCommand(x, param):
     ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
     u = kP * (x_target - x[:param.nbVarX]) - kV * x[param.nbVarX:] + ug # Impedance controller in joint space
     return u
-
 </py-repl> <!--output='repl-out' std-out='repl-out'-->
 </div>
 <div aria-labelledby="taskimpedance-tab" class="tab-pane fade" id="taskimpedance-tab-pane" role="tabpanel" tabindex="0">
@@ -187,7 +189,6 @@ def controlCommand(x, param):
 x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
 f_target = fkin(np.array([-np.pi/4, -np.pi/2, np.pi/4]), param) # Target in task space
 
-param.damping = 20.0 # Viscous friction
 #kP = 4E-2 # Stiffness gain in task space
 #kV = 1E-3 # Damping gain in task space
 KP = np.diag([4E-2, 4E-2, 4E2]) # Task space stiffness (position and orientation)
@@ -202,7 +203,25 @@ def controlCommand(x, param):
     #u = J.T @ (KP @ (f_target - f) - KV @ df) + ug # Impedance controller in task space
     u = J.T @ (KP @ logmap(f_target, f) - KV @ df) + ug # Impedance controller in task space
     return u
+</py-repl>
+</div>
+<div aria-labelledby="taskimpedance2-tab" class="tab-pane fade" id="taskimpedance2-tab-pane" role="tabpanel" tabindex="0">
+<py-repl std-err="errors" std-out="output">
+x = np.array([-np.pi/4, -np.pi/3, np.pi/4, 0, 0, 0]) # Initial robot pose
+f_target = np.array([-50.0, -400.0, 0]) # SDF location in task space 
 
+KP = np.diag([4E-2, 4E-2, 4E2]) # Task space stiffness (position and orientation)
+KV = np.diag([1E-3, 1E-3, 1E1]) # Task space damping (position and orientation)
+
+def controlCommand(x, param):
+    ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
+    f = fkin(x[:param.nbVarX], param)
+    J = Jkin(x[:param.nbVarX], param)
+    df = J @ x[param.nbVarX:]
+    dist,grad = sdf(f)
+    grad[:2] = grad[:2] * dist
+    u = J.T @ (KP @ grad - KV @ df) + ug # Impedance controller in task space
+    return u
 </py-repl>
 </div>
 </div>
@@ -220,6 +239,21 @@ from pyodide.ffi import create_proxy
 from js import Path2D, document, console
 import numpy as np
 import asyncio
+
+# SDF for circle
+def sdf_circle(f, p, r):
+	return np.linalg.norm(p-f) - r 
+
+# SDF
+def sdf(f):
+    dist = sdf_circle(f, f_target, 80.0) # Distance
+    #grad = f_target[:2] - f 
+    #grad = grad / np.linalg.norm(grad) # Gradient
+    fh = f_target
+    fh[2] = np.arctan2(f_target[1]-f[1], f_target[0]-f[0])
+    grad = logmap(fh, f)
+    grad[:2] = grad[:2] / np.linalg.norm(grad[:2]) # Gradient
+    return dist,grad 
 
 # Logarithmic map for R^2 x S^1 manifold
 def logmap(f, f0):
@@ -384,7 +418,6 @@ document.addEventListener('touchend', create_proxy(onMouseUp)) #for mobile inter
 
 document.addEventListener('wheel', create_proxy(onWheel)) #for standard mouse
 
-
 #########################################################################################
 
 canvas = document.getElementById('canvas')
@@ -394,7 +427,6 @@ def clear_screen():
 	ctx.setTransform(1, 0, 0, 1, 0, 0)
 	ctx.fillStyle = 'white'
 	ctx.fillRect(0, 0, canvas.width, canvas.height)
-
 
 def draw_robot(x, color):
 	global hover_joint
@@ -450,7 +482,6 @@ def draw_robot(x, color):
 		ctx.stroke(obj_articulation)
 		ctx.translate(-f[0,i], -f[1,i])
 
-
 def draw_selected_point(f, color):
 	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.1)
 	# Draw object
@@ -460,6 +491,14 @@ def draw_selected_point(f, color):
 	ctx.fillStyle = color
 	ctx.fill(obj)
 
+def draw_circle(f, r, color):
+	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.1)
+	# Draw object
+	obj = Path2D.new()
+	obj.arc(0, 0, r, 0, 2*np.pi)
+	ctx.translate(f[0], f[1])
+	ctx.strokeStyle = color
+	ctx.stroke(obj)
 
 #########################################################################################
 
@@ -494,18 +533,19 @@ async def main():
 		# Rendering
 		clear_screen()
 		
-		tab_id0 = document.getElementById('impedance-tab').ariaSelected
-		if tab_id0=='true':
+		if document.getElementById('impedance-tab').ariaSelected=='true':
 			draw_robot(x_target[:param.nbVarX], '#FF3399')
 		
 		draw_robot(x[:param.nbVarX], '#AAAAAA')
 		if move_joint &gt;= 0:
 			f = fkin(x[:move_joint+1], param2)
 			draw_selected_point(f, '#777777')
-			
-		tab_id1 = document.getElementById('taskimpedance-tab').ariaSelected
-		if tab_id1=='true':
+		 
+		if document.getElementById('taskimpedance-tab').ariaSelected=='true':
 			draw_selected_point(f_target, '#FF3399')
+		
+		if document.getElementById('taskimpedance2-tab').ariaSelected=='true':
+		    draw_circle(f_target, 80.0, '#FF3399')
 
 		await asyncio.sleep(0.00001)
 

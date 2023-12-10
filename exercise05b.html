@@ -221,7 +221,7 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 <p>Inverse dynamics is the problem of computing the joint torques of a robot given its joint positions, velocities and accelerations: <span class="ltx_Math">\bm{\tau} = \bm{M}(\bm{q})\bm{\ddot{q}}+ \bm{C}(\bm{q},\bm{\dot{q}}) + \bm{g}(\bm{q})</span>.</p>
 <p>The goal of this exercise is to understand the different terms in the inverse dynamics problem formulation and to control the robot to reach a desired position using <b>joint space impedance control</b>.</p>
 <p>The function <code>inverse_dynamics(x, ddq, param)</code> implements the inverse dynamics model for a planar manipulator. Its outputs are joint torques.</p>
-<p>The function <code>controlCommand(x, param)</code> takes the current state of the robot <span class="ltx_Math">\bm{x}=[\bm{q}, \bm{\dot{q}}]</span> as input and outputs joint torque commands <code>\bm{u}</code> that are sent to the robot.
+<p>The function <code>controlCommand(x, param)</code> takes the current state of the robot <span class="ltx_Math">\bm{x}=[\bm{q}, \bm{\dot{q}}]</span> as input and outputs joint torque commands <code>u</code> that are sent to the robot.
 <p>
 <ul class="list-group list-group-numbered">
 <li class="list-group-item">

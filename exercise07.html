@@ -264,7 +264,7 @@ Q2 = np.eye(param.nbVarF)
 Q3 = np.eye(param.nbVarF)
 
 # Time occurrence of viapoints
-tl = np.array([17, 34, 49])
+tl = np.array([33, 66, 100])
 
 # Joint angle configuration at the first viapoint
 # print(x[:,tl[0]])
@@ -309,7 +309,7 @@ Q2 = np.eye(param.nbVarF)
 Q3 = np.eye(param.nbVarF)
 
 # Time occurrence of viapoints
-tl = np.array([17, 34, 49])
+tl = np.array([33, 66, 100])
 
 def compute_fJ(x, param):
     # Viapoint residuals
@@ -393,8 +393,8 @@ seg37_svg = Path2D.new('m -23.186087,-46.845579 h 5.542233 v 0')
 simulation_speed = 10
 
 param = lambda: None # Lazy way to define an empty class in python
-param.dt = 1e-2 # Time step length
-param.nbData = 50 # Number of datapoints
+param.dt = 1E-2 # Time step length
+param.nbData = 101 # Number of datapoints
 param.nbIter = 20 # Maximum number of iterations for iLQR
 param.nbPoints = 3 # Number of viapoints
 param.nbVarX = 3 # State space dimension (x1,x2,x3)
@@ -427,7 +427,7 @@ Q[param.nbVarX:param.nbVarX+param.nbVarF, param.nbVarX:param.nbVarX+param.nbVarF
 Q[param.nbVarX+param.nbVarF:param.nbVarX+2*param.nbVarF, param.nbVarX+param.nbVarF:param.nbVarX+2*param.nbVarF] = Q3
 
 # Time occurrence of viapoints
-tl = np.array([17, 34, 49])
+tl = np.array([34, 70, 100])
 idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)])
 
 # Transfer matrices (for linear system as single integrator)
