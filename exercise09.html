@@ -21,6 +21,7 @@
 <script src="js/bootstrap.bundle.min.js"></script>
 
 <script defer="" src="https://pyscript.net/latest/pyscript.min.js"></script>
+<!--<script defer src='js/pyscript.js'></script>-->
 <py-config type="toml">
 
 				packages = ['numpy']
@@ -248,64 +249,67 @@ Change this function to send velocity commands <code>u</code> to reach the targe
 x = np.array([-0.8, 1.8, 3.0]) # Initial robot state
 
 def controlCommand(x, param):
-  f = fkin(x, param) # End-effector position and orientation
-  J = Jkin(x, param) # Jacobian matrix
-  r_ori = logmap(param.Mu[2:], f[2:]) # Orientation residual
-#   r_ori = param.Mu[-1] - f[-1] # Orientation residual (Euclidean distance)
+    f = fkin(x, param) # End-effector position and orientation
+    J = Jkin(x, param) # Jacobian matrix
+    r_ori = logmap(param.Mu[2:], f[2:]) # Orientation residual
+    #r_ori = param.Mu[-1] - f[-1] # Orientation residual (Euclidean distance)
 
-  u = np.zeros(param.nbVarX) # Implement here
+    u = np.zeros(param.nbVarX) # Implement here
 
-  return u
-        </py-repl>
+    return u
+    
+</py-repl>
 </div>
 <div aria-labelledby="answer4-tab" class="tab-pane fade" id="answer4-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="errors" std-out="output">
 x = np.array([-0.8, 1.8, 3.0]) # Initial robot state
 
 def controlCommand(x, param):
-  f = fkin(x, param) # End-effector position and orientation
-  J = Jkin(x, param) # Jacobian matrix
-  J_ori = J[2:,:] # Jacobian matrix for orientation
-  r_ori = logmap(param.Mu[2:], f[2:]) # Orientation residual
-  # r_ori = param.Mu[2:] - f[2:] # Orientation residual (as Euclidean distance)
+    f = fkin(x, param) # End-effector position and orientation
+    J = Jkin(x, param) # Jacobian matrix
+    J_ori = J[2:,:] # Jacobian matrix for orientation
+    r_ori = logmap(param.Mu[2:], f[2:]) # Orientation residual
+    # r_ori = param.Mu[2:] - f[2:] # Orientation residual (as Euclidean distance)
 
-  u = 0.1 * np.linalg.pinv(J_ori) @ r_ori # Orientation tracking (with step size 0.1)
+    u = 0.1 * np.linalg.pinv(J_ori) @ r_ori # Orientation tracking (with step size 0.1)
 
-  return u
-        </py-repl>
+    return u
+    
+</py-repl>
 </div>
 <div aria-labelledby="answer2-tab" class="tab-pane fade" id="answer2-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="errors" std-out="output">
 x = np.array([-0.8, 1.8, 3.0]) # Initial robot state
 
 def controlCommand(x, param):
-  f = fkin(x, param) # End-effector position and orientation
-  J = Jkin(x, param) # Jacobian matrix
-  J_pos = J[:2,:] # Jacobian matrix for position
-  J_ori = J[2:,:] # Jacobian matrix for orientation
-  r_pos = (param.Mu[:2] - f[:2]) # Position residual
-  r_ori = (param.Mu[2:] - f[2:]) # Orientation residual
+    f = fkin(x, param) # End-effector position and orientation
+    J = Jkin(x, param) # Jacobian matrix
+    J_pos = J[:2,:] # Jacobian matrix for position
+    J_ori = J[2:,:] # Jacobian matrix for orientation
+    r_pos = (param.Mu[:2] - f[:2]) # Position residual
+    r_ori = (param.Mu[2:] - f[2:]) # Orientation residual
 
-  # Prioritized control (orientation tracking prioritized over position tracking)
-  pinv_J_ori = np.linalg.inv(J_ori.T @ J_ori + np.eye(param.nbVarX) * 1E-2) @ J_ori.T # Damped pseudoinverse
-  N_ori = np.eye(param.nbVarX) - pinv_J_ori @ J_ori # Nullspace projection operator
-  u_ori = 0.1 * pinv_J_ori @ r_ori # Command for position tracking (with step size 0.1)
-  J_pos_N_ori = J_pos @ N_ori
-  pinv_J_pos_N_ori = J_pos_N_ori.T @ np.linalg.inv(J_pos_N_ori @ J_pos_N_ori.T + np.eye(2) * 1E1) # Damped pseudoinverse
-  u_pos = 0.1 * pinv_J_pos_N_ori @ (r_pos - J_pos @ u_ori) # Command for orientation tracking (with position tracking prioritized)
-  u = u_ori + N_ori @ u_pos # Control commands
+    # Prioritized control (orientation tracking prioritized over position tracking)
+    pinv_J_ori = np.linalg.inv(J_ori.T @ J_ori + np.eye(param.nbVarX) * 1E-2) @ J_ori.T # Damped pseudoinverse
+    N_ori = np.eye(param.nbVarX) - pinv_J_ori @ J_ori # Nullspace projection operator
+    u_ori = 0.1 * pinv_J_ori @ r_ori # Command for position tracking (with step size 0.1)
+    J_pos_N_ori = J_pos @ N_ori
+    pinv_J_pos_N_ori = J_pos_N_ori.T @ np.linalg.inv(J_pos_N_ori @ J_pos_N_ori.T + np.eye(2) * 1E1) # Damped pseudoinverse
+    u_pos = 0.1 * pinv_J_pos_N_ori @ (r_pos - J_pos @ u_ori) # Command for orientation tracking (with position tracking prioritized)
+    u = u_ori + N_ori @ u_pos # Control commands
 
-  # # Prioritized control (position tracking prioritized over orientation tracking)
-  # pinv_J_pos = np.linalg.inv(J_pos.T @ J_pos + np.eye(param.nbVarX) * 1E-2) @ J_pos.T # Damped pseudoinverse
-  # N_pos = np.eye(param.nbVarX) - pinv_J_pos @ J_pos # Nullspace projection operator
-  # u_pos = 0.1 * pinv_J_pos @ r_pos # Command for position tracking (with step size 0.1)
-  # J_ori_N_pos = J_ori @ N_pos
-  # pinv_J_ori_N_pos = J_ori_N_pos.T @ np.linalg.inv(J_ori_N_pos @ J_ori_N_pos.T + np.eye(1) * 1E1) # Damped pseudoinverse
-  # u_ori = 0.1 * pinv_J_ori_N_pos @ (r_ori - J_ori @ u_pos) # Command for orientation tracking (with position tracking prioritized)
-  # u = u_pos + N_pos @ u_ori # Control commands
+    # # Prioritized control (position tracking prioritized over orientation tracking)
+    # pinv_J_pos = np.linalg.inv(J_pos.T @ J_pos + np.eye(param.nbVarX) * 1E-2) @ J_pos.T # Damped pseudoinverse
+    # N_pos = np.eye(param.nbVarX) - pinv_J_pos @ J_pos # Nullspace projection operator
+    # u_pos = 0.1 * pinv_J_pos @ r_pos # Command for position tracking (with step size 0.1)
+    # J_ori_N_pos = J_ori @ N_pos
+    # pinv_J_ori_N_pos = J_ori_N_pos.T @ np.linalg.inv(J_ori_N_pos @ J_ori_N_pos.T + np.eye(1) * 1E1) # Damped pseudoinverse
+    # u_ori = 0.1 * pinv_J_ori_N_pos @ (r_ori - J_ori @ u_pos) # Command for orientation tracking (with position tracking prioritized)
+    # u = u_pos + N_pos @ u_ori # Control commands
 
-  return u
-        </py-repl> <!--output='repl-out' std-out='repl-out'-->
+    return u
+  
+</py-repl> <!--output='repl-out' std-out='repl-out'-->
 </div>
 </div>
 <br/><br/>
@@ -346,8 +350,8 @@ def controlCommand(x, param):
 </div> <!--sm-4-->
 </div> <!--row-->
 <py-script>
-    def print(x):
-        display(x, target='output')
+def print(x):
+    display(x, target='output')
 </py-script>
 <py-script std-err="errors" std-out="output">
 from pyodide.ffi import create_proxy

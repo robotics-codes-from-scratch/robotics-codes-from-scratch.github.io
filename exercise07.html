@@ -21,6 +21,7 @@
 <script src="js/bootstrap.bundle.min.js"></script>
 
 <script defer="" src="https://pyscript.net/latest/pyscript.min.js"></script>
+<!--<script defer src='js/pyscript.js'></script>-->
 <py-config type="toml">
 
 				packages = ['numpy']
@@ -279,23 +280,23 @@ tl = np.array([17, 34, 49])
 # print(param.viapoint3) #Third viapoint
 
 def compute_fJ(x, param):
-  # Residual when reaching the first viapoint (in joint space, orange robot)
-  f1 = np.zeros(param.nbVarX) # To be replaced
-  # Residual when reaching the second viapoint (in task space, pink object)
-  f2 = np.zeros(param.nbVarF) # To be replaced
-  # Residual when reaching the third viapoint (in task space, green object)
-  f3 = np.zeros(param.nbVarF) # To be replaced
-  # Jacobian of the residual when reaching the first viapoint (in joint space, orange robot)
-  J1 = np.zeros((param.nbVarX, param.nbVarX)) # To be replaced
-  # Jacobian of the residual when reaching the second viapoint (in task space, pink object)
-  J2 = np.zeros((param.nbVarF, param.nbVarX)) # To be replaced
-  # Jacobian of the residual when reaching the third viapoint (in task space, green object)
-  J3 = np.zeros((param.nbVarF, param.nbVarX)) # To be replaced
-  return f1,f2,f3,J1,J2,J3
+    # Residual when reaching the first viapoint (in joint space, orange robot)
+    f1 = np.zeros(param.nbVarX) # To be replaced
+    # Residual when reaching the second viapoint (in task space, pink object)
+    f2 = np.zeros(param.nbVarF) # To be replaced
+    # Residual when reaching the third viapoint (in task space, green object)
+    f3 = np.zeros(param.nbVarF) # To be replaced
+    # Jacobian of the residual when reaching the first viapoint (in joint space, orange robot)
+    J1 = np.zeros((param.nbVarX, param.nbVarX)) # To be replaced
+    # Jacobian of the residual when reaching the second viapoint (in task space, pink object)
+    J2 = np.zeros((param.nbVarF, param.nbVarX)) # To be replaced
+    # Jacobian of the residual when reaching the third viapoint (in task space, green object)
+    J3 = np.zeros((param.nbVarF, param.nbVarX)) # To be replaced
+    return f1,f2,f3,J1,J2,J3
 
 update_iLQR()
 
-		</py-repl>
+</py-repl>
 </div>
 <div aria-labelledby="question2-tab" class="tab-pane fade" id="question2-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="errors" std-out="output">
@@ -311,19 +312,19 @@ Q3 = np.eye(param.nbVarF)
 tl = np.array([17, 34, 49])
 
 def compute_fJ(x, param):
-  # Viapoint residuals
-  f1 = x[:,tl[0]] - param.viapoint1
-  f2 = fkin(x[:,tl[1]], param) - param.viapoint2
-  f3 = fkin(x[:,tl[2]], param) - param.viapoint3
-  # Corresponding Jacobians
-  J1 = np.eye(param.nbVarX)
-  J2 = Jkin(x[:,tl[1]], param)
-  J3 = Jkin(x[:,tl[2]], param)
-  return f1,f2,f3,J1,J2,J3
+    # Viapoint residuals
+    f1 = x[:,tl[0]] - param.viapoint1
+    f2 = fkin(x[:,tl[1]], param) - param.viapoint2
+    f3 = fkin(x[:,tl[2]], param) - param.viapoint3
+    # Corresponding Jacobians
+    J1 = np.eye(param.nbVarX)
+    J2 = Jkin(x[:,tl[1]], param)
+    J3 = Jkin(x[:,tl[2]], param)
+    return f1,f2,f3,J1,J2,J3
 
 update_iLQR()
 
-		</py-repl>
+</py-repl>
 </div><br/>
 </div>
 </div> <!--sm-7-->
@@ -352,8 +353,8 @@ update_iLQR()
 </div> <!--sm-4-->
 </div> <!--row-->
 <py-script>
-    def print(x):
-        display(x, target='output')
+def print(x):
+    display(x, target='output')
 </py-script>
 <py-script std-err="errors" std-out="output">
 from pyodide.ffi import create_proxy

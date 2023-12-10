@@ -21,6 +21,7 @@
 <script src="js/bootstrap.bundle.min.js"></script>
 
 <script defer="" src="https://pyscript.net/latest/pyscript.min.js"></script>
+<!--<script defer src='js/pyscript.js'></script>-->
 <py-config type="toml">
 
 				packages = ['numpy']
@@ -251,27 +252,27 @@ q_target = np.array([-np.pi/4, -np.pi/2, np.pi/4])
 kP = 400.0 # Stiffness gain
 kV = 10.0 # Damping gain
 def controlCommand(x, param):
-  q = x[:param.nbVarX]
-  dq = x[param.nbVarX:]
-  u = np.zeros(param.nbVarX)
-	
-  # Question 1: Gravity compensation
-  # u = inverse_dynamics(x, ddq, param) # Gravity compensation and Coriolis force compensation
+    q = x[:param.nbVarX]
+    dq = x[param.nbVarX:]
+    u = np.zeros(param.nbVarX)
 
-  # Question 2: Joint impedance control for reaching upright position
-  # u = ... # Implement here
+    # Question 1: Gravity compensation
+    # u = inverse_dynamics(x, ddq, param) # Gravity compensation and Coriolis force compensation
 
-  return u
+    # Question 2: Joint impedance control for reaching upright position
+    # u = ... # Implement here
+
+    return u
 
 </py-repl>
 </div>
 <div aria-labelledby="answer1-tab" class="tab-pane fade" id="answer1-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="errors" std-out="output">
 def controlCommand(x, param):
-  # Question 1: Gravity Compensation Term (g(q))
-  xtmp = np.append(x[:param.nbVarX], np.zeros(param.nbVarX))
-  u = inverse_dynamics(xtmp, np.zeros(param.nbVarX), param)
-  return u
+    # Question 1: Gravity Compensation Term (g(q))
+    xtmp = np.append(x[:param.nbVarX], np.zeros(param.nbVarX))
+    u = inverse_dynamics(xtmp, np.zeros(param.nbVarX), param)
+    return u
 
 </py-repl>
 </div>
@@ -281,11 +282,11 @@ q_target = np.array([-np.pi/4, -np.pi/2, np.pi/4])
 kP = 400.0 # Stiffness gain
 kV = 10.0 # Damping gain
 def controlCommand(x, param):
-  # Question 2: Joint impedance control for reaching upright position 
-  q = x[:param.nbVarX]
-  dq = x[param.nbVarX:]
-  u = kP * (q_target - q) - kV * dq + inverse_dynamics(x, np.zeros(param.nbVarX), param)
-  return u
+    # Question 2: Joint impedance control for reaching upright position 
+    q = x[:param.nbVarX]
+    dq = x[param.nbVarX:]
+    u = kP * (q_target - q) - kV * dq + inverse_dynamics(x, np.zeros(param.nbVarX), param)
+    return u
 
 </py-repl>
 </div>
@@ -314,8 +315,8 @@ def controlCommand(x, param):
 </div> <!--sm-4-->
 </div> <!--row-->
 <py-script>
-    def print(x):
-        display(x, target='output')
+def print(x):
+    display(x, target='output')
 </py-script>
 <py-script std-err="errors" std-out="output">
 from pyodide.ffi import create_proxy

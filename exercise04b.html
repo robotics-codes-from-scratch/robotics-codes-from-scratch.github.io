@@ -21,6 +21,7 @@
 <script src="js/bootstrap.bundle.min.js"></script>
 
 <script defer="" src="https://pyscript.net/latest/pyscript.min.js"></script>
+<!--<script defer src='js/pyscript.js'></script>-->
 <py-config type="toml">
 
 				packages = ['numpy']
@@ -189,48 +190,42 @@ Change this function to send velocity commands <code>u</code> to reach the targe
 <div class="tab-content" id="myTabContent">
 <div aria-labelledby="question4-tab" class="tab-pane fade show active" id="question4-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="errors" std-out="output">
-		x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
-		def controlCommand(x, param):
-		  target_position = param.Mu[:2]
-		  current_ee_position = fkin(x, param)[:2]
-		  jacobian = Jkin(x, param)[:2]
-
-		  u = np.zeros(param.nbVarX) # Implement here
-
-		  return u
-		</py-repl>
+x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
+def controlCommand(x, param):
+    target_position = param.Mu[:2]
+    current_ee_position = fkin(x, param)[:2]
+    jacobian = Jkin(x, param)[:2]
+    u = np.zeros(param.nbVarX) # Implement here
+    return u
+</py-repl>
 </div>
 <div aria-labelledby="answer4-tab" class="tab-pane fade" id="answer4-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="errors" std-out="output">
-		x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
-		def controlCommand(x, param):
-		  # Answer 1:
-		  alpha = 10. # See how alpha changes the reaction of the robot. What is a good way to automatically adjust it?
-		  target_position = param.Mu[:2]
-		  current_ee_position = fkin(x, param)[:2]
-		  jacobian = Jkin(x, param)[:2]
-
-		  u = alpha * np.linalg.pinv(jacobian) @ (target_position - current_ee_position) # Position tracking
-
-		  return u
-		</py-repl>
+x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
+def controlCommand(x, param):
+    # Answer 1:
+    alpha = 10. # See how alpha changes the reaction of the robot. What is a good way to automatically adjust it?
+    target_position = param.Mu[:2]
+    current_ee_position = fkin(x, param)[:2]
+    jacobian = Jkin(x, param)[:2]
+    u = alpha * np.linalg.pinv(jacobian) @ (target_position - current_ee_position) # Position tracking
+    return u
+</py-repl>
 </div>
 <div aria-labelledby="answer2-tab" class="tab-pane fade" id="answer2-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="errors" std-out="output">
-		x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
-		x_hat = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Desired robot state
-		def controlCommand(x, param):
-		  target_position = param.Mu[:2]
-		  current_ee_position = fkin(x, param)[:2]
-		  jacobian = Jkin(x, param)[:2]
-
-		  # Answer 2:
-		  jacobian_pinv = np.linalg.pinv(jacobian)
-		  nullspace_matrix = np.eye(param.nbVarX) - jacobian_pinv @ jacobian # Nullspace projection operator
-		  u = jacobian_pinv @ (target_position - current_ee_position) + nullspace_matrix @ (x_hat - x)
-
-		  return u
-		</py-repl> <!--output='repl-out' std-out='repl-out'-->
+x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
+x_hat = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Desired robot state
+def controlCommand(x, param):
+    target_position = param.Mu[:2]
+    current_ee_position = fkin(x, param)[:2]
+    jacobian = Jkin(x, param)[:2]
+    # Answer 2:
+    jacobian_pinv = np.linalg.pinv(jacobian)
+    nullspace_matrix = np.eye(param.nbVarX) - jacobian_pinv @ jacobian # Nullspace projection operator
+    u = jacobian_pinv @ (target_position - current_ee_position) + nullspace_matrix @ (x_hat - x)
+    return u
+</py-repl> <!--output='repl-out' std-out='repl-out'-->
 </div>
 </div>
 <br/><br/>
@@ -258,8 +253,8 @@ Change this function to send velocity commands <code>u</code> to reach the targe
 </div> <!--sm-4-->
 </div> <!--row-->
 <py-script>
-    def print(x):
-        display(x, target='output')
+def print(x):
+    display(x, target='output')
 </py-script>
 <py-script std-err="errors" std-out="output">
 from pyodide.ffi import create_proxy

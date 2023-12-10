@@ -21,6 +21,7 @@
 <script src="js/bootstrap.bundle.min.js"></script>
 
 <script defer="" src="https://pyscript.net/latest/pyscript.min.js"></script>
+<!--<script defer src='js/pyscript.js'></script>-->
 <py-config type="toml">
 
 				packages = ['numpy']
@@ -165,7 +166,7 @@ function clearMsgs() {
 </ul>
 <div class="tab-content" id="myTabContent">
 <div aria-labelledby="impedance-tab" class="tab-pane fade show active" id="impedance-tab-pane" role="tabpanel" tabindex="0">
-<py-repl std-err="repl-err" std-out="repl-out">
+<py-repl id="myrepl" std-err="repl-err" std-out="repl-out">
 x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
 x_target = np.array([-np.pi/4, -np.pi/2, np.pi/4]) # Target in joint space
 param.damping = 20.0 # Viscous friction
@@ -173,11 +174,11 @@ kP = 400.0 # Stiffness gain
 kV = 10.0 # Damping gain
 
 def controlCommand(x, param):
-  # Torques for gravity compensation
-  #ug = inverse_dynamics(np.append(x[:param.nbVarX], np.zeros(param.nbVarX)), np.zeros(param.nbVarX), param) 
-  ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
-  u = kP * (x_target - x[:param.nbVarX]) - kV * x[param.nbVarX:] + ug # Impedance controller in joint space
-  return u
+    # Torques for gravity compensation
+    #ug = inverse_dynamics(np.append(x[:param.nbVarX], np.zeros(param.nbVarX)), np.zeros(param.nbVarX), param) 
+    ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
+    u = kP * (x_target - x[:param.nbVarX]) - kV * x[param.nbVarX:] + ug # Impedance controller in joint space
+    return u
 
 </py-repl> <!--output='repl-out' std-out='repl-out'-->
 </div>
@@ -193,14 +194,14 @@ KP = np.diag([4E-2, 4E-2, 4E2]) # Task space stiffness (position and orientation
 KV = np.diag([1E-3, 1E-3, 1E1]) # Task space damping (position and orientation)
 
 def controlCommand(x, param):
-  ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
-  f = fkin(x[:param.nbVarX], param)
-  J = Jkin(x[:param.nbVarX], param)
-  df = J @ x[param.nbVarX:]
-  #u = J.T @ (kP * (f_target - f) - kV * df) + ug # Impedance controller in task space
-  #u = J.T @ (KP @ (f_target - f) - KV @ df) + ug # Impedance controller in task space
-  u = J.T @ (KP @ logmap(f_target, f) - KV @ df) + ug # Impedance controller in task space
-  return u
+    ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
+    f = fkin(x[:param.nbVarX], param)
+    J = Jkin(x[:param.nbVarX], param)
+    df = J @ x[param.nbVarX:]
+    #u = J.T @ (kP * (f_target - f) - kV * df) + ug # Impedance controller in task space
+    #u = J.T @ (KP @ (f_target - f) - KV @ df) + ug # Impedance controller in task space
+    u = J.T @ (KP @ logmap(f_target, f) - KV @ df) + ug # Impedance controller in task space
+    return u
 
 </py-repl>
 </div>
@@ -472,6 +473,8 @@ def errorHandler(e):
 #########################################################################################
 #x = np.zeros(2*param.nbVarX) # Initial robot state (position and velocity)
 x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot state (position and velocity)
+x_target = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Target in joint space
+f_target = fkin(np.array([-np.pi/4, -np.pi/2, np.pi/4]), param) # Target in task space
 
 async def main():
 	global hover_joint, x
@@ -490,10 +493,19 @@ async def main():
 
 		# Rendering
 		clear_screen()
+		
+		tab_id0 = document.getElementById('impedance-tab').ariaSelected
+		if tab_id0=='true':
+			draw_robot(x_target[:param.nbVarX], '#FF3399')
+		
 		draw_robot(x[:param.nbVarX], '#AAAAAA')
 		if move_joint &gt;= 0:
 			f = fkin(x[:move_joint+1], param2)
 			draw_selected_point(f, '#777777')
+			
+		tab_id1 = document.getElementById('taskimpedance-tab').ariaSelected
+		if tab_id1=='true':
+			draw_selected_point(f_target, '#FF3399')
 
 		await asyncio.sleep(0.00001)
 

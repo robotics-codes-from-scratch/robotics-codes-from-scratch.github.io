@@ -21,6 +21,7 @@
 <script src="js/bootstrap.bundle.min.js"></script>
 
 <script defer="" src="https://pyscript.net/latest/pyscript.min.js"></script>
+<!--<script defer src='js/pyscript.js'></script>-->
 <py-config type="toml">
 
                 packages = ['numpy']
@@ -155,9 +156,9 @@
 <br/><br/>
 <script>
 function clearMsgs() {
-  const el = document.getElementById('repl-err');
-  el.innerText = '';
-  //console.log('event!');
+    const el = document.getElementById('repl-err');
+    el.innerText = '';
+    //console.log('event!');
 }
 </script>
 <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -236,126 +237,126 @@ accessible from Python -->
     import { Viewer3D } from './viewer3d/viewer3d.js';
 </script>
 <py-script>
-        from viewer3d import Viewer3D
-        from js import document, Themes
-        import math
-        import numpy as np
+from viewer3d import Viewer3D
+from js import document, Themes
+import math
+import numpy as np
 
 
-        # The function that will be called once the 3D viewer has finished loading
-        robot = None
-        def onSceneReady():
-            global robot
-            robot = viewer3D.robot
+# The function that will be called once the 3D viewer has finished loading
+robot = None
+def onSceneReady():
+    global robot
+    robot = viewer3D.robot
 
 
-        # Create the Viewer3D object
-        viewer3D = Viewer3D(
-            document.getElementById('viewer3d'),
-            parameters=dict(
-                logmap_sphere=True,
-                theme=Themes.Simple,
-            ),
-            onready=onSceneReady,
-        )
+# Create the Viewer3D object
+viewer3D = Viewer3D(
+    document.getElementById('viewer3d'),
+    parameters=dict(
+        logmap_sphere=True,
+        theme=Themes.Simple,
+    ),
+    onready=onSceneReady,
+)
 
-        # Disable the manipulation of the joints
-        viewer3D.jointsManipulationEnabled = False
+# Disable the manipulation of the joints
+viewer3D.jointsManipulationEnabled = False
 
-        # Add one target
-        viewer3D.addTarget("target", [0.0, 0.4, 0.5], [0.57, 0.57, 0.42, -0.42], '#FF3399')
-        viewer3D.logmapTarget = "target"
+# Add one target
+viewer3D.addTarget("target", [0.0, 0.4, 0.5], [0.57, 0.57, 0.42, -0.42], '#FF3399')
+viewer3D.logmapTarget = "target"
 
-        # The function that will be called once per frame
-        x = None
+# The function that will be called once per frame
+x = None
 
-        def ikUpdate(delta):
-            global x
+def ikUpdate(delta):
+    global x
 
-            if x is None:
-                x = robot.jointPositions
-            elif not isinstance(x, np.ndarray):
-                x = np.array(x)
+    if x is None:
+        x = robot.jointPositions
+    elif not isinstance(x, np.ndarray):
+        x = np.array(x)
 
-            target = viewer3D.getTarget("target")
+    target = viewer3D.getTarget("target")
 
-            u = controlCommand(x, target.transforms)
+    u = controlCommand(x, target.transforms)
 
-            x += u * 0.1
-            robot.jointPositions = x
+    x += u * 0.1
+    robot.jointPositions = x
 
-        viewer3D.setRenderingCallback(ikUpdate)
-
-
-        # Placeholder for the function to implement
-        def controlCommand(x, mu):
-            return np.zeros(x.shape)
+viewer3D.setRenderingCallback(ikUpdate)
 
 
-        # Forward kinematics function (allows to not care about 'robot')
-        def fkin(x):
-            return robot.fkin(x)
+# Placeholder for the function to implement
+def controlCommand(x, mu):
+    return np.zeros(x.shape)
 
 
-        # Jacobian with numerical computation
-        def Jkin(x):
-            eps = 1e-6
-            D = len(x)
-
-            # Matrix computation
-            X = np.tile(x.reshape((-1,1)), [1,D])
-            F1 = fkin(X)
-            F2 = fkin(X + np.identity(D) * eps)
-            J = logmap(F2, F1) / eps
-
-            return J
+# Forward kinematics function (allows to not care about 'robot')
+def fkin(x):
+    return robot.fkin(x)
 
 
-        # Matrix form of quaternion
-        def QuatMatrix(q):
-            # Note: quaternions elements are ordered as [x, y, z, w]
-            return np.array([
-                [q[3], -q[2], q[1], q[0]],
-                [q[2], q[3], -q[0], q[1]],
-                [-q[1], q[0], q[3], q[2]],
-                [-q[0], -q[1], -q[2], q[3]],
-            ])
+# Jacobian with numerical computation
+def Jkin(x):
+    eps = 1e-6
+    D = len(x)
+
+    # Matrix computation
+    X = np.tile(x.reshape((-1,1)), [1,D])
+    F1 = fkin(X)
+    F2 = fkin(X + np.identity(D) * eps)
+    J = logmap(F2, F1) / eps
+
+    return J
 
 
-        # Arcosine redefinition to make sure the distance between antipodal quaternions is zero
-        def acoslog(x):
-            try:
-                y = math.acos(x)
-            except ValueError:
-                return math.nan
-
-            if x &lt; 0:
-                y = y - np.pi
-            return y
-
-
-        # Logarithmic map for S^3 manifold (with e in tangent space)
-        def logmap_S3(x, x0):
-            R = QuatMatrix(x0)
-            x = R.T @ x
-            sc = acoslog(x[3]) / np.sqrt(1.0 - x[3]**2)
-            if math.isnan(sc):
-                sc = 1.0
-            return x[:3] * sc
+# Matrix form of quaternion
+def QuatMatrix(q):
+    # Note: quaternions elements are ordered as [x, y, z, w]
+    return np.array([
+        [q[3], -q[2], q[1], q[0]],
+        [q[2], q[3], -q[0], q[1]],
+        [-q[1], q[0], q[3], q[2]],
+        [-q[0], -q[1], -q[2], q[3]],
+    ])
 
 
-        # Logarithmic map for R^3 x S^3 manifold (with e in tangent space)
-        def logmap(f, f0):
-            if len(f.shape) == 1:
-                e = np.ndarray((6,))
-                e[0:3] = (f[0:3] - f0[0:3])
-                e[3:] = logmap_S3(f[3:], f0[3:])
-            else:
-                e = np.ndarray((6, f.shape[1]))
-                e[0:3,:] = (f[0:3,:] - f0[0:3,:])
-                for t in range(f.shape[1]):
-                    e[3:,t] = logmap_S3(f[3:,t], f0[3:,t])
-            return e
+# Arcosine redefinition to make sure the distance between antipodal quaternions is zero
+def acoslog(x):
+    try:
+        y = math.acos(x)
+    except ValueError:
+        return math.nan
+
+    if x &lt; 0:
+        y = y - np.pi
+    return y
+
+
+# Logarithmic map for S^3 manifold (with e in tangent space)
+def logmap_S3(x, x0):
+    R = QuatMatrix(x0)
+    x = R.T @ x
+    sc = acoslog(x[3]) / np.sqrt(1.0 - x[3]**2)
+    if math.isnan(sc):
+        sc = 1.0
+    return x[:3] * sc
+
+
+# Logarithmic map for R^3 x S^3 manifold (with e in tangent space)
+def logmap(f, f0):
+    if len(f.shape) == 1:
+        e = np.ndarray((6,))
+        e[0:3] = (f[0:3] - f0[0:3])
+        e[3:] = logmap_S3(f[3:], f0[3:])
+    else:
+        e = np.ndarray((6, f.shape[1]))
+        e[0:3,:] = (f[0:3,:] - f0[0:3,:])
+        for t in range(f.shape[1]):
+            e[3:,t] = logmap_S3(f[3:,t], f0[3:,t])
+    return e
 </py-script>
 </div> <!--container-->
 </body>

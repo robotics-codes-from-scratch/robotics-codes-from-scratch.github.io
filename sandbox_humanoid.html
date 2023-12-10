@@ -21,6 +21,7 @@
 <script src="js/bootstrap.bundle.min.js"></script>
 
 <script defer="" src="https://pyscript.net/latest/pyscript.min.js"></script>
+<!--<script defer src='js/pyscript.js'></script>-->
 <py-config type="toml">
 
 				packages = ['numpy']
@@ -148,9 +149,9 @@
 <div class="container-fluid">
 <script>
 function clearMsgs() {
-  const el = document.getElementById('repl-err');
-  el.innerText = '';
-  //console.log('event!');
+    const el = document.getElementById('repl-err');
+    el.innerText = '';
+    //console.log('event!');
 }
 </script>
 <div class="row">
@@ -169,19 +170,20 @@ a = .7
 x = np.array([np.pi/2-a, 2*a, -a, 3*np.pi/4, 3*np.pi/4]) # Initial robot state
 # Coordinated control (position tracking with coordination matrix)
 def controlCommand(x, param):
-  u = np.zeros(param.nbVarX)
-  if move_joint &gt;= 0:
-    # Imposed coordination matrix (no correlations imposed on the last two joints)
-    C = [[-1,0,0], [2,0,0], [-1,0,0], [0,1,0], [0,0,1]]
-    # Residual and Jacobian
-    df = (mouse - fkin(x[:move_joint+1], param2)) * 5
-    J = Jkin(x[:move_joint+1], param2)
-    J = np.hstack((J, np.zeros([2,param.nbVarX-move_joint-1]))) # Augmented form
-    J = J @ C # Imposed coordination
-    # IK
-    pinvJ = np.linalg.inv(J.T @ J + np.eye(J.shape[1]) * 1e-1) @ J.T # Damped pseudoinverse
-    u = C @ pinvJ @ df # Control commands with imposed coordination
-  return u
+    u = np.zeros(param.nbVarX)
+    if move_joint &gt;= 0:
+        # Imposed coordination matrix (no correlations imposed on the last two joints)
+        C = [[-1,0,0], [2,0,0], [-1,0,0], [0,1,0], [0,0,1]]
+        # Residual and Jacobian
+        df = (mouse - fkin(x[:move_joint+1], param2)) * 5
+        J = Jkin(x[:move_joint+1], param2)
+        J = np.hstack((J, np.zeros([2,param.nbVarX-move_joint-1]))) # Augmented form
+        J = J @ C # Imposed coordination
+        # IK
+        pinvJ = np.linalg.inv(J.T @ J + np.eye(J.shape[1]) * 1e-1) @ J.T # Damped pseudoinverse
+        u = C @ pinvJ @ df # Control commands with imposed coordination
+    return u
+
 </py-repl>
 </div>
 </div>
@@ -190,26 +192,27 @@ def controlCommand(x, param):
 <py-repl std-err="repl-err" std-out="repl-out">
 # Prioritized control (CoM tracking prioritized over position tracking)
 def controlCommand(x, param):
-  u = np.zeros(param.nbVarX)
-  if move_joint &gt;= 0:
-    # Residuals and Jacobian for primary task
-    df1 = (param.Mu_CoM - fkin_CoM(x, param)) * 5
-    J1 = Jkin_CoM(x, param)
-    df1 = df1[:1] # Track only horizontal location of CoM
-    J1 = J1[:1,:] # Track only horizontal location of CoM
-    # Residual and Jacobian for secondary task
-    df2 = (mouse - fkin(x[:move_joint+1], param2)) * 5
-    J2 = Jkin(x[:move_joint+1], param2)
-    J2 = np.hstack((J2, np.zeros([2,param.nbVarX-move_joint-1]))) # Augmented form
-    # Prioritized control
-    pinvJ1 = np.linalg.inv(J1.T @ J1 + np.eye(J1.shape[1]) * 1e-1) @ J1.T # Damped pseudoinverse
-    N1 = np.eye(param.nbVarX) - pinvJ1 @ J1 # Nullspace projection operator
-    u1 = pinvJ1 @ df1 # Command for position tracking
-    J2N1 = J2 @ N1
-    pinvJ2N1 = np.linalg.inv(J2N1.T @ J2N1 + np.eye(J2N1.shape[1]) * 1e5) @ J2N1.T # Damped pseudoinverse
-    u2 = pinvJ2N1 @ (df2 - J2 @ u1) # Command for orientation tracking (with position tracking prioritized)
-    u = u1 + N1 @ u2 # Control commands
-  return u
+    u = np.zeros(param.nbVarX)
+    if move_joint &gt;= 0:
+        # Residuals and Jacobian for primary task
+        df1 = (param.Mu_CoM - fkin_CoM(x, param)) * 5
+        J1 = Jkin_CoM(x, param)
+        df1 = df1[:1] # Track only horizontal location of CoM
+        J1 = J1[:1,:] # Track only horizontal location of CoM
+        # Residual and Jacobian for secondary task
+        df2 = (mouse - fkin(x[:move_joint+1], param2)) * 5
+        J2 = Jkin(x[:move_joint+1], param2)
+        J2 = np.hstack((J2, np.zeros([2,param.nbVarX-move_joint-1]))) # Augmented form
+        # Prioritized control
+        pinvJ1 = np.linalg.inv(J1.T @ J1 + np.eye(J1.shape[1]) * 1e-1) @ J1.T # Damped pseudoinverse
+        N1 = np.eye(param.nbVarX) - pinvJ1 @ J1 # Nullspace projection operator
+        u1 = pinvJ1 @ df1 # Command for position tracking
+        J2N1 = J2 @ N1
+        pinvJ2N1 = np.linalg.inv(J2N1.T @ J2N1 + np.eye(J2N1.shape[1]) * 1e5) @ J2N1.T # Damped pseudoinverse
+        u2 = pinvJ2N1 @ (df2 - J2 @ u1) # Command for orientation tracking (with position tracking prioritized)
+        u = u1 + N1 @ u2 # Control commands
+    return u
+
 </py-repl>
 </div>
 </div>

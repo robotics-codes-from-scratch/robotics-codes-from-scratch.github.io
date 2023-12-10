@@ -21,6 +21,7 @@
 <script src="js/bootstrap.bundle.min.js"></script>
 
 <script defer="" src="https://pyscript.net/latest/pyscript.min.js"></script>
+<!--<script defer src='js/pyscript.js'></script>-->
 <py-config type="toml">
 
 				packages = ['numpy']
@@ -186,30 +187,30 @@ Verify your code by changing the number of joints and the link lengths.
 <div class="tab-content" id="myTabContent">
 <div aria-labelledby="question4-tab" class="tab-pane fade show active" id="question4-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="errors" std-out="output">
-	param.nbVarX = 3 # State space dimension (x1,x2,x3)
-	param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
-	x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
-	x[0] = x[0] + np.pi
+param.nbVarX = 3 # State space dimension (x1,x2,x3)
+param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
+x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
+x[0] = x[0] + np.pi
 
-	# Forward kinematics for end-effector (in robot coordinate system)
-	def fkin(x, param):
-	  f = np.zeros(2)
-	  return f
-	</py-repl>
+# Forward kinematics for end-effector (in robot coordinate system)
+def fkin(x, param):
+    f = np.zeros(2)
+    return f
+</py-repl>
 </div>
 <div aria-labelledby="answer4-tab" class="tab-pane fade" id="answer4-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="errors" std-out="output">
-	param.nbVarX = 3 # State space dimension (x1,x2,x3)
-	param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
-	x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
-	x[0] = x[0] + np.pi
+param.nbVarX = 3 # State space dimension (x1,x2,x3)
+param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
+x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
+x[0] = x[0] + np.pi
 
-	# Forward kinematics for end-effector (in robot coordinate system)
-	def fkin(x, param):
-	  L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
-	  f = np.array([param.l @ np.cos(L @ x), param.l @ np.sin(L @ x)])
-	  return f
-	</py-repl>
+# Forward kinematics for end-effector (in robot coordinate system)
+def fkin(x, param):
+    L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+    f = np.array([param.l @ np.cos(L @ x), param.l @ np.sin(L @ x)])
+    return f
+</py-repl>
 </div>
 </div>
 <br/><br/>
@@ -236,8 +237,8 @@ Verify your code by changing the number of joints and the link lengths.
 </div> <!--sm-4-->
 </div> <!--row-->
 <py-script>
-    def print(x):
-        display(x, target='output')
+def print(x):
+    display(x, target='output')
 </py-script>
 <py-script std-err="errors" std-out="output">
 from pyodide.ffi import create_proxy

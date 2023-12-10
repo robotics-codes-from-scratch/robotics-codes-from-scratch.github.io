@@ -21,6 +21,7 @@
 <script src="js/bootstrap.bundle.min.js"></script>
 
 <script defer="" src="https://pyscript.net/latest/pyscript.min.js"></script>
+<!--<script defer src='js/pyscript.js'></script>-->
 <py-config type="toml">
 
 				packages = ['numpy', 'matplotlib']
@@ -252,10 +253,10 @@ param_lambda = 1e2
 nb_data = 100
 nb_fct = 10
 def build_basis_function(nb_data, nb_fct):
-  t = np.linspace(0,1,nb_data).reshape((-1,1))
-  tMu = np.linspace( t[0] , t[-1] , nb_fct )
-  phi = np.exp( - param_lambda * (t.T - tMu)**2 ).T
-  return phi
+    t = np.linspace(0,1,nb_data).reshape((-1,1))
+    tMu = np.linspace( t[0] , t[-1] , nb_fct )
+    phi = np.exp( - param_lambda * (t.T - tMu)**2 ).T
+    return phi
 
 phi = build_basis_function(nb_data, nb_fct)
 fig,ax = plt.subplots(figsize=(5,5))
@@ -271,46 +272,46 @@ fig
 <li>Run the code below to plot the function below in your workspace by choosing an appropriate <code>noise_scale</code>.
     We will use <span class="ltx_Math">\bm{x}</span> as our dataset vector.</li><br/>
 <py-repl id="rep1" std-err="errors" std-out="output">
-  noise_scale = 1. # change this to the noise level you want
-  nb_data = 100
-  def generate_data(t):
+noise_scale = 1. # change this to the noise level you want
+nb_data = 100
+def generate_data(t):
     return 10*np.sin(50*t+10)*np.cos(10*t)
-  t = np.linspace(0,1,nb_data)
-  x = generate_data(t) + np.random.randn(nb_data)*noise_scale
+t = np.linspace(0,1,nb_data)
+x = generate_data(t) + np.random.randn(nb_data)*noise_scale
 </py-repl>
 <br/>
 <py-repl id="rep1_plot" std-err="errors" std-out="chart">
-  fig,ax = plt.subplots(figsize=(5,5))
-  ax.plot(t,x)
-  ax.set_xlabel('t')
-  ax.set_ylabel('x')
-  fig
+fig,ax = plt.subplots(figsize=(5,5))
+ax.plot(t,x)
+ax.set_xlabel('t')
+ax.set_ylabel('x')
+fig
 </py-repl>
 <br/>
 <li>Using the implemented <code>build_basis_function</code>, write a function that takes the basis function matrix <span class="ltx_Math">\bm{\phi}</span> and determines the Bézier curve
     parameters <span class="ltx_Math">\bm{w}</span> that represents the data the best in least-square sense.</li><br/>
 <!--w = np.linalg.pinv(psi) @ x # Estimation of superposition weights from data-->
 <py-repl id="rep2" std-err="errors" std-out="output">
-  nbFct = 30
-  psi = build_basis_function(nb_data,nbFct)
-  def estimate_w(x, psi):
+nbFct = 30
+psi = build_basis_function(nb_data,nbFct)
+def estimate_w(x, psi):
     # w =  # Implement here: Estimation of superposition weights from data
     return w
 
-  w = estimate_w(x, psi)
-  print(w.shape) # verify the dimension of this to be equal to nbFct
+w = estimate_w(x, psi)
+print(w.shape) # verify the dimension of this to be equal to nbFct
 </py-repl>
 <br/>
 <li>Verify your estimation of <span class="ltx_Math">\bm{w}</span> by reconstructing the data using <span class="ltx_Math">\bm{\hat{x}} = \bm{\Phi} \bm{w}</span> and plot.</li><br/>
 <!--    x_hat = psi @ w # Reconstruction data-->
 <py-repl id="rep3" std-err="errors" std-out="chart">
-  def reconstruct(w, psi):
+def reconstruct(w, psi):
     # x_hat = # Implement here: Reconstruction data
     return x_hat
 
-  x_hat = reconstruct(w, psi)
-  ax.plot(t, x_hat)
-  fig
+x_hat = reconstruct(w, psi)
+ax.plot(t, x_hat)
+fig
 </py-repl>
 <div class="col-auto"><button aria-controls="answer1" aria-expanded="false" class="btn btn-light btn-sm" data-bs-target="#answer1" data-bs-toggle="collapse">Show/hide answer</button></div>
 <div class="collapse" id="answer1"><img src="static_images/Ex2-1.png"/></div>
@@ -318,19 +319,19 @@ fig
 <li>We would like to quantify how does the number of basis functions affect the reconstruction. Choose 5 different nb_fct and plot the errors between the original data <span class="ltx_Math">\bm{x}</span> and the reconstructed data <span class="ltx_Math">\bm{\hat{x}}</span>.</li><br/>
 <!--      errors.append(np.linalg.norm(x-x_hat))-->
 <py-repl id="rep4" std-err="errors" std-out="chart">
-  nbFcts = [] # Implement here: choose 5 different nbFct
-  errors = []
-  for nbFct in nbFcts:
+nbFcts = [] # Implement here: choose 5 different nbFct
+errors = []
+for nbFct in nbFcts:
     psi = build_basis_function(nb_data, nbFct)
     w = estimate_w(x, psi)
     x_hat = reconstruct(w, psi)
     # errors.append() # Implement here: compute the error between x and x_hat
 
-  fig,ax = plt.subplots(figsize=(5,5))
-  ax.plot(nbFcts, errors, 'o')
-  ax.set_xlabel('nbFcts')
-  ax.set_ylabel('Error')
-  fig
+fig,ax = plt.subplots(figsize=(5,5))
+ax.plot(nbFcts, errors, 'o')
+ax.set_xlabel('nbFcts')
+ax.set_ylabel('Error')
+fig
 </py-repl>
 <div class="col-auto"><button aria-controls="answer2" aria-expanded="false" class="btn btn-light btn-sm" data-bs-target="#answer2" data-bs-toggle="collapse">Show/hide answer</button></div>
 <div class="collapse" id="answer2"><img src="static_images/Ex2-2.png"/></div>
@@ -349,46 +350,46 @@ an objective function <span class="ltx_Math">\bm{x}^2 + \bm{x}^3</span>, its fir
 <!--    search_direction = - first_derivative(x) / second_derivative(x)-->
 <!--  x_trial = x + alpha * search_direction-->
 <py-repl id="rep3" std-err="errors" std-out="output">
-  def objective_function(x):
+def objective_function(x):
     return x**2 + x**3
 
-  def first_derivative(x):
+def first_derivative(x):
     return 2*x + 3*(x**2)
 
-  def second_derivative(x):
+def second_derivative(x):
     return 2 + 6*x
 
-  x = 1.
-  cost = objective_function(x)
-  x_log = [x]
-  cost_log = [cost]
-  for i in range(100):
+x = 1.
+cost = objective_function(x)
+x_log = [x]
+cost_log = [cost]
+for i in range(100):
     # Implement Newton's method here (one line)
     # search_direction =
 
-    # Implement line search here (output: alpha)
-    alpha = 1.
-    for j in range(10):
-      # x_trial =  # implement a trial x in the direction of search_direction
-      cost_trial = objective_function(x_trial)
-      if cost_trial &lt; cost:
+# Implement line search here (output: alpha)
+alpha = 1.
+for j in range(10):
+    # x_trial =  # implement a trial x in the direction of search_direction
+    cost_trial = objective_function(x_trial)
+    if cost_trial &lt; cost:
         break
-      else:
+    else:
         alpha = alpha * 0.5
 
-    # Convergence check
-    prev_cost = np.copy(cost)
-    x = x + alpha * search_direction
-    cost = objective_function(x)
-    cost_log += [cost]
-    if np.abs(cost-prev_cost) &lt; 1e-6:
-      break
+# Convergence check
+prev_cost = np.copy(cost)
+x = x + alpha * search_direction
+cost = objective_function(x)
+cost_log += [cost]
+if np.abs(cost-prev_cost) &lt; 1e-6:
+    break
 
-    x_log.append(x)
+x_log.append(x)
 
-  x_log = np.array(x_log)
-  cost_log = np.array(cost_log)
-  print(x_log)
+x_log = np.array(x_log)
+cost_log = np.array(cost_log)
+print(x_log)
 </py-repl>
 <br/>
 <py-repl id="rep3_plot" std-err="errors" std-out="chart">

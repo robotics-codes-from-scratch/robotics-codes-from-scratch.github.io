@@ -21,6 +21,7 @@
 <script src="js/bootstrap.bundle.min.js"></script>
 
 <script defer="" src="https://pyscript.net/latest/pyscript.min.js"></script>
+<!--<script defer src='js/pyscript.js'></script>-->
 <py-config type="toml">
 
 				packages = ['numpy', 'matplotlib']
@@ -209,24 +210,24 @@ print(stacked1.shape) # display the matrix dimension of stacked1
 </py-repl>
 <h5>6. Inversion of a matrix</h5>
 <py-repl std-err="errors" std-out="output">
-  mat = np.diag([0.1, 0.2, 0.3]) # set diagonal matrix
-  mat_inv = np.linalg.inv(mat) # matrix inversion
+mat = np.diag([0.1, 0.2, 0.3]) # set diagonal matrix
+mat_inv = np.linalg.inv(mat) # matrix inversion
 
-  # # Let's make it not invertible by changing the last entry to 0
-  # mat[-1,-1] = 0.
+# # Let's make it not invertible by changing the last entry to 0
+# mat[-1,-1] = 0.
 
-  # Let's check if the matrix is invertible (without inverting it)
-  is_invertible = np.linalg.det(mat) != 0.
+# Let's check if the matrix is invertible (without inverting it)
+is_invertible = np.linalg.det(mat) != 0.
 
-  # Pseudoinverses of mat
-  mat1_pinv = np.linalg.inv(mat.T @ mat) @ mat.T # using inv(A.T @ A) @ A.T
-  mat2_pinv = np.linalg.pinv(mat) # using np.linalg.pinv()
+# Pseudoinverses of mat
+mat1_pinv = np.linalg.inv(mat.T @ mat) @ mat.T # using inv(A.T @ A) @ A.T
+mat2_pinv = np.linalg.pinv(mat) # using np.linalg.pinv()
 
-  #Compare the two solutions
-  diff = np.linalg.norm(mat1_pinv - mat2_pinv, ord='fro')
+#Compare the two solutions
+diff = np.linalg.norm(mat1_pinv - mat2_pinv, ord='fro')
 
-  print(is_invertible)
-  print(diff) # diff should be almost zero
+print(is_invertible)
+print(diff) # diff should be almost zero
 </py-repl>
 <h5>7. Solve Ax=b using least squares</h5>
 <p>Complete the code below to compute x so that Ax=b.</p>
@@ -246,8 +247,8 @@ np.linalg.norm(A @ x - b)
 <p>Can you make this function robust to the use of singular matrices? (see part 6 above as a hint)</p>
 <py-repl std-err="errors" std-out="output">
 def fun(x):
-  # x_inv = ...
-  return x_inv
+    # x_inv = ...
+    return x_inv
 
 x = np.diag([1., 2, 0.])
 y = fun(x)

@@ -21,6 +21,7 @@
 <script src="js/bootstrap.bundle.min.js"></script>
 
 <script defer="" src="https://pyscript.net/latest/pyscript.min.js"></script>
+<!--<script defer src='js/pyscript.js'></script>-->
 <py-config type="toml">
 
 				packages = ['numpy']
@@ -194,7 +195,8 @@ param.Sigma = np.zeros((param.nbVar,param.nbVar,param.nbGaussian)) # Implement h
 param.target = np.array([.5, .5]) # implement here
 
 update_ergodic_control()
-		</py-repl><br/>
+
+</py-repl><br/>
 </div>
 <div aria-labelledby="question2-tab" class="tab-pane fade" id="question2-tab-pane" role="tabpanel" tabindex="0">
 <py-repl error="errors" output="output">
@@ -204,12 +206,12 @@ param.nbGaussian = 2
 param.Mu = np.zeros((param.nbVar,param.nbGaussian))
 param.Sigma = np.zeros((param.nbVar,param.nbVar,param.nbGaussian))
 for i in range(param.nbGaussian):
-  param.Mu[:,i] = np.random.uniform(0.1,0.9,param.nbVar)
-  sigma_v = np.random.uniform(-1,1,param.nbVar)
-  sigma_scale = np.random.uniform(0,0.1,1)
-  sigma_regularization = np.random.uniform(0,0.01,1)
-  sigma_v = sigma_v / np.linalg.norm(sigma_v)
-  param.Sigma[:,:,i] = np.outer(sigma_v,sigma_v) * sigma_scale + sigma_regularization
+    param.Mu[:,i] = np.random.uniform(0.1,0.9,param.nbVar)
+    sigma_v = np.random.uniform(-1,1,param.nbVar)
+    sigma_scale = np.random.uniform(0,0.1,1)
+    sigma_regularization = np.random.uniform(0,0.01,1)
+    sigma_v = sigma_v / np.linalg.norm(sigma_v)
+    param.Sigma[:,:,i] = np.outer(sigma_v,sigma_v) * sigma_scale + sigma_regularization
 
 # Sampling from GMM to define the target
 gaussian_id = np.random.choice(np.arange(0,param.nbGaussian))
@@ -217,7 +219,8 @@ param.target = np.random.multivariate_normal(param.Mu[:,gaussian_id],param.Sigma
 param.target = np.clip(param.target, 0.01, 0.99) # Target within [0,1]
 
 update_ergodic_control()
-		</py-repl>
+
+</py-repl>
 </div><br/>
 </div>
 </div> <!--sm-7-->
