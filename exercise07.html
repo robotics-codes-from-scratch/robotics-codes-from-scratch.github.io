@@ -218,25 +218,26 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 <div class="col-sm-1"></div>
 <div class="col-sm-7">
 <h1>Exercise 7<br/>Iterative linear quadratic regulator</h1>
-<p>In Exercise 6a, we have seen how LQR can be used to control a point-mass agent to pass through a set of viapoints.</p>
-<p>In Exercise 6b, we have seen how LQR can be used to control a robot with joint angle velocity commands to pass through a set of joint angle configurations.</p>
-<p>In this exercise we will now see how an <b>iterative linear quadratic regulator (iLQR)</b> can be used to control a robot with joint angle velocity commands</p>
-<p>We will consider a combination of viapoints in both joint space and task space. The goal will be to have the robot passing through a set of intermediate joint angle configurations and to have its end-effector passing through another set a intermediate viapoints.</p>
-<p>The first viapoint <code>param.viapoint1</code> is defined in the joint space and visualized by the orange robot.</p>
-<p>The second viapoint <code>param.viapoint2</code> is defined in the task space and visualized by the pink object.</p>
-<p>The third viapoint <code>param.viapoint3</code> is defined in the task space and visualized by the green object.</p>
-<p>The goal of this exercise is to plan a path with iLQR that generates a motion passing through a combination of task space and joint space viapoints.</p>
-<p>We consider a single integrator dynamical system with $\bm{x}_t$ and $\bm{u}_t$ representing joint angles and velocity commands at time step $t$, respectively.</p>
-<p>The cost function at a given time step $t$ is defined by
+<p>In Exercise 6a, we have seen how LQR can be used to control a point-mass agent to pass through a set of viapoints. In Exercise 6b, we have seen how LQR can be used to control a robot with joint angle velocity commands to pass through a set of joint angle configurations.</p>
+<p>In this exercise we will now see how an <b>iterative linear quadratic regulator (iLQR)</b> can be used to control a robot with joint angle velocity commands. We will consider a combination of viapoints in both joint space and task space. The goal will be to have the robot passing through a set of intermediate joint angle configurations and to have its end-effector passing through another set a intermediate viapoints in task space.</p>
+<p>The goal of this exercise is to plan a path with iLQR to generate a motion passing through this combination of task space and joint space viapoints:
+<ul>
+<li>The 1st viapoint <code>param.viapoint1</code> is defined in the joint space, displayed as the orange robot.</li>
+<li>The 2nd viapoint <code>param.viapoint2</code> is defined in the task space, displayed as the pink object.</li>
+<li>The 3rd viapoint <code>param.viapoint3</code> is defined in the task space, displayed as the green object.</li>
+</ul>
+</p>
+<p>We consider a single integrator dynamical system with $\bm{x}_t$ and $\bm{u}_t$ representing joint angles and velocity commands at time step $t$, respectively. The cost function at a given time step $t$ is given by
 \begin{equation*}
 	c(\bm{x}_t,\bm{u}_t) = \sum_{i=1}^3\bm{f}_i(\bm{x}_t)^{\!\trsp} \bm{Q}_{i,t} \bm{f}_i(\bm{x}_t) + \bm{u}_t^\trsp \bm{R}_t \, \bm{u}_t,
 \end{equation*}
-where $\bm{Q}_{i,t}$ and $\bm{R}_t$ are weight matrices trading off viapoints tracking and control effort. Such cost is quadratic on $\bm{f}_i(\bm{x}_t)$ but can be non-quadratic on $\bm{x}_t$, which requires iLQR to be used instead of LQR.</p>
+where $\bm{Q}_{i,t}$ and $\bm{R}_t$ are weight matrices trading off viapoints tracking and control effort. Such cost is quadratic on the residual functions $\bm{f}_i(\bm{x}_t)$ but nonquadratic on $\bm{x}_t$, which requires iLQR to be used instead of LQR.</p>
 <p>The solution to this problem results in the following update of the control commands at each iteration of iLQR
 \begin{equation*}
-	\Delta\bm{\hat{u}} \!=\! {\Bigg(\bm{S}_{\bm{u}}^\trsp \sum_{i=1}^3\Big(\bm{J}_i(\bm{x})^\trsp \bm{Q}_i \bm{J}_i(\bm{x})\Big) \bm{S}_{\bm{u}} \!+\! \bm{R}\Bigg)}^{\!\!-1}
-	\Bigg(- \bm{S}_{\bm{u}}^\trsp \sum_{i=1}^3\Big(\bm{J}_i(\bm{x})^\trsp \bm{Q}_i \bm{f}_i(\bm{x})\Big) - \bm{R} \, \bm{u} \Bigg).
-\end{equation*}</p>
+	\Delta\bm{\hat{u}} \!=\! {\Bigg(\sum_{i=1}^3 \bm{S}_{\bm{u},i}^\trsp \bm{J}_i(\bm{x})^\trsp \bm{Q}_i \bm{J}_i(\bm{x}) \bm{S}_{\bm{u},i} \!+\! \bm{R}\Bigg)}^{\!\!-1}
+	\Bigg(- \sum_{i=1}^3 \bm{S}_{\bm{u},i}^\trsp \bm{J}_i(\bm{x})^\trsp \bm{Q}_i \bm{f}_i(\bm{x}) - \bm{R} \, \bm{u} \Bigg),
+\end{equation*}
+where $\bm{J}_i(\bm{x})$ is the Jacobian matrix of $\bm{f}_i(\bm{x})$.</p>
 <ul class="list-group list-group-numbered">
 <li class="list-group-item">
 		By looking at the commented code snippets, modify the code in <code>compute_fJ()</code> so that the robot can pass through the set of viapoints defined in joint space and task space. You can verify your answer by moving the objects and changing the joint angle configurations of the robot for both initial pose (in light gray) and viapoint pose (in orange).
