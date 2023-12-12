@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<meta name='description' content='Robotics codes from scratch (RCFS) is a collection of source codes to study and test learning and optimization problems in robotics through simple 2D examples.'>
+<meta name='keywords' content='robotics codes, robotics tutorial, rcfs, robotics from scratch'>
+<meta name='author' content='Sylvain Calinon'>
+
+<title>Robotics codes from scratch</title>
+<link rel='canonical' href='https://robotics-codes-from-scratch.github.io/'>
+
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css' integrity='sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi' crossorigin='anonymous'>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+
+<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Permanent+Marker|Raleway&display=swap'>
+
+
+<script defer src='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js' integrity='sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3' crossorigin='anonymous'></script>
+
+
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css' integrity='sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X' crossorigin='anonymous'>
+<script defer src='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js' integrity='sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz' crossorigin='anonymous'></script>
+<script defer src='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js' integrity='sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05' crossorigin='anonymous'></script>
+
+<link rel='stylesheet' href='css/sidebars.css'> <!-- main navigation menu -->
+<link rel='stylesheet' href='css/main-template.css'>
+
+</head>
+
+<div class='container-fluid'>
+<head>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+  
+</head>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var result = document.getElementById('result');
+
+    result.innerHTML += 'Question 1:<br>';
+	result.innerHTML += 'The answer is d. LQR can be used for quadratic cost functions on the state and control variables, with a linear system to describe the evolution of the state (linear system dynamics). iLQR can instead be used if the state evolution is nonlinear and/or the cost is non-quadratic.<br>';
+	result.innerHTML += '------------------<br>';
+	
+	result.innerHTML += 'Question 2:<br>';
+	result.innerHTML += 'The answer is b. In iLQR, when the evolution of the state cannot be described by a linear system, a Taylor expansion is used to express the evolution of the residual terms as a linear system, which can then be used to compute updates for the control commands.<br>';
+	result.innerHTML += '------------------<br>';
+	
+	result.innerHTML += 'Question 3:<br>';
+	result.innerHTML += 'The answer is a. iLQR can be used with nonquadratic cost functions on the state and control variables and/or when the evolution of the state is described as a nonlinear system dynamics. Namely, it can be used for both nonquadratic costs and nonlinear systems. In this case, it relies on Taylor expansions of the costs and system dynamics, which formats the problem as a LQR problem that can be solved around the local estimate (described by the series of states and control commands).<br>'
+	result.innerHTML += '------------------<br>';
+	
+	result.innerHTML += 'Question 4:<br>';
+	result.innerHTML += 'The answer is d. The problem formulation can for example be formulated as a linear system dynamics and a nonquadratic cost function. The linear system describes the evolution of the joint angle positions as a linear function of the joint angle velocities, and the cost function requires the use of a nonlinear forward kinematics function to describe the location of the end-effector, which results in a nonquadratic cost w.r.t. the joint angle position variables. Alternatively, the problem can be formulated with an augmented state space, so that the cost is quadratic but the evolution of the state is nonlinear. Both problem formulations require the use of iLQR. The batch solution of iLQR computes control commands that will anticipate that the target needs to be reached at the end of the motion. Because of the compromise between the control cost and the target reaching cost in the cost function, the use of constant control commands can for example be used by the robot in anticipation of the reaching cost at the end of the movement.<br>'
+	result.innerHTML += '------------------<br>';
+	
+	result.innerHTML += 'Question 5:<br>';
+	result.innerHTML += 'The answer is c. A line search algorithm is typically used at each iLQR step to determine if the computed update for the control commands need to be scaled (typically, taking smaller update steps), while keeping the same update direction. This can for example be used to guarantee that the update can only decrease the cost (or keep it the same when the algorithm has converged).<br><br>'
+
+/*
+    result.innerHTML += '------------------<br>';
+	result.innerHTML += 'Question #:<br>';
+	result.innerHTML += 'Due to the linear model and quadratic cost function, LQR can obtain a global policy, while iLQR cannot due to the nonlinear model. For the feedback policy obtained from LQR, it can be both time-varying or time-independent, corresponding to finite-horizon formulation or infinite-horizon formulation. Both iLQR and LQR belong to unconstrained optimization techniques, aiming to minimize a finite cost.<br>';
+	
+	result.innerHTML += '------------------<br>';
+	result.innerHTML += 'Question #:<br>';
+	result.innerHTML += 'The answer is b. Due to the linearization in iLQR, the feedback gains are considered local, and the forward and backward passes in iLQR typically lead to a finite-horizon formulation with a time-varying policy. The policy is in a linear form w.r.t. the linearization point.<br>';
+
+	result.innerHTML += '------------------<br>';
+	result.innerHTML += 'Question #:<br>';
+	result.innerHTML += 'In iLQR, the constraints are usually formed as penalty terms in the cost function rather than using Augmented Lagrangian, as done in constrained optimization techniques.<br>';
+	
+	result.innerHTML += '------------------<br>';
+	result.innerHTML += 'Question #:<br>';
+	result.innerHTML += 'In iLQR, the backward pass is used to compute the local feedback gains given the current state. The feedback gains are used subsequently for forward simulation in the next iteration.<br>';
+*/
+
+});
+</script>
+
+<div class='container'>
+
+<h1>iLQR</h1>
+
+<div id='result'></div>
+
+</div> <!-- container -->
+
+</div> <!--container-->
+</html>
+
