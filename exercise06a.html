@@ -469,31 +469,29 @@ def clear_screen():
 def draw_Gaussian(id, param, color, color2):
 	global selected_obj
 	ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
-	ctx.translate(param.Mu[0, id], param.Mu[1, id])
+	ctx.translate(param.Mu[0,id], param.Mu[1,id])
 	if id == 0:
-		s, U = np.linalg.eig(np.linalg.inv(Q1[:2, :2]+np.eye(2)*1e-5))
+		s, U = np.linalg.eig(np.linalg.inv(Q1[:2,:2]+np.eye(2)*1e-5))
 	else:
-		s, U = np.linalg.eig(np.linalg.inv(Q2[:2, :2]+np.eye(2)*1e-5))
+		s, U = np.linalg.eig(np.linalg.inv(Q2[:2,:2]+np.eye(2)*1e-5))
 	al = np.linspace(-np.pi, np.pi, 50)
 	D = np.diag(s)*100
 	R = np.real(U @ np.sqrt(D+0j))
-	msh = (R @ np.array([np.cos(al),np.sin(al)])).T #+ param.Mu[:2,id]
-	# Draw object
+	msh = R @ np.array([np.cos(al),np.sin(al)]) #+ param.Mu[:2,id]
+	# Draw Gaussian
 	obj = Path2D.new()
-	obj.moveTo(msh[0,0], msh[0,1])
-	for i in range(msh.shape[0]-1):
-		obj.lineTo(msh[i+1,0], msh[i+1,1])
+	obj.moveTo(msh[0,0], msh[1,0])
+	for i in range(msh.shape[1]-1):
+		obj.lineTo(msh[0,i+1], msh[1,i+1])
 	obj.closePath()
 	ctx.strokeStyle = color2
 	ctx.stroke(obj)
 	ctx.fillStyle = color
 	ctx.fill(obj)
-	
 	obj = Path2D.new()
-	obj.arc(0, 0, 6.0, 0, 2*np.pi)
+	obj.arc(0, 0, 6.0, 0, 2.0*np.pi)
 	ctx.fillStyle = color2 
 	ctx.fill(obj)
-
 	if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
 		selected_obj = id
 

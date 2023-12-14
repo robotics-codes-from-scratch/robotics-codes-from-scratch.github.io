@@ -169,18 +169,23 @@ function clearMsgs() {
 <div class="tab-content" id="myTabContent">
 <div aria-labelledby="impedance-tab" class="tab-pane fade show active" id="impedance-tab-pane" role="tabpanel" tabindex="0">
 <py-repl id="myrepl" std-err="repl-err" std-out="repl-out">
-x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
+#x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
 x_target = np.array([-np.pi/4, -np.pi/2, np.pi/4]) # Target in joint space
 
 param.damping = 20.0 # Viscous friction
-kP = 400.0 # Stiffness gain
-kV = 10.0 # Damping gain
+
+#kP = 400.0 # Stiffness gain
+#kV = 10.0 # Damping gain
+
+KP = np.diag([4E2, 4E2, 4E2]) # Joint space stiffness matrix
+KV = np.diag([1E1, 1E1, 1E1]) # Joint space damping matrix
 
 def controlCommand(x, param):
     # Torques for gravity compensation
     #ug = inverse_dynamics(np.append(x[:param.nbVarX], np.zeros(param.nbVarX)), np.zeros(param.nbVarX), param) 
     ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
-    u = kP * (x_target - x[:param.nbVarX]) - kV * x[param.nbVarX:] + ug # Impedance controller in joint space
+    #u = kP * (x_target - x[:param.nbVarX]) - kV * x[param.nbVarX:] + ug # Impedance controller in joint space
+    u = KP @ (x_target - x[:param.nbVarX]) - KV @ x[param.nbVarX:] + ug # Impedance controller in joint space
     return u
 </py-repl> <!--output='repl-out' std-out='repl-out'-->
 </div>
@@ -218,7 +223,7 @@ def controlCommand(x, param):
     f = fkin(x[:param.nbVarX], param)
     J = Jkin(x[:param.nbVarX], param)
     df = J @ x[param.nbVarX:]
-    dist,grad = sdf(f)
+    dist, grad = sdf(f)
     grad[:2] = grad[:2] * dist
     u = J.T @ (KP @ grad - KV @ df) + ug # Impedance controller in task space
     return u
@@ -500,6 +505,29 @@ def draw_circle(f, r, color):
 	ctx.strokeStyle = color
 	ctx.stroke(obj)
 
+def draw_Gaussian(Mu, Sigma, color, color2):
+	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.1) 
+	ctx.translate(Mu[0], Mu[1])
+	s, U = np.linalg.eig(Sigma)
+	al = np.linspace(-np.pi, np.pi, 50)
+	D = np.diag(s) * 100
+	R = np.real(U @ np.sqrt(D))
+	msh = R @ np.array([np.cos(al),np.sin(al)])
+	# Draw Gaussian
+	obj = Path2D.new()
+	obj.moveTo(msh[0,0], msh[1,0])
+	for i in range(msh.shape[1]-1):
+		obj.lineTo(msh[0,i+1], msh[1,i+1])
+	obj.closePath()
+	ctx.strokeStyle = color2
+	ctx.stroke(obj)
+	ctx.fillStyle = color
+	ctx.fill(obj)
+	obj = Path2D.new()
+	obj.arc(0, 0, 3.0, 0, 2.0*np.pi)
+	ctx.fillStyle = color2 
+	ctx.fill(obj)
+
 #########################################################################################
 
 def errorHandler(e):
@@ -511,9 +539,11 @@ def errorHandler(e):
 
 #########################################################################################
 #x = np.zeros(2*param.nbVarX) # Initial robot state (position and velocity)
-x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot state (position and velocity)
+x = np.array([-np.pi/3.7, -np.pi/2.2, np.pi/4.1, 0, 0, 0]) # Initial robot state (position and velocity)
 x_target = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Target in joint space
 f_target = fkin(np.array([-np.pi/4, -np.pi/2, np.pi/4]), param) # Target in task space
+KP = np.diag([4E-2, 4E-2, 4E2]) # Joint space stiffness matrix
+KV = np.diag([1E1, 1E1, 1E1]) # Joint space damping matrix
 
 async def main():
 	global hover_joint, x
@@ -543,9 +573,14 @@ async def main():
 		 
 		if document.getElementById('taskimpedance-tab').ariaSelected=='true':
 			draw_selected_point(f_target, '#FF3399')
+			draw_Gaussian(f_target, np.linalg.inv(KP[:2,:2]*5E1+np.eye(2)*1E-6), '#FF3399', '#DD1177') # Draw stiffness ellipsoid
 		
 		if document.getElementById('taskimpedance2-tab').ariaSelected=='true':
 		    draw_circle(f_target, 80.0, '#FF3399')
+		    f = fkin(x[:param.nbVarX], param) + 1E-8
+		    dist, grad = sdf(f)
+		    Ktmp = np.outer(grad[:2], grad[:2])
+		    draw_Gaussian(f, np.linalg.inv(Ktmp * 1E2 + np.eye(2)*1E-2), '#FF3399', '#DD1177') # Draw stiffness ellipsoid
 
 		await asyncio.sleep(0.00001)
 
