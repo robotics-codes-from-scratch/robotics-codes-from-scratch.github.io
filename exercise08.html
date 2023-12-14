@@ -163,16 +163,16 @@ const colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b'
 <div class="col-sm-7">
 <h1>Exercise 8<br/>Exploration with ergodic control</h1>
 <p>In this exercise, we will use ergodic control as an exploration mechanism for a point mass agent.</p>
-<p>The goal is to analyze how ergodic control can be used to find a target object with an unknown location but with a prior knowledge on its location in the form of a distribution. The time took by ergodic control to find the hidden target is shown below the animation.</p>
-<p>Ergodic control uses a prior information on the location of the target object in the form of a probability distribution. In this exercise, a mixture of Gaussians is used as distribution (represented as pink ellipsoids to represent the contours of two standard deviations).</p>
-<p>Ergodic control computes control commands to generate a path so that the agent will spend time in the different location of the workspace in proportion to the given spatial distribution. Namely, if we would discretize the workspace and count the number of times the agent passed in each cell of this grid, the controller will ensure that over time, the resulting histogram will match the desired spatial distribution.</p>
+<p>The goal is to analyze how ergodic control can be used to find a small object with an unknown location but with a prior knowledge on the possible location of this object, in the form of a distribution. The location of the object is made visible to you, but is unknown to the robot. The time took by ergodic control to find this object is shown below the animation.</p>
+<p>Ergodic control uses a prior information on the location of the object in the form of a probability distribution. In this exercise, a mixture of Gaussians is used as distribution (represented as pink ellipsoids to represent the contours of two standard deviations).</p>
+<p>Ergodic control computes control commands that will generate a movement so that the agent will spend time in the different location of the workspace in proportion to the given target spatial distribution. Namely, if we would discretize the workspace and count the number of times the agent passed in each cell of this grid, the controller will ensure that over time, the resulting histogram will match the desired spatial distribution (optimal coverage).</p>
 <ul class="list-group list-group-numbered">
 <li class="list-group-item">
-		Change the Gaussian parameters <code>param.nbGaussian</code>, <code>param.Mu</code>, <code>param.Sigma</code> and the initial position <code>param.x0</code> of the agent (point in black in the animation) and observe the search behavior.
+		Change the Gaussian parameters <code>param.nbGaussian</code>, <code>param.Mu</code>, <code>param.Sigma</code> and the initial position of the agent <code>param.x0</code> (point in black in the animation). Observe the resulting search behavior.
 	</li>
 <li class="list-group-item">
 		Set the target position <code>param.target</code> to be a sample from the mixture of Gaussians (with equal mixing coefficients), the means <code>param.Mu</code> and the covariance matrices <code>param.Sigma</code>.<br/>
-		Hint: to sample from a mixture of Gaussians, you can first uniformly sample between 1 and <code>param.nbGaussian</code> to choose the Gaussian component to sample from.
+		Hint: to sample from a mixture of Gaussians, you can first uniformly sample between 1 and <code>param.nbGaussian</code> to first choose the Gaussian component to sample from. You can then draw a random sample from this Gaussian distibution.
 	</li>
 </ul><br/>
 <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -207,9 +207,9 @@ param.Mu = np.zeros((param.nbVar,param.nbGaussian))
 param.Sigma = np.zeros((param.nbVar,param.nbVar,param.nbGaussian))
 for i in range(param.nbGaussian):
     param.Mu[:,i] = np.random.uniform(0.1,0.9,param.nbVar)
-    sigma_v = np.random.uniform(-1,1,param.nbVar)
-    sigma_scale = np.random.uniform(0,0.1,1)
-    sigma_regularization = np.random.uniform(0,0.01,1)
+    sigma_v = np.random.uniform(-1.0, 1.0, param.nbVar)
+    sigma_scale = np.random.uniform(0, 0.1, 1)
+    sigma_regularization = np.random.uniform(0, 0.01, 1)
     sigma_v = sigma_v / np.linalg.norm(sigma_v)
     param.Sigma[:,:,i] = np.outer(sigma_v,sigma_v) * sigma_scale + sigma_regularization
 
