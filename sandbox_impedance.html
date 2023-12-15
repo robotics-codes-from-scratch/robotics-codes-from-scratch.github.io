@@ -212,19 +212,23 @@ def controlCommand(x, param):
 </div>
 <div aria-labelledby="taskimpedance2-tab" class="tab-pane fade" id="taskimpedance2-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="errors" std-out="output">
-x = np.array([-np.pi/4, -np.pi/3, np.pi/4, 0, 0, 0]) # Initial robot pose
+x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
 f_target = np.array([-50.0, -400.0, 0]) # SDF location in task space 
 
-KP = np.diag([4E-2, 4E-2, 4E2]) # Task space stiffness (position and orientation)
+KP = np.diag([4E-2, 0E-2, 1E2]) # Task space stiffness (position and orientation)
+KP0 = np.copy(KP)
 KV = np.diag([1E-3, 1E-3, 1E1]) # Task space damping (position and orientation)
 
 def controlCommand(x, param):
+    global KP
     ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
-    f = fkin(x[:param.nbVarX], param)
-    J = Jkin(x[:param.nbVarX], param)
-    df = J @ x[param.nbVarX:]
-    dist, grad = sdf(f)
-    grad[:2] = grad[:2] * dist
+    f = fkin(x[:param.nbVarX], param) # Forward kinematics
+    J = Jkin(x[:param.nbVarX], param) # Jacobian matrix
+    df = J @ x[param.nbVarX:] # End-effector velocity
+    dist, grad = sdf(f) # Signed distance function and corresponding gradient
+    R = np.array([[grad[0], -grad[1]], [grad[1], grad[0]]]) # Local coordinate system (rotation matrix)
+    KP[:2,:2] = R @ KP0[:2,:2] @ R.T # Adapt stiffness to local coordinate system
+    grad[:2] = grad[:2] * dist # Residual vector
     u = J.T @ (KP @ grad - KV @ df) + ug # Impedance controller in task space
     return u
 </py-repl>
@@ -257,7 +261,7 @@ def sdf(f):
     fh = f_target
     fh[2] = np.arctan2(f_target[1]-f[1], f_target[0]-f[0])
     grad = logmap(fh, f)
-    grad[:2] = grad[:2] / np.linalg.norm(grad[:2]) # Gradient
+    grad[:2] = grad[:2] / (np.linalg.norm(grad[:2]) + 1E-8) # Gradient
     return dist,grad 
 
 # Logarithmic map for R^2 x S^1 manifold
@@ -578,9 +582,11 @@ async def main():
 		if document.getElementById('taskimpedance2-tab').ariaSelected=='true':
 		    draw_circle(f_target, 80.0, '#FF3399')
 		    f = fkin(x[:param.nbVarX], param) + 1E-8
-		    dist, grad = sdf(f)
-		    Ktmp = np.outer(grad[:2], grad[:2])
-		    draw_Gaussian(f, np.linalg.inv(Ktmp * 1E2 + np.eye(2)*1E-2), '#FF3399', '#DD1177') # Draw stiffness ellipsoid
+		    #dist, grad = sdf(f)
+		    #gradTmp = KP[:2,:2] @ grad[:2]
+		    #KPtmp = np.outer(gradTmp, gradTmp)
+		    #draw_Gaussian(f, np.linalg.inv(KPtmp * 1E2 + np.eye(2)*1E-2), '#FF3399', '#DD1177') # Draw stiffness ellipsoid
+		    draw_Gaussian(f, np.linalg.inv(KP[:2,:2] * 1E2 + np.eye(2)*1E-2), '#FF3399', '#DD1177') # Draw stiffness ellipsoid
 
 		await asyncio.sleep(0.00001)
 
