@@ -194,28 +194,31 @@ def controlCommand(x, param):
 x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
 f_target = fkin(np.array([-np.pi/4, -np.pi/2, np.pi/4]), param) # Target in task space
 
-#kP = 4E-2 # Stiffness gain in task space
-#kV = 1E-3 # Damping gain in task space
 KP = np.diag([4E-2, 4E-2, 4E2]) # Task space stiffness (position and orientation)
 KV = np.diag([1E-3, 1E-3, 1E1]) # Task space damping (position and orientation)
 
 def controlCommand(x, param):
     ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
-    f = fkin(x[:param.nbVarX], param)
-    J = Jkin(x[:param.nbVarX], param)
-    df = J @ x[param.nbVarX:]
-    #u = J.T @ (kP * (f_target - f) - kV * df) + ug # Impedance controller in task space
-    #u = J.T @ (KP @ (f_target - f) - KV @ df) + ug # Impedance controller in task space
-    u = J.T @ (KP @ logmap(f_target, f) - KV @ df) + ug # Impedance controller in task space
+    f = fkin(x[:param.nbVarX], param) # Forward kinematics
+    J = Jkin(x[:param.nbVarX], param) # Corresponding Jacobian matrix
+    df = J @ x[param.nbVarX:] # End-effector velocity
+    rf = np.hstack([f_target[:2] - f[:2], logmap(f_target[2], f[2])]) # Residual vector
+    u = J.T @ (KP @ rf - KV @ df) + ug # Impedance controller in task space
     return u
 </py-repl>
 </div>
 <div aria-labelledby="taskimpedance2-tab" class="tab-pane fade" id="taskimpedance2-tab-pane" role="tabpanel" tabindex="0">
 <py-repl std-err="errors" std-out="output">
 x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
-f_target = np.array([-50.0, -400.0, 0]) # SDF location in task space 
 
-KP = np.diag([4E-2, 0E-2, 1E2]) # Task space stiffness (position and orientation)
+dist_target = 20.0 # Targeted distance to maintain
+f_target = np.array([-200.0, -400.0, 0]) # SDF location in task space 
+sdf_disc_radius = 80.0 # Disc radius
+sdf_box_size = np.array([160.0, 100.0]) # Box width and height
+sdf_box_offset = np.array([60.0, -60.0]) # Box position wrt the disc
+sdf_smoothing_ratio = 10.0 # Smoothing factor for softmax composition of objects 
+
+KP = np.diag([4E-2, 0E-2, 0E3]) # Task space stiffness (position and orientation)
 KP0 = np.copy(KP)
 KV = np.diag([1E-3, 1E-3, 1E1]) # Task space damping (position and orientation)
 
@@ -223,12 +226,12 @@ def controlCommand(x, param):
     global KP
     ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
     f = fkin(x[:param.nbVarX], param) # Forward kinematics
-    J = Jkin(x[:param.nbVarX], param) # Jacobian matrix
+    J = Jkin(x[:param.nbVarX], param) # Corresponding Jacobian matrix
     df = J @ x[param.nbVarX:] # End-effector velocity
     dist, grad = sdf(f) # Signed distance function and corresponding gradient
     R = np.array([[grad[0], -grad[1]], [grad[1], grad[0]]]) # Local coordinate system (rotation matrix)
     KP[:2,:2] = R @ KP0[:2,:2] @ R.T # Adapt stiffness to local coordinate system
-    grad[:2] = grad[:2] * dist # Residual vector
+    grad[:2] = grad[:2] * (dist - dist_target) # Residual vector
     u = J.T @ (KP @ grad - KV @ df) + ug # Impedance controller in task space
     return u
 </py-repl>
@@ -253,22 +256,52 @@ import asyncio
 def sdf_circle(f, p, r):
 	return np.linalg.norm(p-f) - r 
 
+# SDF for box
+def sdf_box(f, p, sz):
+    dtmp = np.abs(f-p) - sz * 0.5
+    d = np.linalg.norm(np.maximum(dtmp, [0, 0])) + np.min([np.max([dtmp[0], dtmp[1]]), 0])
+    return d
+
+def smooth_union(d1, d2, k):
+    '''
+    Smooth union (see https://www.shadertoy.com/view/lt3BW2)
+    Note: will only be correct on the outside, see https://iquilezles.org/articles/interiordistance/
+    '''
+    h = np.max([k - np.abs(d1-d2), 0])
+    d = np.min([d1, d2]) - (h**2)*0.25/k
+    return d
+
+def compute_distance(f):
+    p1 = f_target[:2]
+    p2 = f_target[:2] + sdf_box_offset
+    dist = np.zeros(f.shape[1])
+    for t in range(f.shape[1]):
+        d1 = sdf_circle(f[:2,t], p1, sdf_disc_radius)
+        d2 = sdf_box(f[:2,t], p2, sdf_box_size)
+        dist[t] = smooth_union(d1, d2, sdf_smoothing_ratio) # Smoothing union with softmax composition of objects 
+    return dist
+
 # SDF
 def sdf(f):
-    dist = sdf_circle(f, f_target, 80.0) # Distance
-    #grad = f_target[:2] - f 
-    #grad = grad / np.linalg.norm(grad) # Gradient
-    fh = f_target
-    fh[2] = np.arctan2(f_target[1]-f[1], f_target[0]-f[0])
-    grad = logmap(fh, f)
-    grad[:2] = grad[:2] / (np.linalg.norm(grad[:2]) + 1E-8) # Gradient
-    return dist,grad 
+    '''
+    Compound shape 1
+    '''
+    dist = compute_distance(f[:,None])
+    #Numerical gradient estimate
+    eps = 1E-6
+    X = np.tile(f[:2].reshape((-1,1)), [1,2])
+    F1 = compute_distance(X)
+    F2 = compute_distance(X+np.eye(2)*eps)
+    grad = np.zeros(3) 
+    grad[:2] = -(F2-F1) / eps
+    grad[:2] = grad[:2] / (np.linalg.norm(grad[:2]) + 1E-8) # Position residual
+    f_target[2] = np.arctan2(grad[1], grad[0])
+    grad[2] = logmap(f_target[2], f[2]) # Orientation residual
+    return dist, grad
 
-# Logarithmic map for R^2 x S^1 manifold
+# Logarithmic map for S^1 manifold
 def logmap(f, f0):
-	diff = np.zeros(3)
-	diff[:2] = f[:2] - f0[:2] # Position residual
-	diff[2] = np.imag(np.log(np.exp(f0[-1]*1j).conj().T * np.exp(f[-1]*1j).T)).conj() # Orientation residual
+	diff = np.imag(np.log(np.exp(f0*1j).conj().T * np.exp(f*1j).T)).conj() # Orientation residual
 	return diff
 
 # Forward kinematics for end-effector (in robot coordinate system)
@@ -500,15 +533,22 @@ def draw_selected_point(f, color):
 	ctx.fillStyle = color
 	ctx.fill(obj)
 
-def draw_circle(f, r, color):
+def draw_disc(f, r, color):
 	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.1)
-	# Draw object
-	obj = Path2D.new()
-	obj.arc(0, 0, r, 0, 2*np.pi)
 	ctx.translate(f[0], f[1])
-	ctx.strokeStyle = color
-	ctx.stroke(obj)
+	obj = Path2D.new()
+	obj.arc(0, 0, r, 0, 2.0*np.pi)
+	ctx.fillStyle = color
+	ctx.fill(obj)
 
+def draw_box(f, sz, color):
+	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.1)
+	ctx.translate(f[0], f[1])
+	ctx.fillStyle = color
+	obj = Path2D.new()
+	obj.rect(-sz[0]/2, -sz[1]/2, sz[0], sz[1])
+	ctx.fill(obj)
+	
 def draw_Gaussian(Mu, Sigma, color, color2):
 	ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.1) 
 	ctx.translate(Mu[0], Mu[1])
@@ -545,9 +585,16 @@ def errorHandler(e):
 #x = np.zeros(2*param.nbVarX) # Initial robot state (position and velocity)
 x = np.array([-np.pi/3.7, -np.pi/2.2, np.pi/4.1, 0, 0, 0]) # Initial robot state (position and velocity)
 x_target = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Target in joint space
-f_target = fkin(np.array([-np.pi/4, -np.pi/2, np.pi/4]), param) # Target in task space
 KP = np.diag([4E-2, 4E-2, 4E2]) # Joint space stiffness matrix
 KV = np.diag([1E1, 1E1, 1E1]) # Joint space damping matrix
+
+dist_target = 20.0 # Targeted distance to maintain
+f_target = np.array([-200.0, -400.0, 0]) # SDF location in task space 
+
+sdf_disc_radius = 80.0 # Disc radius
+sdf_box_size = np.array([160.0, 100.0]) # Box width and height
+sdf_box_offset = np.array([60.0, -60.0]) # Box position wrt the disc
+sdf_smoothing_ratio = 10.0 # Smoothing factor for softmax composition of objects 
 
 async def main():
 	global hover_joint, x
@@ -569,6 +616,9 @@ async def main():
 		
 		if document.getElementById('impedance-tab').ariaSelected=='true':
 			draw_robot(x_target[:param.nbVarX], '#FF3399')
+		if document.getElementById('taskimpedance2-tab').ariaSelected=='true':
+		    draw_disc(f_target[:2], sdf_disc_radius, '#33FF99')
+		    draw_box(f_target[:2]+sdf_box_offset, sdf_box_size, '#33FF99')
 		
 		draw_robot(x[:param.nbVarX], '#AAAAAA')
 		if move_joint &gt;= 0:
@@ -578,14 +628,8 @@ async def main():
 		if document.getElementById('taskimpedance-tab').ariaSelected=='true':
 			draw_selected_point(f_target, '#FF3399')
 			draw_Gaussian(f_target, np.linalg.inv(KP[:2,:2]*5E1+np.eye(2)*1E-6), '#FF3399', '#DD1177') # Draw stiffness ellipsoid
-		
 		if document.getElementById('taskimpedance2-tab').ariaSelected=='true':
-		    draw_circle(f_target, 80.0, '#FF3399')
-		    f = fkin(x[:param.nbVarX], param) + 1E-8
-		    #dist, grad = sdf(f)
-		    #gradTmp = KP[:2,:2] @ grad[:2]
-		    #KPtmp = np.outer(gradTmp, gradTmp)
-		    #draw_Gaussian(f, np.linalg.inv(KPtmp * 1E2 + np.eye(2)*1E-2), '#FF3399', '#DD1177') # Draw stiffness ellipsoid
+		    f = fkin(x[:param.nbVarX], param)
 		    draw_Gaussian(f, np.linalg.inv(KP[:2,:2] * 1E2 + np.eye(2)*1E-2), '#FF3399', '#DD1177') # Draw stiffness ellipsoid
 
 		await asyncio.sleep(0.00001)
