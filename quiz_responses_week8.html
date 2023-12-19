@@ -1,0 +1,83 @@
+﻿<!doctype html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<meta name='description' content='Robotics codes from scratch (RCFS) is a collection of source codes to study and test learning and optimization problems in robotics through simple 2D examples.'>
+<meta name='keywords' content='robotics codes, robotics tutorial, rcfs, robotics from scratch'>
+<meta name='author' content='Sylvain Calinon'>
+
+<title>Robotics codes from scratch</title>
+<link rel='canonical' href='https://robotics-codes-from-scratch.github.io/'>
+
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css' integrity='sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi' crossorigin='anonymous'>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+
+<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Permanent+Marker|Raleway&display=swap'>
+
+
+<script defer src='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js' integrity='sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3' crossorigin='anonymous'></script>
+
+
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css' integrity='sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X' crossorigin='anonymous'>
+<script defer src='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js' integrity='sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz' crossorigin='anonymous'></script>
+<script defer src='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js' integrity='sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05' crossorigin='anonymous'></script>
+
+<link rel='stylesheet' href='css/sidebars.css'> <!-- main navigation menu -->
+<link rel='stylesheet' href='css/main-template.css'>
+
+</head>
+
+<div class='container-fluid'>
+<head>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var result = document.getElementById('result');
+
+	// Write the result to the innerHTML of the result element using two lines
+	/*result.innerHTML += 'Question #:<br>';
+	result.innerHTML += 'The answer is . We can still use ergodic controller in this case. However, we can not use the properties of Gaussian distributions when computing the Fourier series coefficients of the target distribution but nothing would change for the agent trajectories. Still it is possible to compute Fourier series coefficients of a non-Gaussian distribution but it is computationally more expensive.<br>';
+
+    result.innerHTML += '------------------<br>';
+	result.innerHTML += 'Question #:<br>';
+	result.innerHTML += 'The answer is . In an ergodic trajectory the time-spent in a subset should match the spatial statistics of the subset, for all the possible subsets of the target distribution. Accordingly, as time goes to infinity all the points in the distribution are going to be visited more than once and the frequency of visits would match the original distribution.<br>';
+	*/
+	
+	result.innerHTML += 'Question 1:<br>';
+	result.innerHTML += 'The answer is b. The Fourier transform of a periodic cosine function is a Dirac function, corresponding to a single frequency peak.<br>';
+	
+	result.innerHTML += '------------------<br>';
+	result.innerHTML += 'Question 2:<br>';
+	result.innerHTML += 'The answer is b. The Fourier transform of a Gaussian distribution is another Gaussian distribution.<br>';
+	
+	result.innerHTML += '------------------<br>';
+	result.innerHTML += 'Question 3:<br>';
+	result.innerHTML += 'The answer is a. The primary use of the weighting terms in the ergodic control formulation is to prioritize a good match with the low frequency components of the target and the agent trajectories. This results in the agent caring first about the global exploration (crude global coverage prioritized) before more localized exploration (coverage of the remaining details). Local details of the exploration target are embedded in high frequency components whereas low frequency components encode the more general shape of the distribution.<br>';
+
+	result.innerHTML += '------------------<br>';
+	result.innerHTML += 'Question 4:<br>';
+	result.innerHTML += 'The answer is c. The average time spent in this region will be smaller than in other regions, but the agent can still pass through this region, which is for example important when the target distribution is multimodal, meaning that the agent needs to switch between two separated Gaussians. As time goes to infinity, the average time spent in the zero probability region will converge to zero.<br>';
+	
+	result.innerHTML += '------------------<br>';
+	result.innerHTML += 'Question 5:<br>';
+	result.innerHTML += 'The answer is c. An ergodic control objective can encode both reaching and exploration behaviors. In the case of a Dirac target distribution (the limit case of concentrating all the probability mass at a single point), the agent has to spend on average all its time at that point, which results in a reaching behavior if the agent does not start at that point.<br>';
+	
+});
+</script>
+
+<div class='container'>
+
+<h1>Ergodic Control</h1>
+
+<div id='result'></div>
+
+</div> <!-- container -->
+
+</div> <!--container-->
+</html>
+
