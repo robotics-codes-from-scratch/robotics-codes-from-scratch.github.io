@@ -5,6 +5,7 @@ class GlslRenderer
     constructor(canvas)
     {
         this.canvas = canvas;
+        this.renderCallback = null;
 
         this.gl = canvas.getContext("webgl2");
         if (!this.gl) {
@@ -112,6 +113,11 @@ class GlslRenderer
         this.framerate.element = element;
     }
 
+    setRenderCallback(callback)
+    {
+        this.renderCallback = callback;
+    }
+
     _createGeometry()
     {
         this.geometrybuffer = this.gl.createBuffer();
@@ -161,6 +167,9 @@ class GlslRenderer
             renderTarget.render(uniforms, this.geometrybuffer);
 
         this.finalRenderTarget.render(uniforms, this.geometrybuffer);
+
+        if (this.renderCallback != null)
+            this.renderCallback(uniforms);
 
         ++this.frameCounter;
         this.framerate.previous = timestamp;

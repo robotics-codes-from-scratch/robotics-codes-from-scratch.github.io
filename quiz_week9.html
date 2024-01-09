@@ -1,0 +1,198 @@
+﻿<!doctype html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<meta name='description' content='Robotics codes from scratch (RCFS) is a collection of source codes to study and test learning and optimization problems in robotics through simple 2D examples.'>
+<meta name='keywords' content='robotics codes, robotics tutorial, rcfs, robotics from scratch'>
+<meta name='author' content='Sylvain Calinon'>
+
+<title>Robotics codes from scratch</title>
+<link rel='canonical' href='https://robotics-codes-from-scratch.github.io/'>
+
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css' integrity='sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi' crossorigin='anonymous'>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+
+<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Permanent+Marker|Raleway&display=swap'>
+
+
+<script defer src='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js' integrity='sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3' crossorigin='anonymous'></script>
+
+
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.css' integrity='sha384-bYdxxUwYipFNohQlHt0bjN/LCpueqWz13HufFEV1SUatKs1cm4L6fFgCi1jT643X' crossorigin='anonymous'>
+<script defer src='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/katex.min.js' integrity='sha384-Qsn9KnoKISj6dI8g7p1HBlNpVx0I8p1SvlwOldgi3IorMle61nQy4zEahWYtljaz' crossorigin='anonymous'></script>
+<script defer src='https://cdn.jsdelivr.net/npm/katex@0.16.2/dist/contrib/auto-render.min.js' integrity='sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05' crossorigin='anonymous'></script>
+<script>
+let macros = {
+	'\\tp': '\\text{\\tiny{#1}}',
+	'\\trsp' : '\\top',
+	'\\psin' : '\\dagger',
+	'\\eqref': '\\href{###1}{(\\text{#1})}',
+	'\\ref': '\\href{###1}{\\text{#1}}',
+	'\\label': '\\htmlId{#1}{}'
+};
+document.addEventListener('DOMContentLoaded', function() {
+	renderMathInElement(document.body, {
+		// customised options
+		trust: (context) => ['\\htmlId', '\\href'].includes(context.command),
+		macros: macros,
+		// • auto-render specific keys, e.g.:
+		delimiters: [
+			{left: '$$', right: '$$', display: true},
+			{left: '$', right: '$', display: false},
+			{left: '\\(', right: '\\)', display: false},
+			{left: '\\begin{equation}', right: '\\end{equation}', display: true},
+			{left: '\\begin{equation*}', right: '\\end{equation*}', display: true},
+			{left: '\\begin{align}', right: '\\end{align}', display: true},
+			{left: '\\begin{align*}', right: '\\end{align*}', display: true},
+			{left: '\\begin{alignat}', right: '\\end{alignat}', display: true},
+			{left: '\\begin{gather}', right: '\\end{gather}', display: true},
+			{left: '\\begin{CD}', right: '\\end{CD}', display: true},
+			{left: '\\[', right: '\\]', display: true}
+		],
+		// • rendering keys, e.g.:
+		throwOnError : false
+	});
+});
+</script>
+	
+<!-- <script defer src='https://hypothes.is/embed.js' async></script> --> <!-- pyscript.css is incompatible with hypothes.is/embed.js-->
+
+
+<link rel='stylesheet' href='css/sidebars.css'> <!-- main navigation menu -->
+<link rel='stylesheet' href='css/main-template.css'>
+
+</head>
+
+<div class='container-fluid'>
+<head>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<script>
+	function sendAnswers() {
+		// Get user's answers
+		var userAnswers = []; // Array to store user's answers
+		for (var i = 1; i <= 5; i++) {
+			var select = document.getElementById('q' + i);
+			userAnswers.push(select.value);
+		}
+
+		var result = document.getElementById('result');
+
+		var link = document.createElement('a');
+		link.href = "mailto:tobias.loew@idiap.ch?cc=sylvain.calinon@idiap.ch&subject=rcfs_quiz_week9&body=" + encodeURIComponent(JSON.stringify(userAnswers));
+
+		result.appendChild(link);
+
+		link.click();
+	}
+</script>
+
+<div class='container'>
+
+<h1>Manifolds in Robotics</h1>
+
+<h5>Question 1</h5>
+<p>Can unit quaternions be employed for the control of robotic manipulators?</p>
+<div class='container text-center'>
+<div class='row'>
+<div class='col'>
+	<select class='form-select' id='q1'>
+		<option value='-'>Select an option</option>
+		<option value='a'>Yes, quaternions provide a way to synchronize the control of multiple robots running at different frequencies.</option>
+		<option value='b'>Yes, quaternions allows inverse kinematics to be computed efficiently.</option>
+		<option value='e'>Yes, by utilizing quaternions, robotic manipulators become resistant to external disturbances, allowing them to maintain trajectory accuracy effortlessly.</option>
+		<option value='c'>No, quaternions make it harder to achieve precise control of the manipulator's end-effector.</option>
+		<option value='d'>No, quaternions are unfortunately not yet compatible with existing robot control frameworks.</option>
+	</select>
+</div>
+</div>
+</div> <!-- container -->
+<br><br>
+
+<h5>Question 2</h5>
+<p>What are geodesics on Riemannian manifolds?</p>
+<div class='container text-center'>
+<div class='row'>
+<div class='col'>
+	<select class='form-select' id='q2'>
+		<option value='-'>Select an option</option>
+		<option value='a'>Geodesics are parallel lines on Riemannian manifolds.</option>
+		<option value='b'>Geodesics are the curvatures on Riemannian manifolds.</option>
+		<option value='c'>Geodesics are the mappings between the manifolds and the tangent spaces.</option>
+		<option value='d'>Geodesics are the curves that connect two points on the manifold in the shortest ways.</option>
+		<option value='e'>Geodesics are the vectors tangent to the manifold at a given point on the manifold.</option>
+	</select>
+</div>
+</div>
+</div> <!-- container -->
+<br><br>
+
+<h5>Question 3</h5>
+<p>In what ways can Gaussians on Riemannian manifolds improve robotic perception?</p>
+<div class='container text-center'>
+<div class='row'>
+<div class='col'>
+	<select class='form-select' id='q3'>
+		<option value='-'>Select an option</option>
+		<option value='a'>Gaussians on Riemannian manifolds allow for precise estimation of object velocities.</option>
+		<option value='b'>Gaussians on Riemannian manifolds enable accurate representation of object dimensions.</option>
+		<option value='c'>Gaussians on Riemannian manifolds capture uncertainty on manifold-valued data (e.g., for orientation data).</option>
+		<option value='d'>Gaussians on Riemannian manifolds help at enhancing the resolution of robot sensors.</option>
+		<option value='e'>Gaussians on Riemannian manifolds enable obstacle avoidance in diverse robotic environments.</option>
+	</select>
+</div>
+</div>
+</div> <!-- container -->
+<br><br>
+
+<h5>Question 4</h5>
+<p>What distinguishes regression on Riemannian manifolds from traditional regression methods?</p>
+<div class='container text-center'>
+<div class='row'>
+<div class='col'>
+	<select class='form-select' id='q4'>
+		<option value='-'>Select an option</option>
+		<option value='a'>Riemannian manifold regression aims to automatically find the manifold on which the data lie.</option>
+		<option value='b'>Riemannian manifold regression disregards the curvature of the data.</option>
+		<option value='c'>Riemannian manifold regression assumes a perfect linear fit between the predictor and response variables.</option>
+		<option value='d'>Riemannian manifold regression considers the underlying geometric structure of the data.</option>
+		<option value='e'>Riemannian manifold regression only works with Euclidean datasets.</option>
+	</select>
+</div>
+</div>
+</div> <!-- container -->
+<br><br>
+
+<h5>Question 5</h5>
+<p> Which of the following statements is true regarding Riemannian manifold regression?</p>
+<div class='container text-center'>
+<div class='row'>
+<div class='col'>
+	<select class='form-select' id='q5'>
+		<option value='-'>Select an option</option>
+		<option value='a'>It allows input and output data to be on different manifolds, with tangent spaces that can have different dimensions.</option>
+		<option value='b'>It allows input and output data to be on different manifolds, with tangent spaces that have the same dimension.</option>
+		<option value='c'>It allows the input data to be on any manifold, but it requires the output data to be Euclidean.</option>
+		<option value='d'>It allows the output data to be on any manifold, but it requires the input data to be Euclidean.</option>
+		<option value='e'>It requires input and output data to be on the same manifold, by relying on parallel transport.</option>
+	</select>
+</div>
+</div>
+</div> <!-- container -->
+<br><br>
+
+<button type='button' class='btn btn-primary' onclick='sendAnswers()'>Send answers</button>
+</form>
+<br><br>
+
+<div id='result'></div>
+
+</div> <!-- container -->
+
+</div> <!--container-->
+</html>
+
