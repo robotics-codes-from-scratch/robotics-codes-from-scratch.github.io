@@ -1,0 +1,529 @@
+﻿<div class="row">
+    <div class="col-sm-1"></div>
+
+    <div class="col-sm-7">
+        <br/><br/>
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button aria-controls="impedance-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#impedance-tab-pane" data-bs-toggle="tab" id="impedance-tab" role="tab" type="button">Impedance in joint space</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button aria-controls="taskimpedance-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#taskimpedance-tab-pane" data-bs-toggle="tab" id="taskimpedance-tab" role="tab" type="button">Impedance in task space</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button aria-controls="taskimpedance2-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#taskimpedance2-tab-pane" data-bs-toggle="tab" id="taskimpedance2-tab" role="tab" type="button">Impedance in task space with SDF</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <div aria-labelledby="impedance-tab" class="tab-pane fade show active" id="impedance-tab-pane" role="tabpanel" tabindex="0">
+                <py-repl id="myrepl" std-err="errors" std-out="output">
+                    #x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
+                    x_target = np.array([-np.pi/4, -np.pi/2, np.pi/4]) # Target in joint space
+
+                    param.damping = 20.0 # Viscous friction
+
+                    #kP = 400.0 # Stiffness gain
+                    #kV = 10.0 # Damping gain
+
+                    KP = np.diag([4E2, 4E2, 4E2]) # Joint space stiffness matrix
+                    KV = np.diag([1E1, 1E1, 1E1]) # Joint space damping matrix
+
+                    def controlCommand(x, param):
+                        # Torques for gravity compensation
+                        #ug = inverse_dynamics(np.append(x[:param.nbVarX], np.zeros(param.nbVarX)), np.zeros(param.nbVarX), param) 
+                        ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
+                        #u = kP * (x_target - x[:param.nbVarX]) - kV * x[param.nbVarX:] + ug # Impedance controller in joint space
+                        u = KP @ (x_target - x[:param.nbVarX]) - KV @ x[param.nbVarX:] + ug # Impedance controller in joint space
+                        return u
+                </py-repl>
+            </div>
+
+            <div aria-labelledby="taskimpedance-tab" class="tab-pane fade" id="taskimpedance-tab-pane" role="tabpanel" tabindex="0">
+                <py-repl std-err="errors" std-out="output">
+                    x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
+                    f_target = fkin(np.array([-np.pi/4, -np.pi/2, np.pi/4]), param) # Target in task space
+
+                    KP = np.diag([4E-2, 4E-2, 4E2]) # Task space stiffness (position and orientation)
+                    KV = np.diag([1E-3, 1E-3, 1E1]) # Task space damping (position and orientation)
+
+                    def controlCommand(x, param):
+                        ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
+                        f = fkin(x[:param.nbVarX], param) # Forward kinematics
+                        J = Jkin(x[:param.nbVarX], param) # Corresponding Jacobian matrix
+                        df = J @ x[param.nbVarX:] # End-effector velocity
+                        rf = np.hstack([f_target[:2] - f[:2], logmap(f_target[2], f[2])]) # Residual vector
+                        u = J.T @ (KP @ rf - KV @ df) + ug # Impedance controller in task space
+                        return u
+                </py-repl>
+            </div>
+
+            <div aria-labelledby="taskimpedance2-tab" class="tab-pane fade" id="taskimpedance2-tab-pane" role="tabpanel" tabindex="0">
+                <py-repl std-err="errors" std-out="output">
+                    x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
+
+                    dist_target = 20.0 # Targeted distance to maintain
+                    f_target = np.array([-200.0, -400.0, 0]) # SDF location in task space 
+                    sdf_disc_radius = 80.0 # Disc radius
+                    sdf_box_size = np.array([160.0, 100.0]) # Box width and height
+                    sdf_box_offset = np.array([60.0, -60.0]) # Box position wrt the disc
+                    sdf_smoothing_ratio = 10.0 # Smoothing factor for softmax composition of SDF shapes 
+
+                    KP = np.diag([4E-2, 0E-2, 0E3]) # Task space stiffness (position and orientation)
+                    KP0 = np.copy(KP)
+                    KV = np.diag([1E-3, 1E-3, 1E1]) # Task space damping (position and orientation)
+
+                    def controlCommand(x, param):
+                        global KP
+                        ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
+                        f = fkin(x[:param.nbVarX], param) # Forward kinematics
+                        J = Jkin(x[:param.nbVarX], param) # Corresponding Jacobian matrix
+                        df = J @ x[param.nbVarX:] # End-effector velocity
+                        dist, grad = sdf(f) # Signed distance function and corresponding gradient
+                        R = np.array([[grad[0], -grad[1]], [grad[1], grad[0]]]) # Local coordinate system (rotation matrix)
+                        KP[:2,:2] = R @ KP0[:2,:2] @ R.T # Adapt stiffness to local coordinate system
+                        grad[:2] = grad[:2] * (dist - dist_target) # Residual vector
+                        u = J.T @ (KP @ grad - KV @ df) + ug # Impedance controller in task space
+                        return u
+                </py-repl>
+            </div>
+        </div>
+
+        <p id="output" style="font-size: 70%; color: #777777;">(click on the green run button to run the code; the robot can be perturbed using the mouse)</p>
+        <p id="errors" style="font-size: 70%; color: #880000;"></p>
+    </div> <!--sm-7-->
+
+    <div class="col-sm-4">
+        <div class="sticky-sm-top">
+            <canvas height="700px" id="canvas" style="width:100%;" width="900px"></canvas>
+        </div>
+    </div> <!--sm-4-->
+</div> <!--row-->
+
+
+<py-script>
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document, console
+    import numpy as np
+    import asyncio
+
+    # SDF for circle
+    def sdf_circle(f, p, r):
+        return np.linalg.norm(p-f) - r 
+
+    # SDF for box
+    def sdf_box(f, p, sz):
+        dtmp = np.abs(f-p) - sz * 0.5
+        d = np.linalg.norm(np.maximum(dtmp, [0, 0])) + np.min([np.max([dtmp[0], dtmp[1]]), 0])
+        return d
+
+    def smooth_union(d1, d2, k):
+        '''
+        Smooth union (see https://www.shadertoy.com/view/lt3BW2)
+        Note: will only be correct on the outside, see https://iquilezles.org/articles/interiordistance/
+        '''
+        h = np.max([k - np.abs(d1-d2), 0])
+        d = np.min([d1, d2]) - (h**2)*0.25/k
+        return d
+
+    def compute_distance(f):
+        p1 = f_target[:2]
+        p2 = f_target[:2] + sdf_box_offset
+        dist = np.zeros(f.shape[1])
+        for t in range(f.shape[1]):
+            d1 = sdf_circle(f[:2,t], p1, sdf_disc_radius)
+            d2 = sdf_box(f[:2,t], p2, sdf_box_size)
+            dist[t] = smooth_union(d1, d2, sdf_smoothing_ratio) # Smoothing union with softmax composition of SDF shapes 
+        return dist
+
+    # SDF
+    def sdf(f):
+        '''
+        Compound shape 1
+        '''
+        dist = compute_distance(f[:,None])
+        #Numerical gradient estimate
+        eps = 1E-6
+        X = np.tile(f[:2].reshape((-1,1)), [1,2])
+        F1 = compute_distance(X)
+        F2 = compute_distance(X+np.eye(2)*eps)
+        grad = np.zeros(3) 
+        grad[:2] = -(F2-F1) / eps
+        grad[:2] = grad[:2] / (np.linalg.norm(grad[:2]) + 1E-8) # Position residual
+        f_target[2] = np.arctan2(grad[1], grad[0])
+        grad[2] = logmap(f_target[2], f[2]) # Orientation residual
+        return dist, grad
+
+    # Logarithmic map for S^1 manifold
+    def logmap(f, f0):
+        diff = np.imag(np.log(np.exp(f0*1j).conj().T * np.exp(f*1j).T)).conj() # Orientation residual
+        return diff
+
+    # Forward kinematics for end-effector (in robot coordinate system)
+    def fkin(x, param):
+        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+        f = np.stack([
+            param.l @ np.cos(L @ x),
+            param.l @ np.sin(L @ x),
+            np.mod(np.sum(x,0)+np.pi, 2*np.pi) - np.pi
+        ])
+        return f
+
+    # Forward kinematics for all joints (in robot coordinate system)
+    def fkin0(x, param):
+        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+        f = np.vstack([
+            L @ np.diag(param.l) @ np.cos(L @ x),
+            L @ np.diag(param.l) @ np.sin(L @ x)
+        ])
+        f = np.hstack([np.zeros([2,1]), f])
+        return f
+
+    # Jacobian with analytical computation (for single time step)
+    def Jkin(x, param):
+        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+        J = np.vstack([
+            -np.sin(L @ x).T @ np.diag(param.l) @ L,
+             np.cos(L @ x).T @ np.diag(param.l) @ L,
+             np.ones([1,param.nbVarX])
+        ])
+        return J
+
+    def computeGCML(x, param):
+        # Auxiliary matrices
+        l = np.reshape(param.l/param.drawScale, [1, param.nbVarX])
+        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+        m = np.reshape(param.m, [1, param.nbVarX])
+        Lm = np.triu(np.ones([m.shape[1], m.shape[1]])) * np.repeat(m, m.shape[1],0)
+
+    #   # Elementwise computation of G, C, and M
+    #    G = np.zeros(param.nbVarX)
+    #    M = np.zeros([param.nbVarX, param.nbVarX])
+    #    C =  np.zeros([param.nbVarX, param.nbVarX])
+    #    for k in range(param.nbVarX):
+    #        G[k] = -sum(m[0,k:]) * param.gravity * l[0,k] * np.cos(L[k,:] @ x[:param.nbVarX])
+    #        for i in range(param.nbVarX):
+    #            S = sum(m[0,k:param.nbVarX] * np.heaviside(np.array(range(k, param.nbVarX)) - i, 1))
+    #            M[k,i] = l[0,k] * l[0,i] * np.cos(L[k,:] @ x[:param.nbVarX] - L[i,:] @ x[:param.nbVarX]) * S
+    #            C[k,i] = -l[0,k] * l[0,i] * np.sin(L[k,:] @ x[:param.nbVarX] - L[i,:] @ x[:param.nbVarX]) * S
+    
+        # Computation in matrix form of G, C, and M
+        G = -np.sum(Lm,1) * param.l * np.cos(L @ x[:param.nbVarX]) * param.gravity
+        C = -(l.T * l) * np.sin(np.reshape(L @ x[:param.nbVarX], [param.nbVarX,1]) - L @ x[:param.nbVarX]) * (Lm**.5 @ ((Lm**.5).T))
+        M = (l.T * l) * np.cos(np.reshape(L @ x[:param.nbVarX], [param.nbVarX,1]) - L @ x[:param.nbVarX]) * (Lm**.5 @ ((Lm**.5).T))
+
+        G = L.T @ G
+        C = L.T @ C
+        M = L.T @ M @ L
+    
+        return G,C,M,L
+
+    def inverse_dynamics(x, ddx, param):
+        G,C,M,L = computeGCML(x, param)
+    #   u = M @ ddx - G - C @ (L @ x[param.nbVarX:])**2 + x[param.nbVarX:] * param.damping # With gravity, Coriolis and viscous friction compensation models
+        u = M @ ddx - G - C @ (L @ x[param.nbVarX:])**2 # With gravity and Coriolis models 
+        return u
+
+    def fdyn(x, u, param):
+        G,C,M,L = computeGCML(x, param)
+        ddx = np.linalg.inv(M) @ (u + G + C @ (L @ x[param.nbVarX:])**2 - x[param.nbVarX:] * param.damping)
+        return ddx
+
+    def controlCommand(x, param):
+        u = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
+    #   u = np.zeros(param.nbVarX)
+        return u
+
+    def externalPerturbation(x, param):
+        u = np.zeros(param.nbVarX)
+        if move_joint &gt;= 0:
+            f = fkin(x[:move_joint+1], param2)
+            J = Jkin(x[:move_joint+1], param2)
+    #       pinvJ = np.linalg.inv(J.T @ J + np.eye(param2.nbVarX) * 1E-4) @ J.T # Damped pseudoinverse
+            u[:move_joint+1] = J[:2,:].T @ (mouse - f[:2]) * 5E-3 # Torque commands
+    #       u[:move_joint+1] = pinvJ @ (mouse - f) * 1E1 # Torque commands
+    #       u[:move_joint] = J[:,:move_joint].T @ (mouse - f) * 1E-1 # Torque commands
+        return u
+    
+    ## Parameters
+    # ===============================
+    param = lambda: None # Lazy way to define an empty class in python
+    param.nbVarX = 3 # State space dimension
+    param.drawScale = 200.0
+    param.l = np.ones(param.nbVarX) * param.drawScale # Robot links lengths
+    param.m = np.ones(param.nbVarX) # Robot links masses
+    param.dt = 1E-2 # Time step length
+    param.damping = 20.0 # Viscous friction
+    param.gravity = 9.81 # Gravity
+
+    param2 = lambda: None # Lazy way to define an empty class in python
+
+    #########################################################################################
+
+    # Mouse events
+    mouse0 = np.zeros(2)
+    mouse = np.zeros(2)
+    mousedown = 0
+    hover_joint = -1
+    move_joint= -1
+
+    def onMouseMove(event):
+        global mouse, mouse0
+        offset = canvas.getBoundingClientRect()
+        mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
+        mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
+        mouse[0] = (mouse0[0] - canvas.width * 0.5)
+        mouse[1] = -(mouse0[1] - canvas.height * 0.1)
+
+    def onTouchMove(event):
+        global mouse, mouse0
+        offset = event.target.getBoundingClientRect()
+        mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
+        mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
+        mouse[0] = (mouse0[0] - canvas.width * 0.5)
+        mouse[1] = -(mouse0[1] - canvas.height * 0.1)
+
+    def onMouseDown(event):
+        global mousedown, move_joint
+        mousedown = 1
+        if hover_joint &gt;= 0:
+            f0 = fkin0(x[:param.nbVarX], param)
+            param2.l = np.append(param.l[:hover_joint], np.linalg.norm(f0[:,hover_joint] - mouse))
+            param2.nbVarX = hover_joint+1
+            move_joint = hover_joint
+
+    def onMouseUp(event):
+        global mousedown, move_joint
+        mousedown = 0
+        move_joint = -1
+
+    def onWheel(event):
+        global x
+        if hover_joint &gt;= 0:
+            x[hover_joint] -= 0.2 * (event.deltaY/106)
+
+
+    onMouseMoveProxy = create_proxy(onMouseMove)
+    onTouchMoveProxy = create_proxy(onTouchMove)
+    onMouseDownProxy = create_proxy(onMouseDown)
+    onMouseUpProxy = create_proxy(onMouseUp)
+    onWheelProxy = create_proxy(onWheel)
+
+
+    #########################################################################################
+
+    canvas = document.getElementById('canvas')
+    ctx = canvas.getContext('2d')
+
+    def clear_screen():
+        ctx.setTransform(1, 0, 0, 1, 0, 0)
+        ctx.fillStyle = 'white'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    def draw_robot(x, color):
+        global hover_joint
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.1)
+
+        f = fkin0(x, param) 
+
+        # Draw base
+        ctx.translate(f[0,0], f[1,0])
+        ctx.lineWidth = '4'
+        ctx.strokeStyle = 'white'
+        ctx.fillStyle = color
+        ctx.beginPath()
+        ctx.arc(0, 0, 40, 0, np.pi)
+        ctx.rect(-40, 0, 80, -40)
+        ctx.fill()
+        ctx.strokeStyle = color
+        for i in range(5):
+            ctx.beginPath()
+            ctx.moveTo(-30+i*15, -40)
+            ctx.lineTo(-40+i*15, -60)
+            ctx.stroke()
+
+        # Draw links and articulations
+        obj_articulation = Path2D.new()
+        obj_articulation.arc(0, 0, 12, 0, 2*np.pi)
+        ctx.lineCap = 'round'
+        ctx.lineJoin = 'round'
+        for i in range(param.nbVarX):
+            if i &lt; param.nbVarX:
+                # Draw links outlines
+                ctx.lineWidth = '46'
+                ctx.strokeStyle = 'white'
+                ctx.beginPath()
+                ctx.lineTo(f[0,i], f[1,i])
+                ctx.lineTo(f[0,i+1], f[1,i+1])
+                ctx.stroke()
+                # Draw links
+                obj = Path2D.new()
+                obj.lineTo(f[0,i], f[1,i])
+                obj.lineTo(f[0,i+1], f[1,i+1])
+                ctx.lineWidth = '38'
+                ctx.strokeStyle = color
+                ctx.stroke(obj)
+                if ctx.isPointInStroke(obj, mouse0[0], mouse0[1]) and move_joint &lt; 0:
+                    #console.log(i)
+                    hover_joint = i
+
+            # Draw articulations
+            ctx.lineWidth = '4'
+            ctx.strokeStyle = 'white'
+            ctx.translate(f[0,i], f[1,i])
+            ctx.stroke(obj_articulation)
+            ctx.translate(-f[0,i], -f[1,i])
+
+    def draw_selected_point(f, color):
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.1)
+        # Draw object
+        obj = Path2D.new()
+        obj.arc(0, 0, 6, 0, 2*np.pi)
+        ctx.translate(f[0], f[1])
+        ctx.fillStyle = color
+        ctx.fill(obj)
+
+    def draw_disc(f, r, color):
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.1)
+        ctx.translate(f[0], f[1])
+        obj = Path2D.new()
+        obj.arc(0, 0, r, 0, 2.0*np.pi)
+        ctx.fillStyle = color
+        ctx.fill(obj)
+
+    def draw_box(f, sz, color):
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.1)
+        ctx.translate(f[0], f[1])
+        ctx.fillStyle = color
+        obj = Path2D.new()
+        obj.rect(-sz[0]/2, -sz[1]/2, sz[0], sz[1])
+        ctx.fill(obj)
+    
+    def draw_Gaussian(Mu, Sigma, color, color2):
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.1) 
+        ctx.translate(Mu[0], Mu[1])
+        s, U = np.linalg.eig(Sigma)
+        al = np.linspace(-np.pi, np.pi, 50)
+        D = np.diag(s) * 100
+        R = np.real(U @ np.sqrt(D))
+        msh = R @ np.array([np.cos(al),np.sin(al)])
+        # Draw Gaussian
+        obj = Path2D.new()
+        obj.moveTo(msh[0,0], msh[1,0])
+        for i in range(msh.shape[1]-1):
+            obj.lineTo(msh[0,i+1], msh[1,i+1])
+        obj.closePath()
+        ctx.strokeStyle = color2
+        ctx.stroke(obj)
+        ctx.fillStyle = color
+        ctx.fill(obj)
+        obj = Path2D.new()
+        obj.arc(0, 0, 3.0, 0, 2.0*np.pi)
+        ctx.fillStyle = color2 
+        ctx.fill(obj)
+
+    #########################################################################################
+
+    def errorHandler(e):
+        msg = 'Error: ' + str(e)
+        console.error(msg)
+        el = document.getElementById('errors')
+        el.innerText = msg
+        #el.textContent = msg
+
+
+    #########################################################################################
+
+    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+    document.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
+    document.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+    document.addEventListener('wheel', onWheelProxy) #for standard mouse
+
+    mustStop = asyncio.Event()
+    stopped = asyncio.Event()
+
+    async def cleanup():
+        mustStop.set()
+
+        document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+        document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+        document.removeEventListener('mousedown', onMouseDownProxy) #for standard mouse
+        document.removeEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+        document.removeEventListener('mouseup', onMouseUpProxy) #for standard mouse
+        document.removeEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+        document.removeEventListener('wheel', onWheelProxy) #for standard mouse
+
+        await stopped.wait()
+
+    document.cleanup = cleanup
+
+
+    #########################################################################################
+
+    #x = np.zeros(2*param.nbVarX) # Initial robot state (position and velocity)
+    x = np.array([-np.pi/3.7, -np.pi/2.2, np.pi/4.1, 0, 0, 0]) # Initial robot state (position and velocity)
+    x_target = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Target in joint space
+    KP = np.diag([4E-2, 4E-2, 4E2]) # Joint space stiffness matrix
+    KV = np.diag([1E1, 1E1, 1E1]) # Joint space damping matrix
+
+    dist_target = 20.0 # Targeted distance to maintain
+    f_target = np.array([-200.0, -400.0, 0]) # SDF location in task space 
+
+    sdf_disc_radius = 80.0 # Disc radius
+    sdf_box_size = np.array([160.0, 100.0]) # Box width and height
+    sdf_box_offset = np.array([60.0, -60.0]) # Box position wrt the disc
+    sdf_smoothing_ratio = 10.0 # Smoothing factor for softmax composition of SDF shapes 
+
+    async def main():
+        global hover_joint, x
+
+        while not mustStop.is_set():
+            try:
+                u = controlCommand(x, param) + externalPerturbation(x, param) # Torque commands
+                ddx = fdyn(x, u, param) # Compute accelerations
+                x += np.append(x[param.nbVarX:] + 0.5 * ddx * param.dt, ddx) * param.dt # Update state
+            except Exception as e:
+                errorHandler(e)
+                u = np.zeros(param.nbVarX)
+        
+            # Reinit hovering variables
+            hover_joint = -1
+
+            # Rendering
+            clear_screen()
+        
+            if document.getElementById('impedance-tab').ariaSelected=='true':
+                draw_robot(x_target[:param.nbVarX], '#FF3399')
+            if document.getElementById('taskimpedance2-tab').ariaSelected=='true':
+                draw_disc(f_target[:2], sdf_disc_radius, '#33FF99')
+                draw_box(f_target[:2]+sdf_box_offset, sdf_box_size, '#33FF99')
+        
+            draw_robot(x[:param.nbVarX], '#AAAAAA')
+            if move_joint &gt;= 0:
+                f = fkin(x[:move_joint+1], param2)
+                draw_selected_point(f, '#777777')
+         
+            if document.getElementById('taskimpedance-tab').ariaSelected=='true':
+                draw_selected_point(f_target, '#FF3399')
+                draw_Gaussian(f_target, np.linalg.inv(KP[:2,:2]*5E1+np.eye(2)*1E-6), '#FF3399', '#DD1177') # Draw stiffness ellipsoid
+            if document.getElementById('taskimpedance2-tab').ariaSelected=='true':
+                f = fkin(x[:param.nbVarX], param)
+                draw_Gaussian(f, np.linalg.inv(KP[:2,:2] * 1E2 + np.eye(2)*1E-2), '#FF3399', '#DD1177') # Draw stiffness ellipsoid
+
+            await asyncio.sleep(0.00001)
+
+        stopped.set()
+
+    pyscript.run_until_complete(main())
+
+</py-script>

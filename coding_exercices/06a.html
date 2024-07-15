@@ -1,0 +1,389 @@
+﻿<div class="row">
+    <div class="col-sm-1"></div>
+
+    <div class="col-sm-7">
+        <h1>Exercise 6a<br/>Planning with linear quadratic regulator</h1>
+        <p>Previously, in exercises 4 and 5, a desired target position was defined either in joint space or task space, without specifying the timings when the robot should follow to reach these target positions. We here extend the optimization to problems in which we can describe the timings and consider viapoints or full reference paths to be tracked, which provides the robot with planning and anticipation capability.<p>
+        <p>Optimal control is the principled way of planning a robot motion by specifying timings and/or a set of viapoints or a reference trajectory to follow.</p>
+        <p>Linear quadratic regulator (LQR) is the most simple form of optimal control. In this exercise, the goal is to understand how LQR works and how it can be applied to robot planning problems.</p>
+        <p>This exercise considers a point-mass agent in a 2D space. The two viapoints can be moved with the mouse. The provided code snippet allows you to specify the precision matrices used in LQR and to change the placement of two viapoints. The series of control commands generates a resulting path displayed in the figure (the black point shows the initial position). The figure also shows the corresponding covariance matrices (inverses of precision matrices) for the two viapoints (in pink and green).</p>
+        <ul class="list-group list-group-numbered">
+            <li class="list-group-item">
+            Modify the code so that the point-mass agent first passes through any point on the pink line (as displayed in the figure) and then reaches the green point at the end of the motion. This can be achieved by modifying the entries of <code>Q1</code>. Move the green point and observe the resulting path. Set <code>Q1</code> back to an identity matrix.
+            </li>
+            <li class="list-group-item">
+                <ul>
+                    <li>Modify the code by setting <code>param.nbDeriv=2</code> so that the point-mass agent is controlled with acceleration commands instead of velocity commands (system dynamics defined as a double integrator instead of a simple integrator).</li>
+                    <li>By modifying the entries of <code>Q1</code> and <code>Q2</code>, set precision matrices so that the first keypoint can be reached with any velocity and the final keypoint is reached with null velocity.</li>
+                    <li>Try to decrease the values in the diagonal of <code>Q1</code> and <code>Q2</code> to change the desired precision requested to pass through the two viapoints and observe the results.</li>
+                    <li>Try to modify the control weight <code>param.r</code> and observe the result on the path.</li>
+                    <li>Modify the code so that the first keypoint is reached at time steps 20 instead of 50. What do you observe?</li>
+                </ul>
+            </li>
+        </ul>
+        <br/>
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button aria-controls="question1-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#question1-tab-pane" data-bs-toggle="tab" id="question1-tab" role="tab" type="button">LQR in task space</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button aria-controls="answer1-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#answer1-tab-pane" data-bs-toggle="tab" id="answer1-tab" role="tab" type="button">Answer 1</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button aria-controls="answer2-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#answer2-tab-pane" data-bs-toggle="tab" id="answer2-tab" role="tab" type="button">Answer 2</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <div aria-labelledby="question1-tab" class="tab-pane fade show active" id="question1-tab-pane" role="tabpanel" tabindex="0">
+                <py-repl std-err="errors" std-out="output">
+                    param.nbVarPos = 2 # Dimension of position variable
+                    param.nbDeriv = 1 # Number of derivatives (1 for velocity commands)
+                    param.nbVarX = param.nbVarPos * param.nbDeriv # Dimension of the state space
+                    param.r = 1E-3 # Control command weight
+                    # param.Mu = np.array([[100, 100], [0, 100]]) # Viapoints positions
+
+                    x = np.array([0, 0]) # Initial position
+
+                    # Time occurrence of viapoints
+                    tl = np.array([50, 100])
+
+                    # Precision matrix for the first viapoint
+                    # Q1 = np.diag([1.0, 1.0]) # Precision matrix for a state described by position
+                    Q1 = np.eye(param.nbVarX)
+
+                    # Precision matrix for the second viapoint
+                    Q2 = np.eye(param.nbVarX)
+
+                    xs = solve_LQR(x, param) #Compute trajectory 
+                </py-repl>
+            </div>
+
+            <div aria-labelledby="answer1-tab" class="tab-pane fade" id="answer1-tab-pane" role="tabpanel" tabindex="0">
+                <py-repl std-err="errors" std-out="output">
+                    param.nbVarPos = 2 # Dimension of position variable
+                    param.nbDeriv = 1 # Number of derivatives (1 for velocity commands)
+                    param.nbVarX = param.nbVarPos * param.nbDeriv # Dimension of the state space
+                    param.r = 1E-3 # Control command weight
+                    param.Mu = np.array([[-50, 100], [0, 100]]) # Viapoints positions
+
+                    x = np.array([0, 0]) # Initial position
+
+                    # Time occurrence of viapoints
+                    tl = np.array([50, 100])
+
+                    # Precision matrix for the first viapoint
+                    Q1 = np.diag([10.0, 0.0])
+
+                    # Precision matrix for the second viapoint
+                    Q2 = np.eye(param.nbVarX)
+
+                    xs = solve_LQR(x, param) #Compute trajectory 
+                </py-repl>
+            </div>
+
+            <div aria-labelledby="answer2-tab" class="tab-pane fade" id="answer2-tab-pane" role="tabpanel" tabindex="0">
+                <py-repl std-err="errors" std-out="output">
+                    param.nbVarPos = 2 # Dimension of position variable
+                    param.nbDeriv = 2 # Number of derivatives (2 for acceleration commands)
+                    param.nbVarX = param.nbVarPos * param.nbDeriv # Dimension of the state space
+                    param.r = 1E-3 # Control command weight
+
+                    x = np.array([0, 0]) # Initial position
+
+                    # Time occurrence of viapoints
+                    tl = np.array([20, 100])
+
+                    # Precision matrix for the first viapoint
+                    Q1 = np.diag([1.0, 1.0, 0, 0])
+
+                    # Precision matrix for the second viapoint
+                    Q2 = np.eye(param.nbVarX)
+
+                    xs = solve_LQR(x, param) #Compute trajectory 
+                </py-repl>
+            </div>
+        </div>
+
+        <br/><br/>
+    </div> <!--sm-7-->
+
+    <div class="col-sm-4">
+        <div class="sticky-sm-top" style="padding: 2rem 1rem 1rem 1rem;">
+            <hr/>
+            <div class="row justify-content-between">
+                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Output</button></div>
+                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgsOutput()">Clear</button></div>
+            </div>
+            <div id="output"></div>
+            <hr/>
+            <div class="row justify-content-between">
+                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Error</button></div>
+                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgs()">Clear</button></div>
+            </div>
+            <div id="errors"></div>
+            <hr/>
+            <canvas height="700px" id="canvas" style="width:100%;" width="900px"></canvas>
+        </div>
+    </div> <!--sm-4-->
+</div> <!--row-->
+
+
+<py-script>
+    def print(x):
+        display(x, target='output')
+</py-script>
+
+
+<py-script std-err="errors" std-out="output">
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document, console
+    import numpy as np
+    import asyncio
+    from math import factorial
+
+    #########################################################################################
+    def compute_transfer_matrices(param):
+        A1d = np.zeros((param.nbDeriv,param.nbDeriv))
+        B1d = np.zeros((param.nbDeriv,1))
+
+        for i in range(param.nbDeriv):
+            A1d += np.diag( np.ones(param.nbDeriv-i) ,i ) * param.dt**i * 1/factorial(i)
+            B1d[param.nbDeriv-i-1] = param.dt**(i+1) * 1/factorial(i+1)
+
+        A = np.kron(A1d,np.identity(param.nbVarPos))
+        B = np.kron(B1d,np.identity(param.nbVarPos))
+
+        # Build Sx and Su transfer matrices
+        Su = np.zeros((param.nbVarX*param.nbData,param.nbVarPos * (param.nbData-1)))
+        Sx = np.kron(np.ones((param.nbData,1)),np.eye(param.nbVarX,param.nbVarX))
+        M = B
+        for i in range(1,param.nbData):
+            Sx[i*param.nbVarX:param.nbData*param.nbVarX,:] = np.dot(Sx[i*param.nbVarX:param.nbData*param.nbVarX,:], A)
+            Su[param.nbVarX*i:param.nbVarX*i+M.shape[0],0:M.shape[1]] = M
+            M = np.hstack((np.dot(A,M),B)) # [0,nb_state_var-1]
+        return Sx, Su
+
+    def solve_LQR(x0, param):
+        idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)]).flatten() 
+        Q = np.zeros((param.nbVarX * param.nbPoints, param.nbVarX * param.nbPoints))
+        Q[:param.nbVarX, :param.nbVarX] = Q1
+        Q[param.nbVarX:, param.nbVarX:] = Q2
+        R = np.identity((param.nbData-1) * param.nbVarU) * param.r
+        # Batch LQR Reproduction
+        Sx, Su = compute_transfer_matrices(param)
+        x0 = np.append(x, np.zeros(param.nbVarX-param.nbVarPos))
+        xd = np.vstack([param.Mu, np.zeros((param.nbVarX-param.nbVarPos, param.nbPoints))]).T.flatten()
+        u_hat = np.linalg.pinv(Su[idx,:].T @ Q @ Su[idx,:] + R) @ Su[idx,:].T @ Q @ (xd - Sx[idx,:] @ x0)
+        x_hat = (Sx @ x0 + Su @ u_hat).reshape((param.nbData, -1)).T
+        return x_hat
+
+    ## Parameters
+    # ===============================
+
+    param = lambda: None # Lazy way to define an empty class in python
+    param.dt = 1E-1 # Time step length
+    param.nbData = 101 # Number of datapoints
+    param.nbVarU = 2 # Control space dimension (dx1,dx2)
+    param.nbPoints = 2 # Number of viapoints
+    param.nbDeriv = 1
+    param.nbVarPos = 2
+    param.nbVarX = param.nbVarPos * param.nbDeriv
+    param.Mu = np.array([[100, 100], [0, 100]]) # Viapoints positions
+    param.r = 1E-3
+
+    # Precision matrix
+    Q1 = np.eye(param.nbVarX) * 1E0
+    Q2 = np.eye(param.nbVarX) * 1E0
+
+    # Time occurrence of viapoints
+    tl = np.array([50, 100])
+
+    #########################################################################################
+
+    # GUI
+    scaling_factor = 2 # General scaling factor for rendering
+
+    # Mouse events
+    mouse0 = np.zeros(2)
+    mouse = np.zeros(2)
+    mousedown = 0
+    selected_obj = -1
+
+    def onMouseMove(event):
+        global mouse, mouse0
+        offset = canvas.getBoundingClientRect()
+        mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
+        mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
+        mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
+        mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
+    
+    def onTouchMove(event):
+        global mouse, mouse0
+        offset = event.target.getBoundingClientRect()
+        mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
+        mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
+        mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
+        mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
+
+    def onMouseDown(event):
+        global mousedown, xs
+        mousedown = 1
+        xs = solve_LQR(x, param)
+
+    def onMouseUp(event):
+        global mousedown, selected_obj, xs
+        mousedown = 0
+        selected_obj = -1
+        xs = solve_LQR(x, param)
+
+
+    onMouseMoveProxy = create_proxy(onMouseMove)
+    onTouchMoveProxy = create_proxy(onTouchMove)
+    onMouseDownProxy = create_proxy(onMouseDown)
+    onMouseUpProxy = create_proxy(onMouseUp)
+
+    #########################################################################################
+
+    canvas = document.getElementById('canvas')
+    ctx = canvas.getContext('2d')
+
+    def clear_screen():
+        ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity
+        ctx.fillStyle = 'white'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+
+    def draw_Gaussian(id, param, color, color2):
+        global selected_obj
+        ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
+        ctx.translate(param.Mu[0,id], param.Mu[1,id])
+        if id == 0:
+            s, U = np.linalg.eig(np.linalg.inv(Q1[:2,:2]+np.eye(2)*1e-5))
+        else:
+            s, U = np.linalg.eig(np.linalg.inv(Q2[:2,:2]+np.eye(2)*1e-5))
+        al = np.linspace(-np.pi, np.pi, 50)
+        D = np.diag(s)*100
+        R = np.real(U @ np.sqrt(D+0j))
+        msh = R @ np.array([np.cos(al),np.sin(al)]) #+ param.Mu[:2,id]
+        # Draw Gaussian
+        obj = Path2D.new()
+        obj.moveTo(msh[0,0], msh[1,0])
+        for i in range(msh.shape[1]-1):
+            obj.lineTo(msh[0,i+1], msh[1,i+1])
+        obj.closePath()
+        ctx.strokeStyle = color2
+        ctx.stroke(obj)
+        ctx.fillStyle = color
+        ctx.fill(obj)
+        obj = Path2D.new()
+        obj.arc(0, 0, 6.0, 0, 2.0*np.pi)
+        ctx.fillStyle = color2 
+        ctx.fill(obj)
+        if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
+            selected_obj = id
+
+
+    def draw_lqr_path(xs, param, color):
+        ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
+        # Draw initial point
+        ctx.fillStyle = color
+        ctx.beginPath()
+        ctx.arc(xs[0,0], xs[1,0], 5, 0, 2*np.pi)
+        ctx.fill()
+        # Draw path
+        ctx.lineWidth = '3'
+        ctx.strokeStyle = color
+        ctx.beginPath()
+        ctx.moveTo(xs[0,0], xs[1,0])
+        for i in range(param.nbData-1):
+            ctx.lineTo(xs[0,i+1], xs[1,i+1])
+        ctx.stroke()
+
+
+    def draw_line(color):
+        ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
+        ctx.lineCap = 'round'
+        ctx.lineJoin = 'round'
+        ctx.lineWidth = '2'
+        ctx.strokeStyle = color
+        ctx.beginPath()
+        ctx.moveTo(-50, -1000)
+        ctx.lineTo(-50, 1000)
+        ctx.stroke()
+
+
+    #########################################################################################
+
+    def errorHandler(e):
+        msg = 'Error: ' + str(e)
+        console.error(msg)
+        el = document.getElementById('errors')
+        el.innerText = msg
+        #el.textContent = msg
+
+
+    #########################################################################################
+
+    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+    document.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
+    document.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+    mustStop = asyncio.Event()
+    stopped = asyncio.Event()
+
+    async def cleanup():
+        mustStop.set()
+
+        document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+        document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+        document.removeEventListener('mousedown', onMouseDownProxy) #for standard mouse
+        document.removeEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+        document.removeEventListener('mouseup', onMouseUpProxy) #for standard mouse
+        document.removeEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+        await stopped.wait()
+
+    document.cleanup = cleanup
+
+
+    #########################################################################################
+    x = np.array([0,0]) # Initial position
+    u = np.zeros(param.nbVarX)
+    Sx, Su = compute_transfer_matrices(param)
+    xs = solve_LQR(x, param)
+
+    async def main():
+        global param, xs
+
+        while not mustStop.is_set():
+            if mousedown==1:
+                xs = solve_LQR(x, param)
+
+            # Rendering
+            clear_screen()
+            draw_line('#FF77DD')
+            draw_Gaussian(0, param, '#FF3399', '#DD1177')
+            draw_Gaussian(1, param, '#33FF99', '#11DD77')
+            draw_lqr_path(xs, param, '#000000')
+
+            # Object selection
+            if selected_obj &gt;= 0:
+                param.Mu[:2,selected_obj] = mouse
+                param.Mu[0,selected_obj] = max(min(param.Mu[0,selected_obj],225), -225)
+                param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],175), -175)
+
+            await asyncio.sleep(0.0001)
+
+        stopped.set()
+
+    pyscript.run_until_complete(main())
+
+</py-script>

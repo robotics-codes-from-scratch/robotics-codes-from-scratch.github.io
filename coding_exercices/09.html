@@ -1,0 +1,670 @@
+﻿<div class="row">
+    <div class="col-sm-1"></div>
+
+    <div class="col-sm-7">
+        <h1>Exercise 9<br/>Orientation with Riemannian manifold</h1>
+        <p>In this exercise, we will extend the inverse kinematics problem to orientation tracking.</p>
+        <p>Inverse kinematics consists of finding a configuration (joint angles) that reaches a target pose (position and/or orientation) with the end-effector of the robot. In <a href="exercise04.html" target="_blank">Exercise 4</a>, we have seen how inverse kinematics can be used to reach a desired target position, without taking into account the orientation.</p>
+        <p>The goal of this exercise is to implement an inverse kinematics function to track a desired target orientation for the 3-axis manipulator displayed on the right. We would like that the end-effector of this robot orients itself with the same orientation as the pink object (with desired grip depicted in transparency), which can be changed by using the slider below the robot.</p>
+        <p>The orientation of a planar robot is on a Riemannian manifold <span class="ltx_Math">\mathcal{S}^1</span>, which requires a logarithmic map function (<code>logmap()</code> function in the code) to compute the residual error between the target orientation and the current orientation, represented as a light pink circle in the figure. This residual can be represented in the tangent space of the desired target point (light pink segment tangent to the light pink circle in the figure). This residual vector in pink corresponds to a geodesic distance that needs to be decreased to reach the desired orientation. When projected back to the manifold, the resulting geodesic path in pink corresponds to the shortest distance between the current orientation and the desired orientation while staying on the manifold.</p>
+        <p>The goal of this exercise is to compare the use of a geodesic distance and a standard Euclidean distance for different initial orientation and desired target orientation.</p>
+        <p>The function <code>controlCommand(x,param)</code> continuously sends joint velocity commands to the robot. In the initial code, the robot is not moving because <code>u=np.zeros(param.nbVarX)</code> sends zero commands to the robot.</p>
+        <p><code>param.Mu</code> contains the target pose in the form of <span class="ltx_Math">[\mu^\tp{pos}_1, \mu^\tp{pos}_2, \mu^\tp{ori}]</span>, <code>fkin(x,param)</code> returns the end-effector pose of the robot in the form of <span class="ltx_Math">[f^\tp{pos}_1, f^\tp{pos}_2, f^\tp{ori}]</span>, and <code>Jkin(x,param)</code> returns a Jacobian matrix of size <span class="ltx_Math">3\times3</span>.</p>
+
+        <ul class="list-group list-group-numbered">
+            <li class="list-group-item">
+                Change this function to send velocity commands <code>u</code> to reach the target orientation.
+                Compute the residual either as a geodesic distance or as a Euclidean distance and observe the behavior when the current orientation is close to <span class="ltx_Math">\pi</span> and the target orientation is close <span class="ltx_Math">-\pi</span>. Note that <span class="ltx_Math">\pi</span> and <span class="ltx_Math">-\pi</span> are the same point on the manifold <span class="ltx_Math">\mathcal{S}^1</span>, which is depicted in the figure as a short segment on the left side of the circle. What do you observe? Can you explain the difference in the tracking behaviors?
+            </li>
+            <li class="list-group-item">
+                Change this function to send velocity commands <code>u</code> to reach the target orientation as a <em>primary task</em> and reaching the object position as a <em>secondary task</em>. You can do this by using nullspace control as presented in Section 5.2 of the <a href="doc/rcfs.pdf" target="_blank">RCFS documentation</a>.
+            </li>
+        </ul>
+
+        <br/>
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button aria-controls="question4-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#question4-tab-pane" data-bs-toggle="tab" id="question4-tab" role="tab" type="button">Question</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button aria-controls="answer4-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#answer4-tab-pane" data-bs-toggle="tab" id="answer4-tab" role="tab" type="button">Answer 1</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button aria-controls="answer2-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#answer2-tab-pane" data-bs-toggle="tab" id="answer2-tab" role="tab" type="button">Answer 2</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <div aria-labelledby="question4-tab" class="tab-pane fade show active" id="question4-tab-pane" role="tabpanel" tabindex="0">
+                <py-repl std-err="errors" std-out="output">
+                    x = np.array([-0.8, 1.8, 3.0]) # Initial robot state
+
+                    def controlCommand(x, param):
+                        f = fkin(x, param) # End-effector position and orientation
+                        J = Jkin(x, param) # Jacobian matrix
+                        r_ori = logmap(param.Mu[2:], f[2:]) # Orientation residual
+                        #r_ori = param.Mu[-1] - f[-1] # Orientation residual (Euclidean distance)
+
+                        u = np.zeros(param.nbVarX) # Implement here
+
+                        return u
+                </py-repl>
+            </div>
+
+            <div aria-labelledby="answer4-tab" class="tab-pane fade" id="answer4-tab-pane" role="tabpanel" tabindex="0">
+                <py-repl std-err="errors" std-out="output">
+                    x = np.array([-0.8, 1.8, 3.0]) # Initial robot state
+
+                    def controlCommand(x, param):
+                        f = fkin(x, param) # End-effector position and orientation
+                        J = Jkin(x, param) # Jacobian matrix
+                        J_ori = J[2:,:] # Jacobian matrix for orientation
+                        r_ori = logmap(param.Mu[2:], f[2:]) # Orientation residual
+                        # r_ori = param.Mu[2:] - f[2:] # Orientation residual (as Euclidean distance)
+
+                        u = 0.1 * np.linalg.pinv(J_ori) @ r_ori # Orientation tracking (with step size 0.1)
+
+                        return u
+                </py-repl>
+            </div>
+
+            <div aria-labelledby="answer2-tab" class="tab-pane fade" id="answer2-tab-pane" role="tabpanel" tabindex="0">
+                <py-repl std-err="errors" std-out="output">
+                    x = np.array([-0.8, 1.8, 3.0]) # Initial robot state
+
+                    def controlCommand(x, param):
+                        f = fkin(x, param) # End-effector position and orientation
+                        J = Jkin(x, param) # Jacobian matrix
+                        J_pos = J[:2,:] # Jacobian matrix for position
+                        J_ori = J[2:,:] # Jacobian matrix for orientation
+                        r_pos = (param.Mu[:2] - f[:2]) # Position residual
+                        r_ori = (param.Mu[2:] - f[2:]) # Orientation residual
+
+                        # Prioritized control (orientation tracking prioritized over position tracking)
+                        pinv_J_ori = np.linalg.inv(J_ori.T @ J_ori + np.eye(param.nbVarX) * 1E-2) @ J_ori.T # Damped pseudoinverse
+                        N_ori = np.eye(param.nbVarX) - pinv_J_ori @ J_ori # Nullspace projection operator
+                        u_ori = 0.1 * pinv_J_ori @ r_ori # Command for position tracking (with step size 0.1)
+                        J_pos_N_ori = J_pos @ N_ori
+                        pinv_J_pos_N_ori = J_pos_N_ori.T @ np.linalg.inv(J_pos_N_ori @ J_pos_N_ori.T + np.eye(2) * 1E1) # Damped pseudoinverse
+                        u_pos = 0.1 * pinv_J_pos_N_ori @ (r_pos - J_pos @ u_ori) # Command for orientation tracking (with position tracking prioritized)
+                        u = u_ori + N_ori @ u_pos # Control commands
+
+                        # # Prioritized control (position tracking prioritized over orientation tracking)
+                        # pinv_J_pos = np.linalg.inv(J_pos.T @ J_pos + np.eye(param.nbVarX) * 1E-2) @ J_pos.T # Damped pseudoinverse
+                        # N_pos = np.eye(param.nbVarX) - pinv_J_pos @ J_pos # Nullspace projection operator
+                        # u_pos = 0.1 * pinv_J_pos @ r_pos # Command for position tracking (with step size 0.1)
+                        # J_ori_N_pos = J_ori @ N_pos
+                        # pinv_J_ori_N_pos = J_ori_N_pos.T @ np.linalg.inv(J_ori_N_pos @ J_ori_N_pos.T + np.eye(1) * 1E1) # Damped pseudoinverse
+                        # u_ori = 0.1 * pinv_J_ori_N_pos @ (r_ori - J_ori @ u_pos) # Command for orientation tracking (with position tracking prioritized)
+                        # u = u_pos + N_pos @ u_ori # Control commands
+
+                        return u
+                </py-repl> <!--output='repl-out' std-out='repl-out'-->
+            </div>
+        </div>
+
+        <br/><br/>
+    </div> <!--sm-7-->
+
+    <div class="col-sm-4">
+        <div class="sticky-sm-top" style="padding: 2rem 1rem 1rem 1rem;">
+            <hr/>
+            <div class="row justify-content-between">
+                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Output</button></div>
+                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgsOutput()">Clear</button></div>
+            </div>
+            <div id="output"></div>
+            <hr/>
+            <div class="row justify-content-between">
+                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Error</button></div>
+                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgs()">Clear</button></div>
+            </div>
+            <div id="errors"></div>
+            <hr/>
+            <div style="position:relative; font-size: 100%;">
+                <canvas height="700px" id="canvas" style="width:100%;" width="900px"></canvas>
+                <span id="latex0" style="position:absolute; left:9999px; bottom:0px;"><span class="ltx_Math">{\color{#DD1177}\mathcal{S}^1}</span></span>
+                <span id="latex1" style="position:absolute; left:9999px; bottom:0px;"><span class="ltx_Math">{\color{#11DD77}\mathbb{R}^1}</span></span>
+                <span id="latex2" style="position:absolute; left:9999px; bottom:0px;"><span class="ltx_Math">{\color{#DD1177}\mu^\tp{ori}}</span></span>
+                <span id="latex3" style="position:absolute; left:9999px; bottom:0px;"><span class="ltx_Math">{\color{#DD1177}f^\tp{ori}}</span></span>
+                <span id="latex4" style="position:absolute; left:9999px; bottom:0px;"><span class="ltx_Math">{\color{#11DD77}\mu^\tp{ori}}</span></span>
+                <span id="latex5" style="position:absolute; left:9999px; bottom:0px;"><span class="ltx_Math">{\color{#11DD77}f^\tp{ori}}</span></span>
+                <span id="latex6" style="position:absolute; left:9999px; bottom:0px;"><span class="ltx_Math">{\color{#11DD77}-\pi}</span></span>
+                <span id="latex7" style="position:absolute; left:9999px; bottom:0px;"><span class="ltx_Math">{\color{#11DD77}\pi}</span></span>
+            </div>
+            <input class="w-72" id="object_angle" max="3.14159" min="-3.14159" step="0.0001" style="vertical-align:middle;" type="range" value="0.8"/>
+            <label>Object orientation</label><br/>
+            <input class="w-72" id="simulation_speed" max="20" min="0" step="0.01" style="vertical-align:middle;" type="range" value="10"/>
+            <label>Simulation speed</label>
+        </div> <!--sticky-sm-top-->
+    </div> <!--sm-4-->
+</div> <!--row-->
+
+
+<py-script>
+    def print(x):
+        display(x, target='output')
+</py-script>
+
+
+<py-script std-err="errors" std-out="output">
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document, console
+    import numpy as np
+    import asyncio
+
+    object_angle = document.getElementById('object_angle') # Object angle
+    simulation_speed = document.getElementById('simulation_speed') # Simulation speed
+    latex_el = []
+    for i in range(8):
+        latex_el.append(document.getElementById('latex%d' % i)) # Latex symbols
+
+    #########################################################################################
+    base1_svg = Path2D.new('m -40.741975,77.319831 c -0.47247,-4.03869 7.32825,-20.1653 10.1171,-22.57617 4.71807,-4.07862 14.00201,-4.3722 15.87822,-6.89366 1.16821,-1.06725 1.19306,-2.45846 1.19136,-4.984461 -0.005,-6.836939 0.0375,-38.9164375 -0.0588,-42.62054746 C -13.757555,-5.2728275 -9.8130348,-13.34661 -0.02248483,-13.67734 7.5903552,-13.93451 13.741895,-7.1292375 13.608255,-0.84839739 13.474625,5.4324325 13.073715,50.200081 13.741895,54.075491 c 0.66817,3.8754 3.0736,26.72695 3.0736,26.72695 l -53.47684,-0.23624 c -3.68777,-0.0163 -4.0806,-3.24637 -4.0806,-3.24637 z')
+    base2_svg = Path2D.new('m -13.653647,45.770986 27.119789,-0.07088')
+
+    seg11_svg = Path2D.new('M 1.1085815,-48.64595 C 2.8616565,-42.037584 12.141047,-7.3721658 13.181308,-3.8158258 14.730923,1.4818692 12.982058,10.29588 3.6015646,13.1191 -3.6924249,15.31437 -11.379603,10.30832 -12.856452,4.2020952 c -1.476846,-6.106188 -11.012844,-42.5297362 -12.082149,-45.6580692 -1.43181,-5.329295 -2.652606,-11.707828 -2.961653,-18.313541 -0.264086,-5.644652 2.111069,-7.347919 2.111069,-7.347919 2.624567,-3.183184 8.150604,-3.203987 10.333578,-6.275591 1.769697,-2.490098 1.823736,-5.627976 1.959877,-8.208118 0.347278,-6.581603 7.8818877,-11.888333 13.83865325,-11.31331 11.26196775,1.087146 13.17554475,9.678077 12.89920975,14.363762 -0.465778,7.897881 -5.8447437,11.223081 -10.8257944,12.5317 -4.0229212,1.0569 -4.0522977,5.558527 -3.6062254,8.077811 0.53206435,3.004955 1.69902315,6.035714 2.2984683,9.29523 z')
+    seg12_svg = Path2D.new('m 0.05406256,-11.597507 c -6.39589386,0 -11.58398456,5.1988245 -11.58398456,11.60742169 0,6.40859681 5.1880907,11.60742231 11.58398456,11.60742231 6.39589414,0 11.58398444,-5.1988255 11.58398444,-11.60742231 0,-6.40859719 -5.1880903,-11.60742169 -11.58398444,-11.60742169 z')
+    seg13_svg = Path2D.new('m 0.89874154,-90.983149 c -6.37570324,-0.50777 -11.96015354,4.262759 -12.46893054,10.651135 -0.508778,6.388373 4.2502031,11.982666 10.62590635,12.490434 6.37571205,0.507768 11.96015765,-4.262758 12.46893565,-10.65113 0.50878,-6.388376 -4.2501988,-11.982669 -10.62591146,-12.490439 z')
+    seg14_svg = Path2D.new('M -24.784795,-41.659214 1.1085815,-48.64595')
+    seg15_svg = Path2D.new('m -20.037453,-23.361462 c 0,0 0.150891,-2.736177 2.859936,-3.928038 2.698441,-1.058633 15.064238,-4.832856 18.5649072,-5.023273 3.4151981,-0.800461 4.5404475,1.903276 4.5404475,1.903276')
+
+    seg21_svg = Path2D.new('m 1.0846146,-63.378335 c 0.2455591,-2.834423 3.4523451,-16.559449 4.0431711,-18.415736 1.4726648,-4.271726 5.7043363,-7.554682 6.9088533,-12.676592 0.896166,-8.180737 -5.5218419,-14.075707 -11.67006058,-13.690757 -5.14680322,0.32229 -11.25729142,3.07163 -11.71005642,12.988353 -0.245696,5.381384 2.1556935,6.934579 1.261502,10.892576 -1.067995,4.72731 -3.306673,16.43352 -4.123841,19.092346 -1.013352,3.297141 -2.321128,5.411066 -6.454795,11.635385 -4.133667,6.224321 -5.394419,14.031661 -6.200979,18.250843 -0.80656,4.219183 -2.639059,14.959257 -1.769749,20.046047 0.662189,3.874813 5.317911,7.0872532 8.194376,7.8656925 2.799342,0.6504765 3.517742,0.6405013 5.007603,2.5337107 1.489861,1.8932084 1.467073,4.13299795 2.141633,7.605938 0.4829,3.1674976 4.2207359,9.9421608 11.3304401,10.8558018 C 5.1524174,14.518915 14.875984,8.7881742 13.263942,-1.6038057 11.604726,-12.299883 3.6744317,-12.710682 0.92067775,-13.632854 -1.5420631,-15.114186 -2.6268693,-19.519275 -1.8747035,-22.72879 -1.1225409,-25.938308 1.196278,-37.889572 1.3340625,-40.676542 1.8762966,-51.644393 -0.30239687,-54.622686 1.0846146,-63.378335 Z')
+    seg22_svg = Path2D.new('M -11.586565,0.93074939 C -11.083534,7.3068272 -5.4927791,12.069965 0.89597241,11.565935 7.284721,11.061904 12.059397,5.4810033 11.556367,-0.89507457 11.053335,-7.2711624 5.4625836,-12.034299 -0.92616504,-11.530269 -7.3149165,-11.02624 -12.089595,-5.4453385 -11.586565,0.93074939 Z')
+    seg23_svg = Path2D.new('m -26.640574,-36.592971 c 5.304398,1.031726 26.42204728,5.61535 26.42204728,5.61535')
+    seg24_svg = Path2D.new('m -18.97242,-7.0296766 c 0,0 5.357638,0.9161489 6.790283,-0.3224518 0,0 1.645529,-2.0773004 2.9224726,-3.1740806 1.2245317,-1.051764 3.0335173,-2.07985 3.0335173,-2.07985 1.9028326,-1.212528 2.2666634,-4.627153 3.1812597,-7.476594 1.7216337,-5.363774 1.9197573,-6.250728 1.9197573,-6.250728')
+
+    seg31_svg = Path2D.new('m -28.6797,-26.841855 c -1.2675,3.57197 -1.218858,4.557009 -1.595581,8.234518 -0.376722,3.677509 -0.09415,6.442577 -0.0095,8.568278 -0.253944,2.7250156 1.116106,5.225167 1.12849,7.9985227 -0.113818,2.61245518 -0.732443,4.5287742 -1.461378,6.6813667 -0.049,4.0362406 -0.269163,8.1196006 0.283769,12.1263916 0.524743,2.889586 3.777418,3.398207 6.006756,4.487809 3.000431,1.151299 5.962802,2.459036 9.011639,3.446545 2.908512,0.626882 4.197412,-2.375507 4.231736,-4.87884 0.0854,-2.479073 0.335025,-4.760767 2.8765686,-5.44487 3.9560009,-1.216619 8.05245912,-1.946456 12.0010307,-2.99019 5.703849,-2.0129894 9.4239807,-8.5502843 7.7887937,-14.4529723 -1.270267,-5.5243102 -6.867591,-9.6714567 -12.54557065,-9.0219797 -3.01008665,0.221201 -5.63894195,1.895241 -8.24502045,3.5658663 -2.0818469,1.3351245 -1.6868669,-3.2534803 -1.7460679,-4.8326393 -0.0013,-3.276304 0.21006,-3.084655 0.0062,-4.979716 -0.203891,-1.895062 -0.264478,-4.611901 -1.494343,-8.479035 -5.412496,-0.0097 -15.221678,-0.05267 -15.221678,-0.05267 z')
+    seg32_svg = Path2D.new('m -14.015345,-33.566241 c -1.232867,-1.390966 -2.465733,-2.781932 -3.698599,-4.172898 0.0038,-3.646334 0.02928,-7.293353 0.01923,-10.939249 -0.02501,-0.949144 -0.522837,-2.078703 -1.513796,-2.119205 -0.942425,0.01577 -1.897362,-0.08159 -2.832194,0.04493 -0.950302,0.333999 -1.133628,1.580185 -1.115778,2.522511 -0.04848,3.474219 -0.09695,6.948437 -0.145432,10.422655 -1.213181,1.407781 -2.426362,2.815561 -3.639543,4.223342 4.308705,0.006 8.617409,0.01194 12.926114,0.01791 z')
+    seg33_svg = Path2D.new('m -12.412129,-26.867866 v -4.799995 c 0,-1.919999 -0.435344,-1.878396 -0.888867,-1.876655 -3.030562,0.01164 -14.262729,-0.07064 -14.523962,-0.04334 -0.467055,0 -0.934111,0 -0.883228,1.904343 0.01098,0.410814 0.0013,4.808677 0.0013,4.808677')
+    seg34_svg = Path2D.new('M -10.345869,0.79321884 C -9.8879044,6.4881727 -4.8873495,10.735439 0.81892316,10.276563 6.5251942,9.8176865 10.782785,4.8259161 10.324819,-0.86903645 9.8668498,-6.5639995 4.8662942,-10.811265 -0.8399769,-10.35239 -6.5462504,-9.8935134 -10.803835,-4.901743 -10.345869,0.79321884 Z')
+    seg35_svg = Path2D.new('m -10.926083,-10.640947 c -12.932836,-0.04585 -19.378158,-0.0931 -19.378158,-0.0931')
+    seg36_svg = Path2D.new('M -9.9187154,15.300602 C -29.124234,15.272545 -30.475824,15.251842 -30.475824,15.251842')
+    seg37_svg = Path2D.new('m -23.186087,-46.845579 h 5.542233 v 0')
+
+    # # Logarithmic map for R^2 x S^1 manifold
+    # def logmap(f, f0):
+    #     diff = np.zeros(3)
+    #     diff[:2] = f[:2] - f0[:2]
+    #     diff[2] = np.imag(np.log(np.exp(f0[-1]*1j).conj().T * np.exp(f[-1]*1j).T)).conj()
+    #     return diff
+
+    # Logarithmic map for R^2 x S^1 manifold
+    def logmap(f, f0):
+        return np.imag(np.log(np.exp(f0*1j).conj().T * np.exp(f*1j).T)).conj()
+
+    # Apply angle offsets to match robot kinematic chain
+    def emulate_DH_params(x):
+        xt = np.copy(x)
+        xt[0] = xt[0] - np.pi/2
+        orient = np.mod(np.sum(xt,0)+np.pi, 2*np.pi) - np.pi
+        xt[2] = xt[2] - np.arctan(20.5/51)
+        return xt, orient
+
+    # Forward kinematics for end-effector (in robot coordinate system)
+    def fkin(x, param):
+        xt, orient = emulate_DH_params(x)
+        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+        f = np.vstack([
+            param.l @ np.cos(L @ xt),
+            param.l @ np.sin(L @ xt),
+            orient
+        ]) # f1,f2,f3, where f3 is the orientation (single Euler angle for planar robot)
+        f[1] += 81
+        return f.flatten()
+
+    # Forward kinematics for all joints (in robot coordinate system)
+    def fkin0(x, param):
+        xt, _ = emulate_DH_params(x)
+        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+        f = np.vstack([
+            L @ np.diag(param.l) @ np.cos(L @ xt),
+            L @ np.diag(param.l) @ np.sin(L @ xt)
+        ])
+        f = np.hstack([np.zeros([2,1]), f])
+        f[1] += 81
+        return f
+
+    # Jacobian with analytical computation (for single time step)
+    def Jkin(xt, param):
+        xt, _ = emulate_DH_params(xt)
+        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+        J = np.vstack([
+            -np.sin(L @ xt).T @ np.diag(param.l) @ L,
+             np.cos(L @ xt).T @ np.diag(param.l) @ L,
+             np.ones([1,param.nbVarX])
+        ])
+        return J
+
+    ## Parameters
+    # ===============================
+
+    param = lambda: None # Lazy way to define an empty class in python
+    param.dt = 1e-1 # Time step length
+    param.nbVarX = 3 # State space dimension (x1,x2,x3)
+    param.l = [79., 96., 55.] # Robot links lengths
+    param.sz = [50., 30.] # Size of objects
+    param.Mu = np.array([150., -50., -np.pi/3]) # Object position and orientation
+
+    #########################################################################################
+
+    # GUI
+    scaling_factor = 2 # General scaling factor for rendering
+
+    # Mouse events
+    mouse0 = np.zeros(2)
+    mouse = np.zeros(2)
+    mousedown = 0
+    selected_obj = -1
+    hover_obj = -1
+    hover_joint = -1
+
+    def onMouseMove(event):
+        global mouse, mouse0
+        offset = canvas.getBoundingClientRect()
+        mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
+        mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
+        mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
+        mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
+
+    def onTouchMove(event):
+        global mouse, mouse0
+        offset = event.target.getBoundingClientRect()
+        mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
+        mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
+        mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
+        mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
+
+    def onMouseDown(event):
+        global mousedown
+        mousedown = 1
+    #   console.log('Mouse down')
+
+    def onMouseUp(event):
+        global mousedown, selected_obj
+        mousedown = 0
+        selected_obj = -1
+    #   console.log('Mouse up')
+
+    def onWheel(event):
+        global hover_joint, hover_obj, x, object_angle, param
+        if hover_obj == 0:
+            param.Mu[2] += 0.2 * (event.deltaY/106)
+            object_angle.value = float(object_angle.value) + 0.2 * (event.deltaY/106)
+        if hover_joint &gt;= 0:
+            x[hover_joint] += 0.2 * (event.deltaY/106)
+
+    onMouseMoveProxy = create_proxy(onMouseMove)
+    onTouchMoveProxy = create_proxy(onTouchMove)
+    onMouseDownProxy = create_proxy(onMouseDown)
+    onMouseUpProxy = create_proxy(onMouseUp)
+    onWheelProxy = create_proxy(onWheel)
+
+
+    #########################################################################################
+
+    canvas = document.getElementById('canvas')
+    ctx = canvas.getContext('2d')
+
+    def clear_screen():
+        ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity
+        ctx.fillStyle = 'white'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+
+    def draw_ground():
+        ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
+        ctx.beginPath()
+        ctx.lineCap = 'round'
+        ctx.lineJoin = 'round'
+        ctx.lineWidth = '5'
+        ctx.strokeStyle = '#CCCCCC'
+        ctx.moveTo(-200, 164)
+        ctx.lineTo(200, 164)
+        ctx.stroke()
+
+
+    def draw_robot(xt, color1='#CCCCCC', color2='#AAAAAA', color3='#222222', color4='#000000', selectable='True'):
+        global hover_joint
+        ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
+        # Draw base
+        ctx.translate(0, 81)
+        ctx.lineWidth = '1'
+        ctx.strokeStyle = color3
+        ctx.fillStyle = color1
+        ctx.fill(base1_svg)
+        ctx.stroke(base1_svg) # Outline
+        ctx.stroke(base2_svg)
+
+        # Draw seg1
+        ctx.rotate(xt[0])
+        ctx.fillStyle = color1
+        ctx.fill(seg11_svg)
+        ctx.stroke(seg11_svg) # Outline
+        ctx.fillStyle = color2
+        if selectable and ctx.isPointInPath(seg12_svg, mouse0[0], mouse0[1]):
+            ctx.fillStyle = '#3399FF'
+            hover_joint = 0
+        ctx.fill(seg12_svg)
+        ctx.stroke(seg12_svg)
+        ctx.stroke(seg13_svg)
+        ctx.stroke(seg14_svg)
+        ctx.stroke(seg15_svg)
+
+        # Draw seg2
+        ctx.translate(0, -79)
+        ctx.rotate(xt[1])
+        ctx.fillStyle = color1
+        ctx.fill(seg21_svg)
+        ctx.stroke(seg21_svg) # Outline
+        ctx.fillStyle = color2
+        if selectable and ctx.isPointInPath(seg22_svg, mouse0[0], mouse0[1]):
+            ctx.fillStyle = '#FF9933'
+            hover_joint = 1
+        ctx.fill(seg22_svg)
+        ctx.stroke(seg22_svg)
+        ctx.stroke(seg23_svg)
+        ctx.stroke(seg24_svg)
+
+        # Draw seg3
+        ctx.translate(0, -96)
+        ctx.rotate(xt[2])
+        ctx.fillStyle = color1
+        ctx.fill(seg31_svg)
+        ctx.stroke(seg31_svg) # Outline
+        ctx.fill(seg32_svg)
+        ctx.stroke(seg32_svg) # Outline
+        ctx.fill(seg33_svg)
+        ctx.stroke(seg33_svg) # Outline
+        ctx.fillStyle = color2
+        if selectable and ctx.isPointInPath(seg34_svg, mouse0[0], mouse0[1]):
+            ctx.fillStyle = '#99FF33'
+            hover_joint = 2
+        ctx.fill(seg34_svg)
+        ctx.stroke(seg34_svg)
+        ctx.stroke(seg35_svg)
+        ctx.stroke(seg36_svg)
+        ctx.stroke(seg37_svg)
+
+        # Draw end-effector point
+        ctx.translate(-20.5, -51)
+        ctx.beginPath()
+        ctx.arc(0, 0, 2, 0, 2 * np.pi)
+        ctx.fillStyle = color4
+        ctx.fill()
+
+
+    def draw_obj(param, color='#FF3399', colortxt='#DD1177'):
+        global selected_obj, hover_obj
+        ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
+
+        ctx.translate(param.Mu[0], param.Mu[1])
+        ctx.rotate(param.Mu[2])
+        # Draw object
+        ctx.fillStyle = color
+        obj = Path2D.new()
+        obj.rect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
+        ctx.fill(obj)
+        if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
+            hover_obj = 0
+        if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
+            selected_obj = 0
+        #ctx.fillRect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
+        if param.sz[0] &gt; 39 and param.sz[1] &gt; 19:
+            ctx.textAlign = 'center'
+            ctx.textBaseline = 'middle'
+            ctx.font = '10px Permanent Marker'
+            ctx.fillStyle = colortxt
+            ctx.fillText('Move me!', 0, 0)
+        # Draw seg3 (robot end-effector)
+        ctx.lineWidth = '1'
+        ctx.strokeStyle = '#00000022'
+        ctx.fillStyle = '#00000022'
+        ctx.translate(-52,20)
+        ctx.rotate(np.pi/2)
+        ctx.fill(seg31_svg)
+        ctx.stroke(seg31_svg) # Outline
+        ctx.fill(seg32_svg)
+        ctx.stroke(seg32_svg) # Outline
+        ctx.fill(seg33_svg)
+        ctx.stroke(seg33_svg) # Outline
+        ctx.fill(seg34_svg)
+        ctx.stroke(seg34_svg)
+        ctx.stroke(seg35_svg)
+        ctx.stroke(seg36_svg)
+        ctx.stroke(seg37_svg)
+
+
+    def draw_arrow(x1, x2, color='black', sz=10., lw='2'):
+        ctx.strokeStyle = color
+        ctx.fillStyle = color
+        ctx.lineWidth = lw
+        # Draw arrow tip
+        length = np.linalg.norm(x2-x1)
+        if length &gt; sz*1.5:
+            v = (x2-x1) * sz / length
+            ctx.beginPath()
+            ctx.moveTo(x2[0], x2[1])
+            ctx.lineTo(x2[0]-v[0]+v[1]*.5, x2[1]-v[1]-v[0]*.5)
+            ctx.lineTo(x2[0]-v[0]-v[1]*.5, x2[1]-v[1]+v[0]*.5)
+            ctx.fill()
+            x2 = x1 + v * (length-sz*.9) / sz
+        #Draw line
+        ctx.beginPath()
+        ctx.moveTo(x1[0], x1[1])
+        ctx.lineTo(x2[0], x2[1])
+        ctx.stroke()
+
+
+    def draw_manifold(x, param, color='#FF3399', color2='#33FF99'):
+        global ctx, latex_el
+        ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
+
+        # Parameters
+        pos = np.array([-120., -80.]) # Position of S¹
+        pos2 = np.array([-70, -80.]) # Position of R¹ (relative to S¹)
+        radius = 50.
+        v = np.array([np.cos(x[-1]), np.sin(x[-1])]) * radius # Current orientation coordinates
+        vMu0 = np.array([np.cos(param.Mu[-1]), np.sin(param.Mu[-1])]) # Unit direction of tangent space
+        vMu = vMu0 * radius # Target orientation coordinates
+        d = logmap(param.Mu[-1], x[-1]) # Geodesic distance
+
+        ctx.translate(pos[0], pos[1])
+
+        # Draw S¹ manifold
+        ctx.strokeStyle = color+'33'
+        ctx.lineWidth = '2'
+        ctx.beginPath()
+        ctx.arc(0, 0, radius, 0, 2*np.pi)
+        ctx.stroke()
+        ctx.beginPath()
+        ctx.moveTo(-radius-3, 0)
+        ctx.lineTo(-radius+3, 0)
+        ctx.stroke()
+
+        # Draw tangent space as line segment
+        ctx.beginPath()
+        ctx.moveTo(vMu[0]-vMu[1]*2, vMu[1]+vMu[0]*2)
+        ctx.lineTo(vMu[0]+vMu[1]*2, vMu[1]-vMu[0]*2)
+        ctx.stroke()
+
+        # Draw geodesics
+        ctx.lineWidth = '3'
+        ctx.strokeStyle = color
+        ctx.beginPath()
+        if d &lt; 0:
+            ctx.arc(0, 0, radius, param.Mu[-1], x[-1]) # Geodesic
+        else:
+            ctx.arc(0, 0, radius, x[-1], param.Mu[-1]) # Geodesic
+        ctx.stroke()
+        # Corresponding residual vector in tangent space
+        x2 = np.array([vMu[0]+vMu0[1]*d*radius, vMu[1]-vMu0[0]*d*radius])
+        draw_arrow(vMu, x2, color)
+
+        # Draw R¹ manifold
+        ctx.strokeStyle = color2+'33'
+        ctx.beginPath()
+        ctx.moveTo(pos2[0], pos2[1])
+        ctx.lineTo(pos2[0]+(2*np.pi*radius), pos2[1])
+        ctx.stroke()
+        ctx.beginPath()
+        ctx.moveTo(pos2[0], pos2[1]-3)
+        ctx.lineTo(pos2[0], pos2[1]+3)
+        ctx.stroke()
+        ctx.beginPath()
+        ctx.moveTo(pos2[0]+(2*np.pi*radius), pos2[1]-3)
+        ctx.lineTo(pos2[0]+(2*np.pi*radius), pos2[1]+3)
+        ctx.stroke()
+
+        # Residual vector on R¹
+        x1 = np.array([pos2[0]+(np.pi*radius)+(x[-1]*radius), pos2[1]])
+        x2 = np.array([pos2[0]+(np.pi*radius)+(param.Mu[-1]*radius), pos2[1]])
+        draw_arrow(x1, x2, color2)
+
+        # Draw points
+        ctx.fillStyle = 'black'
+        ctx.beginPath()
+        ctx.arc(vMu[0], vMu[1], 3, 0, 2*np.pi) # Target orientation on S¹
+        ctx.fill()
+        ctx.beginPath()
+        ctx.arc(v[0], v[1], 3, 0, 2*np.pi) # Current orientation on S¹
+        ctx.fill()
+    #   ctx.beginPath()
+    #   ctx.arc(vMu[0]+vMu0[1]*d*radius, vMu[1]-vMu0[0]*d*radius, 3, 0, 2*np.pi) # Current orientation in tangent space
+    #   ctx.fill()
+        ctx.beginPath()
+        ctx.arc(pos2[0]+(np.pi+param.Mu[-1])*radius, pos2[1], 3, 0, 2*np.pi) # Target orientation on R¹
+        ctx.fill()
+        ctx.beginPath()
+        ctx.arc(pos2[0]+(np.pi+x[-1])*radius, pos2[1], 3, 0, 2*np.pi) # Current orientation on R¹
+        ctx.fill()
+
+        # Latex labels
+        v = np.array([np.cos(x[-1]), np.sin(x[-1])]) * radius * 1.4 # Current orientation coordinates
+        vMu = np.array([np.cos(param.Mu[-1]), np.sin(param.Mu[-1])]) * radius * 0.6 # Unit direction of tangent space
+        xtmp = np.zeros(2)
+        xtmp[0] = ((pos[0]-7) * scaling_factor + canvas.width * 0.5) * canvas.clientWidth / canvas.width
+        xtmp[1] = (-(pos[1]+5) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height
+        latex_el[0].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # S¹
+
+        xtmp[0] = ((pos[0]+pos2[0]-30-7) * scaling_factor + canvas.width * 0.5) * canvas.clientWidth / canvas.width
+        xtmp[1] = (-(pos[1]+pos2[1]+5) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height
+        latex_el[1].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # R¹
+
+        xtmp[0] = ((pos[0]+vMu[0]-7) * scaling_factor + canvas.width * 0.5) * canvas.clientWidth / canvas.width
+        xtmp[1] = (-(pos[1]+vMu[1]+5) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height
+        latex_el[2].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # f^ori on S¹
+
+        xtmp[0] = ((pos[0]+v[0]-7) * scaling_factor + canvas.width * 0.5) * canvas.clientWidth / canvas.width
+        xtmp[1] = (-(pos[1]+v[1]+5) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height
+        latex_el[3].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # mu^ori on S¹
+
+        xtmp[0] = ((pos[0]+pos2[0]+(np.pi+x[-1])*radius-7) * scaling_factor + canvas.width * 0.5) * canvas.clientWidth / canvas.width
+        xtmp[1] = (-(pos[1]+pos2[1]-12) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height
+        latex_el[4].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # f^ori on R¹
+
+        xtmp[0] = ((pos[0]+pos2[0]+(np.pi+param.Mu[-1])*radius-7) * scaling_factor + canvas.width * 0.5) * canvas.clientWidth / canvas.width
+        xtmp[1] = (-(pos[1]+pos2[1]-12) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height
+        latex_el[5].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # mu^ori on R¹
+
+        xtmp[0] = ((pos[0]+pos2[0]-7) * scaling_factor + canvas.width * 0.5) * canvas.clientWidth / canvas.width
+        xtmp[1] = (-(pos[1]+pos2[1]+18) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height
+        latex_el[6].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # -pi
+
+        xtmp[0] = ((pos[0]+pos2[0]+(2*np.pi*radius)-7) * scaling_factor + canvas.width * 0.5) * canvas.clientWidth / canvas.width
+        xtmp[1] = (-(pos[1]+pos2[1]+18) * scaling_factor + canvas.height * 0.5) * canvas.clientHeight / canvas.height
+        latex_el[7].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # pi
+
+
+    def controlCommand(x, param):
+        u = np.zeros(param.nbVarX)
+        return u
+
+    #########################################################################################
+
+    def errorHandler(e):
+        msg = 'Error: ' + str(e)
+        console.error(msg)
+        el = document.getElementById('errors')
+        el.innerText = msg
+        #el.textContent = msg
+
+
+    #########################################################################################
+
+    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+    document.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
+    document.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+    document.addEventListener('wheel', onWheelProxy) #for standard mouse
+
+    mustStop = asyncio.Event()
+    stopped = asyncio.Event()
+
+    async def cleanup():
+        mustStop.set()
+
+        document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+        document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+        document.removeEventListener('mousedown', onMouseDownProxy) #for standard mouse
+        document.removeEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+        document.removeEventListener('mouseup', onMouseUpProxy) #for standard mouse
+        document.removeEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+        document.removeEventListener('wheel', onWheelProxy) #for standard mouse
+
+        await stopped.wait()
+
+    document.cleanup = cleanup
+
+
+    #########################################################################################
+    #x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
+    x = np.array([-0.8, 1.8, 3.0]) # Initial robot state (for an orientation close to pi)
+    u = np.zeros(param.nbVarX)
+
+    async def main():
+        global hover_joint, hover_obj, x, param
+
+        t0 = 0
+        while not mustStop.is_set():
+            t0 += float(simulation_speed.value)
+            if t0 &gt; 19:
+                t0 = 0
+                u = controlCommand(x, param)
+                # Update of state
+                x += u * param.dt
+
+            # Reinit hovering variables
+            hover_joint = -1
+            hover_obj = -1
+
+            # Rendering
+            clear_screen()
+            draw_ground()
+            draw_manifold(fkin(x,param), param)
+            draw_obj(param)
+            draw_robot(x)
+
+            # Object selection
+            if selected_obj==0:
+                param.Mu[:2] = mouse
+                param.Mu[0] = max(min(param.Mu[0],225), -225)
+                param.Mu[1] = max(min(param.Mu[1],175), -175)
+            param.Mu[2] = float(object_angle.value)
+
+            await asyncio.sleep(0.0001)
+
+        stopped.set()
+
+    pyscript.run_until_complete(main())
+
+</py-script>

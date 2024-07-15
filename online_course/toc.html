@@ -1,0 +1,759 @@
+<div class="row">
+ <div class="col-sm-7 offset-1">
+  <div id="txt-col">
+   <h1 class="ltx_title ltx_title_document">
+    Learning and Optimization in Robotics
+    <br class="ltx_break"/>
+    <em class="ltx_emph ltx_font_italic">
+     Lecture notes
+    </em>
+   </h1>
+   <div class="ltx_TOC ltx_list_toc ltx_toc_toc">
+    <ul class="ltx_toclist">
+     <li class="ltx_tocentry ltx_tocentry_section">
+      <a class="ltx_ref" href="#S1" title="1 Introduction ‣ Learning and Optimization in Robotics Lecture notes">
+       <span class="ltx_text ltx_ref_title">
+        <span class="ltx_tag ltx_tag_ref">
+         1
+        </span>
+        Introduction
+       </span>
+      </a>
+     </li>
+     <li class="ltx_tocentry ltx_tocentry_section">
+      <a class="ltx_ref" href="#S2" title="2 Quadratic costs minimization as a product of Gaussians (PoG) ‣ Learning and Optimization in Robotics Lecture notes">
+       <span class="ltx_text ltx_ref_title">
+        <span class="ltx_tag ltx_tag_ref">
+         2
+        </span>
+        Quadratic costs minimization as a product of Gaussians (PoG)
+       </span>
+      </a>
+     </li>
+     <li class="ltx_tocentry ltx_tocentry_section">
+      <a class="ltx_ref" href="#S3" title="3 Newton’s method for minimization ‣ Learning and Optimization in Robotics Lecture notes">
+       <span class="ltx_text ltx_ref_title">
+        <span class="ltx_tag ltx_tag_ref">
+         3
+        </span>
+        Newton’s method for minimization
+       </span>
+      </a>
+      <ul class="ltx_toclist ltx_toclist_section">
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S3-sec:GaussNewton" title="3.1 Gauss–Newton algorithm ‣ 3 Newton’s method for minimization ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           3.1
+          </span>
+          Gauss–Newton algorithm
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S3-sec:LS" title="3.2 Least squares ‣ 3 Newton’s method for minimization ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           3.2
+          </span>
+          Least squares
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S3-sec:LSconstraints" title="3.3 Least squares with constraints ‣ 3 Newton’s method for minimization ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           3.3
+          </span>
+          Least squares with constraints
+         </span>
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="ltx_tocentry ltx_tocentry_section">
+      <a class="ltx_ref" href="#S4" title="4 Forward kinematics (FK) for a planar robot manipulator ‣ Learning and Optimization in Robotics Lecture notes">
+       <span class="ltx_text ltx_ref_title">
+        <span class="ltx_tag ltx_tag_ref">
+         4
+        </span>
+        Forward kinematics (FK) for a planar robot manipulator
+       </span>
+      </a>
+     </li>
+     <li class="ltx_tocentry ltx_tocentry_section">
+      <a class="ltx_ref" href="#S5" title="5 Inverse kinematics (IK) for a planar robot manipulator ‣ Learning and Optimization in Robotics Lecture notes">
+       <span class="ltx_text ltx_ref_title">
+        <span class="ltx_tag ltx_tag_ref">
+         5
+        </span>
+        Inverse kinematics (IK) for a planar robot manipulator
+       </span>
+      </a>
+      <ul class="ltx_toclist ltx_toclist_section">
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S5-sec:IKnum" title="5.1 Numerical estimation of the Jacobian ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           5.1
+          </span>
+          Numerical estimation of the Jacobian
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S5-sec:IK_nullspace" title="5.2 Inverse kinematics (IK) with task prioritization ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           5.2
+          </span>
+          Inverse kinematics (IK) with task prioritization
+         </span>
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="ltx_tocentry ltx_tocentry_section">
+      <a class="ltx_ref" href="#S6" title="6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes">
+       <span class="ltx_text ltx_ref_title">
+        <span class="ltx_tag ltx_tag_ref">
+         6
+        </span>
+        Encoding with basis functions
+       </span>
+      </a>
+      <ul class="ltx_toclist ltx_toclist_section">
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S6-sec:SS1" title="6.1 Univariate trajectories ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           6.1
+          </span>
+          Univariate trajectories
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S6-sec:SS2" title="6.2 Multidimensional outputs ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           6.2
+          </span>
+          Multidimensional outputs
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S6-sec:SS3" title="6.3 Multidimensional inputs ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           6.3
+          </span>
+          Multidimensional inputs
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S6-sec:SS4" title="6.4 Derivatives ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           6.4
+          </span>
+          Derivatives
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S6-sec:SS5" title="6.5 Concatenated basis functions ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           6.5
+          </span>
+          Concatenated basis functions
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S6-sec:batchSDF" title="6.6 Batch computation of basis functions coefficients ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           6.6
+          </span>
+          Batch computation of basis functions coefficients
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S6-sec:recursiveSDF" title="6.7 Recursive computation of basis functions coefficients ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           6.7
+          </span>
+          Recursive computation of basis functions coefficients
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S6-sec:SS8" title="6.8 Computation of basis functions coefficients using eikonal cost ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           6.8
+          </span>
+          Computation of basis functions coefficients using eikonal cost
+         </span>
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="ltx_tocentry ltx_tocentry_section">
+      <a class="ltx_ref" href="#S7" title="7 Linear quadratic tracking (LQT) ‣ Learning and Optimization in Robotics Lecture notes">
+       <span class="ltx_text ltx_ref_title">
+        <span class="ltx_tag ltx_tag_ref">
+         7
+        </span>
+        Linear quadratic tracking (LQT)
+       </span>
+      </a>
+      <ul class="ltx_toclist ltx_toclist_section">
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S7-sec:initStateOptim" title="7.1 LQT with initial state optimization ‣ 7 Linear quadratic tracking (LQT) ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           7.1
+          </span>
+          LQT with initial state optimization
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S7-sec:SS2" title="7.2 LQT with smoothness cost ‣ 7 Linear quadratic tracking (LQT) ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           7.2
+          </span>
+          LQT with smoothness cost
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S7-sec:SS3" title="7.3 LQT with control primitives ‣ 7 Linear quadratic tracking (LQT) ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           7.3
+          </span>
+          LQT with control primitives
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S7-sec:LQRrecursive" title="7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           7.4
+          </span>
+          LQR with a recursive formulation
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S7-sec:augmState" title="7.5 LQT with a recursive formulation and an augmented state space ‣ 7 Linear quadratic tracking (LQT) ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           7.5
+          </span>
+          LQT with a recursive formulation and an augmented state space
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S7-sec:LQRLS" title="7.6 Least squares formulation of recursive LQR ‣ 7 Linear quadratic tracking (LQT) ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           7.6
+          </span>
+          Least squares formulation of recursive LQR
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S7-sec:DMPLQT" title="7.7 Dynamical movement primitives (DMP) reformulated as LQT with control primitives ‣ 7 Linear quadratic tracking (LQT) ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           7.7
+          </span>
+          Dynamical movement primitives (DMP) reformulated as LQT with control primitives
+         </span>
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="ltx_tocentry ltx_tocentry_section">
+      <a class="ltx_ref" href="#S8" title="8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+       <span class="ltx_text ltx_ref_title">
+        <span class="ltx_tag ltx_tag_ref">
+         8
+        </span>
+        iLQR optimization
+       </span>
+      </a>
+      <ul class="ltx_toclist ltx_toclist_section">
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S8-sec:iLQRbatch" title="8.1 Batch formulation of iLQR ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           8.1
+          </span>
+          Batch formulation of iLQR
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S8-sec:iLQRrecursive" title="8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           8.2
+          </span>
+          Recursive formulation of iLQR
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S8-sec:iLQRLS" title="8.3 Least squares formulation of recursive iLQR ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           8.3
+          </span>
+          Least squares formulation of recursive iLQR
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S8-sec:SS4" title="8.4 Updates by considering step sizes ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           8.4
+          </span>
+          Updates by considering step sizes
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S8-sec:iLQR_quadraticCost" title="8.5 iLQR with quadratic cost on f(xt) ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           8.5
+          </span>
+          iLQR with quadratic cost on
+          <span class="ltx_Math">
+           f(x_{t})
+          </span>
+         </span>
+        </a>
+        <ul class="ltx_toclist ltx_toclist_subsection">
+         <li class="ltx_tocentry ltx_tocentry_subsubsection">
+          <a class="ltx_ref" href="#S8-sec:SS5.SSS1" title="8.5.1 Robot manipulator ‣ 8.5 iLQR with quadratic cost on f(xt) ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+           <span class="ltx_text ltx_ref_title">
+            <span class="ltx_tag ltx_tag_ref">
+             8.5.1
+            </span>
+            Robot manipulator
+           </span>
+          </a>
+         </li>
+         <li class="ltx_tocentry ltx_tocentry_subsubsection">
+          <a class="ltx_ref" href="#S8-sec:SS5.SSS2" title="8.5.2 Bounded joint space ‣ 8.5 iLQR with quadratic cost on f(xt) ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+           <span class="ltx_text ltx_ref_title">
+            <span class="ltx_tag ltx_tag_ref">
+             8.5.2
+            </span>
+            Bounded joint space
+           </span>
+          </a>
+         </li>
+         <li class="ltx_tocentry ltx_tocentry_subsubsection">
+          <a class="ltx_ref" href="#S8-sec:SS5.SSS3" title="8.5.3 Bounded task space ‣ 8.5 iLQR with quadratic cost on f(xt) ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+           <span class="ltx_text ltx_ref_title">
+            <span class="ltx_tag ltx_tag_ref">
+             8.5.3
+            </span>
+            Bounded task space
+           </span>
+          </a>
+         </li>
+         <li class="ltx_tocentry ltx_tocentry_subsubsection">
+          <a class="ltx_ref" href="#S8-sec:reaching" title="8.5.4 Reaching task with robot manipulator and prismatic object boundaries ‣ 8.5 iLQR with quadratic cost on f(xt) ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+           <span class="ltx_text ltx_ref_title">
+            <span class="ltx_tag ltx_tag_ref">
+             8.5.4
+            </span>
+            Reaching task with robot manipulator and prismatic object boundaries
+           </span>
+          </a>
+         </li>
+         <li class="ltx_tocentry ltx_tocentry_subsubsection">
+          <a class="ltx_ref" href="#S8-sec:iLQR_initStateOptim" title="8.5.5 Initial state optimization ‣ 8.5 iLQR with quadratic cost on f(xt) ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+           <span class="ltx_text ltx_ref_title">
+            <span class="ltx_tag ltx_tag_ref">
+             8.5.5
+            </span>
+            Initial state optimization
+           </span>
+          </a>
+         </li>
+         <li class="ltx_tocentry ltx_tocentry_subsubsection">
+          <a class="ltx_ref" href="#S8-sec:SS5.SSS6" title="8.5.6 Center of mass ‣ 8.5 iLQR with quadratic cost on f(xt) ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+           <span class="ltx_text ltx_ref_title">
+            <span class="ltx_tag ltx_tag_ref">
+             8.5.6
+            </span>
+            Center of mass
+           </span>
+          </a>
+         </li>
+         <li class="ltx_tocentry ltx_tocentry_subsubsection">
+          <a class="ltx_ref" href="#S8-sec:SS5.SSS7" title="8.5.7 Bimanual robot ‣ 8.5 iLQR with quadratic cost on f(xt) ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+           <span class="ltx_text ltx_ref_title">
+            <span class="ltx_tag ltx_tag_ref">
+             8.5.7
+            </span>
+            Bimanual robot
+           </span>
+          </a>
+         </li>
+         <li class="ltx_tocentry ltx_tocentry_subsubsection">
+          <a class="ltx_ref" href="#S8-sec:SS5.SSS8" title="8.5.8 Obstacle avoidance with ellipsoid shapes ‣ 8.5 iLQR with quadratic cost on f(xt) ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+           <span class="ltx_text ltx_ref_title">
+            <span class="ltx_tag ltx_tag_ref">
+             8.5.8
+            </span>
+            Obstacle avoidance with ellipsoid shapes
+           </span>
+          </a>
+         </li>
+         <li class="ltx_tocentry ltx_tocentry_subsubsection">
+          <a class="ltx_ref" href="#S8-sec:SS5.SSS9" title="8.5.9 Maintaining a desired distance to an object ‣ 8.5 iLQR with quadratic cost on f(xt) ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+           <span class="ltx_text ltx_ref_title">
+            <span class="ltx_tag ltx_tag_ref">
+             8.5.9
+            </span>
+            Maintaining a desired distance to an object
+           </span>
+          </a>
+         </li>
+         <li class="ltx_tocentry ltx_tocentry_subsubsection">
+          <a class="ltx_ref" href="#S8-sec:SS5.SSS10" title="8.5.10 Manipulability tracking ‣ 8.5 iLQR with quadratic cost on f(xt) ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+           <span class="ltx_text ltx_ref_title">
+            <span class="ltx_tag ltx_tag_ref">
+             8.5.10
+            </span>
+            Manipulability tracking
+           </span>
+          </a>
+         </li>
+         <li class="ltx_tocentry ltx_tocentry_subsubsection">
+          <a class="ltx_ref" href="#S8-sec:SS5.SSS11" title="8.5.11 Decoupling of control commands ‣ 8.5 iLQR with quadratic cost on f(xt) ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+           <span class="ltx_text ltx_ref_title">
+            <span class="ltx_tag ltx_tag_ref">
+             8.5.11
+            </span>
+            Decoupling of control commands
+           </span>
+          </a>
+         </li>
+        </ul>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S8-sec:SS6" title="8.6 iLQR with control primitives ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           8.6
+          </span>
+          iLQR with control primitives
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S8-sec:SS7" title="8.7 iLQR for spacetime optimization ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           8.7
+          </span>
+          iLQR for spacetime optimization
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S8-sec:SS8" title="8.8 iLQR with offdiagonal elements in the precision matrix ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           8.8
+          </span>
+          iLQR with offdiagonal elements in the precision matrix
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S8-sec:SS9" title="8.9 Car steering ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           8.9
+          </span>
+          Car steering
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S8-sec:SS10" title="8.10 Bicopter ‣ 8 iLQR optimization ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           8.10
+          </span>
+          Bicopter
+         </span>
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="ltx_tocentry ltx_tocentry_section">
+      <a class="ltx_ref" href="#S9" title="9 Ergodic control ‣ Learning and Optimization in Robotics Lecture notes">
+       <span class="ltx_text ltx_ref_title">
+        <span class="ltx_tag ltx_tag_ref">
+         9
+        </span>
+        Ergodic control
+       </span>
+      </a>
+      <ul class="ltx_toclist ltx_toclist_section">
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S9-sec:SMC" title="9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           9.1
+          </span>
+          Spectral-based ergodic control (SMC)
+         </span>
+        </a>
+        <ul class="ltx_toclist ltx_toclist_subsection">
+         <li class="ltx_tocentry ltx_tocentry_subsubsection">
+          <a class="ltx_ref" href="#S9-sec:SMC1D" title="9.1.1 Unidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ Learning and Optimization in Robotics Lecture notes">
+           <span class="ltx_text ltx_ref_title">
+            <span class="ltx_tag ltx_tag_ref">
+             9.1.1
+            </span>
+            Unidimensional SMC
+           </span>
+          </a>
+         </li>
+         <li class="ltx_tocentry ltx_tocentry_subsubsection">
+          <a class="ltx_ref" href="#S9-sec:SMCnD" title="9.1.2 Multidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ Learning and Optimization in Robotics Lecture notes">
+           <span class="ltx_text ltx_ref_title">
+            <span class="ltx_tag ltx_tag_ref">
+             9.1.2
+            </span>
+            Multidimensional SMC
+           </span>
+          </a>
+         </li>
+        </ul>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S9-sec:HEDAC" title="9.2 Diffusion-based ergodic control (HEDAC) ‣ 9 Ergodic control ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           9.2
+          </span>
+          Diffusion-based ergodic control (HEDAC)
+         </span>
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="ltx_tocentry ltx_tocentry_section">
+      <a class="ltx_ref" href="#S10" title="10 Torque-controlled robots ‣ Learning and Optimization in Robotics Lecture notes">
+       <span class="ltx_text ltx_ref_title">
+        <span class="ltx_tag ltx_tag_ref">
+         10
+        </span>
+        Torque-controlled robots
+       </span>
+      </a>
+      <ul class="ltx_toclist ltx_toclist_section">
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S10-sec:SS1" title="10.1 Impedance control in joint space ‣ 10 Torque-controlled robots ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           10.1
+          </span>
+          Impedance control in joint space
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S10-sec:SS2" title="10.2 Impedance control in task space ‣ 10 Torque-controlled robots ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           10.2
+          </span>
+          Impedance control in task space
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S10-sec:FD" title="10.3 Forward dynamics for a planar robot manipulator and associated control strategy ‣ 10 Torque-controlled robots ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           10.3
+          </span>
+          Forward dynamics for a planar robot manipulator and associated control strategy
+         </span>
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="ltx_tocentry ltx_tocentry_section">
+      <a class="ltx_ref" href="#S11" title="11 Orientation representations and Riemannian manifolds ‣ Learning and Optimization in Robotics Lecture notes">
+       <span class="ltx_text ltx_ref_title">
+        <span class="ltx_tag ltx_tag_ref">
+         11
+        </span>
+        Orientation representations and Riemannian manifolds
+       </span>
+      </a>
+      <ul class="ltx_toclist ltx_toclist_section">
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S11-sec:Riemannian" title="11.1 Riemannian manifolds ‣ 11 Orientation representations and Riemannian manifolds ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           11.1
+          </span>
+          Riemannian manifolds
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S11-sec:SS2" title="11.2 Sphere manifolds Sd in robotics ‣ 11 Orientation representations and Riemannian manifolds ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           11.2
+          </span>
+          Sphere manifolds
+          <span class="ltx_Math">
+           \mathcal{S}^{d}
+          </span>
+          in robotics
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S11-sec:SS3" title="11.3 Gaussian distributions on Riemannian manifolds ‣ 11 Orientation representations and Riemannian manifolds ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           11.3
+          </span>
+          Gaussian distributions on Riemannian manifolds
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S11-sec:SS4" title="11.4 Other homogeneous manifolds in robotics ‣ 11 Orientation representations and Riemannian manifolds ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           11.4
+          </span>
+          Other homogeneous manifolds in robotics
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S11-sec:SS5" title="11.5 Ellipsoids and SPD matrices as Sd++ manifolds ‣ 11 Orientation representations and Riemannian manifolds ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           11.5
+          </span>
+          Ellipsoids and SPD matrices as
+          <span class="ltx_Math">
+           \mathcal{S}^{d}_{++}
+          </span>
+          manifolds
+         </span>
+        </a>
+       </li>
+       <li class="ltx_tocentry ltx_tocentry_subsection">
+        <a class="ltx_ref" href="#S11-sec:SS6" title="11.6 Non-homogeneous manifolds in robotics ‣ 11 Orientation representations and Riemannian manifolds ‣ Learning and Optimization in Robotics Lecture notes">
+         <span class="ltx_text ltx_ref_title">
+          <span class="ltx_tag ltx_tag_ref">
+           11.6
+          </span>
+          Non-homogeneous manifolds in robotics
+         </span>
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="ltx_tocentry ltx_tocentry_bibliography">
+      <a class="ltx_ref" href="#bib" title="References ‣ Learning and Optimization in Robotics Lecture notes">
+       <span class="ltx_text ltx_ref_title">
+        References
+       </span>
+      </a>
+     </li>
+     <li class="ltx_tocentry ltx_tocentry_appendix">
+      <a class="ltx_ref" href="#A1" title="Appendix A System dynamics at trajectory level ‣ Learning and Optimization in Robotics Lecture notes">
+       <span class="ltx_text ltx_ref_title">
+        <span class="ltx_tag ltx_tag_ref">
+         A
+        </span>
+        System dynamics at trajectory level
+       </span>
+      </a>
+     </li>
+     <li class="ltx_tocentry ltx_tocentry_appendix">
+      <a class="ltx_ref" href="#A2" title="Appendix B Derivation of motion equation for a planar robot ‣ Learning and Optimization in Robotics Lecture notes">
+       <span class="ltx_text ltx_ref_title">
+        <span class="ltx_tag ltx_tag_ref">
+         B
+        </span>
+        Derivation of motion equation for a planar robot
+       </span>
+      </a>
+     </li>
+     <li class="ltx_tocentry ltx_tocentry_appendix">
+      <a class="ltx_ref" href="#A3" title="Appendix C Linear systems used in the bimanual tennis serve example ‣ Learning and Optimization in Robotics Lecture notes">
+       <span class="ltx_text ltx_ref_title">
+        <span class="ltx_tag ltx_tag_ref">
+         C
+        </span>
+        Linear systems used in the bimanual tennis serve example
+       </span>
+      </a>
+     </li>
+     <li class="ltx_tocentry ltx_tocentry_appendix">
+      <a class="ltx_ref" href="#A4" title="Appendix D Equivalence between LQT and LQR with augmented state space ‣ Learning and Optimization in Robotics Lecture notes">
+       <span class="ltx_text ltx_ref_title">
+        <span class="ltx_tag ltx_tag_ref">
+         D
+        </span>
+        Equivalence between LQT and LQR with augmented state space
+       </span>
+      </a>
+     </li>
+     <li class="ltx_tocentry ltx_tocentry_appendix">
+      <a class="ltx_ref" href="#A5" title="Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ Learning and Optimization in Robotics Lecture notes">
+       <span class="ltx_text ltx_ref_title">
+        <span class="ltx_tag ltx_tag_ref">
+         E
+        </span>
+        Forward dynamics (FD) for a planar robot manipulator
+       </span>
+      </a>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="col-sm-3">
+  <div id="img-col">
+  </div>
+ </div>
+</div>

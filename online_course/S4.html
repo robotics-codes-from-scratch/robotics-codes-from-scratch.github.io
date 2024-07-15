@@ -1,0 +1,627 @@
+<div class="row">
+ <div class="col-sm-7 offset-1">
+  <div id="txt-col">
+   <h1 class="ltx_title ltx_title_section">
+    <span class="ltx_tag ltx_tag_section">
+     <span class="ltx_text">
+      4
+     </span>
+    </span>
+    <span class="ltx_text">
+     Forward kinematics (FK) for a planar robot manipulator
+    </span>
+   </h1>
+   <div class="ltx_para" id="p1">
+    <p class="ltx_p">
+     The
+     <em class="ltx_emph ltx_font_italic">
+      forward kinematics
+     </em>
+     (FK) function of a planar robot manipulator is defined as
+    </p>
+    <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S4-eq:A5.EGx3">
+     <tbody id="S4-eq:Ex16">
+      <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+       <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+       </td>
+       <td class="ltx_td ltx_align_right ltx_eqn_cell">
+        <span class="ltx_Math" id="Ex16.m1">
+         \displaystyle\bm{f}
+        </span>
+       </td>
+       <td class="ltx_td ltx_align_left ltx_eqn_cell">
+        <span class="ltx_Math" id="Ex16.m2">
+         \displaystyle=\begin{bmatrix}\textstyle\bm{\ell}^{\scriptscriptstyle\top}\cos(\bm{L}\bm{x})\\
+\textstyle\bm{\ell}^{\scriptscriptstyle\top}\sin(\bm{L}\bm{x})\\
+\textstyle\bm{1}^{\scriptscriptstyle\top}\bm{x}\end{bmatrix}
+        </span>
+       </td>
+       <td class="ltx_eqn_cell ltx_eqn_center_padright">
+       </td>
+      </tr>
+     </tbody>
+     <tbody id="S4-eq:Ex20">
+      <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+       <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+       </td>
+       <td class="ltx_td ltx_eqn_cell">
+       </td>
+       <td class="ltx_td ltx_align_left ltx_eqn_cell">
+        <span class="ltx_Math" id="Ex20.m1">
+         \displaystyle=\begin{bmatrix}\textstyle\ell_{1}\!\cos(x_{1})\!+\!\ell_{2}\!\cos(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3})\!+\!\ldots\\
+\textstyle\ell_{1}\sin(x_{1})\!+\!\ell_{2}\!\sin(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\sin(x_{1}\!+\!x_{2}\!+\!x_{3})\!+\!\ldots\\
+\textstyle x_{1}+x_{2}+x_{3}+\ldots\end{bmatrix}\!\!,
+        </span>
+       </td>
+       <td class="ltx_eqn_cell ltx_eqn_center_padright">
+       </td>
+      </tr>
+     </tbody>
+    </table>
+    <p class="ltx_p">
+     with
+     <span class="ltx_Math" id="p1.m1">
+      \bm{x}
+     </span>
+     the state of the robot (joint angles),
+     <span class="ltx_Math" id="p1.m2">
+      \bm{f}
+     </span>
+     the position of the robot endeffector,
+     <span class="ltx_Math" id="p1.m3">
+      \bm{\ell}\,
+     </span>
+     a vector of robot links lengths,
+     <span class="ltx_Math" id="p1.m4">
+      \bm{L}
+     </span>
+     a lower triangular matrix with unit elements, and
+     <span class="ltx_Math" id="p1.m5">
+      \bm{1}
+     </span>
+     a vector of unit elements, see Fig.
+     <a class="ltx_ref" href="#S4-fig:FK" title="Figure 7 ‣ 4 Forward kinematics (FK) for a planar robot manipulator ‣ Learning and Optimization in Robotics Lecture notes">
+      <span class="ltx_text ltx_ref_tag">
+       7
+      </span>
+     </a>
+     .
+    </p>
+   </div>
+   <div class="ltx_para" id="p2">
+    <p class="ltx_p">
+     The position and orientation of all articulations can similarly be computed with the forward kinematics function
+    </p>
+    <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S4-eq:A5.EGx4">
+     <tbody id="S4-eq:Ex21">
+      <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+       <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+       </td>
+       <td class="ltx_td ltx_align_right ltx_eqn_cell">
+        <span class="ltx_Math" id="Ex21.m1">
+         \displaystyle\bm{\tilde{f}}
+        </span>
+       </td>
+       <td class="ltx_td ltx_align_left ltx_eqn_cell">
+        <span class="ltx_Math" id="Ex21.m2">
+         \displaystyle={\Big[\bm{L}\;\mathrm{diag}(\bm{\ell})\cos(\bm{L}\bm{x}),\quad\bm{L}\;\mathrm{diag}(\bm{\ell})\sin(\bm{L}\bm{x}),\quad\bm{L}\bm{x}\Big]}^{\scriptscriptstyle\top}
+        </span>
+       </td>
+       <td class="ltx_eqn_cell ltx_eqn_center_padright">
+       </td>
+      </tr>
+     </tbody>
+     <tbody id="S4-eq:FKall">
+      <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+       <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+       </td>
+       <td class="ltx_td ltx_eqn_cell">
+       </td>
+       <td class="ltx_td ltx_align_left ltx_eqn_cell">
+        <span class="ltx_Math" id="E16.m1">
+         \displaystyle=\begin{bmatrix}\textstyle\tilde{f}_{1,1}&amp;\tilde{f}_{1,2}&amp;\tilde{f}_{1,3}&amp;\ldots\\
+\textstyle\tilde{f}_{2,1}&amp;\tilde{f}_{2,2}&amp;\tilde{f}_{2,3}&amp;\ldots\\
+\textstyle\tilde{f}_{3,1}&amp;\tilde{f}_{3,2}&amp;\tilde{f}_{3,3}&amp;\ldots\\
+\end{bmatrix}\!\!,
+        </span>
+       </td>
+       <td class="ltx_eqn_cell ltx_eqn_center_padright">
+       </td>
+       <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
+        <span class="ltx_tag ltx_tag_equation ltx_align_right">
+         (16)
+        </span>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+    <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S4-eq:A5.EGx5">
+     <tbody id="S4-eq:Ex22">
+      <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+       <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+       </td>
+       <td class="ltx_td ltx_eqn_cell">
+       </td>
+       <td class="ltx_td ltx_align_left ltx_eqn_cell">
+        <span class="ltx_Math" id="Ex22.m1">
+         \displaystyle\tilde{f}_{1,1}=\ell_{1}\!\cos(x_{1}),\quad
+        </span>
+       </td>
+       <td class="ltx_td ltx_align_left ltx_eqn_cell">
+        <span class="ltx_Math" id="Ex22.m2">
+         \displaystyle\tilde{f}_{1,2}=\ell_{1}\!\cos(x_{1})\!+\!\ell_{2}\!\cos(x_{1}\!+\!x_{2}),\quad
+        </span>
+       </td>
+       <td class="ltx_td ltx_align_left ltx_eqn_cell">
+        <span class="ltx_Math" id="Ex22.m3">
+         \displaystyle\tilde{f}_{1,3}=\ell_{1}\!\cos(x_{1})\!+\!\ell_{2}\!\cos(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3}),
+        </span>
+       </td>
+       <td class="ltx_eqn_cell ltx_eqn_center_padright">
+       </td>
+      </tr>
+     </tbody>
+     <tbody id="S4-eq:Ex23">
+      <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+       <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+       </td>
+       <td class="ltx_td ltx_align_right ltx_eqn_cell">
+        <span class="ltx_text ltx_markedasmath">
+         with
+        </span>
+       </td>
+       <td class="ltx_td ltx_align_left ltx_eqn_cell">
+        <span class="ltx_Math" id="Ex23.m2">
+         \displaystyle\tilde{f}_{2,1}=\ell_{1}\sin(x_{1}),
+        </span>
+       </td>
+       <td class="ltx_td ltx_align_left ltx_eqn_cell">
+        <span class="ltx_Math" id="Ex23.m3">
+         \displaystyle\tilde{f}_{2,2}=\ell_{1}\sin(x_{1})\!+\!\ell_{2}\!\sin(x_{1}\!+\!x_{2}),
+        </span>
+       </td>
+       <td class="ltx_td ltx_align_left ltx_eqn_cell">
+        <span class="ltx_Math" id="Ex23.m4">
+         \displaystyle\tilde{f}_{2,3}=\ell_{1}\sin(x_{1})\!+\!\ell_{2}\!\sin(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\sin(x_{1}\!+\!x_{2}\!+\!x_{3}),\quad\ldots
+        </span>
+       </td>
+       <td class="ltx_eqn_cell ltx_eqn_center_padright">
+       </td>
+      </tr>
+     </tbody>
+     <tbody id="S4-eq:Ex24">
+      <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+       <td class="ltx_eqn_cell ltx_eqn_center_padleft">
+       </td>
+       <td class="ltx_td ltx_eqn_cell">
+       </td>
+       <td class="ltx_td ltx_align_left ltx_eqn_cell">
+        <span class="ltx_Math" id="Ex24.m1">
+         \displaystyle\tilde{f}_{3,1}=x_{1},
+        </span>
+       </td>
+       <td class="ltx_td ltx_align_left ltx_eqn_cell">
+        <span class="ltx_Math" id="Ex24.m2">
+         \displaystyle\tilde{f}_{3,2}=x_{1}+x_{2},
+        </span>
+       </td>
+       <td class="ltx_td ltx_align_left ltx_eqn_cell">
+        <span class="ltx_Math" id="Ex24.m3">
+         \displaystyle\tilde{f}_{3,3}=x_{1}+x_{2}+x_{3}.
+        </span>
+       </td>
+       <td class="ltx_eqn_cell ltx_eqn_center_padright">
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="ltx_para" id="p3">
+    <p class="ltx_p">
+     In Python, this can be coded for the endeffector position part as
+    </p>
+    <div class="ltx_listing ltx_lst_language_Python ltx_lst_numbers_left ltx_lstlisting ltx_listing">
+     <div class="ltx_listingline" id="lstnumberx1">
+      <span class="ltx_tag ltx_tag_listingline">
+       <span class="ltx_text ltx_font_typewriter">
+        1
+       </span>
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       D
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       =
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       3
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_comment ltx_font_typewriter">
+       #State
+       <span class="ltx_text ltx_lst_space">
+       </span>
+       space
+       <span class="ltx_text ltx_lst_space">
+       </span>
+       dimension
+       <span class="ltx_text ltx_lst_space">
+       </span>
+       (joint
+       <span class="ltx_text ltx_lst_space">
+       </span>
+       angles)
+      </span>
+     </div>
+     <div class="ltx_listingline" id="lstnumberx2">
+      <span class="ltx_tag ltx_tag_listingline">
+       <span class="ltx_text ltx_font_typewriter">
+        2
+       </span>
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       x
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       =
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       np
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       .
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       ones
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       (
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       D
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       )
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       *
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       np
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       .
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       pi
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       /
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       D
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_comment ltx_font_typewriter">
+       #Robot
+       <span class="ltx_text ltx_lst_space">
+       </span>
+       pose
+      </span>
+     </div>
+     <div class="ltx_listingline" id="lstnumberx3">
+      <span class="ltx_tag ltx_tag_listingline">
+       <span class="ltx_text ltx_font_typewriter">
+        3
+       </span>
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       l
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       =
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       np
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       .
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       array
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       ([2,
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       2,
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       1])
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_comment ltx_font_typewriter">
+       #Links
+       <span class="ltx_text ltx_lst_space">
+       </span>
+       lengths
+      </span>
+     </div>
+     <div class="ltx_listingline" id="lstnumberx4">
+      <span class="ltx_tag ltx_tag_listingline">
+       <span class="ltx_text ltx_font_typewriter">
+        4
+       </span>
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       L
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       =
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       np
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       .
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       tril
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       (
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       np
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       .
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       ones
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       ([
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       D
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       ,
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       D
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       ]))
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_comment ltx_font_typewriter">
+       #Transformation
+       <span class="ltx_text ltx_lst_space">
+       </span>
+       matrix
+      </span>
+     </div>
+     <div class="ltx_listingline" id="lstnumberx5">
+      <span class="ltx_tag ltx_tag_listingline">
+       <span class="ltx_text ltx_font_typewriter">
+        5
+       </span>
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       f
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       =
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       np
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       .
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       array
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       ([
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       L
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       @
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       np
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       .
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       diag
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       (
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       l
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       )
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       @
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       np
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       .
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       cos
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       (
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       L
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       @
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       x
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       ),
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       L
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       @
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       np
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       .
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       diag
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       (
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       l
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       )
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       @
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       np
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       .
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       sin
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       (
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       L
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       @
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_identifier ltx_font_typewriter">
+       x
+      </span>
+      <span class="ltx_text ltx_font_typewriter">
+       )])
+      </span>
+      <span class="ltx_text ltx_lst_space ltx_font_typewriter">
+      </span>
+      <span class="ltx_text ltx_lst_comment ltx_font_typewriter">
+       #Forward
+       <span class="ltx_text ltx_lst_space">
+       </span>
+       kinematics
+      </span>
+     </div>
+    </div>
+   </div>
+   <div class="ltx_pagination ltx_role_newpage">
+   </div>
+  </div>
+ </div>
+ <div class="col-sm-3">
+  <div id="img-col">
+   <figure class="ltx_figure ltx_align_floatright figure_main" id="S4-fig:FK">
+    <img class="ltx_graphics ltx_centering" id="F7.g1" src="online_course/images/f_ee01.png"/>
+    <figcaption class="ltx_caption ltx_centering">
+     <span class="ltx_tag ltx_tag_figure">
+      <span class="ltx_text">
+       Figure 7
+      </span>
+      :
+     </span>
+     <span class="ltx_text">
+      Forward kinematics for a planar robot with two links.
+     </span>
+    </figcaption>
+   </figure>
+  </div>
+ </div>
+</div>

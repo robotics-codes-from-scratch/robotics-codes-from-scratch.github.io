@@ -1,0 +1,371 @@
+﻿<div class="row">
+    <div class="col-sm-1"></div>
+
+    <div class="col-sm-7">
+        <br/><br/>
+
+        <div onclick="clearMsgs()" onkeydown="clearMsgs()">
+            <py-repl std-err="errors" std-out="output">
+                # Precision matrix
+                Q = np.diag([1., 1., 0, 0,  1., 1., 0, 0])
+                update_iLQR()
+            </py-repl> <!--output='output' std-out='output'-->
+        </div>
+
+        <p id="output" style="font-size: 70%; color: #777777;">(click on the green run button to run the code; objects and joints can be moved with the mouse)</p>
+        <p id="errors" style="font-size: 70%; color: #880000;"></p>
+
+        <form>
+            <div class="row">
+                <div class="col-md"><label>Car 1 orientation</label><input class="w-72" id="car_angle0" max="3.14159" min="-3.14159" oninput="this.nextElementSibling.value = this.value" step="0.0001" style="vertical-align:middle;" type="range" value="0"/> <output>0.0</output></div>
+                <div class="col-md"><label>Car 2 orientation</label><input class="w-72" id="car_angle1" max="3.14159" min="-3.14159" oninput="this.nextElementSibling.value = this.value" step="0.0001" style="vertical-align:middle;" type="range" value="1.57079"/> <output>1.57079</output></div>
+            </div>
+            <div class="row">
+                <div class="col-md"><label>Wheels 1 orientation</label><input class="w-72" id="wheels_angle0" max="1.57079" min="-1.57079" oninput="this.nextElementSibling.value = this.value" step="0.0001" style="vertical-align:middle;" type="range" value="0"/> <output>0.0</output></div>
+                <div class="col-md"><label>Wheels 2 orientation</label><input class="w-72" id="wheels_angle1" max="1.57079" min="-1.57079" oninput="this.nextElementSibling.value = this.value" step="0.0001" style="vertical-align:middle;" type="range" value="0"/> <output>0.0</output></div>
+            </div>
+            <div class="row">
+                <div class="col-md"><label>Simulation speed</label><input class="w-72" id="simulation_speed" max="20" min="0" oninput="this.nextElementSibling.value = this.value" step="0.01" style="vertical-align:middle;" type="range" value="10"/> <output>10.0</output></div>
+            </div>
+            <div class="row">
+                <div class="col-md"><label>Cost</label><span id="cost"></span></div>
+            </div>
+        </form>
+    </div> <!--sm-7-->
+
+    <div class="col-sm-4">
+        <div class="sticky-sm-top">
+            <canvas height="700px" id="canvas" style="width:100%;" width="900px"></canvas>
+        </div>
+    </div> <!--sm-4-->
+</div> <!--row-->
+
+
+<py-script>
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document, console
+    import numpy as np
+    import asyncio
+
+    #########################################################################################
+    car_svg = Path2D.new('m -4.9070956,-15.985104 c -1.103,0 -2,0.897 -2,2 v 0.4375 c 1.328,0.583 2.324,1.721 2.75,3.125 0.167,0.252 0.25,0.6824985 0.25,1.4374985 v 2.0000001 h 2.99999996 v 1 H 1.0929044 v -1 h 2 c 1.103,0 2,-0.897 2,-2.0000001 v -4.9999985 c 0,-1.103 -0.897,-2 -2,-2 z m -6.0000004,4 c -0.552,0 -1,0.448 -1,1 v 22 c 0,0.553 0.448,1 1,1 h 2.0000004 c 1.654,0 3,-1.346 3,-3.0000014 V -8.9851055 c 0,-1.6539985 -1.346,-2.9999985 -3,-2.9999985 z m 44,0 c -0.553,0 -1,0.448 -1,1 v 4.6249986 c 3.242,0.617 5.80475,1.47625 5.96875,1.53125 0.016,0.005 0.01625,0.02625 0.03125,0.03125 v -6.1874986 c 0,-0.552 -0.447,-1 -1,-1 z M 8.0929044,-9.9851045 c -0.351,0 -0.66375,0.198999 -0.84375,0.499999 l -2.71875,4.5000001 h -8.4375 v 10 h 8.4375 l 2.71875,4.5 c 0.18,0.3 0.49275,0.5000004 0.84375,0.5000004 h 6.9999996 c 0.208,0 0.42475,-0.0655 0.59375,-0.1875004 l 6.71875,-4.8125 h 3.6875 c 5.05,0 11.0605,-1.9785 11.3125,-2.0625 0.411,-0.135 0.6875,-0.5055 0.6875,-0.9375 v -4 c 0,-0.43 -0.2795,-0.8005 -0.6875,-0.9375 -0.249,-0.084 -6.1555,-2.0625 -11.3125,-2.0625 h -3.6875 l -6.71875,-4.8125001 c -0.169,-0.121 -0.38575,-0.187499 -0.59375,-0.187499 z m 1.9999996,6.9999991 h 5 c 1.657,0 3,1.343 3,3.00000008 0,1.65699992 -1.343,2.99999992 -3,2.99999992 h -5 z m 28,7.8125 c -0.019,0.007 -0.0435,0.02525 -0.0625,0.03125 -0.167,0.055 -2.7185,0.885 -5.9375,1.5 v 4.6562514 c 0,0.553 0.447,1 1,1 h 4 c 0.553,0 1,-0.447 1,-1 z m -38.99999964,1.1875 v 1 H -3.9070956 v 2 c 0,0.496 -0.02575,0.809 -0.09375,1.0000004 -0.326,1.610001 -1.43725,2.918501 -2.90625,3.562501 v 0.4375 c 0,1.105 0.895,2 2,2 h 8 c 1.105,0 2,-0.895 2,-2 V 9.0148946 c 0,-1.105 -0.895,-2 -2,-2 h -2 v -1 z')
+    lwheel_svg = Path2D.new('m -3.4996449,-4.4958081 c -1.103,0 -2,0.897 -2,2 v 3.9999985 c 0,1.1030001 0.897,2.0000001 2,2.0000001 h 1 v 1 h 2.00000015 v -1 h 1 v 1 H 2.5003551 v -1 h 1 c 1.103,0 2,-0.897 2,-2.0000001 v -3.9999985 c 0,-1.103 -0.897,-2 -2,-2 z')
+    rwheel_svg = Path2D.new('m -2.49522,-4.4785246 v 1 h -1 c -1.103,0 -2,0.897 -2,2 v 4.000001 c 0,1.103 0.897,2 2,2 h 7 c 1.103,0 2,-0.897 2,-2 v -4.000001 c 0,-1.103 -0.897,-2 -2,-2 h -1 v -1 H 0.50477997 v 1 h -1 v -1 z')
+
+    # computer the transfer matrix of the linearized system
+    def transferMatrices(A, B):
+        nbVarX, nbVarU, nbData = B.shape
+        nbData += 1
+        Sx = np.kron(np.ones((nbData, 1)), np.identity(nbVarX))
+        Su = np.zeros((nbVarX * (nbData), nbVarU * (nbData-1)))
+        for t in range(nbData-1):
+            id1 = np.arange(t*nbVarX, (t+1)*nbVarX, 1, dtype=int) # 012, 345, ...
+            id2 = np.arange((t+1)*nbVarX, (t+2)*nbVarX, 1, dtype=int) # 345, 678, ...
+            id3 = np.arange(t*nbVarU, (t+1)*nbVarU, 1, dtype=int) # 012, 345, ...
+            Sx[id2, :] = np.matmul(A[:, :, t], Sx[id1, :])
+            Su[id2, :] = np.matmul(A[:, :, t], Su[id1, :])
+            Su[(t+1)*nbVarX : (t+2)*nbVarX, t*nbVarU : (t+1)*nbVarU] = B[:, :, t]
+        return Su, Sx
+
+    # Given the control trajectory u and initial state x0, compute the whole state trajectory
+    def dynSysSimulation(x0, u, model):
+        x = np.zeros([model.nbVarX, model.nbData])
+        dx = np.zeros(param.nbVarX)
+        x[:,0] = x0
+        for t in range(param.nbData-1):
+            dx[0] = np.cos(x[2,t]) * u[0,t]
+            dx[1] = np.sin(x[2,t]) * u[0,t]
+            dx[2] = np.tan(x[3,t]) * u[0,t] / param.l
+            dx[3] = u[1,t]
+            x[:,t+1] = x[:,t] + dx * param.dt
+        return x
+
+    # Linearize the system along the trajectory computing the matrices A and B
+    def linSys(x, u, param):
+        A = np.zeros([param.nbVarX, param.nbVarX, param.nbData-1])
+        B = np.zeros([param.nbVarX, param.nbVarU, param.nbData-1])
+        Ac = np.zeros([param.nbVarX, param.nbVarX])
+        Bc = np.zeros([param.nbVarX, param.nbVarU])
+        for t in range(param.nbData-1):
+            # Linearize the system
+            Ac[0,2] = -u[0,t] * np.sin(x[2,t])
+            Ac[1,2] = u[0,t] * np.cos(x[2,t])
+            Ac[2,3] = u[0,t] * np.tan(x[3,t]**2+1) / param.l
+            Bc[0,0] = np.cos(x[2,t])
+            Bc[1,0] = np.sin(x[2,t])
+            Bc[2,0] = np.tan(x[3,t]) / param.l
+            Bc[3,1] = 1
+            # Discretize the linear system
+            A[:,:,t] = np.eye(param.nbVarX) + Ac * param.dt
+            B[:,:,t] = Bc * param.dt
+        return A, B
+
+    # iLQR in batch form
+    def iLQR(x0, u, param):
+        for i in range(param.nbIter):
+            # System evolution
+            x = dynSysSimulation(x0, u.reshape([param.nbVarU, param.nbData-1], order='F'), param)
+            # Linearization
+            A, B = linSys(x, u.reshape([param.nbVarU, param.nbData-1], order='F'), param)
+            Su0, _ = transferMatrices(A, B)
+            Su = Su0[idx,:]
+            # Gauss-Newton update
+            e = x[:,tl].flatten('F') - param.Mu.flatten('F')
+            du = np.linalg.inv(Su.T @ Q @ Su + R) @ (-Su.T @ Q @ e - R @ u)
+            # Estimate step size with backtracking line search method
+            alpha = 1
+            cost0 = e.T @ Q @ e + u.T @ R @ u
+            while True:
+                utmp = u + du * alpha
+                xtmp = dynSysSimulation(x0, utmp.reshape([param.nbVarU, param.nbData-1], order='F'), param)
+                etmp = xtmp[:,tl].flatten('F') - param.Mu.flatten('F')
+                cost = etmp.T @ Q @ etmp + utmp.T @ R @ utmp
+
+                if cost &lt; cost0 or alpha &lt; 1e-3:
+                    u = utmp
+                    break
+                alpha /= 2
+            if np.linalg.norm(alpha * du) &lt; 1e-2: # Early stop condition
+                break
+        return x, u, cost
+
+
+    def update_iLQR():
+        global param, x, u, cost_el
+        for i in range(param.nbPoints):
+            param.Mu[2,i] = float(car_angles[i].value) # Car i orientation
+            param.Mu[3,i] = float(wheels_angles[i].value) # Wheels i orientation
+        u = np.zeros(param.nbVarU * (param.nbData-1)) # Reinitialize control commands (optional)
+        x, u, cost = iLQR(x0, u, param)
+        cost_el.textContent = '%.3f' % cost
+
+
+    ## Parameters
+    # ===============================
+
+    param = lambda: None # Lazy way to define an empty class in python
+    param.dt = 1E-1 # Time step length
+    param.nbData = 100 # Number of datapoints
+    param.nbIter = 30 # Maximum number of iterations for iLQR
+    param.nbPoints = 2 # Number of viapoints
+    param.nbVarX = 4 # State space dimension (x1,x2,theta,phi)
+    param.nbVarU = 2 # Control space dimension (v,dphi)
+    param.l = .25 # Length of the car
+    param.q = 1E0 # Precision weight
+    param.r = 1E-6 # Control weight term
+    param.Mu = np.array([[2., .5, 0, 0], [1., -1., np.pi/2, 0]]).T # Viapoints (x1,x2,theta,phi)
+    #param.Mu = np.array([[2., .5, 0, 0]]).T # Single viapoint (x1,x2,theta,phi)
+
+    Q = np.identity(param.nbVarX * param.nbPoints) * param.q # Precision matrix
+    R = np.identity((param.nbData-1) * param.nbVarU) * param.r # Control weight matrix
+
+    # Time occurrence of viapoints
+    tl = np.linspace(0, param.nbData, param.nbPoints+1)
+    tl = np.rint(tl[1:]).astype(np.int64) - 1
+    idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)]).flatten()
+
+    #########################################################################################
+
+    # GUI
+    scaling_factor = 2 # General scaling factor for rendering
+    scaling_coord = 100 # Scaling factor for car coordinates
+
+    # Mouse events
+    mouse0 = np.zeros(2)
+    mouse = np.zeros(2)
+    mousedown = 0
+
+    def onMouseMove(event):
+        global mouse, mouse0
+        offset = canvas.getBoundingClientRect()
+        mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
+        mouse0[1] = (event.clientY - offset.y) * canvas.width / canvas.clientWidth
+        mouse[0] = (mouse0[0] - canvas.width * 0.1) / scaling_factor
+        mouse[1] = -(mouse0[1] - canvas.height * 0.5) / scaling_factor
+
+    def onTouchMove(event):
+        global mouse, mouse0
+        bcr = event.target.getBoundingClientRect()
+        mouse0[0] = event.touches.item(0).clientX - bcr.x
+        mouse0[1] = event.touches.item(0).clientY - bcr.y
+        mouse[0] = (mouse0[0] - canvas.width * 0.1) / scaling_factor
+        mouse[1] = -(mouse0[1] - canvas.height * 0.5) / scaling_factor
+
+    def onMouseDown(event):
+        global mousedown, hover0
+        mousedown = 1
+
+    def onMouseUp(event):
+        global mousedown, selected_obj
+        mousedown = 0
+        selected_obj = -1
+        update_iLQR()
+
+    def onWheel(event):
+        global hover_obj, car_angles
+        #if mousedown==1:
+        #document.getElementById('object0_angle').value = str(param.Mu[2,0] + 0.2 * (event.deltaY/106))
+        if hover_obj &gt;= 0:
+            car_angles[hover_obj].value = float(car_angles[hover_obj].value) + 0.2 * (event.deltaY/106)
+            update_iLQR()
+
+    cost_el = document.getElementById('cost')
+
+
+    onMouseMoveProxy = create_proxy(onMouseMove)
+    onTouchMoveProxy = create_proxy(onTouchMove)
+    onMouseDownProxy = create_proxy(onMouseDown)
+    onMouseUpProxy = create_proxy(onMouseUp)
+    onWheelProxy = create_proxy(onWheel)
+
+
+    #########################################################################################
+
+    canvas = document.getElementById('canvas')
+    ctx = canvas.getContext('2d')
+
+    car_angles = []
+    wheels_angles = []
+    for i in range(param.nbPoints):
+        car_angles.append(document.getElementById('car_angle%d' % i))
+        wheels_angles.append(document.getElementById('wheels_angle%d' % i))
+
+    simulation_speed = document.getElementById('simulation_speed') # Simulation speed
+    selected_obj = -1
+
+    def clear_screen():
+        ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity
+        ctx.fillStyle = 'white'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+
+    def draw_car(x, color='#000000', selectable='False', id=0):
+        global selected_obj, hover_obj
+        ctx.setTransform(scaling_factor, 0, 0, -scaling_factor, canvas.width*0.1, canvas.height*0.5) # Reset transformation
+        offset = 0
+
+        ctx.translate(x[0]*scaling_coord, x[1]*scaling_coord)
+        ctx.rotate(x[2])
+
+        ctx.fillStyle = color
+    #   ctx.strokeStyle = color2
+        ctx.save()
+        ctx.translate(-offset, 0)
+        ctx.fill(car_svg)
+        if selectable=='True':
+            if ctx.isPointInPath(car_svg, mouse0[0], mouse0[1]):
+                hover_obj = id
+            if ctx.isPointInPath(car_svg, mouse0[0], mouse0[1]) and mousedown==1:
+                selected_obj = id
+
+    #   ctx.stroke(car_svg)
+        ctx.restore()
+
+        #Left wheel
+        ctx.save()
+        ctx.translate(25-offset, -11.2)
+        ctx.rotate(x[3])
+    #   ctx.fillStyle = '#008800'
+        ctx.fill(lwheel_svg)
+    #   ctx.stroke(lwheel_svg)
+        ctx.restore()
+
+        #Right wheel
+        ctx.save()
+        ctx.translate(25-offset, 11.2)
+        ctx.rotate(x[3])
+    #   ctx.fillStyle = '#000088'
+        ctx.fill(rwheel_svg)
+    #   ctx.stroke(rwheel_svg)
+        ctx.restore()
+
+    #   ctx.strokeStyle = '#FFFFFF'
+    #   ctx.beginPath()
+    #   ctx.moveTo(0,0)
+    #   ctx.lineTo(25,0)
+    #   ctx.stroke()
+
+
+    #########################################################################################
+
+    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+    document.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
+    document.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+    document.addEventListener('wheel', onWheelProxy) #for standard mouse
+
+    mustStop = asyncio.Event()
+    stopped = asyncio.Event()
+
+    async def cleanup():
+        mustStop.set()
+
+        document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+        document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+        document.removeEventListener('mousedown', onMouseDownProxy) #for standard mouse
+        document.removeEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+        document.removeEventListener('mouseup', onMouseUpProxy) #for standard mouse
+        document.removeEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+        document.removeEventListener('wheel', onWheelProxy) #for standard mouse
+
+        await stopped.wait()
+
+    document.cleanup = cleanup
+
+
+    #########################################################################################
+
+    x0 = np.zeros(param.nbVarX) # Initial state
+    u = np.zeros(param.nbVarU * (param.nbData-1)) # Initial control commands
+    x, u, cost = iLQR(x0, u, param)
+    cost_el.textContent = '%.3f' % cost
+
+    async def main():
+        global hover_obj, param
+
+        t0 = 0
+        t = 0
+        tf = 0
+        while not mustStop.is_set():
+            t0 += float(simulation_speed.value)
+            if t0 &gt; 19:
+                t0 = 0
+                if t &gt; param.nbData-2:
+                    tf += 1
+                    if tf &gt; 10: #Stay some iterations at the final point before starting again
+                        t = 0
+                        tf = 0
+                else:
+                    t += 1
+
+            # Reinit hovering variables
+            hover_obj = -1
+
+            # Rendering
+            clear_screen()
+            draw_car(x0, '#CCCCCC')
+            draw_car(param.Mu[:,0], '#FF3399', 'True', 0)
+            draw_car(param.Mu[:,1], '#33FF99', 'True', 1)
+            draw_car(x[:,t])
+
+            # Car selection
+            if selected_obj &gt;= 0:
+                param.Mu[:2,selected_obj] = mouse
+                param.Mu[0,selected_obj] = max(min(param.Mu[0,selected_obj],225*1.8), -225*0.1) / scaling_coord
+                param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],175), -175) / scaling_coord
+
+            await asyncio.sleep(0.0001)
+
+        stopped.set()
+
+    pyscript.run_until_complete(main())
+
+</py-script>

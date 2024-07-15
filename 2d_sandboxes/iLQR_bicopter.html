@@ -1,0 +1,352 @@
+﻿<div class="row">
+    <div class="col-sm-1"></div>
+
+    <div class="col-sm-7">
+        <br/><br/>
+
+        <div onclick="clearMsgs()" onkeydown="clearMsgs()">
+            <py-repl std-err="errors" std-out="output">
+                # Precision matrix
+                Q = np.diag([1., 1., 0, 0, 0, 0,   1., 1., 1., 1., 0, 0])
+                update_iLQR()
+            </py-repl>
+        </div>
+
+        <p id="output" style="font-size: 70%; color: #777777;">(click on the green run button to run the code; objects and joints can be moved with the mouse)</p>
+        <p id="errors" style="font-size: 70%; color: #880000;"></p>
+
+        <form>
+            <div class="row">
+                <div class="col-md"><label>Drone 1 orientation</label><input class="w-72" id="drone_angle0" max="3.14159" min="-3.14159" oninput="this.nextElementSibling.value = this.value" step="0.0001" style="vertical-align:middle;" type="range" value="0"/> <output>0.0</output></div>
+                <div class="col-md"><label>Drone 2 orientation</label><input class="w-72" id="drone_angle1" max="3.14159" min="-3.14159" oninput="this.nextElementSibling.value = this.value" step="0.0001" style="vertical-align:middle;" type="range" value="0"/> <output>0.0</output></div>
+            </div>
+            <div class="row">
+                <div class="col-md"><label>Simulation speed</label><input class="w-72" id="simulation_speed" max="20" min="0" oninput="this.nextElementSibling.value = this.value" step="0.01" style="vertical-align:middle;" type="range" value="10"/> <output>10.0</output></div>
+            </div>
+            <div class="row">
+                <div class="col-md"><label>Cost</label><span id="cost"></span></div>
+            </div>
+        </form>
+    </div> <!--sm-7-->
+
+    <div class="col-sm-4">
+        <div class="sticky-sm-top">
+            <canvas height="700px" id="canvas" style="width:100%;" width="900px"></canvas>
+        </div>
+    </div> <!--sm-4-->
+</div> <!--row-->
+
+
+<py-script>
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document, console
+    import numpy as np
+    import asyncio
+
+    #########################################################################################
+    drone_svg = Path2D.new('m -56.476134,-45.001183 c -0.38941,0.21459 -0.97309,0.70114 -1.28481,1.09056 l -0.58367,0.70115 -2.31711,-0.58368 c -3.30962,-0.85653 -6.23075,-1.26538 -9.01498,-1.28481 -3.69904,-0.0194 -5.27616,0.70115 -5.56846,2.55114 -0.21459,1.36251 0.72057,1.98595 3.71848,2.41422 2.3171,0.33115 8.37211,0.1554 11.40978,-0.31172 0.6623,-0.11655 0.70115,-0.0971 0.91482,0.62345 0.27287,0.89539 0.74,1.20711 2.00539,1.36251 l 0.95366,0.11655 v 1.32366 1.32367 l -0.72057,0.11655 c -0.40884,0.0583 -0.99251,0.1554 -1.28481,0.19425 -0.31172,0.0583 -0.81769,0.27287 -1.12942,0.48654 -2.3948,1.71309 0.35058,9.22866 3.71848,10.12497 0.73999,0.19426 0.91481,0.17483 1.86941,-0.29229 0.58367,-0.2923 1.20711,-0.74 1.38286,-0.99344 l 0.2923,-0.46712 h 6.11328 36.1132705 v 2.0248 c 0,1.88884 -0.0388,2.04424 -0.4088405,2.16079 -0.72057,0.23402 -1.79079,1.34309 -2.23941,2.33653 l -0.46712,0.97309 v 2.24245 10.2221 l 0.54482,1.0711402 c 0.58367,1.16827 1.77136,2.1802 2.9202005,2.51136 0.4477,0.11654 4.08847,0.19424 9.59865,0.19424 9.7744028,0 9.9103777,-0.0194 11.3515165,-1.20712 0.408847,-0.33114 0.953669,-1.05171 1.207116,-1.59653 l 0.467122,-0.9925202 v -10.2221 -2.22209 l -0.465272,-0.9731 c -0.447698,-0.99251 -1.518839,-2.10251 -2.239409,-2.33653 -0.369998,-0.11654 -0.4088458,-0.27287 -0.4088458,-2.16078 v -2.02573 h 36.3861498 6.405574 l 0.79827,0.77884 c 1.927685,1.81114 4.088469,1.24596 5.880186,-1.55768 1.421712,-2.20057 2.04423,-5.56846 1.323664,-6.93191 -0.370002,-0.66229 -1.518843,-1.24596 -2.472511,-1.24596 -1.090562,0 -1.187691,-0.11655 -1.187691,-1.55769 v -1.30424 l 0.895398,-0.11655 c 1.109987,-0.11655 1.908256,-0.68172 1.985952,-1.40229 0.07771,-0.52539 0.07771,-0.52539 1.168274,-0.40884 0.604019,0.0583 2.823072,0.17482 4.906163,0.23402 5.120759,0.17482 7.904989,-0.2146 8.898427,-1.22655 0.428274,-0.40883 0.467119,-0.58366 0.369999,-1.28481 -0.174826,-1.05172 -0.875966,-1.79171 -2.14136,-2.21998 -2.063658,-0.70115 -7.379595,-0.33114 -12.169204,0.85655 l -2.024812,0.50596 -0.38942,-0.52539 c -0.50597,-0.70115 -1.88884,-1.47999 -2.648258,-1.47999 -0.89539,0 -1.849986,0.48654 -2.648255,1.40229 l -0.701145,0.77884 -1.888832,-0.50597 c -4.205945,-1.10999 -8.916932,-1.65481 -11.390364,-1.30424 -2.58998,0.37 -3.738823,1.28482 -3.601924,2.90078 0.0777,0.83712 0.817694,1.44114 2.258834,1.79171 2.121935,0.50597 9.520954,0.4477 12.948051,-0.11655 0.681721,-0.11655 0.720572,-0.0971 0.720572,0.38942 0,0.79827 0.778842,1.44114 1.927683,1.59654 l 0.992519,0.13597 v 1.30424 c 0,1.44114 -0.09713,1.5577 -1.187691,1.5577 -1.402294,0 -2.706531,1.14884 -2.706531,2.37538 v 0.54481 H 45.325227 9.9713692 v -2.2394 -2.23941 h -9.9288727 -9.9298 v 2.23941 2.2394 h -34.9459405 -4.92558 l -0.13598,-0.79826 c -0.1554,-1.01194 -0.97309,-1.86941 -1.92769,-2.00539 -0.40884,-0.0583 -1.03229,-0.1554 -1.40228,-0.2146 l -0.68172,-0.11655 v -1.34309 c 0,-1.30424 0.0194,-1.36251 0.46712,-1.36251 1.42171,0 2.37538,-0.56424 2.57055,-1.53826 l 0.11655,-0.54482 1.09057,0.19425 c 1.69366,0.31172 10.222101,0.2923 11.565181,-0.0194 1.59654,-0.37 2.37539,-0.95367 2.45309,-1.83056 0.23402,-2.72596 -3.40768,-3.62135 -10.280381,-2.56963 -1.01286,0.15539 -2.78422,0.50597 -3.93307,0.77884 l -2.1025,0.50597 -0.50598,-0.62344 c -1.09056,-1.28482 -2.66767,-1.67424 -4.01077,-0.97309 z m 39.36556,26.07304 c -6.17248,0.72057 -11.72151,4.63421 -14.52517,10.22209 -1.10998,2.20056 -2.00538,5.8219102 -2.00538,8.1195901 v 0.5448201 h 2.29768 2.31711 l 0.21367,-1.81021 c 0.37,-2.9202 1.34309,-5.2567302 3.11538,-7.4184502 2.29768,-2.78423 5.84133,-4.67306 9.24808,-4.92558 l 1.49941,-0.11655 v -2.39481 c 0,-2.76665 0.25345,-2.49378 -2.16078,-2.2209 z m 31.98903,2.1802 0.05827,2.39481 1.402291,0.11655 c 5.860753,0.52539 10.883463,4.98478 12.208055,10.8261102 0.174826,0.77885 0.311726,1.84999 0.311726,2.37539 v 0.99252 h 2.355956 2.375381 l -0.116548,-1.81022 C 33.006462,-9.232373 27.808006,-15.832193 20.681862,-18.110453 c -1.421715,-0.4477 -2.842506,-0.73999 -4.634219,-0.91482 l -1.22654,-0.11655 z')
+
+    # computer the transfer matrix of the linearized system
+    def transferMatrices(A, B):
+        nbVarX, nbVarU, nbData = B.shape
+        nbData += 1
+        Sx = np.kron(np.ones((nbData, 1)), np.identity(nbVarX))
+        Su = np.zeros((nbVarX * (nbData), nbVarU * (nbData-1)))
+        for t in range(nbData-1):
+            id1 = np.arange(t*nbVarX, (t+1)*nbVarX, 1, dtype=int) # 012, 345, ...
+            id2 = np.arange((t+1)*nbVarX, (t+2)*nbVarX, 1, dtype=int) # 345, 678, ...
+            id3 = np.arange(t*nbVarU, (t+1)*nbVarU, 1, dtype=int) # 012, 345, ...
+            Sx[id2, :] = np.matmul(A[:, :, t], Sx[id1, :])
+            Su[id2, :] = np.matmul(A[:, :, t], Su[id1, :])
+            Su[(t+1)*nbVarX : (t+2)*nbVarX, t*nbVarU : (t+1)*nbVarU] = B[:, :, t]
+        return Su, Sx
+
+    # Given the control trajectory u and initial state x0, compute the whole state trajectory
+    def dynSysSimulation(x0, u, model):
+        x = np.zeros([model.nbVarX, model.nbData])
+        dx = np.zeros(param.nbVarX)
+        x[:,0] = x0
+        for t in range(param.nbData-1):
+            dx[:3] = x[3:,t]
+            dx[3] = -(u[0,t] + u[1,t]) * np.sin(x[2,t]) / param.m
+            dx[4] =  (u[0,t] + u[1,t]) * np.cos(x[2,t]) / param.m - param.g
+            dx[5] =  (u[0,t] - u[1,t]) * param.l / param.I
+            x[:,t+1] = x[:,t] + dx * param.dt
+        return x
+
+    # Linearize the system along the trajectory computing the matrices A and B
+    def linSys(x, u, param):
+        A = np.zeros([param.nbVarX, param.nbVarX, param.nbData-1])
+        B = np.zeros([param.nbVarX, param.nbVarU, param.nbData-1])
+        Ac = np.zeros([param.nbVarX, param.nbVarX])
+        Ac[:3,3:] = np.eye(param.nbVarPos)
+        Bc = np.zeros([param.nbVarX, param.nbVarU])
+        for t in range(param.nbData-1):
+            # Linearize the system
+            Ac[3,2] = -(u[0,t] + u[1,t]) * np.cos(x[2,t]) / param.m
+            Ac[4,2] = -(u[0,t] + u[1,t]) * np.sin(x[2,t]) / param.m
+            Bc[3,0] = -np.sin(x[2,t]) / param.m
+            Bc[3,1] =  Bc[3,0]
+            Bc[4,0] =  np.cos(x[2,t]) / param.m
+            Bc[4,1] =  Bc[4,0]
+            Bc[5,0] =  param.l / param.I
+            Bc[5,1] = -Bc[5,0]
+            # Discretize the linear system
+            A[:,:,t] = np.eye(param.nbVarX) + Ac * param.dt
+            B[:,:,t] = Bc * param.dt
+        return A, B
+
+    # iLQR in batch form
+    def iLQR(x0, u, param):
+        for i in range(param.nbIter):
+            # System evolution
+            x = dynSysSimulation(x0, u.reshape([param.nbVarU, param.nbData-1], order='F'), param)
+            # Linearization
+            A, B = linSys(x, u.reshape([param.nbVarU, param.nbData-1], order='F'), param)
+            Su0, _ = transferMatrices(A, B)
+            Su = Su0[idx,:]
+            # Gauss-Newton update
+            e = x[:,tl].flatten('F') - param.Mu.flatten('F')
+            du = np.linalg.inv(Su.T @ Q @ Su + R) @ (-Su.T @ Q @ e - R @ u)
+            # Estimate step size with backtracking line search method
+            alpha = 1
+            cost0 = e.T @ Q @ e + u.T @ R @ u
+            while True:
+                utmp = u + du * alpha
+                xtmp = dynSysSimulation(x0, utmp.reshape([param.nbVarU, param.nbData-1], order='F'), param)
+                etmp = xtmp[:,tl].flatten('F') - param.Mu.flatten('F')
+                cost = etmp.T @ Q @ etmp + utmp.T @ R @ utmp
+
+                if cost &lt; cost0 or alpha &lt; 1e-3:
+                    u = utmp
+                    break
+                alpha /= 2
+            if np.linalg.norm(alpha * du) &lt; 1e-2: # Early stop condition
+                break
+        return x, u, cost
+
+
+    def update_iLQR():
+        global param, x, u, cost_el
+        for i in range(param.nbPoints):
+            param.Mu[2,i] = float(drone_angles[i].value) # Drone i orientation
+        u = np.zeros(param.nbVarU * (param.nbData-1)) # Reinitialize control commands (optional)
+        x, u, cost = iLQR(x0, u, param)
+        cost_el.textContent = '%.3f' % cost
+
+
+    ## Parameters
+    # ===============================
+
+    param = lambda: None # Lazy way to define an empty class in python
+    param.dt = 1E-1 # Time step length
+    param.nbData = 100 # Number of datapoints
+    param.nbIter = 30 # Maximum number of iterations for iLQR
+    param.nbPoints = 2 # Number of viapoints
+    param.nbVarPos = 3 # Dimension of position (x1,x2,theta)
+    param.nbDeriv = 2 # Number of derivatives (nbDeriv=2 for [x; dx] state)
+    param.nbVarX = param.nbVarPos * param.nbDeriv # State space dimension
+    param.nbVarU = 2 # Control space dimension
+
+    param.l = 0.5 # Length of the bicopter
+    param.m = 1.5 # Mass of the bicopter
+    #param.I = 1 # Inertia
+    #param.I = param.m * param.l**2 / 12 # Inertia (homogeneous tube of length l)
+    param.I = 2. * param.m * param.l**2 # Inertia (two masses at distance l)
+    param.g = 9.81 # Acceleration due to gravity
+    param.q = 1E0 # Precision weight
+    param.r = 1E-6 # Control weight term
+    #param.Mu = np.array([[2., -2., 0, 0, 0, 0]]).T # Single viapoint
+    param.Mu = np.array([[2., -2., 0, 0, 0, 0], [-2., -3., 0, 0, 0, 0]]).T # Single viapoint
+
+    Q = np.identity(param.nbVarX * param.nbPoints) * param.q # Precision matrix
+    R = np.identity((param.nbData-1) * param.nbVarU) * param.r # Control weight matrix
+
+    # Time occurrence of viapoints
+    tl = np.linspace(0, param.nbData, param.nbPoints+1)
+    tl = np.rint(tl[1:]).astype(np.int64) - 1
+    idx = np.array([i + np.arange(0,param.nbVarX,1) for i in (tl*param.nbVarX)]).flatten()
+
+    #########################################################################################
+
+    # GUI
+    scaling_factor = 1 # General scaling factor for rendering
+    scaling_coord = 100 # Scaling factor for drone coordinates
+
+    # Mouse events
+    mouse0 = np.zeros(2)
+    mouse = np.zeros(2)
+    mousedown = 0
+
+    def onMouseMove(event):
+        global mouse, mouse0
+        offset = canvas.getBoundingClientRect()
+        mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
+        mouse0[1] = (event.clientY - offset.y) * canvas.width / canvas.clientWidth
+        mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
+        mouse[1] = (mouse0[1] - canvas.height * 0.9) / scaling_factor
+
+    def onTouchMove(event):
+        global mouse, mouse0
+        bcr = event.target.getBoundingClientRect()
+        mouse0[0] = event.touches.item(0).clientX - bcr.x
+        mouse0[1] = event.touches.item(0).clientY - bcr.y
+        mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
+        mouse[1] = (mouse0[1] - canvas.height * 0.9) / scaling_factor
+
+    def onMouseDown(event):
+        global mousedown, hover0
+        mousedown = 1
+
+    def onMouseUp(event):
+        global mousedown, selected_obj
+        mousedown = 0
+        selected_obj = -1
+        update_iLQR()
+
+    def onWheel(event):
+        global hover_obj, drone_angles
+        #if mousedown==1:
+        #document.getElementById('object0_angle').value = str(param.Mu[2,0] + 0.2 * (event.deltaY/106))
+        if hover_obj &gt;= 0:
+            drone_angles[hover_obj].value = float(drone_angles[hover_obj].value) + 0.2 * (event.deltaY/106)
+            update_iLQR()
+
+    cost_el = document.getElementById('cost')
+
+
+    onMouseMoveProxy = create_proxy(onMouseMove)
+    onTouchMoveProxy = create_proxy(onTouchMove)
+    onMouseDownProxy = create_proxy(onMouseDown)
+    onMouseUpProxy = create_proxy(onMouseUp)
+    onWheelProxy = create_proxy(onWheel)
+
+
+    #########################################################################################
+
+    canvas = document.getElementById('canvas')
+    ctx = canvas.getContext('2d')
+
+    drone_angles = []
+    for i in range(param.nbPoints):
+        drone_angles.append(document.getElementById('drone_angle%d' % i))
+
+    simulation_speed = document.getElementById('simulation_speed') # Simulation speed
+    selected_obj = -1
+
+    def clear_screen():
+        ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity
+        ctx.fillStyle = 'white'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        # Draw ground
+        ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.9) # Reset transformation
+        ctx.strokeStyle = '#AAAAAA'
+        ctx.lineWidth = '6'
+        ctx.beginPath()
+        ctx.moveTo(-350, 4)
+        ctx.lineTo(350, 4)
+        ctx.stroke()
+
+
+    def draw_drone(x, color='#000000', selectable='False', id=0):
+        global selected_obj, hover_obj
+        ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.9) # Reset transformation
+
+        ctx.translate(x[0]*scaling_coord, x[1]*scaling_coord)
+        ctx.rotate(x[2])
+
+        ctx.fillStyle = color
+        ctx.fill(drone_svg)
+        if selectable=='True':
+            if ctx.isPointInPath(drone_svg, mouse0[0], mouse0[1]):
+                hover_obj = id
+            if ctx.isPointInPath(drone_svg, mouse0[0], mouse0[1]) and mousedown==1:
+                selected_obj = id
+
+
+    #########################################################################################
+
+    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+    document.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
+    document.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+    document.addEventListener('wheel', onWheelProxy) #for standard mouse
+
+    mustStop = asyncio.Event()
+    stopped = asyncio.Event()
+
+    async def cleanup():
+        mustStop.set()
+
+        document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+        document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+        document.removeEventListener('mousedown', onMouseDownProxy) #for standard mouse
+        document.removeEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+        document.removeEventListener('mouseup', onMouseUpProxy) #for standard mouse
+        document.removeEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+        document.removeEventListener('wheel', onWheelProxy) #for standard mouse
+
+        await stopped.wait()
+
+    document.cleanup = cleanup
+
+
+    #########################################################################################
+
+    x0 = np.zeros(param.nbVarX) # Initial state
+    u = np.zeros(param.nbVarU * (param.nbData-1)) # Initial control commands
+    x, u, cost = iLQR(x0, u, param)
+    cost_el.textContent = '%.3f' % cost
+    clear_screen()
+    draw_drone(x0, '#CCCCCC')
+    draw_drone(param.Mu[:,0], '#FF3399', 'True', 0)
+
+    async def main():
+        global hover_obj, param
+
+        t0 = 0
+        t = 0
+        tf = 0
+        while not mustStop.is_set():
+            t0 += float(simulation_speed.value)
+            if t0 &gt; 19:
+                t0 = 0
+                if t &gt; param.nbData-2:
+                    tf += 1
+                    if tf &gt; 10: #Stay some iterations at the final point before starting again
+                        t = 0
+                        tf = 0
+                else:
+                    t += 1
+
+            # Reinit hovering variables
+            hover_obj = -1
+
+            # Rendering
+            clear_screen()
+            draw_drone(x0, '#CCCCCC')
+            draw_drone(param.Mu[:,0], '#FF3399', 'True', 0)
+            draw_drone(param.Mu[:,1], '#33FF99', 'True', 1)
+            draw_drone(x[:,t])
+
+            # Drone selection
+            if selected_obj &gt;= 0:
+                param.Mu[:2,selected_obj] = mouse
+                param.Mu[0,selected_obj] = max(min(param.Mu[0,selected_obj],550), -550) / scaling_coord
+                param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],350*0.1), -350*1.8) / scaling_coord
+
+            await asyncio.sleep(0.0001)
+
+        stopped.set()
+
+    pyscript.run_until_complete(main())
+
+</py-script>

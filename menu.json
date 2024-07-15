@@ -1,0 +1,442 @@
+[
+    {
+        "id": "general",
+        "title": "General information",
+        "entries": [
+            {
+                "title": "Home",
+                "hash": "home",
+                "page": "home.html",
+                "hidden": true
+            },
+            {
+                "title": "About",
+                "hash": "about",
+                "page": "about.html"
+            }
+        ]
+    },
+    {
+        "id": "2d_sandboxes",
+        "title": "2D sandboxes",
+        "requirements": [
+            "pyscript"
+        ],
+        "entries": [
+            {
+                "title": "Forward kinematics (FK)",
+                "hash": "2d_fk",
+                "page": "FK.html"
+            },
+            {
+                "title": "Inverse kinematics (IK)",
+                "hash": "2d_ik",
+                "page": "IK.html"
+            },
+            {
+                "title": "Bimanual robot",
+                "hash": "2d_bimanual",
+                "page": "bimanual.html"
+            },
+            {
+                "title": "Humanoid robot (CoM and coordination matrix)",
+                "hash": "2d_humanoid",
+                "page": "humanoid.html"
+            },
+            {
+                "title": "Iterative linear quadratic regulator (iLQR)",
+                "hash": "2d_iLQR",
+                "page": "iLQR.html"
+            },
+            {
+                "title": "iLQR for car",
+                "hash": "2d_iLQR_car",
+                "page": "iLQR_car.html"
+            },
+            {
+                "title": "iLQR for bicopter",
+                "hash": "2d_iLQR_bicopter",
+                "page": "iLQR_bicopter.html"
+            },
+            {
+                "title": "Impedance control",
+                "hash": "2d_impedance",
+                "page": "impedance.html"
+            }
+        ]
+    },
+    {
+        "id": "3d_sandboxes",
+        "title": "3D sandboxes",
+        "requirements": [
+            "pyscript"
+        ],
+        "entries": [
+            {
+                "title": "Inverse kinematics (IK)",
+                "hash": "3d_ik",
+                "page": "IK.html",
+                "assets": {
+                    "robots": [
+                        "panda"
+                    ],
+                    "scenes": [
+                        "scenes/panda.xml"
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        "id": "coding_exercices",
+        "title": "Coding exercises",
+        "requirements": [
+            "pyscript"
+        ],
+        "entries": [
+            {
+                "title": "Linear algebra in Python",
+                "number": "01",
+                "hash": "exercise01",
+                "page": "01.html"
+            },
+            {
+                "title": "Movement primitives and Newton's method",
+                "number": "02",
+                "hash": "exercise02",
+                "page": "02.html"
+            },
+            {
+                "title": "Gaussian Distributions",
+                "number": "03",
+                "hash": "exercise03",
+                "page": "03.html"
+            },
+            {
+                "title": "Forward kinematics",
+                "number": "4a",
+                "hash": "exercise04a",
+                "page": "04a.html"
+            },
+            {
+                "title": "Inverse kinematics and nullspace control",
+                "number": "4b",
+                "hash": "exercise04b",
+                "page": "04b.html"
+            },
+            {
+                "title": "Forward dynamics",
+                "number": "5a",
+                "hash": "exercise05a",
+                "page": "05a.html"
+            },
+            {
+                "title": "Inverse dynamics and impedance control",
+                "number": "5b",
+                "hash": "exercise05b",
+                "page": "05b.html"
+            },
+            {
+                "title": "Planning with linear quadratic regulator",
+                "number": "6a",
+                "hash": "exercise06a",
+                "page": "06a.html"
+            },
+            {
+                "title": "Planning in joint space with LQR",
+                "number": "6b",
+                "hash": "exercise06b",
+                "page": "06b.html"
+            },
+            {
+                "title": "Iterative linear quadratic regulator (iLQR)",
+                "number": "07",
+                "hash": "exercise07",
+                "page": "07.html"
+            },
+            {
+                "title": "Exploration with ergodic control",
+                "number": "08",
+                "hash": "exercise08",
+                "page": "08.html"
+            },
+            {
+                "title": "Orientation with Riemannian manifold",
+                "number": "09",
+                "hash": "exercise09",
+                "page": "09.html"
+            }
+        ]
+    },
+    {
+        "id": "online_course",
+        "title": "Online course",
+        "entries": [
+            {
+                "title": "Table of contents",
+                "hash": "toc",
+                "page": "toc.html"
+            },
+            {
+                "title": "1  Introduction",
+                "hash": "S1",
+                "page": "S1.html"
+            },
+            {
+                "title": "2  Quadratic costs minimization as a product of Gaussians (PoG)",
+                "hash": "S2",
+                "page": "S2.html"
+            },
+            {
+                "title": "3  Newton\u2019s method for minimization",
+                "hash": "S3",
+                "page": "S3.html",
+                "sections": [
+                    {
+                        "title": "3.1  Gauss\u2013Newton algorithm",
+                        "hash": "S3-sec:GaussNewton"
+                    },
+                    {
+                        "title": "3.2  Least squares",
+                        "hash": "S3-sec:LS"
+                    },
+                    {
+                        "title": "3.3  Least squares with constraints",
+                        "hash": "S3-sec:LSconstraints"
+                    }
+                ]
+            },
+            {
+                "title": "4  Forward kinematics (FK) for a planar robot manipulator",
+                "hash": "S4",
+                "page": "S4.html"
+            },
+            {
+                "title": "5  Inverse kinematics (IK) for a planar robot manipulator",
+                "hash": "S5",
+                "page": "S5.html",
+                "sections": [
+                    {
+                        "title": "5.1  Numerical estimation of the Jacobian",
+                        "hash": "S5-sec:IKnum"
+                    },
+                    {
+                        "title": "5.2  Inverse kinematics (IK) with task prioritization",
+                        "hash": "S5-sec:IK_nullspace"
+                    }
+                ]
+            },
+            {
+                "title": "6  Encoding with basis functions",
+                "hash": "S6",
+                "page": "S6.html",
+                "sections": [
+                    {
+                        "title": "6.1  Univariate trajectories",
+                        "hash": "S6-sec:SS1"
+                    },
+                    {
+                        "title": "6.2  Multidimensional outputs",
+                        "hash": "S6-sec:SS2"
+                    },
+                    {
+                        "title": "6.3  Multidimensional inputs",
+                        "hash": "S6-sec:SS3"
+                    },
+                    {
+                        "title": "6.4  Derivatives",
+                        "hash": "S6-sec:SS4"
+                    },
+                    {
+                        "title": "6.5  Concatenated basis functions",
+                        "hash": "S6-sec:SS5"
+                    },
+                    {
+                        "title": "6.6  Batch computation of basis functions coefficients",
+                        "hash": "S6-sec:batchSDF"
+                    },
+                    {
+                        "title": "6.7  Recursive computation of basis functions coefficients",
+                        "hash": "S6-sec:recursiveSDF"
+                    },
+                    {
+                        "title": "6.8  Computation of basis functions coefficients using eikonal cost",
+                        "hash": "S6-sec:SS8"
+                    }
+                ]
+            },
+            {
+                "title": "7  Linear quadratic tracking (LQT)",
+                "hash": "S7",
+                "page": "S7.html",
+                "sections": [
+                    {
+                        "title": "7.1  LQT with initial state optimization",
+                        "hash": "S7-sec:initStateOptim"
+                    },
+                    {
+                        "title": "7.2  LQT with smoothness cost",
+                        "hash": "S7-sec:SS2"
+                    },
+                    {
+                        "title": "7.3  LQT with control primitives",
+                        "hash": "S7-sec:SS3"
+                    },
+                    {
+                        "title": "7.4  LQR with a recursive formulation",
+                        "hash": "S7-sec:LQRrecursive"
+                    },
+                    {
+                        "title": "7.5  LQT with a recursive formulation and an augmented state space",
+                        "hash": "S7-sec:augmState"
+                    },
+                    {
+                        "title": "7.6  Least squares formulation of recursive LQR",
+                        "hash": "S7-sec:LQRLS"
+                    },
+                    {
+                        "title": "7.7  Dynamical movement primitives (DMP) reformulated as LQT with control primitives",
+                        "hash": "S7-sec:DMPLQT"
+                    }
+                ]
+            },
+            {
+                "title": "8  iLQR optimization",
+                "hash": "S8",
+                "page": "S8.html",
+                "sections": [
+                    {
+                        "title": "8.1  Batch formulation of iLQR",
+                        "hash": "S8-sec:iLQRbatch"
+                    },
+                    {
+                        "title": "8.2  Recursive formulation of iLQR",
+                        "hash": "S8-sec:iLQRrecursive"
+                    },
+                    {
+                        "title": "8.3  Least squares formulation of recursive iLQR",
+                        "hash": "S8-sec:iLQRLS"
+                    },
+                    {
+                        "title": "8.4  Updates by considering step sizes",
+                        "hash": "S8-sec:SS4"
+                    },
+                    {
+                        "title": "8.5  iLQR with quadratic cost on ",
+                        "hash": "S8-sec:iLQR_quadraticCost"
+                    },
+                    {
+                        "title": "8.6  iLQR with control primitives",
+                        "hash": "S8-sec:SS6"
+                    },
+                    {
+                        "title": "8.7  iLQR for spacetime optimization",
+                        "hash": "S8-sec:SS7"
+                    },
+                    {
+                        "title": "8.8  iLQR with offdiagonal elements in the precision matrix",
+                        "hash": "S8-sec:SS8"
+                    },
+                    {
+                        "title": "8.9  Car steering",
+                        "hash": "S8-sec:SS9"
+                    },
+                    {
+                        "title": "8.10  Bicopter",
+                        "hash": "S8-sec:SS10"
+                    }
+                ]
+            },
+            {
+                "title": "9  Ergodic control",
+                "hash": "S9",
+                "page": "S9.html",
+                "sections": [
+                    {
+                        "title": "9.1  Spectral-based ergodic control (SMC)",
+                        "hash": "S9-sec:SMC"
+                    },
+                    {
+                        "title": "9.2  Diffusion-based ergodic control (HEDAC)",
+                        "hash": "S9-sec:HEDAC"
+                    }
+                ]
+            },
+            {
+                "title": "10  Torque-controlled robots",
+                "hash": "S10",
+                "page": "S10.html",
+                "sections": [
+                    {
+                        "title": "10.1  Impedance control in joint space",
+                        "hash": "S10-sec:SS1"
+                    },
+                    {
+                        "title": "10.2  Impedance control in task space",
+                        "hash": "S10-sec:SS2"
+                    },
+                    {
+                        "title": "10.3  Forward dynamics for a planar robot manipulator and associated control strategy",
+                        "hash": "S10-sec:FD"
+                    }
+                ]
+            },
+            {
+                "title": "11  Orientation representations and Riemannian manifolds",
+                "hash": "S11",
+                "page": "S11.html",
+                "sections": [
+                    {
+                        "title": "11.1  Riemannian manifolds",
+                        "hash": "S11-sec:Riemannian"
+                    },
+                    {
+                        "title": "11.2  Sphere manifolds ",
+                        "hash": "S11-sec:SS2"
+                    },
+                    {
+                        "title": "11.3  Gaussian distributions on Riemannian manifolds",
+                        "hash": "S11-sec:SS3"
+                    },
+                    {
+                        "title": "11.4  Other homogeneous manifolds in robotics",
+                        "hash": "S11-sec:SS4"
+                    },
+                    {
+                        "title": "11.5  Ellipsoids and SPD matrices as ",
+                        "hash": "S11-sec:SS5"
+                    },
+                    {
+                        "title": "11.6  Non-homogeneous manifolds in robotics",
+                        "hash": "S11-sec:SS6"
+                    }
+                ]
+            },
+            {
+                "title": "A  System dynamics at trajectory level",
+                "hash": "A1",
+                "page": "A1.html"
+            },
+            {
+                "title": "B  Derivation of motion equation for a planar robot",
+                "hash": "A2",
+                "page": "A2.html"
+            },
+            {
+                "title": "C  Linear systems used in the bimanual tennis serve example",
+                "hash": "A3",
+                "page": "A3.html"
+            },
+            {
+                "title": "D  Equivalence between LQT and LQR with augmented state space",
+                "hash": "A4",
+                "page": "A4.html"
+            },
+            {
+                "title": "E  Forward dynamics (FD) for a planar robot manipulator",
+                "hash": "A5",
+                "page": "A5.html"
+            }
+        ]
+    }
+]

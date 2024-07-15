@@ -1,0 +1,328 @@
+﻿<div class="row">
+    <div class="col-sm-1"></div>
+
+    <div class="col-sm-7">
+        <h1>Exercise 4.a<br/>Forward kinematics</h1>
+        <p>Forward kinematics is the problem of finding the pose of the robot given a configuration (joint angles). You can read about forward kinematics in Section 4 of the <a href="doc/rcfs.pdf" target="_blank">RCFS documentation</a>.</p>
+        <p>The goal of this exercise is to implement a forward kinematics function for the manipulator shown on the right. The pink circle will be used to represent the end-effector of the robot.</p>
+        <p>If the forward kinematics function is correctly implemented, this pink circle should coincide with the end-effector of the robot. You can move the robot joints by hovering the mouse over each joint and using the mousewheel and/or the touchpad.</p>
+        <p>The function <code>fkin</code> represents the forward kinematics function taking the current joint angles <code>x</code> and problem parameters class <code>param</code> as inputs and outputs a 2 dimensional vector representing the 2D position of the end-effector.
+        Currently, <code>f=np.zeros(2)</code> and if you run the code in the Question tab, you will see that the pink object appears at the base of the robot, at coordinates (0,0).</p>
+        <p>Note that the <code>param</code> class has attributes such as the number of joints (<code>param.nbVarX</code>) and the link lengths (<code>param.l</code>) that you can use to test your code.</p>
+
+        <ul class="list-group list-group-numbered">
+            <li class="list-group-item">
+            Change this function to implement forward kinematics.
+            </li>
+            <li class="list-group-item">
+            Verify your code by changing the number of joints and the link lengths.
+            </li>
+        </ul>
+
+        <br/>
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button aria-controls="question4-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#question4-tab-pane" data-bs-toggle="tab" id="question4-tab" role="tab" type="button">Question</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button aria-controls="answer4-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#answer4-tab-pane" data-bs-toggle="tab" id="answer4-tab" role="tab" type="button">Answer</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <div aria-labelledby="question4-tab" class="tab-pane fade show active" id="question4-tab-pane" role="tabpanel" tabindex="0">
+                <py-repl std-err="errors" std-out="output">
+                    param.nbVarX = 3 # State space dimension (x1,x2,x3)
+                    param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
+                    x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
+                    x[0] = x[0] + np.pi
+
+                    # Forward kinematics for end-effector (in robot coordinate system)
+                    def fkin(x, param):
+                        f = np.zeros(2)
+                        return f
+                </py-repl>
+            </div>
+
+            <div aria-labelledby="answer4-tab" class="tab-pane fade" id="answer4-tab-pane" role="tabpanel" tabindex="0">
+                <py-repl std-err="errors" std-out="output">
+                    param.nbVarX = 3 # State space dimension (x1,x2,x3)
+                    param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
+                    x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
+                    x[0] = x[0] + np.pi
+
+                    # Forward kinematics for end-effector (in robot coordinate system)
+                    def fkin(x, param):
+                        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+                        f = np.array([param.l @ np.cos(L @ x), param.l @ np.sin(L @ x)])
+                        return f
+                </py-repl>
+            </div>
+        </div>
+
+        <br/><br/>
+    </div> <!--sm-7-->
+
+    <div class="col-sm-4">
+        <div class="sticky-sm-top" style="padding: 2rem 1rem 1rem 1rem;">
+            <hr/>
+            <div class="row justify-content-between">
+                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Output</button></div>
+                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgsOutput()">Clear</button></div>
+            </div>
+            <div id="output"></div>
+            <hr/>
+            <div class="row justify-content-between">
+                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Error</button></div>
+                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgs()">Clear</button></div>
+            </div>
+            <div id="errors"></div>
+            <hr/>
+            <canvas height="700px" id="canvas" style="width:100%;" width="900px"></canvas>
+        </div>
+    </div> <!--sm-4-->
+</div> <!--row-->
+
+
+<py-script>
+    def print(x):
+        display(x, target='output')
+</py-script>
+
+
+<py-script std-err="errors" std-out="output">
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document, console
+    import numpy as np
+    import asyncio
+
+    # Forward kinematics for end-effector (in robot coordinate system)
+    def fkin(x, param):
+        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+        f = [param.l @ np.cos(L @ x), param.l @ np.sin(L @ x)]
+        return f
+
+    # Forward kinematics for all joints (in robot coordinate system)
+    def fkin0(x, param):
+        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+        f = np.vstack([
+            L @ np.diag(param.l) @ np.cos(L @ x),
+            L @ np.diag(param.l) @ np.sin(L @ x)
+        ])
+        f = np.hstack([np.zeros([2,1]), f])
+        return f
+
+    ## Parameters
+    # ===============================
+
+    param = lambda: None # Lazy way to define an empty class in python
+    param.nbVarX = 3 # State space dimension (x1,x2,x3)
+    #param.l = [300, 300, 150] # Robot links lengths
+    param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
+
+
+    #########################################################################################
+
+    # Mouse events
+    mouse0 = np.zeros(2)
+    mousedown = 0
+    hover_joint = -1
+
+    def onMouseMove(event):
+        global mouse, mouse0
+        offset = canvas.getBoundingClientRect()
+        mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
+        mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
+
+    def onTouchMove(event):
+        global mouse, mouse0
+        offset = event.target.getBoundingClientRect()
+        mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
+        mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
+
+    def onMouseDown(event):
+        global mousedown
+        mousedown = 1
+
+    def onMouseUp(event):
+        global mousedown
+        mousedown = 0
+
+    def onWheel(event):
+        global hover_joint, x
+        if hover_joint &gt;= 0:
+            x[hover_joint] += 0.2 * (event.deltaY/106)
+
+
+    onMouseMoveProxy = create_proxy(onMouseMove)
+    onTouchMoveProxy = create_proxy(onTouchMove)
+    onMouseDownProxy = create_proxy(onMouseDown)
+    onMouseUpProxy = create_proxy(onMouseUp)
+    onWheelProxy = create_proxy(onWheel)
+
+
+    #########################################################################################
+
+    canvas = document.getElementById('canvas')
+    ctx = canvas.getContext('2d')
+
+    def clear_screen():
+        ctx.setTransform(1, 0, 0, 1, 0, 0)
+        ctx.fillStyle = 'white'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+
+    def draw_ground():
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
+        ctx.translate(0, -40)
+        ctx.lineCap = 'round'
+        ctx.lineJoin = 'round'
+        ctx.lineWidth = '5'
+        ctx.strokeStyle = '#CCCCCC'
+        ctx.beginPath()
+        ctx.moveTo(-400, 0)
+        ctx.lineTo(400, 0)
+        ctx.stroke()
+
+
+    def draw_robot(x, color):
+        global hover_joint
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
+
+        f = fkin0(x, param)
+
+        # Draw base
+        ctx.translate(f[0,0], f[1,0])
+        ctx.lineWidth = '4'
+        ctx.strokeStyle = 'white'
+        ctx.fillStyle = color
+        ctx.beginPath()
+        ctx.arc(0, 0, 40, 0, np.pi)
+        ctx.rect(-40, 0, 80, -40)
+        ctx.fill()
+        ctx.strokeStyle = color
+        for i in range(5):
+            ctx.beginPath()
+            ctx.moveTo(-30+i*15, -40)
+            ctx.lineTo(-40+i*15, -60)
+            ctx.stroke()
+
+        # Draw links
+        ctx.lineCap = 'round'
+        ctx.lineJoin = 'round'
+        for i in range(param.nbVarX):
+            # Draw links outlines
+            ctx.lineWidth = '46'
+            ctx.strokeStyle = 'white'
+            ctx.beginPath()
+            ctx.lineTo(f[0,i], f[1,i])
+            ctx.lineTo(f[0,i+1], f[1,i+1])
+            ctx.stroke()
+            # Draw links
+            ctx.lineWidth = '38'
+            ctx.strokeStyle = color
+            ctx.beginPath()
+            ctx.lineTo(f[0,i], f[1,i])
+            ctx.lineTo(f[0,i+1], f[1,i+1])
+            ctx.stroke()
+
+        # Draw articulations
+        obj = Path2D.new()
+        obj.arc(0, 0, 12, 0, 2*np.pi)
+        ctx.lineWidth = '4'
+        ctx.strokeStyle = 'white'
+        for i in range(param.nbVarX+1):
+            ctx.translate(f[0,i], f[1,i])
+            ctx.stroke(obj)
+            if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
+                hover_joint = i
+            ctx.translate(-f[0,i], -f[1,i])
+
+
+    def draw_tip(f, color):
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
+        # Draw object
+        obj = Path2D.new()
+        obj.arc(0, 0, 16, 0, 2*np.pi)
+        ctx.translate(f[0], f[1])
+        ctx.fillStyle = color
+        ctx.fill(obj)
+
+
+    #########################################################################################
+
+    def errorHandler(e):
+        msg = 'Error: ' + str(e)
+        console.error(msg)
+        el = document.getElementById('errors')
+        el.innerText = msg
+        #el.textContent = msg
+
+
+    #########################################################################################
+
+    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+    document.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
+    document.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+    document.addEventListener('wheel', onWheelProxy) #for standard mouse
+
+    mustStop = asyncio.Event()
+    stopped = asyncio.Event()
+
+    async def cleanup():
+        mustStop.set()
+
+        document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+        document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+        document.removeEventListener('mousedown', onMouseDownProxy) #for standard mouse
+        document.removeEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+        document.removeEventListener('mouseup', onMouseUpProxy) #for standard mouse
+        document.removeEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+        document.removeEventListener('wheel', onWheelProxy) #for standard mouse
+
+        await stopped.wait()
+
+    document.cleanup = cleanup
+
+
+    #########################################################################################
+    #x = [3*np.pi/4, -np.pi/2, -np.pi/4] # Initial robot state
+    x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
+    x[0] = x[0] + np.pi
+
+    async def main():
+        global hover_joint, x
+
+        while not mustStop.is_set():
+            try:
+                f = fkin(x, param)
+            except Exception as e:
+                errorHandler(e)
+                f = np.zeros(param.nbVarX)
+
+            # Reinit hovering variables
+            hover_joint = -1
+
+            # Rendering
+            clear_screen()
+        #   draw_ground()
+            draw_robot(x, '#AAAAAA')
+            draw_tip(f, '#FF3399')
+
+            await asyncio.sleep(0.01)
+
+        stopped.set()
+
+    pyscript.run_until_complete(main())
+
+</py-script>

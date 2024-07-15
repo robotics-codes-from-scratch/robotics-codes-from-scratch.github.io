@@ -1,0 +1,461 @@
+﻿<div class="row">
+    <div class="col-sm-1"></div>
+
+    <div class="col-sm-7">
+        <br/><br/>
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button aria-controls="IK1-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#IK1-tab-pane" data-bs-toggle="tab" id="IK1-tab" role="tab" type="button">Coordinated IK</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button aria-controls="IK2-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#IK2-tab-pane" data-bs-toggle="tab" id="IK2-tab" role="tab" type="button">CoM tracking</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <div aria-labelledby="IK1-tab" class="tab-pane fade show active" id="IK1-tab-pane" role="tabpanel" tabindex="0">
+                <div onclick="clearMsgs()" onkeydown="clearMsgs()">
+                    <py-repl std-err="errors" std-out="output">
+                        a = .7
+                        x = np.array([np.pi/2-a, 2*a, -a, 3*np.pi/4, 3*np.pi/4]) # Initial robot state
+                        # Coordinated control (position tracking with coordination matrix)
+                        def controlCommand(x, param):
+                            u = np.zeros(param.nbVarX)
+                            if move_joint &gt;= 0:
+                                # Imposed coordination matrix (no correlations imposed on the last two joints)
+                                C = [[-1,0,0], [2,0,0], [-1,0,0], [0,1,0], [0,0,1]]
+                                # Residual and Jacobian
+                                df = (mouse - fkin(x[:move_joint+1], param2)) * 5
+                                J = Jkin(x[:move_joint+1], param2)
+                                J = np.hstack((J, np.zeros([2,param.nbVarX-move_joint-1]))) # Augmented form
+                                J = J @ C # Imposed coordination
+                                # IK
+                                pinvJ = np.linalg.inv(J.T @ J + np.eye(J.shape[1]) * 1e-1) @ J.T # Damped pseudoinverse
+                                u = C @ pinvJ @ df # Control commands with imposed coordination
+                            return u
+                    </py-repl>
+                </div>
+            </div>
+
+            <div aria-labelledby="IK2-tab" class="tab-pane fade" id="IK2-tab-pane" role="tabpanel" tabindex="0">
+                <div onclick="clearMsgs()" onkeydown="clearMsgs()">
+                    <py-repl std-err="errors" std-out="output">
+                        # Prioritized control (CoM tracking prioritized over position tracking)
+                        def controlCommand(x, param):
+                            u = np.zeros(param.nbVarX)
+                            if move_joint &gt;= 0:
+                                # Residuals and Jacobian for primary task
+                                df1 = (param.Mu_CoM - fkin_CoM(x, param)) * 5
+                                J1 = Jkin_CoM(x, param)
+                                df1 = df1[:1] # Track only horizontal location of CoM
+                                J1 = J1[:1,:] # Track only horizontal location of CoM
+                                # Residual and Jacobian for secondary task
+                                df2 = (mouse - fkin(x[:move_joint+1], param2)) * 5
+                                J2 = Jkin(x[:move_joint+1], param2)
+                                J2 = np.hstack((J2, np.zeros([2,param.nbVarX-move_joint-1]))) # Augmented form
+                                # Prioritized control
+                                pinvJ1 = np.linalg.inv(J1.T @ J1 + np.eye(J1.shape[1]) * 1e-1) @ J1.T # Damped pseudoinverse
+                                N1 = np.eye(param.nbVarX) - pinvJ1 @ J1 # Nullspace projection operator
+                                u1 = pinvJ1 @ df1 # Command for position tracking
+                                J2N1 = J2 @ N1
+                                pinvJ2N1 = np.linalg.inv(J2N1.T @ J2N1 + np.eye(J2N1.shape[1]) * 1e5) @ J2N1.T # Damped pseudoinverse
+                                u2 = pinvJ2N1 @ (df2 - J2 @ u1) # Command for orientation tracking (with position tracking prioritized)
+                                u = u1 + N1 @ u2 # Control commands
+                            return u
+                    </py-repl>
+                </div>
+            </div>
+        </div> <!--tab-content-->
+
+        <p id="output" style="font-size: 70%; color: #777777;">(click on the green run button to run the code; objects and joints can be moved with the mouse)</p>
+        <p id="errors" style="font-size: 70%; color: #880000;"></p>
+    </div> <!--sm-7-->
+
+    <div class="col-sm-4">
+        <div class="sticky-sm-top">
+            <canvas height="1000px" id="canvas" style="width:100%;" width="900px"></canvas>
+        </div>
+    </div> <!--sm-4-->
+</div> <!--row-->
+
+
+<py-script>
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document, console
+    import numpy as np
+    import asyncio
+
+    # Forward kinematics for end-effector (in robot coordinate system)
+    def fkin(x, param):
+        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+        f = [param.l @ np.cos(L @ x), param.l @ np.sin(L @ x)]
+        return f
+
+    # Forward kinematics for all joints (in robot coordinate system)
+    def fkin0(x, param):
+        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+        f = np.vstack([
+            L @ np.diag(param.l) @ np.cos(L @ x),
+            L @ np.diag(param.l) @ np.sin(L @ x)
+        ])
+        f = np.hstack([np.zeros([2,1]), f])
+        return f
+
+    # Jacobian with analytical computation (for single time step)
+    def Jkin(x, param):
+        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+        J = np.vstack([
+            -np.sin(L @ x).T @ np.diag(param.l) @ L,
+             np.cos(L @ x).T @ np.diag(param.l) @ L
+        ])
+        return J
+
+    # Forward kinematics for center of mass (in robot coordinate system, with mass located at the joints)
+    def fkin_CoM(x, param):
+        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+        f = [param.l @ L @ np.cos(L @ x) / param.nbVarX,
+             param.l @ L @ np.sin(L @ x) / param.nbVarX]
+        return f
+
+    # Jacobian for center of mass (in robot coordinate system, with mass located at the joints)
+    def Jkin_CoM(x, param):
+        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+        J = np.vstack((-np.sin(L @ x).T @ L @ np.diag(param.l @ L) ,
+                        np.cos(L @ x).T @ L @ np.diag(param.l @ L))) / param.nbVarX
+        return J
+
+
+    ## Parameters
+    # ===============================
+
+    param = lambda: None # Lazy way to define an empty class in python
+    param.dt = 1E-1 # Time step length
+    param.nbVarX = 5 # State space dimension
+    param.l = [200, 200, 200, 200, 200] # Robot links lengths
+    param.Mu_CoM = np.array([0, 300]) # desired position of the center of mass
+
+    param2 = lambda: None # Lazy way to define an empty class in python
+
+    #########################################################################################
+
+    # Mouse events
+    mouse0 = np.zeros(2)
+    mouse = np.zeros(2)
+    mousedown = 0
+    hover_joint = -1
+    move_joint= -1
+
+    def onMouseMove(event):
+        global mouse, mouse0
+        offset = canvas.getBoundingClientRect()
+        mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
+        mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
+        mouse[0] = (mouse0[0] - canvas.width * 0.5)
+        mouse[1] = -(mouse0[1] - canvas.height * 0.9)
+
+    def onTouchMove(event):
+        global mouse, mouse0
+        offset = event.target.getBoundingClientRect()
+        mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
+        mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
+        mouse[0] = (mouse0[0] - canvas.width * 0.5)
+        mouse[1] = -(mouse0[1] - canvas.height * 0.9)
+
+    def onMouseDown(event):
+        global mousedown, move_joint, param2
+        mousedown = 1
+        if hover_joint &gt;= 0:
+            f0 = fkin0(x, param)
+            param2.l = np.append(param.l[:hover_joint], np.linalg.norm(f0[:,hover_joint] - mouse))
+            param2.nbVarX = hover_joint+1
+            move_joint = hover_joint
+
+    def onMouseUp(event):
+        global mousedown, move_joint
+        mousedown = 0
+        move_joint = -1
+
+    def onWheel(event):
+        global x
+        if hover_joint &gt;= 0:
+            x[hover_joint] -= 0.2 * (event.deltaY/106)
+
+
+    onMouseMoveProxy = create_proxy(onMouseMove)
+    onTouchMoveProxy = create_proxy(onTouchMove)
+    onMouseDownProxy = create_proxy(onMouseDown)
+    onMouseUpProxy = create_proxy(onMouseUp)
+    onWheelProxy = create_proxy(onWheel)
+
+
+    #########################################################################################
+
+    canvas = document.getElementById('canvas')
+    ctx = canvas.getContext('2d')
+
+    def clear_screen():
+        ctx.setTransform(1, 0, 0, 1, 0, 0)
+        ctx.fillStyle = 'white'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
+
+
+    def draw_robot(x, color):
+        global hover_joint
+        f = fkin0(x, param) # Update positions of the robot links
+
+        # Draw ground
+        ctx.strokeStyle = color
+        ctx.lineWidth = '6'
+        ctx.beginPath()
+        ctx.moveTo(-350, -25)
+        ctx.lineTo(350, -25)
+        ctx.stroke()
+
+        # Draw feet
+        ctx.translate(f[0,0], f[1,0])
+        ctx.lineWidth = '4'
+        ctx.strokeStyle = 'white'
+        ctx.fillStyle = color
+        ctx.beginPath()
+        ctx.arc(60, -25, 50, 0, np.pi/2)
+        ctx.lineTo(-27, 25)
+        ctx.lineTo(-27, -25)
+        ctx.fill()
+
+        # Draw links and articulations
+        obj_articulation = Path2D.new()
+        obj_articulation.arc(0, 0, 12, 0, 2*np.pi)
+        ctx.lineCap = 'round'
+        ctx.lineJoin = 'round'
+        for i in range(param.nbVarX):
+            if i &lt; param.nbVarX:
+                # Draw links outlines
+                ctx.lineWidth = '46'
+                ctx.strokeStyle = 'white'
+                ctx.beginPath()
+                ctx.lineTo(f[0,i], f[1,i])
+                ctx.lineTo(f[0,i+1], f[1,i+1])
+                ctx.stroke()
+                # Draw links
+                obj = Path2D.new()
+                obj.lineTo(f[0,i], f[1,i])
+                obj.lineTo(f[0,i+1], f[1,i+1])
+                ctx.lineWidth = '38'
+                ctx.strokeStyle = color
+                ctx.stroke(obj)
+                if ctx.isPointInStroke(obj, mouse0[0], mouse0[1]) and move_joint &lt; 0:
+                    hover_joint = i
+            # Draw articulations
+            ctx.lineWidth = '4'
+            ctx.strokeStyle = 'white'
+            ctx.translate(f[0,i], f[1,i])
+            ctx.stroke(obj_articulation)
+            ctx.translate(-f[0,i], -f[1,i])
+
+        #Draw head
+        param_tmp = lambda: None
+        param_tmp.l = np.append(param.l[:2], param.l[2] * 1.4)
+        param_tmp.nbVarX = 3
+        f = fkin(x[:3], param_tmp) # Update positions of the robot links
+        obj = Path2D.new()
+        obj.arc(0, 0, 50, 0, 2*np.pi)
+        ctx.translate(f[0], f[1])
+        ctx.fill(obj)
+        ctx.translate(-f[0], -f[1])
+
+
+    def draw_selected_point(f, color):
+        obj = Path2D.new()
+        obj.arc(0, 0, 6, 0, 2*np.pi)
+        ctx.translate(f[0], f[1])
+        ctx.fillStyle = color
+        ctx.fill(obj)
+        ctx.translate(-f[0], -f[1])
+
+
+    def draw_CoM(f, color):
+        r = 16 # Radius
+        obj = Path2D.new()
+        obj.arc(0, 0, r, 0, np.pi/2)
+        obj.lineTo(0, 0);
+        obj.arc(0, 0, r, np.pi, 3*np.pi/2)
+        obj.lineTo(0, 0);
+        ctx.translate(f[0], f[1])
+        ctx.fillStyle = color
+        ctx.fill(obj)
+        #Draw contour
+        obj = Path2D.new()
+        ctx.strokeStyle = color
+        ctx.lineWidth = '4'
+        obj.arc(0, 0, r, 0, 2*np.pi)
+        ctx.stroke(obj)
+        ctx.translate(-f[0], -f[1])
+
+    ## Standard control
+    #def controlCommand(x, param):
+    #   u = np.zeros(param.nbVarX)
+    #   f_CoM = fkin_CoM(x, param)
+    #   J_CoM = Jkin_CoM(x, param)
+    ##  u[:move_joint+1] = np.linalg.pinv(J) @ (mouse - f) * 5
+    #   pinvJ_CoM = np.linalg.inv(J_CoM.T @ J_CoM + np.eye(param.nbVarX) * 1E4) @ J_CoM.T # Damped pseudoinverse
+    #   u = pinvJ_CoM @ (param.Mu_CoM - f_CoM) * 5
+    #   if move_joint &gt;= 0:
+    #       f = fkin(x[:move_joint+1], param2)
+    #       J = Jkin(x[:move_joint+1], param2)
+    ##      u[:move_joint+1] = np.linalg.pinv(J) @ (mouse - f) * 5
+    #       pinvJ = np.linalg.inv(J.T @ J + np.eye(param2.nbVarX) * 1E4) @ J.T # Damped pseudoinverse
+    #       u[:move_joint+1] += pinvJ @ (mouse - f) * 5
+    #   return u
+
+    ## Prioritized control (position tracking prioritized over CoM tracking)
+    #def controlCommand(x, param):
+    #   u = np.zeros(param.nbVarX)
+    #   if move_joint &gt;= 0:
+    #       # Residual and Jacobian for primary task
+    #       df1 = (mouse - fkin(x[:move_joint+1], param2)) * 5
+    #       J1 = Jkin(x[:move_joint+1], param2)
+    #       J1 = np.hstack((J1, np.zeros([2,param.nbVarX-move_joint-1]))) # Augmented form
+    #       # Residual and Jacobian for secondary task
+    #       df2 = (param.Mu_CoM - fkin_CoM(x, param)) * 5
+    #       J2 = Jkin_CoM(x, param)
+    #       df2 = df2[0] # Track only horizontal location of CoM
+    #       J2 = J2[0,:].reshape([1,param.nbVarX]) # Track only horizontal location of CoM
+    #       # Prioritized control
+    #       pinvJ1 = np.linalg.inv(J1.T @ J1 + np.eye(J1.shape[1]) * 1e-1) @ J1.T # Damped pseudoinverse
+    #       N1 = np.eye(param.nbVarX) - pinvJ1 @ J1 # Nullspace projection operator
+    #       u1 = pinvJ1 @ df1 # Command for position tracking
+    #       J2N1 = J2 @ N1
+    #       pinvJ2N1 = J2N1.T @ np.linalg.inv(J2N1 @ J2N1.T + np.eye(J2N1.shape[0]) * 1e5) # Damped pseudoinverse
+    #       u2 = pinvJ2N1 @ (df2 - J2 @ u1) # Command for orientation tracking (with position tracking prioritized)
+    #       u = u1 + N1 @ u2 # Control commands
+    #   return u
+
+    ## Prioritized control (CoM tracking prioritized over position tracking)
+    #def controlCommand(x, param):
+    #   u = np.zeros(param.nbVarX)
+    #   if move_joint &gt;= 0:
+    #       # Residuals and Jacobian for primary task
+    #       df1 = (param.Mu_CoM - fkin_CoM(x, param)) * 5
+    #       J1 = Jkin_CoM(x, param)
+    #       df1 = df1[:1] # Track only horizontal location of CoM
+    #       J1 = J1[:1,:] # Track only horizontal location of CoM
+    #       # Residual and Jacobian for secondary task
+    #       df2 = (mouse - fkin(x[:move_joint+1], param2)) * 5
+    #       J2 = Jkin(x[:move_joint+1], param2)
+    #       J2 = np.hstack((J2, np.zeros([2,param.nbVarX-move_joint-1]))) # Augmented form
+    #       # Prioritized control
+    #       pinvJ1 = np.linalg.inv(J1.T @ J1 + np.eye(J1.shape[1]) * 1e-1) @ J1.T # Damped pseudoinverse
+    #       N1 = np.eye(param.nbVarX) - pinvJ1 @ J1 # Nullspace projection operator
+    #       u1 = pinvJ1 @ df1 # Command for position tracking
+    #       J2N1 = J2 @ N1
+    #       pinvJ2N1 = np.linalg.inv(J2N1.T @ J2N1 + np.eye(J2N1.shape[1]) * 1e5) @ J2N1.T # Damped pseudoinverse
+    #       u2 = pinvJ2N1 @ (df2 - J2 @ u1) # Command for orientation tracking (with position tracking prioritized)
+    #       u = u1 + N1 @ u2 # Control commands
+    #   return u
+
+    # Coordinated control (position tracking with coordination matrix)
+    def controlCommand(x, param):
+        u = np.zeros(param.nbVarX)
+        if move_joint &gt;= 0:
+            C = [[-1,0,0], [2,0,0], [-1,0,0], [0,1,0], [0,0,1]] # Imposed coordination (no correlations imposed on the last two joints)
+            # Residual and Jacobian
+            df = (mouse - fkin(x[:move_joint+1], param2)) * 5
+            J = Jkin(x[:move_joint+1], param2)
+            J = np.hstack((J, np.zeros([2,param.nbVarX-move_joint-1]))) # Augmented form
+            J = J @ C # Imposed coordination
+            # IK
+            pinvJ = np.linalg.inv(J.T @ J + np.eye(J.shape[1]) * 1e4) @ J.T # Damped pseudoinverse
+            u = C @ pinvJ @ df # Control commands with imposed coordination
+        return u
+
+
+    #########################################################################################
+
+    def errorHandler(e):
+        msg = 'Error: ' + str(e)
+        console.error(msg)
+        el = document.getElementById('errors')
+        el.innerText = msg
+
+
+    #########################################################################################
+
+    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+    document.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
+    document.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+    document.addEventListener('wheel', onWheelProxy) #for standard mouse
+
+    mustStop = asyncio.Event()
+    stopped = asyncio.Event()
+
+    async def cleanup():
+        mustStop.set()
+
+        document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+        document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+        document.removeEventListener('mousedown', onMouseDownProxy) #for standard mouse
+        document.removeEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+        document.removeEventListener('mouseup', onMouseUpProxy) #for standard mouse
+        document.removeEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+        document.removeEventListener('wheel', onWheelProxy) #for standard mouse
+
+        await stopped.wait()
+
+    document.cleanup = cleanup
+
+
+    #########################################################################################
+    a = .7
+    x = np.array([np.pi/2-a, 2*a, -a, 3*np.pi/4, 3*np.pi/4]) # Initial robot state
+
+    async def main():
+        global hover_joint, x
+
+        while not mustStop.is_set():
+            try:
+                u = controlCommand(x, param)
+            except Exception as e:
+                errorHandler(e)
+                u = np.zeros(param.nbVarX)
+
+            x += u * param.dt # Update robot state
+
+            # Reinit hovering variables
+            hover_joint = -1
+
+            # Rendering
+            clear_screen()
+            # Draw CoM line
+            ctx.strokeStyle = '#FFAAAA'
+            ctx.lineWidth = '8'
+            ctx.beginPath()
+            ctx.moveTo(param.Mu_CoM[0], 0)
+            ctx.lineTo(param.Mu_CoM[0], 500)
+            ctx.stroke()
+            # Draw CoM
+            draw_CoM(param.Mu_CoM, '#AA0000') # Target CoM
+            draw_robot(x, '#AAAAAA')
+            f_CoM = fkin_CoM(x, param)
+            draw_CoM(f_CoM, '#777777') # Robot CoM
+            if move_joint &gt;= 0:
+                f = fkin(x[:move_joint+1], param2)
+                draw_selected_point(f, '#777777')
+
+            await asyncio.sleep(0.0001)
+
+        stopped.set()
+
+    pyscript.run_until_complete(main())
+
+</py-script>

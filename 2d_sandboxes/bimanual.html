@@ -1,0 +1,370 @@
+﻿<div class="row">
+    <div class="col-sm-1"></div>
+
+    <div class="col-sm-7">
+        <br/><br/>
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button aria-controls="IK-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#IK-tab-pane" data-bs-toggle="tab" id="IK-tab" role="tab" type="button">IK</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button aria-controls="pIK-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#pIK-tab-pane" data-bs-toggle="tab" id="pIK-tab" role="tab" type="button">Prioritized IK</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <div aria-labelledby="IK-tab" class="tab-pane fade show active" id="IK-tab-pane" role="tabpanel" tabindex="0">
+                <div onclick="clearMsgs()" onkeydown="clearMsgs()">
+                    <py-repl std-err="errors" std-out="output">
+                        def controlCommand(x, param):
+                            f = fkin(x, param)
+                            J = Jkin(x, param)
+                            #u = np.linalg.pinv(J) @ (param.Mu - f[:,0]) * 10 # Control commands
+                            #u = np.zeros(param.nbVarX) # Control commands
+                            pinvJ = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E4) @ J.T # Damped pseudoinverse
+                            u = pinvJ @ (param.Mu - f[:,0]) * 10 # Control commands
+                            return u
+                    </py-repl>
+                </div>
+
+            </div>
+
+            <div aria-labelledby="pIK-tab" class="tab-pane fade" id="pIK-tab-pane" role="tabpanel" tabindex="0">
+                <div onclick="clearMsgs()" onkeydown="clearMsgs()">
+                    <py-repl std-err="errors" std-out="output">
+                        def controlCommand(x, param):
+                            f = fkin(x, param)
+                            J = Jkin(x, param)
+                            # Prioritized control (left tracking as main objective)
+                            dfl = (param.Mu[:2] - f[:2,0]) * 10 # Left hand correction
+                            dfr = (param.Mu[2:] - f[2:,0]) * 10 # Right hand correction
+                            Jl = J[:2,:] # Jacobian for left hand
+                            Jr = J[2:,:] # Jacobian for right hand
+                            pinvJl = np.linalg.inv(Jl.T @ Jl + np.eye(param.nbVarX) * 1e1) @ Jl.T # Damped pseudoinverse
+                            Nl = np.eye(param.nbVarX) - pinvJl @ Jl # Nullspace projection operator
+                            ul = pinvJl @ dfl # Command for position tracking
+                            JrNl = Jr @ Nl
+                            pinvJrNl = JrNl.T @ np.linalg.inv(JrNl @ JrNl.T + np.eye(2) * 1e4) # Damped pseudoinverse
+                            ur = pinvJrNl @ (dfr - Jr @ ul) # Command for right hand tracking (with left hand tracking prioritized)
+                            u = ul + Nl @ ur # Control commands
+                            return u
+                    </py-repl>
+                </div>
+            </div>
+        </div> <!--tab-content-->
+
+        <p id="output" style="font-size: 70%; color: #777777;">(click on the green run button to run the code; objects and joints can be moved with the mouse)</p>
+        <p id="errors" style="font-size: 70%; color: #880000;"></p>
+    </div> <!--sm-7-->
+
+    <div class="col-sm-4">
+        <div class="sticky-sm-top">
+            <canvas height="700px" id="canvas" style="width:100%;" width="900px"></canvas>
+        </div>
+    </div> <!--sm-4-->
+</div> <!--row-->
+
+
+<py-script>
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document, console
+    import numpy as np
+    import asyncio
+
+    # Forward kinematics for end-effector (in robot coordinate system)
+    def fkin(x, param):
+        L = np.tril(np.ones(3))
+        f = np.vstack([
+            param.l[0:3].T @ np.cos(L @ x[0:3]),
+            param.l[0:3].T @ np.sin(L @ x[0:3]),
+            param.l[[0,3,4]].T @ np.cos(L @ x[[0,3,4]]),
+            param.l[[0,3,4]].T @ np.sin(L @ x[[0,3,4]])
+        ])  # f1,f2,f3,f4
+        return f
+
+    # Forward kinematics for end-effector (in robot coordinate system)
+    def fkin0(x, param):
+        L = np.tril(np.ones(3))
+        fl = np.vstack([
+            L @ np.diag(param.l[0:3]) @ np.cos(L @ x[0:3]),
+            L @ np.diag(param.l[0:3]) @ np.sin(L @ x[0:3])
+        ])
+        fr = np.vstack([
+            L @ np.diag(param.l[[0,3,4]]) @ np.cos(L @ x[[0,3,4]]),
+            L @ np.diag(param.l[[0,3,4]]) @ np.sin(L @ x[[0,3,4]])
+        ])
+        f = np.hstack([fl[:,::-1], np.zeros([2,1]), fr])
+        return f
+
+    # Jacobian of the end-effector with analytical computation (for single time step)
+    def Jkin(x, param):
+        L = np.tril(np.ones(3))
+        J = np.zeros((param.nbVarF, param.nbVarX))
+        Jl = np.vstack([-np.sin(L @ x[:3]).T @ np.diag(param.l[:3]) @ L,
+                        np.cos(L @ x[:3]).T @ np.diag(param.l[:3]) @ L
+                        ])
+        Jr = np.vstack([-np.sin(L @ x[[0,3,4]]).T @ np.diag(np.array(param.l)[[0,3,4]]) @ L,
+                        np.cos(L @ x[[0,3,4]]).T @ np.diag(np.array(param.l)[[0,3,4]]) @ L
+                        ])
+        J[:Jl.shape[0], :Jl.shape[1]] = Jl
+        J[2:, [0,3,4]] = Jr
+        return J
+
+
+    ## Parameters
+    # ===============================
+
+    param = lambda: None # Lazy way to define an empty class in python
+    param.dt = 1e-1 # Time step length
+    param.nbVarX = 5 # State space dimension
+    param.nbVarF = 4 # Task space dimension ([x1,x2] for left end-effector, [x3,x4] for right end-effector)
+    param.l = np.array([200, 200, 150, 200, 150]) # Robot links lengths
+    param.Mu = np.array([-200, 100, 200, 100]) # Objects position
+
+    #########################################################################################
+
+    # Mouse events
+    mouse0 = np.zeros(2)
+    mouse = np.zeros(2)
+    mousedown = 0
+    hover_joint = -1
+    selected_obj = -1
+    move_joint= -1
+    hover0 = np.zeros(2)
+
+    def onMouseMove(event):
+        global mouse, mouse0, hover0, x
+        offset = canvas.getBoundingClientRect()
+        mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
+        mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
+        mouse[0] = (mouse0[0] - canvas.width * 0.5)
+        mouse[1] = -(mouse0[1] - canvas.height * 0.9)
+        if move_joint &gt;= 0:
+            x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
+            hover0 = np.copy(mouse0)
+
+    def onTouchMove(event):
+        global mouse, mouse0, hover0, x
+        offset = event.target.getBoundingClientRect()
+        mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
+        mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
+        mouse[0] = (mouse0[0] - canvas.width * 0.5)
+        mouse[1] = -(mouse0[1] - canvas.height * 0.9)
+        if move_joint &gt;= 0:
+            x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
+            hover0 = np.copy(mouse0)
+
+    def onMouseDown(event):
+        global mousedown, move_joint, hover0
+        mousedown = 1
+        if hover_joint &gt;= 0:
+            move_joint = hover_joint
+            hover0 = np.copy(mouse0)
+
+    def onMouseUp(event):
+        global mousedown, selected_obj, move_joint
+        mousedown = 0
+        selected_obj = -1
+        move_joint = -1
+
+    def onWheel(event):
+        global hover_joint, x
+        if hover_joint &gt;= 0:
+            x[hover_joint] -= 0.2 * (event.deltaY/106)
+
+    onMouseMoveProxy = create_proxy(onMouseMove)
+    onTouchMoveProxy = create_proxy(onTouchMove)
+    onMouseDownProxy = create_proxy(onMouseDown)
+    onMouseUpProxy = create_proxy(onMouseUp)
+    onWheelProxy = create_proxy(onWheel)
+
+
+    #########################################################################################
+
+    canvas = document.getElementById('canvas')
+    ctx = canvas.getContext('2d')
+
+    def clear_screen():
+        ctx.setTransform(1, 0, 0, 1, 0, 0)
+        ctx.fillStyle = 'white'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+
+    def draw_ground():
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
+        ctx.lineCap = 'round'
+        ctx.lineJoin = 'round'
+        ctx.lineWidth = '5'
+        ctx.strokeStyle = '#CCCCCC'
+        ctx.beginPath()
+        ctx.moveTo(-400, 0)
+        ctx.lineTo(400, 0)
+        ctx.stroke()
+
+
+    def draw_robot(x, color):
+        global hover_joint
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
+
+        f = fkin0(x, param)
+
+        # Draw base
+        ctx.translate(f[0,3], f[1,3])
+        ctx.lineWidth = '4'
+        ctx.strokeStyle = 'white'
+        ctx.fillStyle = color
+        ctx.beginPath()
+        ctx.arc(0, 0, 40, 0, np.pi)
+        ctx.rect(-40, 0, 80, -40)
+        ctx.fill()
+        ctx.strokeStyle = color
+        for i in range(5):
+            ctx.beginPath()
+            ctx.moveTo(-30+i*15, -40)
+            ctx.lineTo(-40+i*15, -60)
+            ctx.stroke()
+
+        # Draw links and articulations
+        obj = Path2D.new()
+        obj.arc(0, 0, 12, 0, 2*np.pi)
+        ctx.lineCap = 'round'
+        ctx.lineJoin = 'round'
+        for i in range(param.nbVarX+2):
+            if i &lt; param.nbVarX+1:
+                # Draw links outlines
+                ctx.lineWidth = '46'
+                ctx.strokeStyle = 'white'
+                ctx.beginPath()
+                ctx.lineTo(f[0,i], f[1,i])
+                ctx.lineTo(f[0,i+1], f[1,i+1])
+                ctx.stroke()
+                # Draw links
+                ctx.lineWidth = '38'
+                ctx.strokeStyle = color
+                ctx.beginPath()
+                ctx.lineTo(f[0,i], f[1,i])
+                ctx.lineTo(f[0,i+1], f[1,i+1])
+                ctx.stroke()
+            # Draw articulations
+            ctx.lineWidth = '4'
+            ctx.strokeStyle = 'white'
+            ctx.translate(f[0,i], f[1,i])
+            ctx.stroke(obj)
+            if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and i&gt;0:
+                if i&lt;4:
+                    hover_joint = 3-i
+                else:
+                    hover_joint = i-1
+            ctx.translate(-f[0,i], -f[1,i])
+
+
+    def draw_object(xobj, id, color):
+        global selected_obj
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
+        # Draw object
+        obj = Path2D.new()
+        obj.arc(0, 0, 22, 0, 2*np.pi)
+        ctx.translate(xobj[0], xobj[1])
+        ctx.fillStyle = color
+        ctx.fill(obj)
+        if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
+            selected_obj = id
+
+
+    def controlCommand(x, param):
+        #f = fkin(x, param)
+        #J = Jkin(x, param)
+        #u = np.linalg.pinv(J) @ (param.Mu - f[:,0]) * 10
+        u = np.zeros(param.nbVarX)
+        return u
+
+
+    #########################################################################################
+
+    def errorHandler(e):
+        msg = 'Error: ' + str(e)
+        console.error(msg)
+        el = document.getElementById('errors')
+        el.innerText = msg
+        #el.textContent = msg
+
+
+    #########################################################################################
+
+    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+    document.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
+    document.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+    document.addEventListener('wheel', onWheelProxy) #for standard mouse
+
+    mustStop = asyncio.Event()
+    stopped = asyncio.Event()
+
+    async def cleanup():
+        mustStop.set()
+
+        document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+        document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+        document.removeEventListener('mousedown', onMouseDownProxy) #for standard mouse
+        document.removeEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+        document.removeEventListener('mouseup', onMouseUpProxy) #for standard mouse
+        document.removeEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+        document.removeEventListener('wheel', onWheelProxy) #for standard mouse
+
+        await stopped.wait()
+
+    document.cleanup = cleanup
+
+
+    #########################################################################################
+
+    x = np.array([np.pi/2, np.pi/2, np.pi/4, -np.pi/2, -np.pi/4]) # Initial robot state
+    #u = np.zeros(param.nbVarX)
+
+    async def main():
+        global hover_joint, x
+
+        while not mustStop.is_set():
+            try:
+                u = controlCommand(x, param)
+            except Exception as e:
+                errorHandler(e)
+                u = np.zeros(param.nbVarX)
+
+            x += u * param.dt
+
+            # Reinit hovering variables
+            hover_joint = -1
+
+            # Rendering
+            clear_screen()
+            #draw_ground()
+            draw_robot(x, '#AAAAAA')
+            draw_object(param.Mu[:2], 0, '#FF3399')
+            draw_object(param.Mu[2:], 1, '#FF9933')
+
+            # Object selection
+            if selected_obj==0:
+                param.Mu[:2] = mouse[:2]
+                param.Mu[0] = max(min(param.Mu[0],450), -450)
+                param.Mu[1] = max(min(param.Mu[1],630), -70)
+            if selected_obj==1:
+                param.Mu[2:] = mouse[:2]
+                param.Mu[2] = max(min(param.Mu[2],450), -450)
+                param.Mu[3] = max(min(param.Mu[3],630), -70)
+            await asyncio.sleep(0.0001)
+
+        stopped.set()
+
+    pyscript.run_until_complete(main())
+
+</py-script>

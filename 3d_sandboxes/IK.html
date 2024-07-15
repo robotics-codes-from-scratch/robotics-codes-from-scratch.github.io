@@ -1,0 +1,134 @@
+﻿<div class="row">
+    <div class="col-sm-1"></div>
+
+    <div class="col-sm-5">
+        <br/><br/>
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button aria-controls="posorient-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#posorient-tab-pane" data-bs-toggle="tab" id="posorient-tab" role="tab" type="button">Position + orientation</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button aria-controls="pos-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#pos-tab-pane" data-bs-toggle="tab" id="pos-tab" role="tab" type="button">Position</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button aria-controls="orient-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#orient-tab-pane" data-bs-toggle="tab" id="orient-tab" role="tab" type="button">Orientation</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <div aria-labelledby="posorient-tab" class="tab-pane fade show active" id="posorient-tab-pane" role="tabpanel" tabindex="0">
+                <div onclick="clearMsgs()" onkeydown="clearMsgs()">
+                    <py-repl std-err="errors" std-out="output">
+                        x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
+
+                        def controlCommand(x, mu):
+                            J = Jkin(x)
+                            f = fkin(x)
+                            u = np.linalg.pinv(J) @ logmap(mu, f)  # Position & orientation tracking
+                            return u
+                    </py-repl>
+                </div>
+            </div>
+
+            <div aria-labelledby="pos-tab" class="tab-pane fade show" id="pos-tab-pane" role="tabpanel" tabindex="0">
+                <div onclick="clearMsgs()" onkeydown="clearMsgs()">
+                    <py-repl std-err="errors" std-out="output">
+                        x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
+
+                        def controlCommand(x, mu):
+                            J = Jkin(x)
+                            f = fkin(x)
+                            u = np.linalg.pinv(J[0:3,:]) @ (mu[0:3] - f[0:3])  # Position tracking
+                            return u
+                    </py-repl>
+                </div>
+            </div>
+
+            <div aria-labelledby="orient-tab" class="tab-pane fade show" id="orient-tab-pane" role="tabpanel" tabindex="0">
+                <div onclick="clearMsgs()" onkeydown="clearMsgs()">
+                    <py-repl std-err="errors" std-out="output">
+                        x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
+
+                        def controlCommand(x, mu):
+                            J = Jkin(x)
+                            f = fkin(x)
+                            u = np.linalg.pinv(J[3:,:]) @ logmap_S3(mu[3:], f[3:])  # Orientation tracking
+                            return u
+                    </py-repl>
+                </div>
+            </div>
+        </div>
+
+        <p id="output" style="font-size: 70%; color: #777777;">(click on the green run button to run the code; objects and joints can be moved with the mouse)</p>
+        <p id="errors" style="font-size: 70%; color: #880000;"></p>
+    </div> <!--sm-7-->
+
+    <div class="col-sm-6">
+        <div class="sticky-sm-top">
+            <div id="viewer3d" style="width: 100%; height: 400px;"></div>
+        </div>
+    </div> <!--sm-4-->
+</div> <!--row-->
+
+
+<py-script>
+    from viewer3d import Viewer3D, configs, logmap_S3, logmap, Shapes
+    from js import document
+    import numpy as np
+
+    # The function that will be called once per frame
+    x = None
+
+    def ikUpdate(delta, time):
+        global x
+
+        if x is None:
+            x = robot.jointPositions
+        elif not isinstance(x, np.ndarray):
+            x = np.array(x)
+
+        u = controlCommand(x, target.transforms)
+
+        x += u * 0.1
+        robot.jointPositions = x
+
+
+    # Create the Viewer3D
+    viewer3D = Viewer3D(document.getElementById('viewer3d'))
+    viewer3D.setRenderingCallback(ikUpdate)
+
+    # Load the scene and retrieve the robot
+    viewer3D.loadScene('/scenes/panda.xml')
+    viewer3D.translateCamera([0.0, 0.3, 0.0])
+
+    robot = viewer3D.createRobot('panda', configs.Panda.new())
+
+    # Disable the manipulation of the joints
+    viewer3D.jointsManipulationEnabled = False
+
+    # Add one target
+    target = viewer3D.addTarget('target', [0.1, 0.6, 0.6], [0.65, 0.21, 0.64, 0.33], '#F08967', shape=Shapes.Cone)
+
+    # Enable the logmap
+    viewer3D.enableLogmap(robot, target, position='right')
+
+
+    # Placeholder for the function to implement
+    def controlCommand(x, mu):
+        return np.zeros(x.shape)
+
+    # Forward kinematics function (allows to not care about 'robot' in the user code)
+    def fkin(x):
+        return robot.fkin(x)
+
+    # Jacobian function (allows to not care about 'robot' in the user code)
+    def Jkin(x):
+        return robot.Jkin(x)
+
+
+    async def cleanup():
+        await viewer3D.stop()
+
+    document.cleanup = cleanup
+</py-script>

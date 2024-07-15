@@ -1,0 +1,240 @@
+﻿<py-script>
+    def print(x):
+        display(x, target='output')
+</py-script>
+
+
+<py-script std-err="errors" std-out="output">
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from js import document, console
+    from pyodide.ffi import create_proxy
+</py-script>
+
+
+<div class="row">
+    <div class="col-sm-1"> </div>
+
+    <div class="col-sm-7">
+        <h1>Exercise 2<br/>Movement primitives, Newton's Method</h1>
+        <h5>1. Understanding basis functions</h5>
+        <p>You will find below a visualization of basis functions defined by the function <code>build_basis_function</code> which takes
+            <code>nb_data</code> (number of timesteps) and <code>nb_fct</code> (number of basis functions) as arguments and returns <code>phi</code>
+            the matrix of basis functions.</p>
+
+        <ol>
+            <li>Visualize what happens when you change the parameter <code>nb_fct</code>.</li>
+            <li>Visualize what happens when you change the parameter <code>param_lambda</code>.</li>
+            <li>Change the function below to plot Bézier basis functions (you can compare your result to Figure 1 in the <a href="doc/rcfs.pdf" target="_blank">RCFS documentation</a>).</li>
+        </ol>
+
+        <py-repl id="rep0" std-err="errors" std-out="chart">
+            param_lambda = 1e2
+            nb_data = 100
+            nb_fct = 10
+            def build_basis_function(nb_data, nb_fct):
+                t = np.linspace(0,1,nb_data).reshape((-1,1))
+                tMu = np.linspace( t[0] , t[-1] , nb_fct )
+                phi = np.exp( - param_lambda * (t.T - tMu)**2 ).T
+                return phi
+
+            phi = build_basis_function(nb_data, nb_fct)
+            fig,ax = plt.subplots(figsize=(5,5))
+            ax.plot(np.linspace(0,1,nb_data), phi)
+            ax.set_xlabel('time(s)')
+            ax.set_ylabel('basis functions')
+            fig.tight_layout()
+            fig
+        </py-repl>
+
+        <h5>2. Regression with basis functions <span class="ltx_Math">\bm{x} = \bm{\Phi} \bm{w}</span></h5>
+        <p>We can use basis functions to encode trajectories in a compact way. Such encoding aims at encoding the movement as a weighted superposition of simpler movements, whose compression aims at working in a subspace of reduced dimensionality, while denoising the signal and capturing the essential aspects of a movement. We first generate a noisy time trajectory using the function <code>generate_data</code>.</p>
+
+        <ol>
+            <li>Run the code below to plot the function below in your workspace by choosing an appropriate <code>noise_scale</code>.
+                We will use <span class="ltx_Math">\bm{x}</span> as our dataset vector.
+            </li>
+
+            <br/>
+
+            <py-repl id="rep1" std-err="errors" std-out="output">
+                noise_scale = 1. # change this to the noise level you want
+                nb_data = 100
+                def generate_data(t):
+                    return 10*np.sin(50*t+10)*np.cos(10*t)
+                t = np.linspace(0,1,nb_data)
+                x = generate_data(t) + np.random.randn(nb_data)*noise_scale
+            </py-repl>
+
+            <br/>
+
+            <py-repl id="rep1_plot" std-err="errors" std-out="chart">
+                fig,ax = plt.subplots(figsize=(5,5))
+                ax.plot(t,x)
+                ax.set_xlabel('t')
+                ax.set_ylabel('x')
+                fig
+            </py-repl>
+
+            <br/>
+
+            <li>Using the implemented <code>build_basis_function</code>, write a function that takes the basis function matrix <span class="ltx_Math">\bm{\phi}</span> and determines the Bézier curve
+                parameters <span class="ltx_Math">\bm{w}</span> that represents the data the best in least-square sense.
+            </li>
+            
+            <br/>
+
+            <!--w = np.linalg.pinv(psi) @ x # Estimation of superposition weights from data-->
+            <py-repl id="rep2" std-err="errors" std-out="output">
+                nbFct = 30
+                psi = build_basis_function(nb_data,nbFct)
+                def estimate_w(x, psi):
+                    # w =  # Implement here: Estimation of superposition weights from data
+                    return w
+
+                w = estimate_w(x, psi)
+                print(w.shape) # verify the dimension of this to be equal to nbFct
+            </py-repl>
+
+            <br/>
+
+            <li>Verify your estimation of <span class="ltx_Math">\bm{w}</span> by reconstructing the data using <span class="ltx_Math">\bm{\hat{x}} = \bm{\Phi} \bm{w}</span> and plot.</li>
+
+            <br/>
+
+            <!--    x_hat = psi @ w # Reconstruction data-->
+            <py-repl id="rep3" std-err="errors" std-out="chart">
+                def reconstruct(w, psi):
+                    # x_hat = # Implement here: Reconstruction data
+                    return x_hat
+
+                x_hat = reconstruct(w, psi)
+                ax.plot(t, x_hat)
+                fig
+            </py-repl>
+
+            <div class="col-auto"><button aria-controls="answer1" aria-expanded="false" class="btn btn-light btn-sm" data-bs-target="#answer1" data-bs-toggle="collapse">Show/hide answer</button></div>
+            <div class="collapse" id="answer1"><img src="static_images/Ex2-1.png"/></div>
+
+            <br/>
+
+            <li>We would like to quantify how does the number of basis functions affect the reconstruction. Choose 5 different nb_fct and plot the errors between the original data <span class="ltx_Math">\bm{x}</span> and the reconstructed data <span class="ltx_Math">\bm{\hat{x}}</span>.</li>
+
+            <br/>
+
+            <!--      errors.append(np.linalg.norm(x-x_hat))-->
+            <py-repl id="rep4" std-err="errors" std-out="chart">
+                nbFcts = [] # Implement here: choose 5 different nbFct
+                errors = []
+                for nbFct in nbFcts:
+                    psi = build_basis_function(nb_data, nbFct)
+                    w = estimate_w(x, psi)
+                    x_hat = reconstruct(w, psi)
+                    # errors.append() # Implement here: compute the error between x and x_hat
+
+                fig,ax = plt.subplots(figsize=(5,5))
+                ax.plot(nbFcts, errors, 'o')
+                ax.set_xlabel('nbFcts')
+                ax.set_ylabel('Error')
+                fig
+            </py-repl>
+
+            <div class="col-auto"><button aria-controls="answer2" aria-expanded="false" class="btn btn-light btn-sm" data-bs-target="#answer2" data-bs-toggle="collapse">Show/hide answer</button></div>
+            <div class="collapse" id="answer2"><img src="static_images/Ex2-2.png"/></div>
+        </ol>
+
+        <h5>3. Newton's Method</h5>
+        <p>In this exercise, we will implement a Newton's method with a line search. For Newton's method, you can refer to
+            Section 3 of the <a href="doc/rcfs.pdf" target="_blank">RCFS documentation</a> and for a backtracking line search algorithm, you can refer to Section 8.4 of the <a href="doc/rcfs.pdf" target="_blank">RCFS documentation</a>. The goal is to
+            solve an unconstrained optimization problem using Newton's method and see how line search can affect the convergence. You are given
+            an objective function <span class="ltx_Math">\bm{x}^2 + \bm{x}^3</span>, its first derivative <span class="ltx_Math">2\bm{x} + 3\bm{x}^2 </span> and its second derivative <span class="ltx_Math">2+6\bm{x}</span>.
+        </p>
+
+        <ol>
+            <li>Implement Newton's method with a line search and solve the problem.</li>
+            <li>In how many iterations do you get convergence? Plot the cost functions obtained during the iterations and
+                discuss how does the line search affect the results.</li>
+            <li>Change the objective function and its first and second derivatives to solve for another problem.</li>
+        </ol>
+
+        <!--    search_direction = - first_derivative(x) / second_derivative(x)-->
+        <!--  x_trial = x + alpha * search_direction-->
+        <py-repl id="rep3" std-err="errors" std-out="output">
+            def objective_function(x):
+                return x**2 + x**3
+
+            def first_derivative(x):
+                return 2*x + 3*(x**2)
+
+            def second_derivative(x):
+                return 2 + 6*x
+
+            x = 1.
+            cost = objective_function(x)
+            x_log = [x]
+            cost_log = [cost]
+            for i in range(100):
+                # Implement Newton's method here (one line)
+                # search_direction =
+
+            # Implement line search here (output: alpha)
+            alpha = 1.
+            for j in range(10):
+                # x_trial =  # implement a trial x in the direction of search_direction
+                cost_trial = objective_function(x_trial)
+                if cost_trial &lt; cost:
+                    break
+                else:
+                    alpha = alpha * 0.5
+
+            # Convergence check
+            prev_cost = np.copy(cost)
+            x = x + alpha * search_direction
+            cost = objective_function(x)
+            cost_log += [cost]
+            if np.abs(cost-prev_cost) &lt; 1e-6:
+                break
+
+            x_log.append(x)
+
+            x_log = np.array(x_log)
+            cost_log = np.array(cost_log)
+            print(x_log)
+        </py-repl>
+
+        <br/>
+
+        <py-repl id="rep3_plot" std-err="errors" std-out="chart">
+            fig,ax = plt.subplots(figsize=(5,5))
+            ax.plot(np.arange(0,i+2), cost_log)
+            ax.set_xlabel('Iteration number')
+            ax.set_ylabel('Objective function')
+            fig.tight_layout()
+            fig
+        </py-repl>
+
+        <div class="col-auto"><button aria-controls="answer3" aria-expanded="false" class="btn btn-light btn-sm" data-bs-target="#answer3" data-bs-toggle="collapse">Show/hide answer</button></div>
+        <div class="collapse" id="answer3"><img src="static_images/Ex2-3.png"/></div>
+
+        <br/>
+    </div> <!-- col-sm-7 -->
+
+    <div class="col-sm-4" id="div1">
+        <div class="sticky-sm-top" style="padding: 2rem 1rem 1rem 1rem;">
+            <hr/>
+            <div class="row justify-content-between">
+                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Output</button></div>
+                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgsOutput()">Clear</button></div>
+            </div>
+            <div id="output"></div>
+            <hr/>
+            <div class="row justify-content-between">
+                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Error</button></div>
+                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgs()">Clear</button></div>
+            </div>
+            <div id="errors"></div>
+            <hr/>
+        <div id="chart"></div>
+        </div>
+    </div> <!-- col-sm-4 -->
+</div> <!-- row -->
