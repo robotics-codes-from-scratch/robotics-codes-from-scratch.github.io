@@ -1,174 +1,464 @@
 ﻿<!DOCTYPE html>
-
 <html lang="en">
 <head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta content="RCFS" name="description"/>
+    <meta content="robotics codes, robotics tutorial, rcfs, robotics from scratch" name="keywords"/>
+    <meta content="Sylvain Calinon" name="author"/>
 
+    <title>RCFS</title>
 
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="RCFS" name="description"/>
-<meta content="robotics codes, robotics tutorial, rcfs, robotics from scratch" name="keywords"/>
-<meta content="Sylvain Calinon" name="author"/>
-<title>RCFS</title>
-<link href="static_images/favicon.ico" rel="icon" sizes="any"/>
-<link href="static_images/favicon.svg" rel="icon" type="image/svg+xml"/>
+    <link href="static_images/favicon.ico" rel="icon" sizes="any"/>
+    <link href="static_images/favicon.svg" rel="icon" type="image/svg+xml"/>
 
-<link href="css/bootstrap.min.css" rel="stylesheet"/>
-<link href="css/bootstrap-icons-1.10.4/font/bootstrap-icons.css" rel="stylesheet"/>
-<link href="css/permanent_marker.css" rel="stylesheet"/>
-<link href="css/sidebars.css" rel="stylesheet"/>
-<script src="js/jquery-3.6.4.min.js"></script>
-<script src="js/bootstrap.bundle.min.js"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="css/bootstrap-icons-1.10.4/font/bootstrap-icons.css" rel="stylesheet"/>
+    <link href="css/permanent_marker.css" rel="stylesheet"/>
+    <link href="css/sidebars.css" rel="stylesheet"/>
+    <link href="css/main-template.css" rel="stylesheet"/>
+    <link href="css/katex.min.css" rel="stylesheet"/>
+    <link href="https://pyscript.net/latest/pyscript.css" rel="stylesheet"/>
 
-<link href="css/main-template.css" rel="stylesheet"/>
+    <script src="js/jquery-3.6.4.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/katex.min.js"></script>
+    <script src="js/katex-auto-render.js"></script>
+
+    <py-config type="toml">
+        packages = ['numpy', 'matplotlib']
+        [[fetch]]
+            from = 'viewer3d/'
+            files = ['viewer3d.py']
+    </py-config>
+
+    <style>
+        a {
+            cursor: pointer;
+        }
+    </style>
+
+    <!-- Import all the necessary JavaScript dependency modules -->
+    <script src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.141.0/build/three.module.js",
+                "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.141.0/examples/jsm/",
+                "mujoco": "./viewer3d/jsm/mujoco_wasm.js",
+                "katex": "https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.mjs",
+                "mathjs": "https://cdn.jsdelivr.net/npm/mathjs@12.0.0/+esm"
+            }
+        }
+    </script>
 </head>
-<body><nav aria-label="Light offcanvas navbar" class="navbar fixed-top" style="width: 50px;">
-<div class="container-fluid">
-<button aria-controls="offcanvasNavbarLight" class="navbar-toggler" data-bs-target="#offcanvasNavbarLight" data-bs-toggle="offcanvas" type="button">
-<span class="navbar-toggler-icon" style="cursor: pointer;"></span>
-</button>
-<div aria-labelledby="offcanvasNavbarLightLabel" class="offcanvas offcanvas-start" id="offcanvasNavbarLight" style="width: 500px;" tabindex="-1">
-<div class="offcanvas-header"><!--style='height: 50px;'-->
-<a class="navbar-brand" href="index.html"><h4 class="offcanvas-title" id="offcanvasNavbarLightLabel"> <i class="bi bi-code-slash"></i> RCFS</h4></a>
-<button aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" type="button"></button>
-</div>
-<div class="offcanvas-body">
-<!--Menu goes here-->
-<ul class="list-unstyled ps-0">
-<li class="border-top my-1"></li>
-<li class="mb-1">
-<button aria-expanded="true" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#general-collapse" data-bs-toggle="collapse">General information</button>
-<div class="collapse show" id="general-collapse">
-<!--<li><a href='index.html' class='link-dark d-inline-flex text-decoration-none rounded'>Home</a></li>-->
-<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="about.html">
-<div class="p-1 mb-0">About</div></a></li>
-</ul>
-</div>
-</li>
-<li class="border-top my-1"></li>
-<li class="mb-1">
-<button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes2d-collapse" data-bs-toggle="collapse">2D sandboxes</button>
-<div class="collapse" id="sandboxes2d-collapse">
-<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_FK.html">
-<div class="p-1 mb-0">Forward kinematics (FK)</div></a></li>
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_IK.html">
-<div class="p-1 mb-0">Inverse kinematics (IK)</div></a></li>
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_bimanual.html">
-<div class="p-1 mb-0">Bimanual robot</div></a></li>
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_humanoid.html">
-<div class="p-1 mb-0">Humanoid robot (CoM and coordination matrix)</div></a></li>
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR.html">
-<div class="p-1 mb-0">Iterative linear quadratic regulator (iLQR)</div></a></li>
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_car.html">
-<div class="p-1 mb-0">iLQR for car</div></a></li>
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_iLQR_bicopter.html">
-<div class="p-1 mb-0">iLQR for bicopter</div></a></li>
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox_impedance.html">
-<div class="p-1 mb-0">Impedance control</div></a></li>
-</ul>
-</div>
-</li>
-<li class="border-top my-1"></li>
-<li class="mb-1">
-<button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#sandboxes3d-collapse" data-bs-toggle="collapse">3D sandboxes</button>
-<div class="collapse" id="sandboxes3d-collapse">
-<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="sandbox3d_IK.html">
-<div class="p-1 mb-0">Inverse kinematics (IK)</div></a></li>
-</ul>
-</div>
-</li>
-<li class="border-top my-1"></li>
-<li class="mb-1">
-<button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#exercises-collapse" data-bs-toggle="collapse">Coding exercises</button>
-<div class="collapse" id="exercises-collapse">
-<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise01.html">
-<div class="p-1 mb-0 bg-dark text-white font-monospace">01</div>
-<div class="p-1 mb-0">Linear algebra in Python</div></a></li>
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise02.html">
-<div class="p-1 mb-0 bg-dark text-white font-monospace">02</div>
-<div class="p-1 mb-0">Movement primitives and Newton's method</div></a></li>
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise03.html">
-<div class="p-1 mb-0 bg-dark text-white font-monospace">03</div>
-<div class="p-1 mb-0">Gaussian Distributions</div></a></li>
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04a.html">
-<div class="p-1 mb-0 bg-dark text-white font-monospace">4a</div>
-<div class="p-1 mb-0">Forward kinematics</div></a></li>
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise04b.html">
-<div class="p-1 mb-0 bg-dark text-white font-monospace">4b</div>
-<div class="p-1 mb-0">Inverse kinematics and nullspace control</div></a></li>
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05a.html">
-<div class="p-1 mb-0 bg-dark text-white font-monospace">5a</div>
-<div class="p-1 mb-0">Forward dynamics</div></a></li>
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise05b.html">
-<div class="p-1 mb-0 bg-dark text-white font-monospace">5b</div>
-<div class="p-1 mb-0">Inverse dynamics and impedance control</div></a></li>
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06a.html">
-<div class="p-1 mb-0 bg-dark text-white font-monospace">6a</div>
-<div class="p-1 mb-0">Planning with linear quadratic regulator</div></a></li>
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise06b.html">
-<div class="p-1 mb-0 bg-dark text-white font-monospace">6b</div>
-<div class="p-1 mb-0">Planning in joint space with LQR</div></a></li>
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise07.html">
-<div class="p-1 mb-0 bg-dark text-white font-monospace">07</div>
-<div class="p-1 mb-0">Iterative linear quadratic regulator (iLQR)</div></a></li>
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise08.html">
-<div class="p-1 mb-0 bg-dark text-white font-monospace">08</div>
-<div class="p-1 mb-0">Exploration with ergodic control</div></a></li>
-<li><a class="link-dark d-inline-flex text-decoration-none rounded" href="exercise09.html">
-<div class="p-1 mb-0 bg-dark text-white font-monospace">09</div>
-<div class="p-1 mb-0">Orientation with Riemannian manifold</div></a></li>
-</ul>
-</div>
-</li>
-<li class="border-top my-1"></li>
-<li class="mb-1">
-<button aria-expanded="false" class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-target="#doc-collapse" data-bs-toggle="collapse">Online course</button>
-<div class="collapse" id="doc-collapse">
-<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small" id="menu_container">
-<li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="toc.html" style="font-weight:bold;">Table of contents</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S1.html" style="font-weight:bold;">1 Introduction</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html" style="font-weight:bold;">2 Newton’s method for minimization</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:GaussNewton"><span class="p-1 mb-0">2.1 Gauss–Newton algorithm</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LS"><span class="p-1 mb-0">2.2 Least squares</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S2.html#sec:LSconstraints"><span class="p-1 mb-0">2.3 Least squares with constraints</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S3.html" style="font-weight:bold;">3 Forward kinematics (FK) for a planar robot manipulator</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html" style="font-weight:bold;">4 Inverse kinematics (IK) for a planar robot manipulator</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IKnum"><span class="p-1 mb-0">4.1 Numerical estimation of the Jacobian</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S4.html#sec:IK_nullspace"><span class="p-1 mb-0">4.2 Inverse kinematics (IK) with task prioritization</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html" style="font-weight:bold;">5 Encoding with basis functions</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS1"><span class="p-1 mb-0">5.1 Univariate trajectories</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS2"><span class="p-1 mb-0">5.2 Multivariate trajectories</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS3"><span class="p-1 mb-0">5.3 Multidimensional inputs</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS4"><span class="p-1 mb-0">5.4 Derivatives</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS5"><span class="p-1 mb-0">5.5 Concatenated basis functions</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS6"><span class="p-1 mb-0">5.6 Batch computation of basis functions coefficients</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S5.html#SS7"><span class="p-1 mb-0">5.7 Recursive computation of basis functions coefficients</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html" style="font-weight:bold;">6 Linear quadratic tracking (LQT)</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS1"><span class="p-1 mb-0">6.1 LQT with smoothness cost</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#SS2"><span class="p-1 mb-0">6.2 LQT with control primitives</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRrecursive"><span class="p-1 mb-0">6.3 LQR with a recursive formulation</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:augmState"><span class="p-1 mb-0">6.4 LQT with a recursive formulation and an augmented state space</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:LQRLS"><span class="p-1 mb-0">6.5 Least squares formulation of recursive LQR</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S6.html#sec:DMPLQT"><span class="p-1 mb-0">6.6 Dynamical movement primitives (DMP) reformulated as LQT with control primitives</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html" style="font-weight:bold;">7 iLQR optimization</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRbatch"><span class="p-1 mb-0">7.1 Batch formulation of iLQR</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRrecursive"><span class="p-1 mb-0">7.2 Recursive formulation of iLQR</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#sec:iLQRLS"><span class="p-1 mb-0">7.3 Least squares formulation of recursive iLQR</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS4"><span class="p-1 mb-0">7.4 Updates by considering step sizes</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS5"><span class="p-1 mb-0">7.5 iLQR with quadratic cost on f(x_{t})</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS6"><span class="p-1 mb-0">7.6 iLQR with control primitives</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS7"><span class="p-1 mb-0">7.7 iLQR for spacetime optimization</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS8"><span class="p-1 mb-0">7.8 iLQR with offdiagonal elements in the precision matrix</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS9"><span class="p-1 mb-0">7.9 Car steering</span></a></li><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S7.html#SS10"><span class="p-1 mb-0">7.10 Bicopter</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html" style="font-weight:bold;">8 Forward dynamics (FD) for a planar robot manipulator</a><div><ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small"><li><a class="link-dark d-inline-flex text-decoration-none rounded" href="S8.html#SS1"><span class="p-1 mb-0">8.1 Robot manipulator with dynamics equation</span></a></li></ul></div></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="bib.html" style="font-weight:bold;">References</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="A1.html" style="font-weight:bold;">A System dynamics at trajectory level</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="A2.html" style="font-weight:bold;">B Derivation of motion equation for a planar robot</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="A3.html" style="font-weight:bold;">C Linear systems used in the bimanual tennis serve example</a></li><li class="mb-1 generated-menu-item"><a class="link-dark d-inline-flex text-decoration-none rounded" href="A4.html" style="font-weight:bold;">D Equivalence between LQT and LQR with augmented state space</a></li></ul>
-</div>
-</li>
-</ul>
-</div>
-</div>
-</div>
-</nav>
-<div class="container-fluid">
-<center>
-<img class="img-fluid" src="static_images/logo-RCFS.png"/>
-</center>
-<br/>
-<div class="container">
-<p>RCFS aims to study and test learning and optimization techniques in robotics through simple 2D and 3D examples (see <a href="about.html">About</a> page).</p>
-<p>The <b>menu on the top-left corner</b> provides sandbox examples, interactive exercises, and reading material.</p>
-<p>RCFS is composed of three parts:
-            <ul>
-<li>Interactive sandbox examples and exercises that can be run directly on this website (some GIFs are shown below). All examples are interactive, either by using the code snippets that can be modified, or by changing parameters with the mouse (changing the location of the objects to be picked by the robot, perturbing the robot with the mouse pointer, adjusting the control parameters with a set of sliders, etc.)</li>
-<li><a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch" target="_blank">Source codes provided in a variety of programming languages</a>, including Python, Matlab (with full compatibility with GNU Octave), C++ and Julia.</li>
-<li><a href="https://rcfs.ch/doc/rcfs.pdf" target="_blank">An accompanying PDF</a> containing the corresponding descriptions of the algorithms.</li>
-</ul>
-<br/>
-<center>
-<a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch" target="_blank"><button class="btn btn-primary btn-lg" type="button"><i class="bi bi-git"></i> git repo</button></a>
-<a href="doc/rcfs.pdf" target="_blank"><button class="btn btn-danger btn-lg" type="button"><i class="bi bi-file-pdf-fill"></i> pdf</button></a>
-<a href="sandbox_iLQR.html"><button class="btn btn-success btn-lg" type="button"><i class="bi bi-wrench-adjustable-circle-fill"></i> sandbox example</button></a>
-</center>
-<br>
-<center>
-<a href="sandbox_iLQR.html"><img class="img-fluid p-4" src="videos/iLQR_manipulator01.gif"/></a>
-<a href="sandbox_bimanual.html"><img class="img-fluid p-4" src="videos/bimanual_nullspace01.gif"/></a>
-<a href="sandbox_humanoid.html"><img class="img-fluid p-4" src="videos/humanoid_CoM01.gif"/></a>
-<br>
-<a href="sandbox_iLQR_car.html"><img class="img-fluid p-4" src="videos/iLQR_car01.gif"/></a>
-<a href="sandbox_iLQR_bicopter.html"><img class="img-fluid p-4" src="videos/iLQR_bicopter01.gif"/></a>
-<br/>
-<a href="exercise09.html"><img class="img-fluid p-4" src="videos/RiemannianManifold01.gif"/></a>
-<a href="example_Jacobian.html"><img class="img-fluid p-4" src="videos/Jacobian01.gif"/></a>
-</br></center>
-</br></p></div> <!--container-->
-</div></body>
+
+<body>
+    <nav aria-label="Light offcanvas navbar" class="navbar fixed-top" style="width: 50px;">
+        <div class="container-fluid">
+            <button aria-controls="offcanvasNavbarLight" class="navbar-toggler" data-bs-target="#offcanvasNavbarLight" data-bs-toggle="offcanvas" type="button">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div aria-labelledby="offcanvasNavbarLightLabel" class="offcanvas offcanvas-start" id="offcanvasNavbarLight" style="width: 500px;" tabindex="-1">
+                <div class="offcanvas-header">
+                    <a class="navbar-brand" href="#">
+                        <h4 class="offcanvas-title" id="offcanvasNavbarLightLabel"> <i class="bi bi-code-slash"></i> RCFS</h4>
+                    </a>
+                    <button id="close-button" aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" type="button"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <!--Menu goes here-->
+                    <ul id="menu" class="list-unstyled ps-0"></ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!--Pages content goes here-->
+    <div id="content" class="container-fluid"></div>
+
+    <script type="module">
+        import { initViewer3D, downloadScene, downloadPandaRobot } from './viewer3d/viewer3d.js';
+
+        // Retrieve the base URL of the page
+        const url = window.location;
+        const baseUrl = url.origin + url.pathname.substring(0, url.pathname.lastIndexOf('/'));
+
+        let currentPage = null;
+
+        const div = document.getElementById('content');
+        const closeMenuButton = document.getElementById('close-button');
+        const pages = new Map();
+
+        const loadedRequirements = {
+            viewer3d: false,
+            pyscript: false,
+        };
+
+        const loadedRobots = [];
+        const loadedScenes = [];
+
+
+        // Populate the menu content
+        async function initMenu()
+        {
+            const response = await fetch(baseUrl + '/menu.json');
+            const content = await response.json();
+
+            const menu = document.getElementById('menu');
+
+            let hash = url.hash.substr(1);
+            if (hash == '')
+                hash = 'home';
+
+            content.forEach((category) => {
+                const separator = document.createElement('li');
+                separator.className = 'border-top my-1';
+                menu.appendChild(separator);
+
+                const categoryElement = document.createElement('li');
+                categoryElement.className = 'mb-1';
+
+                const button = document.createElement('button');
+                button.className = 'btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed';
+                button.setAttribute('aria-expanded', 'false');
+                button.setAttribute('data-bs-target', '#' + category.id + '-collapse');
+                button.setAttribute('data-bs-toggle', 'collapse');
+                button.textContent = category.title;
+                categoryElement.appendChild(button);
+
+                const categoryContent = document.createElement('div');
+                categoryContent.id = category.id + '-collapse';
+                categoryContent.className = 'collapse';
+                categoryElement.appendChild(categoryContent);
+
+                const entriesElement = document.createElement('ul');
+                entriesElement.className = 'btn-toggle-nav list-unstyled fw-normal pb-1 small';
+                categoryContent.appendChild(entriesElement);
+
+                category.entries.forEach((entry) => {
+                    if (hash == entry.hash)
+                    {
+                        button.setAttribute('aria-expanded', 'true');
+                        categoryContent.classList.add('show');
+                    }
+
+                    if (!entry.hidden)
+                    {
+                        const entryElement = document.createElement('li');
+
+                        const link = document.createElement('a');
+                        link.className = 'link-dark d-inline-flex text-decoration-none rounded';
+                        link.style.cursor = 'pointer';
+                        link.href = '#' + entry.hash;
+                        entryElement.appendChild(link);
+
+                        if (entry.number != undefined)
+                        {
+                            const numberDiv = document.createElement('div');
+                            numberDiv.className = 'p-1 mb-0 bg-dark text-white font-monospace';
+                            numberDiv.textContent = entry.number;
+                            link.appendChild(numberDiv);
+                        }
+
+                        const entryDiv = document.createElement('div');
+                        entryDiv.className = 'p-1 mb-0';
+                        entryDiv.textContent = entry.title;
+                        link.appendChild(entryDiv);
+
+                        if (entry.sections != undefined)
+                        {
+                            const sectionsDiv = document.createElement('div');
+
+                            const sectionsElement = document.createElement('ul');
+                            sectionsElement.className = 'btn-toggle-nav list-unstyled fw-normal pb-1 small';
+                            sectionsDiv.appendChild(sectionsElement);
+
+                            entry.sections.forEach((section) => {
+                                const sectionElement = document.createElement('li');
+
+                                const link = document.createElement('a');
+                                link.className = 'link-dark d-inline-flex text-decoration-none rounded';
+                                link.style.cursor = 'pointer';
+                                link.href = '#' + section.hash;
+                                sectionElement.appendChild(link);
+
+                                const sectionSpan = document.createElement('span');
+                                sectionSpan.className = 'p-1 mb-0';
+                                sectionSpan.textContent = section.title;
+                                link.appendChild(sectionSpan);
+
+                                sectionsElement.appendChild(sectionElement);
+                            });
+
+                            entryElement.appendChild(sectionsDiv);
+                        }
+
+                        entriesElement.appendChild(entryElement);
+                    }
+
+                    let requirements = new Array();
+
+                    if (category.requirements != null)
+                        requirements = requirements.concat(category.requirements);
+
+                    if (entry.requirements != null)
+                        requirements = requirements.concat(entry.requirements);
+
+                    let assets = {};
+
+                    if (entry.assets != null)
+                    {
+                        if (entry.assets.robots != null)
+                            assets.robots = entry.assets.robots;
+
+                        if (entry.assets.scenes != null)
+                            assets.scenes = entry.assets.scenes.map((x) => category.id + '/' + x);
+                    }
+
+                    pages.set(entry.hash, {
+                        url: category.id + '/' + entry.page,
+                        requirements: requirements,
+                        assets: assets,
+                    });
+                });
+
+                menu.appendChild(categoryElement);
+            });
+
+            if (url.hash != '')
+                navigate(url.hash.substr(1));
+            else
+                navigate('home');
+        }
+
+
+        // Navigate to the specified page
+        async function navigate(dest)
+        {
+            const dest_parts = dest.split('-');
+            const page = dest_parts[0];
+            const anchor = dest_parts.length == 2 ? dest_parts[1] : null;
+
+            let pageEntry = pages.get(page);
+            if (pageEntry == undefined)
+                pageEntry = pages.get('home');
+
+            const response = await fetch(baseUrl + '/' + pageEntry.url);
+            if (!response.ok)
+            {
+                navigate('home');
+                return;
+            }
+
+            if (document.cleanup != null)
+            {
+                await document.cleanup();
+                document.cleanup = null;
+            }
+
+            currentPage = page;
+
+            if (pageEntry.assets != null)
+            {
+                if (pageEntry.assets.robots != null)
+                {
+                    for (let robot of pageEntry.assets.robots)
+                    {
+                        if (loadedRobots.indexOf(robot) != -1)
+                            continue;
+
+                        if (robot == "panda")
+                            await downloadPandaRobot();
+
+                        loadedRobots.push(robot);
+                    }
+                }
+
+                if (pageEntry.assets.scenes != null)
+                {
+                    for (let scene of pageEntry.assets.scenes)
+                    {
+                        if (loadedScenes.indexOf(scene) != -1)
+                            continue;
+
+                        await downloadScene(scene);
+
+                        loadedScenes.push(scene);
+                    }
+                }
+            }
+
+            div.innerHTML = await response.text();
+
+            closeMenuButton.click();
+
+            window.requestAnimationFrame((time) => {
+                convertMath();
+
+                window.requestAnimationFrame((time) => {
+                    spreadOutImages();
+
+                    if (page != 'home')
+                    {
+                        if (anchor != null)
+                            window.location.href = url.origin + url.pathname + '#' + page + '-' + anchor;
+                        else
+                            window.location.href = url.origin + url.pathname + '#' + page;
+                    }
+                    else
+                    {
+                        window.location.href = url.origin + url.pathname + '#';
+                    }
+
+                    if (anchor == null)
+                    {
+                        const anchor_element = document.getElementById('content')
+                        anchor_element.scrollIntoView({
+                            block: "start",
+                            behavior: "instant"
+                        });
+                    }
+
+                    pageEntry.requirements.forEach((requirement) => {
+                        if (loadedRequirements[requirement])
+                            return;
+
+                        if (requirement == 'pyscript')
+                            initPyScript();
+
+                        loadedRequirements[requirement] = true;
+                    });
+                });
+            });
+        }
+
+
+        // Convert the LaTeX formulas into HTML
+        function convertMath(){
+            const elements = document.getElementsByClassName("ltx_Math");
+            const macros = {
+                '\\tp': '\\text{\\tiny{#1}}',
+                '\\trsp' : '\\top',
+                '\\psin' : '\\dagger',
+                '\\eqref': '\\href{###1}{(\\text{#1})}',
+                '\\ref': '\\href{###1}{\\text{#1}}',
+                '\\label': '\\htmlId{#1}{}'
+            };
+
+            for (let element of elements) {
+                katex.render(element.textContent, element, {
+                    throwOnError: false,
+                    macros
+                });
+            }
+
+            renderMathInElement(document.body, {
+                trust: (context) => ['\\htmlId', '\\href'].includes(context.command),
+                macros: macros,
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\begin{equation}', right: '\\end{equation}', display: true},
+                    {left: '\\begin{equation*}', right: '\\end{equation*}', display: true},
+                    {left: '\\begin{align}', right: '\\end{align}', display: true},
+                    {left: '\\begin{align*}', right: '\\end{align*}', display: true},
+                    {left: '\\begin{alignat}', right: '\\end{alignat}', display: true},
+                    {left: '\\begin{gather}', right: '\\end{gather}', display: true},
+                    {left: '\\begin{CD}', right: '\\end{CD}', display: true},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError : false
+            });
+        }
+
+
+        // Online course: spread out the images vertically
+        function spreadOutImages() {
+            const style = document.getElementById('online-course-figures');
+            if (style != undefined)
+                style.remove();
+
+            const txt_column = document.querySelector('#txt-col');
+            const img_column = document.querySelector('#img-col');
+
+            if ((txt_column != undefined) && (img_column != undefined))
+            {
+                let txt_height = txt_column.offsetHeight;
+                let img_height = img_column.offsetHeight;
+
+                let margin = 50;
+
+                if (txt_height > img_height && screen.width >= 576) {
+                    let nb_figures = document.querySelectorAll('.figure_main').length;
+                    let computed_margin = (txt_height - img_height) / nb_figures;
+
+                    if (computed_margin > margin) {
+                        margin = computed_margin;
+                    }
+                }
+
+                const style = document.createElement('style');
+                style.id = 'online-course-figures';
+                style.innerHTML = '.figure_main{ margin-top:' + Math.round(margin/2) + 'px; margin-bottom:' + Math.round(margin/2) + 'px; }';
+                document.head.appendChild(style);
+            }
+        }
+
+
+        function initPyScript()
+        {
+            // Process the importmap to avoid errors from PyScript
+            const scripts = document.getElementsByTagName('script');
+            for (let script of scripts) {
+                if (script.type == 'importmap') {
+                    const importmap = JSON.parse(script.innerText);
+                    delete importmap['imports']['three/examples/jsm/'];
+                    delete importmap['imports']['mujoco'];
+                    script.innerText = JSON.stringify(importmap);
+                    break;
+                }
+            }
+
+            // Add the PyScript script to the document
+            const script = document.createElement('script');
+            script.src = 'https://pyscript.net/latest/pyscript.min.js';
+            script.type = 'text/javascript';
+            document.body.appendChild(script);
+        }
+
+
+        function clearMsgs()
+        {
+            const el = document.getElementById('errors');
+            el.innerText = '';
+        }
+
+        function clearMsgsOutput()
+        {
+            const el = document.getElementById('output');
+            el.innerText = '';
+        }
+
+        globalThis.clearMsgs = clearMsgs;
+        globalThis.clearMsgsOutput = clearMsgsOutput;
+
+
+        window.onorientationchange = spreadOutImages;
+
+        window.onhashchange = function() {
+            const dest = window.location.hash.substr(1);
+            const dest_parts = dest.split('-');
+            const page = dest_parts[0];
+
+            if (page != currentPage)
+                navigate(dest);
+        }
+
+        initMenu();
+        initViewer3D();
+    </script>
+
+</body>
 </html>
