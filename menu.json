@@ -62,6 +62,12 @@
                 "title": "Impedance control",
                 "hash": "2d_impedance",
                 "page": "impedance.html"
+            },
+            {
+                "title": "Jacobian",
+                "hash": "2d_jacobian",
+                "page": "jacobian.html",
+                "hidden": true
             }
         ]
     },

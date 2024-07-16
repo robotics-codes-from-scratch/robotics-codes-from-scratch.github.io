@@ -13,7 +13,7 @@
     <link href="static_images/favicon.svg" rel="icon" type="image/svg+xml"/>
 
     <link href="css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="css/bootstrap-icons-1.10.4/font/bootstrap-icons.css" rel="stylesheet"/>
+    <link href="css/bootstrap-icons-1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
     <link href="css/permanent_marker.css" rel="stylesheet"/>
     <link href="css/sidebars.css" rel="stylesheet"/>
     <link href="css/main-template.css" rel="stylesheet"/>
@@ -85,6 +85,9 @@
         const baseUrl = url.origin + url.pathname.substring(0, url.pathname.lastIndexOf('/'));
 
         let currentPage = null;
+        let btnSave = null;
+        let btnOpen = null;
+        let navlinks = null;
 
         const div = document.getElementById('content');
         const closeMenuButton = document.getElementById('close-button');
@@ -257,6 +260,23 @@
                 document.cleanup = null;
             }
 
+            if (btnSave != null)
+            {
+                btnSave.removeEventListener('click', saveCode);
+                btnOpen.removeEventListener('click', loadCode);
+
+                btnSave = null;
+                btnOpen = null;
+            }
+
+            if (navlinks != null)
+            {
+                for (let navlink of navlinks)
+                    navlink.removeEventListener('click', onTabChanged);
+
+                navlinks = null;
+            }
+
             currentPage = page;
 
             if (pageEntry.assets != null)
@@ -329,6 +349,31 @@
 
                         loadedRequirements[requirement] = true;
                     });
+
+                    btnOpen = document.getElementById('btn-open');
+                    btnSave = document.getElementById('btn-save');
+
+                    if (btnSave != null)
+                    {
+                        btnSave.addEventListener('click', saveCode);
+                        btnOpen.addEventListener('click', loadCode);
+
+                        if (window.localStorage.getItem(getStorageKey()) != null)
+                            btnOpen.style.display = 'inline';
+                        else
+                            btnOpen.style.display = 'none';
+
+                        navlinks = document.getElementsByClassName('nav-link');
+                        if (navlinks.length > 0)
+                        {
+                            for (let navlink of navlinks)
+                                navlink.addEventListener('click', onTabChanged);
+                        }
+                        else
+                        {
+                            navlinks = null;
+                        }
+                    }
                 });
             });
         }
@@ -443,6 +488,72 @@
 
         globalThis.clearMsgs = clearMsgs;
         globalThis.clearMsgsOutput = clearMsgsOutput;
+
+
+        function getStorageKey()
+        {
+            const dest = window.location.hash.substr(1);
+            const dest_parts = dest.split('-');
+            const page = dest_parts[0];
+
+            let prefix = document.location.pathname.replace('index.html', '');
+
+            let storage_key = prefix + ':' + page;
+
+            const active_navlink = document.getElementsByClassName('nav-link active')[0];
+            if (active_navlink != null)
+                storage_key += '-' + active_navlink.getAttribute('data-bs-target').substr(1);
+
+            return storage_key;
+        }
+
+
+        function getActiveEditor()
+        {
+            const active_navlink = document.getElementsByClassName('nav-link active')[0];
+            if (active_navlink != null)
+            {
+                const navlink_target_id = active_navlink.getAttribute('data-bs-target').substr(1);
+                const navlink_target = document.getElementById(navlink_target_id);
+                return navlink_target.getElementsByTagName('py-repl')[0];
+            }
+
+            return document.getElementsByTagName('py-repl')[0];
+        }
+
+
+        function saveCode(event)
+        {
+            const editor = getActiveEditor();
+
+            window.localStorage.setItem(getStorageKey(), editor.getPySrc());
+            btnOpen.style.display = 'inline';
+        }
+
+
+        function loadCode(event)
+        {
+            const editor = getActiveEditor();
+
+            let el = editor.querySelector("div.cm-content");
+            if (el == null)
+            {
+                el = editor.querySelector("div.py-repl-editor div");
+                el = el.shadowRoot.querySelector("div.cm-content");
+            }
+
+            el.replaceChildren();
+            el.textContent = window.localStorage.getItem(getStorageKey());
+        }
+
+
+        function onTabChanged(event)
+        {
+            if (window.localStorage.getItem(getStorageKey()) != null)
+                btnOpen.style.display = 'inline';
+            else
+                btnOpen.style.display = 'none';
+        }
 
 
         window.onorientationchange = spreadOutImages;

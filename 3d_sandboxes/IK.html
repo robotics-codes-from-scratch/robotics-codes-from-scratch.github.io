@@ -60,6 +60,11 @@
             </div>
         </div>
 
+        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
+            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        </div>
+
         <p id="output" style="font-size: 70%; color: #777777;">(click on the green run button to run the code; objects and joints can be moved with the mouse)</p>
         <p id="errors" style="font-size: 70%; color: #880000;"></p>
     </div> <!--sm-7-->
@@ -101,6 +106,7 @@
     # Load the scene and retrieve the robot
     viewer3D.loadScene('/scenes/panda.xml')
     viewer3D.translateCamera([0.0, 0.3, 0.0])
+    viewer3D.robotToolsEnabled = False
 
     robot = viewer3D.createRobot('panda', configs.Panda.new())
 
@@ -108,10 +114,10 @@
     viewer3D.jointsManipulationEnabled = False
 
     # Add one target
-    target = viewer3D.addTarget('target', [0.1, 0.6, 0.6], [0.65, 0.21, 0.64, 0.33], '#F08967', shape=Shapes.Cone)
+    target = viewer3D.addTarget('target', [0.0, 0.65, -0.6], [0.51, 0.46, -0.57, -0.44], '#F08967', shape=Shapes.Cone)
 
     # Enable the logmap
-    viewer3D.enableLogmap(robot, target, position='right')
+    viewer3D.enableLogmap(robot, target, position='left')
 
 
     # Placeholder for the function to implement
