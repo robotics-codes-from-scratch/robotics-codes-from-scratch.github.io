@@ -16,9 +16,9 @@
     <link href="css/bootstrap-icons-1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
     <link href="css/permanent_marker.css" rel="stylesheet"/>
     <link href="css/sidebars.css" rel="stylesheet"/>
-    <link href="css/main-template.css" rel="stylesheet"/>
     <link href="css/katex.min.css" rel="stylesheet"/>
     <link href="https://pyscript.net/latest/pyscript.css" rel="stylesheet"/>
+    <link href="css/main-template.css" rel="stylesheet"/>
 
     <script src="js/jquery-3.6.4.min.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
@@ -281,17 +281,15 @@
 
             if (pageEntry.assets != null)
             {
+                let robotsToLoad = [];
+                let scenesToLoad = [];
+
                 if (pageEntry.assets.robots != null)
                 {
                     for (let robot of pageEntry.assets.robots)
                     {
-                        if (loadedRobots.indexOf(robot) != -1)
-                            continue;
-
-                        if (robot == "panda")
-                            await downloadPandaRobot();
-
-                        loadedRobots.push(robot);
+                        if (loadedRobots.indexOf(robot) == -1)
+                            robotsToLoad.push(robot);
                     }
                 }
 
@@ -299,13 +297,47 @@
                 {
                     for (let scene of pageEntry.assets.scenes)
                     {
-                        if (loadedScenes.indexOf(scene) != -1)
-                            continue;
+                        if (loadedScenes.indexOf(scene) == -1)
+                            scenesToLoad.push(scene);
+                    }
+                }
 
+                if ((robotsToLoad.length > 0) || (scenesToLoad.length > 0))
+                {
+                    closeMenuButton.click();
+
+                    const overlay = document.createElement('div');
+                    overlay.id = 'pyscript_loading_splash';
+                    overlay.className = 'py-overlay';
+                    overlay.style.zIndex = 2000;
+
+                    overlay.innerHTML = '<div class="py-pop-up">' +
+                        '<div class="smooth spinner"></div>' +
+                        '<div id="pyscript-loading-label" class="label">' +
+                            '<div id="pyscript-operation-details">' +
+                                '<p>Downloading assets...</p>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+
+                    document.body.appendChild(overlay);
+
+                    for (let robot of robotsToLoad)
+                    {
+                        if (robot == "panda")
+                            await downloadPandaRobot();
+
+                        loadedRobots.push(robot);
+                    }
+
+                    for (let scene of pageEntry.assets.scenes)
+                    {
                         await downloadScene(scene);
 
                         loadedScenes.push(scene);
                     }
+
+                    document.getElementById('pyscript_loading_splash').remove();
                 }
             }
 
