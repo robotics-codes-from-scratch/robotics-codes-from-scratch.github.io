@@ -424,6 +424,8 @@ class Robot {
                 element: null,
             },
 
+            toolbar: null,
+
             enabled: false,
 
             _previousAbduction: null,
@@ -448,6 +450,9 @@ class Robot {
     destroy() {
         if (this.tool.button.element != null)
             this.tool.button.element.remove();
+
+        if (this.tool.toolbar != null)
+            this.tool.toolbar.destroy();
 
         for (const mesh of this.arm.visual.meshes)
             mesh.layers = new THREE.Layers();
@@ -568,13 +573,27 @@ class Robot {
     }
 
 
-    enableTool(enabled) {
+    enableTool(enabled, toolbar=null) {
         this.tool.enabled = enabled;
 
-        if (this.tool.enabled)
+        if (this.tool.enabled) {
+            this.tool.toolbar = toolbar;
+
+            if (toolbar != null) {
+                if (this.tool.button != null)
+                    this.tool.button.object.visible = false;
+            }
+
             this._updateToolButton();
-        else if (this.tool.button != null)
-            this.tool.button.object.visible = false;
+        } else {
+            if (this.tool.button != null)
+                this.tool.button.object.visible = false;
+
+            if (this.tool.toolbar != null) {
+                this.tool.toolbar.destroy();
+                this.tool.toolbar = null;
+            }
+        }
     }
 
 
@@ -873,7 +892,7 @@ class Robot {
         }
 
         // Update the button allowing to toggle the tool (if necessary)
-        if ((this.tool.button.object != null) && this.tool.enabled)
+        if (this.tool.enabled)
             this._updateToolButton();
     }
 
@@ -968,6 +987,9 @@ class Robot {
     _activateGripper(stateName, rangeIndex) {
         if (this.tool.button.object != null)
             this.tool.button.object.visible = false;
+
+        if (this.tool.toolbar != null)
+            this.tool.toolbar.disable();
 
         if (this.tool.actuators.length > 0) {
             const ctrl = new Float32Array(this.tool.actuators.length);
@@ -1144,14 +1166,25 @@ class Robot {
 
 
     _updateToolButton() {
-        if ((this.tool.button.object != null) && !this.tool.button.object.visible) {
-            if (this.isGripperOpen()) {
-                this.tool.button.element.children[0].src = getURL('images/close_gripper.png');
-                this.tool.button.object.visible = true;
+        if (this.tool.toolbar != null) {
+            if (!this.tool.toolbar.isEnabled()) {
+                if (this.isGripperOpen()) {
+                    this.tool.toolbar.update(false);
+                } else if (this.isGripperClosed() || this.isGripperHoldingSomeObject()) {
+                    this.tool.toolbar.update(true);
+                }
+            }
 
-            } else if (this.isGripperClosed() || this.isGripperHoldingSomeObject()) {
-                this.tool.button.element.children[0].src = getURL('images/open_gripper.png');
-                this.tool.button.object.visible = true;
+        } else if (this.tool.button.object != null) {
+             if (!this.tool.button.object.visible) {
+                if (this.isGripperOpen()) {
+                    this.tool.button.element.children[0].src = getURL('images/close_gripper.png');
+                    this.tool.button.object.visible = true;
+
+                } else if (this.isGripperClosed() || this.isGripperHoldingSomeObject()) {
+                    this.tool.button.element.children[0].src = getURL('images/open_gripper.png');
+                    this.tool.button.object.visible = true;
+                }
             }
         }
     }
@@ -2964,13 +2997,12 @@ class TransformControlsManager {
         camera (Camera): The camera used to render the scene
         scene (Scene): The scene containing the objects to manipulate
     */
-    constructor(domElement, rendererElement, camera, scene) {
+    constructor(toolbar, rendererElement, camera, scene) {
         this.transformControls = new TransformControls(camera, rendererElement);
         this.transformControls.manager = this;
 
         scene.add(this.transformControls);
 
-        this.buttonsContainer = null;
         this.btnTranslation = null;
         this.btnRotation = null;
         this.btnScaling = null;
@@ -2980,7 +3012,9 @@ class TransformControlsManager {
         this.enabled = true;
         this.used = false;
 
-        this._createButtons(domElement);
+        this.toolbarSection = toolbar.addSection();
+        this._createButtons(this.toolbarSection);
+
         this.enable(false);
 
         this.listener = null;
@@ -3003,7 +3037,7 @@ class TransformControlsManager {
         this.used = false;
 
         if (this.enabled) {
-            this.buttonsContainer.style.display = 'block';
+            this.toolbarSection.style.display = 'inline-block';
             this.transformControls.visible = true;
 
             if (withScaling) {
@@ -3016,7 +3050,7 @@ class TransformControlsManager {
                 this.btnScaling.style.display = 'none';
             }
         } else {
-            this.buttonsContainer.style.display = 'none';
+            this.toolbarSection.style.display = 'none';
             this.transformControls.visible = false;
         }
     }
@@ -3092,34 +3126,30 @@ class TransformControlsManager {
     }
 
 
-    _createButtons(domElement) {
-        this.buttonsContainer = document.createElement('div');
-        this.buttonsContainer.className = 'buttons-container';
-        domElement.appendChild(this.buttonsContainer);
-
+    _createButtons(section) {
         this.btnTranslation = document.createElement('button');
         this.btnTranslation.innerText = 'Translation';
         this.btnTranslation.className = 'left activated';
-        this.buttonsContainer.appendChild(this.btnTranslation);
+        section.appendChild(this.btnTranslation);
 
         this.btnScaling = document.createElement('button');
         this.btnScaling.innerText = 'Scaling';
-        this.buttonsContainer.appendChild(this.btnScaling);
+        section.appendChild(this.btnScaling);
 
         this.btnRotation = document.createElement('button');
         this.btnRotation.innerText = 'Rotation';
         this.btnRotation.className = 'right';
-        this.buttonsContainer.appendChild(this.btnRotation);
+        section.appendChild(this.btnRotation);
 
         this.btnWorld = document.createElement('button');
         this.btnWorld.innerText = 'World';
         this.btnWorld.className = 'left spaced activated';
-        this.buttonsContainer.appendChild(this.btnWorld);
+        section.appendChild(this.btnWorld);
 
         this.btnLocal = document.createElement('button');
         this.btnLocal.innerText = 'Local';
         this.btnLocal.className = 'right';
-        this.buttonsContainer.appendChild(this.btnLocal);
+        section.appendChild(this.btnLocal);
 
         this.btnTranslation.addEventListener('click', evt => this._onTranslationButtonClicked(evt));
         this.btnScaling.addEventListener('click', evt => this._onScalingButtonClicked(evt));
@@ -3504,7 +3534,7 @@ class Logmap {
         if (this.position == 'right') {
             this.sprite.position.set(halfWidth - this.size / 8 - margin, halfHeight - this.size / 8 - margin, 1);
         } else {
-            this.sprite.position.set(-halfWidth + this.size / 8 + margin, halfHeight - this.size / 8 - margin, 1);
+            this.sprite.position.set(-halfWidth + this.size / 8 + margin, halfHeight - this.size / 8 - margin - 30, 1);
         }
 
         this.sprite.scale.set(this.size, this.size, 1);
@@ -4632,6 +4662,96 @@ function enableLightToonShading(object, gradientMap=null) {
 
 /*
  * SPDX-FileCopyrightText: Copyright © 2023 Idiap Research Institute <contact@idiap.ch>
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
+
+
+/* Manages the toolbar at the top of the canvas
+*/
+class Toolbar {
+
+    /* Construct the toolbar.
+
+    Parameters:
+        domElement (element): The DOM element used by the 3D viewer
+    */
+    constructor(domElement) {
+        this.container = document.createElement('div');
+        this.container.className = 'toolbar';
+        domElement.appendChild(this.container);
+    }
+
+
+    /* Add a section in the toolbar and returns it (a div)
+    */
+    addSection() {
+        const section = document.createElement('div');
+        section.className = 'section';
+        this.container.appendChild(section);
+
+        return section;
+    }
+}
+
+
+class GripperToolbarSection {
+
+    /* Construct the toolbar.
+
+    Parameters:
+        toolbar (Toolbar): The toolbar to which the section must be added
+        robot (Robot): The robot with the gripper we must manipulate
+    */
+    constructor(toolbar, robot) {
+        this.section = toolbar.addSection();
+        this.robot = robot;
+
+        this.btn = document.createElement('button');
+        this.btn.className = 'round';
+        this.btn.innerText = 'Open gripper';
+        this.section.appendChild(this.btn);
+
+        this.enabled = true;
+
+        this.btn.onclick = (evt) => { robot.toggleGripper(); };
+    }
+
+
+    destroy() {
+        this.section.remove();
+    }
+
+
+    update(isClosed) {
+        this.enabled = true;
+        this.btn.disabled = false;
+        this.btn.classList.remove('disabled');
+
+        if (isClosed)
+            this.btn.innerText = 'Open gripper';
+        else
+            this.btn.innerText = 'Close gripper';
+    }
+
+
+    disable() {
+        this.enabled = false;
+        this.btn.disabled = true;
+        this.btn.classList.add('disabled');
+    }
+
+
+    isEnabled() {
+        return this.enabled;
+    }
+}
+
+/*
+ * SPDX-FileCopyrightText: Copyright © 2023 Idiap Research Institute <contact@idiap.ch>
  * SPDX-FileCopyrightText: Copyright © 2022 Nikolas Dahn
  *
  * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
@@ -5188,6 +5308,8 @@ class Viewer3D {
 
         this.planarIkControls = new PlanarIKControls();
 
+        this.toolbar = null;
+
         this.renderer = null;
         this.labelRenderer = null;
         this.clock = new THREE.Clock();
@@ -5505,7 +5627,20 @@ class Viewer3D {
         if (robot == null)
             return;
 
-        robot.enableTool(this.toolsEnabled && this.controlsEnabled);
+        const toolEnabled = this.toolsEnabled && this.controlsEnabled;
+
+        if (toolEnabled && (Object.keys(this.robots).length == 1))
+        {
+            for (const name in this.robots) {
+                this.robots[name].enableTool(false);
+                this.robots[name].enableTool(true);
+            }
+        }
+
+        if (toolEnabled && (Object.keys(this.robots).length == 0) && (configuration.toolRoot != null))
+            robot.enableTool(toolEnabled, new GripperToolbarSection(this.toolbar, robot));
+        else
+            robot.enableTool(toolEnabled);
 
         this.physicsSimulator.simulation.forward();
         this.physicsSimulator.synchronize();
@@ -5830,8 +5965,7 @@ class Viewer3D {
                 resolve();
             else
                 setTimeout(() => { callback(resolve); });
-        };
-
+        }
         const promise = new Promise((resolve, reject) => {
             setTimeout(() => {
                 callback(resolve);
@@ -5965,6 +6099,8 @@ class Viewer3D {
             }
         }
 
+        this.toolbar = new Toolbar(this.domElement);
+
         // Scene controls
         const renderer = this.labelRenderer;
 
@@ -5975,7 +6111,7 @@ class Viewer3D {
         this.cameraControl.update();
 
         // Robot controls
-        this.transformControls = new TransformControlsManager(this.domElement, renderer.domElement, this.camera, this.scene);
+        this.transformControls = new TransformControlsManager(this.toolbar, renderer.domElement, this.camera, this.scene);
         this.transformControls.addEventListener("dragging-changed", evt => this.cameraControl.enabled = !evt.value);
 
         // Events handling
@@ -6598,4 +6734,4 @@ cssFiles.forEach(css => {
     document.getElementsByTagName('HEAD')[0].appendChild(link);
 });
 
-export { PandaConfiguration, PandaNoHandConfiguration, RobotBuilder, RobotConfiguration, Shapes, Viewer3D, downloadFiles, downloadPandaRobot, downloadScene, getURL, initViewer3D, initPyScript, matrixFromSigma, readFile, sigmaFromMatrix3, sigmaFromMatrix4, sigmaFromQuaternionAndScale };
+export { PandaConfiguration, PandaNoHandConfiguration, RobotBuilder, RobotConfiguration, Shapes, Viewer3D, downloadFiles, downloadPandaRobot, downloadScene, getURL, initPyScript, initViewer3D, matrixFromSigma, readFile, sigmaFromMatrix3, sigmaFromMatrix4, sigmaFromQuaternionAndScale };

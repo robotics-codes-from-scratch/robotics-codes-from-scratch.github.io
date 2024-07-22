@@ -13,7 +13,7 @@ div.viewer3d
 }
 
 
-div.viewer3d div.buttons-container
+div.viewer3d div.toolbar
 {
     position: absolute;
     font-size: 0.8em;
@@ -23,7 +23,14 @@ div.viewer3d div.buttons-container
 }
 
 
-div.viewer3d div.buttons-container button
+div.viewer3d div.toolbar div.section
+{
+    display: inline-block;
+    margin-right: 20px;
+}
+
+
+div.viewer3d div.toolbar button
 {
     align-items: center;
     appearance: none;
@@ -52,46 +59,61 @@ div.viewer3d div.buttons-container button
 }
 
 
-div.viewer3d div.buttons-container button.left
+div.viewer3d div.toolbar button.left
 {
     border-top-left-radius: 100px;
     border-bottom-left-radius: 100px;
 }
 
 
-div.viewer3d div.buttons-container button.right
+div.viewer3d div.toolbar button.right
 {
     border-top-right-radius: 100px;
     border-bottom-right-radius: 100px;
 }
 
 
-div.viewer3d div.buttons-container button.spaced
+div.viewer3d div.toolbar button.round
+{
+    border-top-left-radius: 100px;
+    border-bottom-left-radius: 100px;
+    border-top-right-radius: 100px;
+    border-bottom-right-radius: 100px;
+}
+
+
+div.viewer3d div.toolbar button.disabled
+{
+    color: #8F9191;
+}
+
+
+div.viewer3d div.toolbar button.spaced
 {
     margin-left: 20px;
 }
 
 
-div.viewer3d div.buttons-container button.activated
+div.viewer3d div.toolbar button.activated
 {
     background-image: linear-gradient(1deg, #4F58FD, #149BF3 99%);
     color: #FFFFFF;
 }
 
 
-div.viewer3d div.buttons-container button:not(.activated):hover {
+div.viewer3d div.toolbar button:not(.activated):hover {
     background-image: linear-gradient(#c7c8ca ,#b7b9bc);
 }
 
 
-div.viewer3d div.buttons-container button.disabled
+div.viewer3d div.toolbar button.disabled
 {
     background-image: linear-gradient(#f7f8fa ,#e7e9ec);
     color: #888888;
 }
 
 
-div.viewer3d div.buttons-container button.disabled:hover {
+div.viewer3d div.toolbar button.disabled:hover {
     background-image: linear-gradient(#c7c8ca ,#b7b9bc);
 }
 

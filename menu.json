@@ -66,8 +66,7 @@
             {
                 "title": "Jacobian",
                 "hash": "2d_jacobian",
-                "page": "jacobian.html",
-                "hidden": true
+                "page": "jacobian.html"
             }
         ]
     },
