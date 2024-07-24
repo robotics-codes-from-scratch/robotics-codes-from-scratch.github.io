@@ -1,0 +1,207 @@
+<div class="row">
+    <div class="col-sm-1"></div>
+
+    <div class="col-sm-6">
+        <br>
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button aria-controls="SMC1D-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#SMC1D-tab-pane"
+                        data-bs-toggle="tab" id="SMC1D-tab" role="tab" type="button">SMC (1D)</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button aria-controls="SMC2D-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#SMC2D-tab-pane"
+                        data-bs-toggle="tab" id="SMC2D-tab" role="tab" type="button">SMC (2D)</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button aria-controls="HEDAC-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#HEDAC-tab-pane"
+                        data-bs-toggle="tab" id="HEDAC-tab" role="tab" type="button">HEDAC (2D)</button>
+            </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            <div aria-labelledby="SMC1D-tab" class="tab-pane fade show active" id="SMC1D-tab-pane" role="tabpanel" tabindex="0">
+                <py-repl id="SMC1D-tab-repl" output="output">
+                </py-repl>
+            </div>
+            <div aria-labelledby="SMC2D-tab" class="tab-pane fade" id="SMC2D-tab-pane" role="tabpanel" tabindex="0">
+                <py-repl id="SMC2D-tab-repl" output="output">
+                </py-repl>
+            </div>
+            <div aria-labelledby="HEDAC-tab" class="tab-pane fade" id="HEDAC-tab-pane" role="tabpanel" tabindex="0">
+                <py-repl id="HEDAC-tab-repl" output="output">
+                </py-repl>
+            </div>
+        </div>
+        <div style="float: right; padding-right: 0.5em;">
+            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        </div>
+        <p style="font-size: 70%; color: #777777; margin-bottom: 0;">(click on the green button to run the code)</p>
+        <p id="help" style="font-size: 70%; color: #777777;"></p>
+        <p id="output" style="font-size: 70%; color: #000000; font-family: monospace;"></p>
+    </div>
+
+    <div class="col-sm-5">
+        <div class="sticky-sm-top" style="padding: 2rem 1rem 1rem 1rem;">
+            <canvas id="canvas" style="width:100%;" width="900px" height="900px"></canvas>
+            <canvas id="canvas_histogram" style="width:100%;" width="900px" height="450px"></canvas>
+            <div id="legend" style="margin-top: 0px; font-size: 70%; color: #777777;"></div>
+        </div>
+    </div>
+</div>
+
+
+<py-script>
+    from js import document, window, getScript, setEditorCode, scheduleTask, executeNextTask
+    import asyncio
+    from pyodide.ffi import create_proxy
+
+
+    # The configuration of each tab
+    config = {
+        'SMC1D-tab': {
+            'scripts': {
+                'main': 'smc_1d.py',
+                'user': 'smc_1d_example.py',
+                'ui': 'smc_1d_ui.py',
+            },
+            'texts': {
+                'help': 'If you need context about how this code is used, see <a href="2d_sandboxes/ergodic_control/smc_1d.py" target="#">this script</a>',
+                'legend': '<br>Top: the gaussians defined in <code>initialState()</code><br>Middle: the trajectory, both in 1D (in black) and over time (in gray)<br>Bottom: <code>w_hat</code> (colored) and <code>w</code> (grayscale)',
+            },
+        },
+        'SMC2D-tab': {
+            'scripts': {
+                'main': 'smc_2d.py',
+                'user': 'smc_2d_example.py',
+                'ui': 'ui.py',
+                'common': 'common.py',
+            },
+            'texts': {
+                'help': 'If you need context about how this code is used, see <a href="2d_sandboxes/ergodic_control/smc_2d.py" target="#">this script</a> and <a href="2d_sandboxes/ergodic_control/common.py" target="#">this one</a>',
+                'legend': '<span style="text-align:center; width: 50%; display: inline-block"><code>w_hat</code></span><span style="text-align:center; width: 50%; display: inline-block"><code>w</code></span>',
+            },
+            'has_histogram': True,
+        },
+        'HEDAC-tab': {
+            'scripts': {
+                'main': 'hedac.py',
+                'user': 'hedac_example.py',
+                'ui': 'ui.py',
+                'common': 'common.py',
+            },
+            'texts': {
+                'help': 'If you need context about how this code is used, see <a href="2d_sandboxes/ergodic_control/hedac.py" target="#">this script</a> and <a href="2d_sandboxes/ergodic_control/common.py" target="#">this one</a>',
+                'legend': '',
+            },
+        }
+    }
+
+
+    # UI-related variables
+    canvas = document.getElementById('canvas')
+    canvas_histogram = document.getElementById('canvas_histogram')
+    ctx = canvas.getContext('2d')
+    ctx_histogram = canvas_histogram.getContext('2d')
+    output = document.getElementById('output')
+    help = document.getElementById('help')
+    legend = document.getElementById('legend')
+
+
+    def onTabClicked(event):
+        unregister_listeners()
+        switch_to_tab(event.target.id)
+        register_listeners()
+
+
+    def switch_to_tab(id):
+        global editor
+
+        output.innerText = ''
+
+        entry = config[id]
+
+        if ('has_histogram' in entry) and entry['has_histogram']:
+            canvas_histogram.style.display = 'inline'
+        else:
+            canvas_histogram.style.display = 'none'
+
+        texts = entry['texts']
+        help.innerHTML = texts['help']
+        legend.innerHTML = texts['legend']
+
+        scripts = entry['scripts']
+        exec(scripts['main']['code'], globals())
+        exec(scripts['ui']['code'], globals())
+
+        if 'common' in scripts:
+            exec(scripts['common']['code'], globals())
+
+        editor = document.getElementById(id + '-repl')
+        try:
+            user_code = editor.getPySrc()
+        except AttributeError:
+            user_code = editor.textContent
+
+        exec(user_code, globals())
+
+        reset()
+
+
+    mustStop = asyncio.Event()
+    stopped = asyncio.Event()
+
+    async def cleanup():
+        global gaussians
+        mustStop.set()
+        unregister_listeners()
+        await stopped.wait()
+        if 'gaussians' in globals():
+            del gaussians
+
+    document.cleanup = cleanup
+
+
+    async def main():
+        run_buttons = document.getElementsByClassName("py-repl-run-button")
+        for button in run_buttons:
+            button.addEventListener('click', create_proxy(lambda evt: reset()))
+
+        switch_to_tab('SMC1D-tab')
+
+        while not mustStop.is_set():
+            # Call the appropriate update function
+            update()
+
+            # Update the rendering
+            draw_scene(param)
+
+            await asyncio.sleep(1E-6)
+
+        stopped.set()
+
+
+    async def setup():
+        # Initialise all the tabs
+        for tab, entry in config.items():
+            scripts = entry['scripts']
+
+            for id, filename in scripts.items():
+                scripts[id] = {
+                    'filename': filename,
+                    'code': getScript('2d_sandboxes/ergodic_control/' + filename),
+                }
+
+            setEditorCode(document.getElementById(tab + '-repl'), scripts['user']['code'])
+
+            button = document.getElementById(tab)
+            button.onclick = onTabClicked
+
+
+    async def start():
+        pyscript.run_until_complete(main())
+
+
+    scheduleTask(create_proxy(setup))
+    scheduleTask(create_proxy(start))
+    executeNextTask()
+</py-script2>

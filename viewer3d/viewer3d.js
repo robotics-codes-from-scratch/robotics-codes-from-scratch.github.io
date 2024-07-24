@@ -1382,6 +1382,28 @@ function readFile(filename, binary=false) {
 }
 
 
+function mkdir(path) {
+    const parts = path.split("/");
+
+    let current = parts[0];
+    if (path[0] == "/")
+        current = "/" + current;
+
+    let i = 0;
+
+    while (i < parts.length) {
+        try {
+            const stat = mujoco.FS.stat(current);
+        } catch (ex) {
+            mujoco.FS.mkdir(current);
+        }
+
+        i++;
+        if (i < parts.length)
+            current += "/" + parts[i];
+    }
+}
+
 
 function loadScene(filename, robotBuilders=null) {
     // Retrieve some infos from the XML file (not exported by the MuJoCo API)
@@ -2693,6 +2715,7 @@ function generateRobot(xmlDoc, filename, robotBuilder) {
 function preprocessIncludedFiles(xmlDoc, filename, modified=false) {
     const offset = filename.lastIndexOf('/');
     const folder = filename.substring(0, offset + 1);
+    const [subfolder, _] = filename.substring(offset + 1).split(".");
 
     const serializer = new XMLSerializer();
 
@@ -2715,10 +2738,16 @@ function preprocessIncludedFiles(xmlDoc, filename, modified=false) {
             const xmlContent = preprocessIncludedFile(folder + includedFile, prefix, pos, quat, known);
 
             const offset = includedFile.lastIndexOf('/');
-            includedFile = includedFile.substring(0, offset + 1) + (prefix != null ? prefix : "") + includedFile.substring(offset + 1);
+            const path = subfolder + "/" + includedFile.substring(0, offset + 1);
+            includedFile = path + (prefix != null ? prefix : "") + includedFile.substring(offset + 1);
+
+            mkdir(folder + path);
 
             mujoco.FS.writeFile(folder + includedFile, serializer.serializeToString(xmlContent));
             xmlInclude.setAttribute("file", includedFile);
+            xmlInclude.removeAttribute("prefix");
+            xmlInclude.removeAttribute("pos");
+            xmlInclude.removeAttribute("quat");
 
             modified = true;
         }

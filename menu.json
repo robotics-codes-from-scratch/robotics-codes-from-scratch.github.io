@@ -67,6 +67,24 @@
                 "title": "Jacobian",
                 "hash": "2d_jacobian",
                 "page": "jacobian.html"
+            },
+            {
+                "title": "Ergodic control",
+                "hash": "2d_ergodic_control",
+                "page": "ergodic_control/content.html",
+                "assets": {
+                    "scripts": [
+                        "ergodic_control/smc_1d.py",
+                        "ergodic_control/smc_1d_ui.py",
+                        "ergodic_control/smc_1d_example.py",
+                        "ergodic_control/smc_2d.py",
+                        "ergodic_control/smc_2d_example.py",
+                        "ergodic_control/hedac.py",
+                        "ergodic_control/hedac_example.py",
+                        "ergodic_control/common.py",
+                        "ergodic_control/ui.py"
+                    ]
+                }
             }
         ]
     },
@@ -87,6 +105,27 @@
                     ],
                     "scenes": [
                         "scenes/panda.xml"
+                    ]
+                }
+            },
+            {
+                "title": "Ergodic control",
+                "hash": "3d_ergodic_control",
+                "page": "ergodic_control/content.html",
+                "assets": {
+                    "robots": [
+                        "panda"
+                    ],
+                    "scenes": [
+                        "scenes/ergodic_control.xml"
+                    ],
+                    "scripts": [
+                        "ergodic_control/smc.py",
+                        "ergodic_control/smc_example.py",
+                        "ergodic_control/hedac.py",
+                        "ergodic_control/hedac_example.py",
+                        "ergodic_control/common.py",
+                        "ergodic_control/ui.py"
                     ]
                 }
             }

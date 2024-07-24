@@ -100,6 +100,9 @@
 
         const loadedRobots = [];
         const loadedScenes = [];
+        const loadedScripts = {};
+
+        const tasks = [];
 
 
         // Populate the menu content
@@ -217,6 +220,9 @@
 
                         if (entry.assets.scenes != null)
                             assets.scenes = entry.assets.scenes.map((x) => category.id + '/' + x);
+
+                        if (entry.assets.scripts != null)
+                            assets.scripts = entry.assets.scripts.map((x) => category.id + '/' + x);
                     }
 
                     pages.set(entry.hash, {
@@ -283,6 +289,7 @@
             {
                 let robotsToLoad = [];
                 let scenesToLoad = [];
+                let scriptsToLoad = [];
 
                 if (pageEntry.assets.robots != null)
                 {
@@ -302,7 +309,16 @@
                     }
                 }
 
-                if ((robotsToLoad.length > 0) || (scenesToLoad.length > 0))
+                if (pageEntry.assets.scripts != null)
+                {
+                    for (let script of pageEntry.assets.scripts)
+                    {
+                        if (loadedScripts[script] == null)
+                            scriptsToLoad.push(script);
+                    }
+                }
+
+                if ((robotsToLoad.length > 0) || (scenesToLoad.length > 0) || (scriptsToLoad.length > 0))
                 {
                     closeMenuButton.click();
 
@@ -322,97 +338,134 @@
 
                     document.body.appendChild(overlay);
 
-                    for (let robot of robotsToLoad)
-                    {
-                        if (robot == "panda")
-                            await downloadPandaRobot();
+                    tasks.push(async () => {
+                        for (let robot of robotsToLoad)
+                        {
+                            if (robot == "panda")
+                                await downloadPandaRobot();
 
-                        loadedRobots.push(robot);
-                    }
+                            loadedRobots.push(robot);
+                        }
 
-                    for (let scene of pageEntry.assets.scenes)
-                    {
-                        await downloadScene(scene);
+                        for (let scene of scenesToLoad)
+                        {
+                            await downloadScene(scene);
 
-                        loadedScenes.push(scene);
-                    }
+                            loadedScenes.push(scene);
+                        }
 
-                    document.getElementById('pyscript_loading_splash').remove();
+                        for (let script of scriptsToLoad)
+                        {
+                            const response = await fetch(baseUrl + '/' + script);
+                            if (!response.ok)
+                            {
+                                navigate('home');
+                                return;
+                            }
+
+                            loadedScripts[script] = await response.text();
+                        }
+
+                        document.getElementById('pyscript_loading_splash').remove();
+                    });
                 }
             }
 
-            div.innerHTML = await response.text();
+            tasks.push(async () => {
+                div.innerHTML = await response.text();
+                closeMenuButton.click();
+            });
 
-            closeMenuButton.click();
+            if (tasks.length == 1)
+            {
+                await tasks[0]();
+                tasks.splice(0, 1);
+            }
 
-            window.requestAnimationFrame((time) => {
+            tasks.push(async () => {
                 convertMath();
+            });
 
-                window.requestAnimationFrame((time) => {
-                    spreadOutImages();
+            tasks.push(async () => {
+                spreadOutImages();
 
-                    if (page != 'home')
+                if (page != 'home')
+                {
+                    if (anchor != null)
+                        window.location.href = url.origin + url.pathname + '#' + page + '-' + anchor;
+                    else
+                        window.location.href = url.origin + url.pathname + '#' + page;
+                }
+                else
+                {
+                    window.location.href = url.origin + url.pathname + '#';
+                }
+
+                if (anchor == null)
+                {
+                    const anchor_element = document.getElementById('content')
+                    anchor_element.scrollIntoView({
+                        block: "start",
+                        behavior: "instant"
+                    });
+                }
+
+                pageEntry.requirements.forEach((requirement) => {
+                    if (loadedRequirements[requirement])
+                        return;
+
+                    if (requirement == 'pyscript')
+                        initPyScript();
+
+                    loadedRequirements[requirement] = true;
+                });
+
+                btnOpen = document.getElementById('btn-open');
+                btnSave = document.getElementById('btn-save');
+
+                if (btnSave != null)
+                {
+                    btnSave.addEventListener('click', saveCode);
+                    btnOpen.addEventListener('click', loadCode);
+
+                    if (window.localStorage.getItem(getStorageKey()) != null)
+                        btnOpen.style.display = 'inline';
+                    else
+                        btnOpen.style.display = 'none';
+
+                    navlinks = document.getElementsByClassName('nav-link');
+                    if (navlinks.length > 0)
                     {
-                        if (anchor != null)
-                            window.location.href = url.origin + url.pathname + '#' + page + '-' + anchor;
-                        else
-                            window.location.href = url.origin + url.pathname + '#' + page;
+                        for (let navlink of navlinks)
+                            navlink.addEventListener('click', onTabChanged);
                     }
                     else
                     {
-                        window.location.href = url.origin + url.pathname + '#';
+                        navlinks = null;
                     }
-
-                    if (anchor == null)
-                    {
-                        const anchor_element = document.getElementById('content')
-                        anchor_element.scrollIntoView({
-                            block: "start",
-                            behavior: "instant"
-                        });
-                    }
-
-                    pageEntry.requirements.forEach((requirement) => {
-                        if (loadedRequirements[requirement])
-                            return;
-
-                        if (requirement == 'pyscript')
-                            initPyScript();
-
-                        loadedRequirements[requirement] = true;
-                    });
-
-                    btnOpen = document.getElementById('btn-open');
-                    btnSave = document.getElementById('btn-save');
-
-                    if (btnSave != null)
-                    {
-                        btnSave.addEventListener('click', saveCode);
-                        btnOpen.addEventListener('click', loadCode);
-
-                        if (window.localStorage.getItem(getStorageKey()) != null)
-                            btnOpen.style.display = 'inline';
-                        else
-                            btnOpen.style.display = 'none';
-
-                        navlinks = document.getElementsByClassName('nav-link');
-                        if (navlinks.length > 0)
-                        {
-                            for (let navlink of navlinks)
-                                navlink.addEventListener('click', onTabChanged);
-                        }
-                        else
-                        {
-                            navlinks = null;
-                        }
-                    }
-                });
+                }
             });
+
+            executeNextTask();
+        }
+
+
+        function executeNextTask()
+        {
+            if (tasks.length > 0)
+            {
+                window.requestAnimationFrame(async (time) => {
+                    const task = tasks.splice(0, 1)[0];
+                    await task();
+                    executeNextTask();
+                });
+            }
         }
 
 
         // Convert the LaTeX formulas into HTML
-        function convertMath(){
+        function convertMath()
+        {
             const elements = document.getElementsByClassName("ltx_Math");
             const macros = {
                 '\\tp': '\\text{\\tiny{#1}}',
@@ -452,7 +505,8 @@
 
 
         // Online course: spread out the images vertically
-        function spreadOutImages() {
+        function spreadOutImages()
+        {
             const style = document.getElementById('online-course-figures');
             if (style != undefined)
                 style.remove();
@@ -518,8 +572,38 @@
             el.innerText = '';
         }
 
+        function getScript(name)
+        {
+            return loadedScripts[name];
+        }
+
+
+        function setEditorCode(editor, code)
+        {
+            let el = editor.querySelector("div.cm-content");
+            if (el == null)
+            {
+                el = editor.querySelector("div.py-repl-editor div");
+                el = el.shadowRoot.querySelector("div.cm-content");
+            }
+
+            el.replaceChildren();
+            el.textContent = code;
+        }
+
+
+        function scheduleTask(fct)
+        {
+            tasks.push(fct);
+        }
+
+
         globalThis.clearMsgs = clearMsgs;
         globalThis.clearMsgsOutput = clearMsgsOutput;
+        globalThis.getScript = getScript;
+        globalThis.setEditorCode = setEditorCode;
+        globalThis.scheduleTask = scheduleTask;
+        globalThis.executeNextTask = executeNextTask;
 
 
         function getStorageKey()
@@ -565,17 +649,10 @@
 
         function loadCode(event)
         {
-            const editor = getActiveEditor();
-
-            let el = editor.querySelector("div.cm-content");
-            if (el == null)
-            {
-                el = editor.querySelector("div.py-repl-editor div");
-                el = el.shadowRoot.querySelector("div.cm-content");
-            }
-
-            el.replaceChildren();
-            el.textContent = window.localStorage.getItem(getStorageKey());
+            setEditorCode(
+                getActiveEditor(),
+                window.localStorage.getItem(getStorageKey()),
+            );
         }
 
 

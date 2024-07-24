@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<mujoco model="panda scene">
+    <include file="franka_emika_panda/panda.xml" pos="0.5 -0.5 0"/>
+
+    <statistic center="0.8 -0.5 0.4" extent="1.5"/>
+
+    <visual>
+        <headlight diffuse="0.2 0.2 0.2" ambient="0.2 0.2 0.2"/>
+        <rgba fog="1.0 1.0 1.0 1.0"/>
+        <global azimuth="120" elevation="-20"/>
+    </visual>
+
+    <asset>
+        <material name="groundplane" rgba="1 1 1 1"/>
+    </asset>
+
+    <worldbody>
+        <light pos="0 0 3" mode="fixed" diffuse="0.2 0.2 0.2" castshadow="false"/>
+        <light pos="3 -4 3" dir="-3 4 -3" diffuse="0.6 0.6 0.6" directional="false"/>
+        <geom name="floor" size="5 5 0.1" type="plane" material="groundplane"/>
+    </worldbody>
+</mujoco>

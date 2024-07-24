@@ -1,0 +1,165 @@
+<div class="row">
+    <div class="col-sm-1"></div>
+
+    <div class="col-sm-6">
+        <br>
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button aria-controls="SMC-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#SMC-tab-pane"
+                        data-bs-toggle="tab" id="SMC-tab" role="tab" type="button">SMC</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button aria-controls="HEDAC-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#HEDAC-tab-pane"
+                        data-bs-toggle="tab" id="HEDAC-tab" role="tab" type="button">HEDAC</button>
+            </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            <div aria-labelledby="SMC-tab" class="tab-pane fade show active" id="SMC-tab-pane" role="tabpanel" tabindex="0">
+                <py-repl id="SMC-tab-repl" output="output">
+                </py-repl>
+            </div>
+            <div aria-labelledby="HEDAC-tab" class="tab-pane fade" id="HEDAC-tab-pane" role="tabpanel" tabindex="0">
+                <py-repl id="HEDAC-tab-repl" output="output">
+                </py-repl>
+            </div>
+        </div>
+        <div style="float: right; padding-right: 0.5em;">
+            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        </div>
+        <p style="font-size: 70%; color: #777777; margin-bottom: 0;">(click on the green button to run the code)</p>
+        <p id="help" style="font-size: 70%; color: #777777;"></p>
+        <p id="output" style="font-size: 70%; color: #000000; font-family: monospace;"></p>
+    </div>
+
+    <div class="col-sm-5">
+        <div class="sticky-sm-top" style="padding: 2rem 1rem 1rem 1rem;">
+            <div id="viewer3d" style="width: 100%; height: 600px;"></div>
+            <div id="legend" style="margin-top: 40px; font-size: 70%; color: #777777;"></div>
+        </div>
+    </div>
+</div>
+
+
+<py-script>
+    from viewer3d import Viewer3D, configs
+    from js import document, window, getScript, setEditorCode, scheduleTask, executeNextTask
+    from pyodide.ffi import create_proxy
+
+
+    # The configuration of each tab
+    config = {
+        'SMC-tab': {
+            'scripts': {
+                'main': 'smc.py',
+                'user': 'smc_example.py',
+                'ui': 'ui.py',
+                'common': 'common.py',
+            },
+            'texts': {
+                'help': 'If you need context about how this code is used, see <a href="3d_sandboxes/ergodic_control/smc.py" target="#">this script</a> and <a href="3d_sandboxes/ergodic_control/common.py" target="#">this one</a>',
+                'legend': '',
+            },
+        },
+        'HEDAC-tab': {
+            'scripts': {
+                'main': 'hedac.py',
+                'user': 'hedac_example.py',
+                'ui': 'ui.py',
+                'common': 'common.py',
+            },
+            'texts': {
+                'help': 'If you need context about how this code is used, see <a href="3d_sandboxes/ergodic_control/hedac.py" target="#">this script</a> and <a href="3d_sandboxes/ergodic_control/common.py" target="#">this one</a>',
+                'legend': '',
+            },
+        }
+    }
+
+
+    # UI-related variables
+    output = document.getElementById('output')
+    help = document.getElementById('help')
+    legend = document.getElementById('legend')
+
+
+    # Create the Viewer3D object
+    viewer3D = Viewer3D(document.getElementById('viewer3d'))
+
+    # Load the scene and retrieve the robot
+    viewer3D.loadScene('/scenes/ergodic_control.xml')
+    robot = viewer3D.createRobot('panda', configs.Panda.new())
+
+    # Disable all robot controls (since the robot is controlled by our code)
+    viewer3D.jointsManipulationEnabled = False
+    viewer3D.endEffectorManipulationEnabled = False
+    viewer3D.robotToolsEnabled = False
+
+
+    async def cleanup():
+        global gaussians
+        await viewer3D.stop()
+        del gaussians
+
+    document.cleanup = cleanup
+
+
+    def onTabClicked(event):
+        switch_to_tab(event.target.id)
+
+
+    def switch_to_tab(id):
+        output.innerText = ''
+
+        entry = config[id]
+
+        texts = entry['texts']
+        help.innerHTML = texts['help']
+        legend.innerHTML = texts['legend']
+
+        scripts = entry['scripts']
+        exec(scripts['main']['code'], globals())
+        exec(scripts['ui']['code'], globals())
+
+        if 'common' in scripts:
+            exec(scripts['common']['code'], globals())
+
+        editor = document.getElementById(id + '-repl')
+        try:
+            user_code = editor.getPySrc()
+        except AttributeError:
+            user_code = editor.textContent
+
+        exec(user_code, globals())
+
+        reset()
+
+
+    async def main():
+        run_buttons = document.getElementsByClassName("py-repl-run-button")
+        for button in run_buttons:
+            button.addEventListener('click', create_proxy(lambda evt: reset()))
+
+        switch_to_tab('SMC-tab')
+
+
+    async def setup():
+        # Initialise all the tabs
+        for tab, entry in config.items():
+            scripts = entry['scripts']
+
+            for id, filename in scripts.items():
+                scripts[id] = {
+                    'filename': filename,
+                    'code': getScript('3d_sandboxes/ergodic_control/' + filename),
+                }
+
+            setEditorCode(document.getElementById(tab + '-repl'), scripts['user']['code'])
+
+            button = document.getElementById(tab)
+            button.onclick = onTabClicked
+
+
+    scheduleTask(create_proxy(setup))
+    scheduleTask(create_proxy(main))
+    executeNextTask()
+</py-script>
