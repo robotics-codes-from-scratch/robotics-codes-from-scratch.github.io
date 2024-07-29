@@ -1,137 +1,191 @@
 body {
-  font-size: 125%;
-  font-family: 'Raleway', sans-serif;
+    font-size: 125%;
+    font-family: 'Raleway', sans-serif;
 }
 
-a{
-  text-decoration: none;
+a {
+    text-decoration: none;
 }
 
-#data_container{
-  text-align: justify;
+#data_container {
+    text-align: justify;
 }
 
-.container-fluid{
-  text-align: justify;
+.container-fluid {
+    text-align: justify;
+}
+
+.offcanvas-body {
+    text-align: left;
 }
 
 h1, .h1,
 h2, .h2,
 h3, .h3 {
-	font-family: 'Permanent Marker', cursive;
-	padding: 2rem 0rem 1rem 0rem;
+    font-family: 'Permanent Marker', cursive;
+    padding: 2rem 0rem 1rem 0rem;
 }
 
 form label {
-  display: inline-block; /* this is important */
-  width: 200px;
+    display: inline-block; /* this is important */
+    width: 200px;
 }
 
-.equation{
-  margin-top: 10px;
-  margin-bottom: 20px;
+.equation {
+    margin-top: 10px;
+    margin-bottom: 20px;
 }
 
-.ltx_eqn_table{
-  margin-left: auto;
-  margin-right: auto;
+.ltx_title {
+    text-align: left;
 }
 
-/*
-.ltx_eqn_eqno{
-  float: right;
-  padding-right: 50px;
-}*/
-
-.ltx_graphics{
-  width:100%;
+.ltx_align_middle {
+    vertical-align: middle;
 }
 
-.ltx_float{
-  display: inline;
+.ltx_align_left {
+    text-align: left;
 }
 
-.ltx_float{
-  display: table;
-
-  width:auto;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top:30px;
-  margin-bottom: 30px;
-
-
-  padding-left: 20px;
-  border-left: 2mm solid black;
+.ltx_align_center{
+    text-align: center;
 }
 
-.ltx_float .ltx_listing{
-  padding-top: 10px;
-  padding-bottom: 10px;
-  font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
+.ltx_align_right {
+    text-align: right;
 }
 
-.ltx_float .ltx_caption{
-  border-top: 1mm solid black;
-  padding-top: 10px;
-  font-weight: bold;
+.ltx_eqn_table {
+    display: table;
+    width: 100%;
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.ltx_figure{
-  padding-left: 20px;
-  padding-right: 20px;
+.ltx_eqn_row {
+    display: table-row;
 }
 
-.ltx_figure .ltx_caption{
-  padding-top: 20px;
-  font-size: 0.8rem;
-  text-align: justify;
+.ltx_eqn_cell {
+    display: table-cell;
+    width: auto;
 }
 
-.ltx_lst_language_Python{
-  display: table;
-
-  width:auto;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top:30px;
-  margin-bottom: 30px;
-
-  font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
-  font-size: 0.8rem;  
-  border-left: 1mm solid black;
-  padding-left: 20px;
-  line-height: 1;
-
+.ltx_eqn_center_padleft,
+.ltx_eqn_center_padright {
+    min-width: 2em;
 }
 
-.ltx_lst_language_Python .ltx_tag{
-  font-weight: bold;
+.ltx_eqn_eqno {
+    max-width: 0em;
+    overflow: visible;
+    white-space: nowrap;
 }
 
-.py-repl-editor{
-  background: #EEEEEE;
-  box-sizing: border-box;
-  border-width: 0px;
-  border-style: solid;
-  border-color: rgb(209, 13, 19)
+.ltx_eqn_eqno.ltx_align_right .ltx_tag {
+    float: right;
+}
+
+.ltx_graphics {
+    width: 100%;
+}
+
+.ltx_float {
+    display: inline;
+}
+
+.ltx_float {
+    display: table;
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    padding-left: 20px;
+    border-left: 2mm solid black;
+}
+
+.ltx_float .ltx_listing {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
+}
+
+.ltx_float .ltx_caption {
+    border-top: 1mm solid black;
+    padding-top: 10px;
+    font-weight: bold;
+}
+
+.ltx_figure {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.ltx_figure .ltx_caption {
+    padding-top: 20px;
+    font-size: 0.8rem;
+    text-align: justify;
+}
+
+.ltx_lst_language_Python {
+    display: table;
+    width: auto;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New;
+    font-size: 0.8rem;
+    border-left: 1mm solid black;
+    padding-left: 20px;
+    line-height: 1;
+}
+
+.ltx_lst_language_Python .ltx_tag {
+    font-weight: bold;
+}
+
+.ltx_font_bold {
+    font-weight: bold;
+}
+
+.ltx_table .ltx_flex_figure {
+    border: 1px solid rgb(230, 230, 230);
+    padding: 10px;
+}
+
+.py-repl-editor {
+    background: #EEEEEE;
+    box-sizing: border-box;
+    border-width: 0px;
+    border-style: solid;
+    border-color: rgb(209, 13, 19)
 }
 
 .py-overlay {
-  top: 0;
-  bottom: 0;
-  left: 66.666%;
-  right: 0;
-  opacity: 0.5;
-  background: rgba(0, 0, 0, 1);
+    top: 0;
+    bottom: 0;
+    left: 66.666%;
+    right: 0;
+    opacity: 0.5;
+    background: rgba(0, 0, 0, 1);
 }
 
-.generated-menu-item{
-  text-align: left;
+.generated-menu-item {
+    text-align: left;
 }
 
 .py-repl-run-button {
-  opacity: 1;
+    opacity: 1;
+}
+
+#menu a.section {
+    margin-top: -7px;
+    margin-bottom: -4px;
+    padding-left: 30px;
 }
 
 #menu a.section span {

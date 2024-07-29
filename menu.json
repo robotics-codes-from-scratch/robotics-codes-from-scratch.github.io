@@ -85,6 +85,16 @@
                         "ergodic_control/ui.py"
                     ]
                 }
+            },
+            {
+                "title": "Signed distance function",
+                "hash": "2d_sdf",
+                "page": "sdf/sdf.html",
+                "assets": {
+                    "data": [
+                        "sdf/mwb01.npy"
+                    ]
+                }
             }
         ]
     },
@@ -126,6 +136,29 @@
                         "ergodic_control/hedac_example.py",
                         "ergodic_control/common.py",
                         "ergodic_control/ui.py"
+                    ]
+                }
+            },
+            {
+                "title": "Physics",
+                "hash": "3d_physics",
+                "page": "physics.html",
+                "assets": {
+                    "robots": [
+                        "panda"
+                    ],
+                    "scenes": [
+                        "scenes/physics.xml"
+                    ]
+                }
+            },
+            {
+                "title": "Signed distance function",
+                "hash": "3d_sdf",
+                "page": "sdf/sdf.html",
+                "assets": {
+                    "data": [
+                        "sdf/mwb3D01.npy"
                     ]
                 }
             }
@@ -455,6 +488,11 @@
                         "hash": "S11-sec:SS6"
                     }
                 ]
+            },
+            {
+                "title": "References",
+                "hash": "bib",
+                "page": "bib.html"
             },
             {
                 "title": "A  System dynamics at trajectory level",

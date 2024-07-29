@@ -43,7 +43,7 @@
 
 <py-script>
     from viewer3d import Viewer3D, configs
-    from js import document, window, getScript, setEditorCode, scheduleTask, executeNextTask
+    from js import document, window, getScript, setEditorCode, scheduleTask, executeNextTask, setAspectRatio
     from pyodide.ffi import create_proxy
 
 
@@ -81,6 +81,9 @@
     help = document.getElementById('help')
     legend = document.getElementById('legend')
 
+
+    # Resize the container of the Viewer3D to have a 1:1 aspect ratio
+    setAspectRatio('viewer3d', 1.0)
 
     # Create the Viewer3D object
     viewer3D = Viewer3D(document.getElementById('viewer3d'))

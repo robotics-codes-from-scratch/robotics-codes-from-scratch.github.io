@@ -1,245 +1,47 @@
-<div class="row">
- <div class="col-sm-7 offset-1">
-  <div id="txt-col">
-   <h1 class="ltx_title ltx_title_section">
-    <span class="ltx_tag ltx_tag_section">
-     <span class="ltx_text">
-      2
-     </span>
-    </span>
-    <span class="ltx_text">
-     Quadratic costs minimization as a product of Gaussians (PoG)
-    </span>
-   </h1>
-   <div class="ltx_para" id="p1">
-    <p class="ltx_p">
-     The solution of a quadratic cost function can be viewed probabilistically as corresponding to a Gaussian distribution. Indeed, given a precision matrix
-     <span class="ltx_Math" id="p1.m1">
-      \bm{W}
-     </span>
-     , the quadratic cost
-    </p>
-    <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S2-eq:A5.EGx1">
-     <tbody id="S2-eq:E1">
-      <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-       <td class="ltx_eqn_cell ltx_eqn_center_padleft">
-       </td>
-       <td class="ltx_td ltx_align_right ltx_eqn_cell">
-        <span class="ltx_Math" id="E1.m1">
-         \displaystyle c(\bm{x})
-        </span>
-       </td>
-       <td class="ltx_td ltx_align_left ltx_eqn_cell">
-        <span class="ltx_Math" id="E1.m2">
-         \displaystyle=(\bm{x}-\bm{\mu})^{\scriptscriptstyle\top}\bm{W}(\bm{x}-\bm{\mu}),
-        </span>
-       </td>
-       <td class="ltx_eqn_cell ltx_eqn_center_padright">
-       </td>
-       <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
-        <span class="ltx_tag ltx_tag_equation ltx_align_right">
-         (1)
-        </span>
-       </td>
-      </tr>
-     </tbody>
-     <tbody id="S2-eq:quadratic">
-      <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-       <td class="ltx_eqn_cell ltx_eqn_center_padleft">
-       </td>
-       <td class="ltx_td ltx_eqn_cell">
-       </td>
-       <td class="ltx_td ltx_align_left ltx_eqn_cell">
-        <span class="ltx_Math" id="E2.m1">
-         \displaystyle=\|\bm{x}-\bm{\mu}\|_{\bm{W}}^{2},
-        </span>
-       </td>
-       <td class="ltx_eqn_cell ltx_eqn_center_padright">
-       </td>
-       <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
-        <span class="ltx_tag ltx_tag_equation ltx_align_right">
-         (2)
-        </span>
-       </td>
-      </tr>
-     </tbody>
-    </table>
-    <p class="ltx_p">
-     has an optimal solution
-     <span class="ltx_Math" id="p1.m2">
-      \bm{x}^{*}=\bm{\mu}
-     </span>
-     . This solution does not contain much information about the cost function itself. Alternatively, we can view
-     <span class="ltx_Math" id="p1.m3">
-      \bm{x}
-     </span>
-     as a random variable with a Gaussian distribution, i.e.,
-     <span class="ltx_Math" id="p1.m4">
-      p(\bm{x})=\mathcal{N}(\bm{\mu},\bm{\Sigma})
-     </span>
-     where
-     <span class="ltx_Math" id="p1.m5">
-      \bm{\mu}
-     </span>
-     and
-     <span class="ltx_Math" id="p1.m6">
-      \bm{\Sigma}=\bm{W}^{-1}
-     </span>
-     are the mean vector and covariance matrix of the Gaussian, respectively. The negative log-likelihood of this Gaussian distribution is equivalent to (
-     <a class="ltx_ref" href="#S2-eq:quadratic" title="(2) ‣ 2 Quadratic costs minimization as a product of Gaussians (PoG) ‣ Learning and Optimization in Robotics Lecture notes">
-      <span class="ltx_text ltx_ref_tag">
-       2
-      </span>
-     </a>
-     ) up to a constant factor. According to
-     <span class="ltx_Math" id="p1.m7">
-      p(\bm{x})
-     </span>
-     ,
-     <span class="ltx_Math" id="p1.m8">
-      \bm{x}
-     </span>
-     has the highest probability at
-     <span class="ltx_Math" id="p1.m9">
-      \bar{\bm{x}}
-     </span>
-     , and
-     <span class="ltx_Math" id="p1.m10">
-      \bm{\Sigma}
-     </span>
-     gives the directional information on how this probability changes as we move away from
-     <span class="ltx_Math" id="p1.m11">
-      \bm{\mu}
-     </span>
-     . The point having the lowest cost in (
-     <a class="ltx_ref" href="#S2-eq:quadratic" title="(2) ‣ 2 Quadratic costs minimization as a product of Gaussians (PoG) ‣ Learning and Optimization in Robotics Lecture notes">
-      <span class="ltx_text ltx_ref_tag">
-       2
-      </span>
-     </a>
-     ) is therefore associated with the point having the highest probability.
-    </p>
-   </div>
-   <div class="ltx_para" id="p2">
-    <p class="ltx_p">
-     Similarly, the solution of a cost function composed of several quadratic terms
-    </p>
-    <table class="ltx_equation ltx_eqn_table" id="S2-eq:quad_costs_multiple">
-     <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-      <td class="ltx_eqn_cell ltx_eqn_center_padleft">
-      </td>
-      <td class="ltx_eqn_cell ltx_align_center">
-       <span class="ltx_Math" id="E3.m1">
-        \bm{\hat{\mu}}=\arg\min_{\bm{x}}\sum_{k=1}^{K}{(\bm{x}-\bm{\mu}_{k})}^{\scriptscriptstyle\top}\bm{W}_{k}(\bm{x}-\bm{\mu}_{k})
-       </span>
-      </td>
-      <td class="ltx_eqn_cell ltx_eqn_center_padright">
-      </td>
-      <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1">
-       <span class="ltx_tag ltx_tag_equation ltx_align_right">
-        (3)
-       </span>
-      </td>
-     </tr>
-    </table>
-    <p class="ltx_p">
-     can be seen as a product of Gaussians
-     <span class="ltx_Math" id="p2.m1">
-      \prod_{k=1}^{K}\mathcal{N}(\bm{\mu}_{k},\bm{W}_{k}^{-1})
-     </span>
-     , with centers
-     <span class="ltx_Math" id="p2.m2">
-      \bm{\mu}_{k}
-     </span>
-     and covariance matrices
-     <span class="ltx_Math" id="p2.m3">
-      \bm{W}_{k}^{-1}
-     </span>
-     . The Gaussian
-     <span class="ltx_Math" id="p2.m4">
-      \mathcal{N}(\bm{\hat{\mu}},\bm{\hat{W}}^{-1})
-     </span>
-     resulting from this product has parameters
-    </p>
-    <table class="ltx_equation ltx_eqn_table" id="S2-eq:Ex1">
-     <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-      <td class="ltx_eqn_cell ltx_eqn_center_padleft">
-      </td>
-      <td class="ltx_eqn_cell ltx_align_center">
-       <span class="ltx_Math" id="Ex1.m1">
-        \bm{\hat{\mu}}={\left(\sum_{k=1}^{K}\bm{W}_{k}\right)}^{\!-1}\left(\sum_{k=1}^{K}\bm{W}_{k}\bm{\mu}_{k}\right),\quad\bm{\hat{W}}=\sum_{k=1}^{K}\bm{W}_{k}.
-       </span>
-      </td>
-      <td class="ltx_eqn_cell ltx_eqn_center_padright">
-      </td>
-     </tr>
-    </table>
-   </div>
-   <div class="ltx_para" id="p3">
-    <p class="ltx_p">
-     <span class="ltx_Math" id="p3.m1">
-      \bm{\hat{\mu}}
-     </span>
-     and
-     <span class="ltx_Math" id="p3.m2">
-      \bm{\hat{W}}
-     </span>
-     are the same as the solution of (
-     <a class="ltx_ref" href="#S2-eq:quad_costs_multiple" title="(3) ‣ 2 Quadratic costs minimization as a product of Gaussians (PoG) ‣ Learning and Optimization in Robotics Lecture notes">
-      <span class="ltx_text ltx_ref_tag">
-       3
-      </span>
-     </a>
-     ) and its Hessian, respectively. Viewing the quadratic cost probabilistically can capture more information about the cost function in the form of the covariance matrix
-     <span class="ltx_Math" id="p3.m3">
-      \bm{\hat{W}}^{-1}
-     </span>
-     .
-    </p>
-   </div>
-   <div class="ltx_para" id="p4">
-    <p class="ltx_p">
-     Figure
-     <a class="ltx_ref" href="#S2-fig:PoG" title="Figure 1 ‣ 2 Quadratic costs minimization as a product of Gaussians (PoG) ‣ Learning and Optimization in Robotics Lecture notes">
-      <span class="ltx_text ltx_ref_tag">
-       1
-      </span>
-     </a>
-     shows an illustration for 2 Gaussians in a 2-dimensional space. It also shows that when one of the Gaussians is singular, the product corresponds to a projection operation, that we for example find in nullspace projections to solve prioritized tasks in robotics.
-    </p>
-   </div>
-   <div class="ltx_pagination ltx_role_newpage">
-   </div>
-   <ul class="pagination justify-content-center small_menu">
-    <li class="page-item previous_file">
-     <a class="page-link" href="#S1">
-      Previous
-     </a>
-    </li>
-    <li class="page-item next_file">
-     <a class="page-link" href="#S3">
-      Next
-     </a>
-    </li>
-   </ul>
-  </div>
- </div>
- <div class="col-sm-3">
-  <div id="img-col">
-   <figure class="ltx_figure figure_main" id="S2-fig:PoG">
-    <img class="ltx_graphics ltx_centering" id="F1.g1" src="online_course/images/PoG01.png"/>
-    <figcaption class="ltx_caption ltx_centering">
-     <span class="ltx_tag ltx_tag_figure">
-      <span class="ltx_text">
-       Figure 1
-      </span>
-      :
-     </span>
-     <span class="ltx_text">
-      Quadratic costs minimization as a product of Gaussians (PoG).
-     </span>
-    </figcaption>
-   </figure>
-  </div>
- </div>
-</div>
+<div class="row"><div class="col-sm-7 offset-1"><div id="txt-col"><h1 class="ltx_title ltx_title_section">
+<span class="ltx_tag ltx_tag_section"><span class="ltx_text">2</span> </span><span class="ltx_text">Quadratic costs minimization as a product of Gaussians (PoG)</span>
+</h1><div class="ltx_para" id="S2-para:p1">
+<p class="ltx_p">The solution of a quadratic cost function can be viewed probabilistically as corresponding to a Gaussian distribution. Indeed, given a precision matrix <span class="ltx_Math" id="p1.m1">\bm{W}</span>, the quadratic cost</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S2-eq:A5.EGx1">
+<tbody id="S2-eq:E1"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E1.m1">\displaystyle c(\bm{x})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E1.m2">\displaystyle=(\bm{x}-\bm{\mu})^{\scriptscriptstyle\top}\bm{W}(\bm{x}-\bm{\mu}),</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(1)</span></td>
+</tr></tbody>
+<tbody id="S2-eq:quadratic"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_eqn_cell"></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E2.m1">\displaystyle=\|\bm{x}-\bm{\mu}\|_{\bm{W}}^{2},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(2)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">has an optimal solution <span class="ltx_Math" id="p1.m2">\bm{x}^{*}=\bm{\mu}</span>. This solution does not contain much information about the cost function itself. Alternatively, we can view <span class="ltx_Math" id="p1.m3">\bm{x}</span> as a random variable with a Gaussian distribution, i.e., <span class="ltx_Math" id="p1.m4">p(\bm{x})=\mathcal{N}(\bm{\mu},\bm{\Sigma})</span> where <span class="ltx_Math" id="p1.m5">\bm{\mu}</span> and <span class="ltx_Math" id="p1.m6">\bm{\Sigma}=\bm{W}^{-1}</span> are the mean vector and covariance matrix of the Gaussian, respectively. The negative log-likelihood of this Gaussian distribution is equivalent to (<a class="ltx_ref" href="#S2-eq:quadratic" title="(2) ‣ 2 Quadratic costs minimization as a product of Gaussians (PoG) ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">2</span></a>) up to a constant factor. According to <span class="ltx_Math" id="p1.m7">p(\bm{x})</span>, <span class="ltx_Math" id="p1.m8">\bm{x}</span> has the highest probability at <span class="ltx_Math" id="p1.m9">\bar{\bm{x}}</span>, and <span class="ltx_Math" id="p1.m10">\bm{\Sigma}</span> gives the directional information on how this probability changes as we move away from <span class="ltx_Math" id="p1.m11">\bm{\mu}</span>. The point having the lowest cost in (<a class="ltx_ref" href="#S2-eq:quadratic" title="(2) ‣ 2 Quadratic costs minimization as a product of Gaussians (PoG) ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">2</span></a>) is therefore associated with the point having the highest probability.</p>
+</div><div class="ltx_para" id="S2-para:p2">
+<p class="ltx_p">Similarly, the solution of a cost function composed of several quadratic terms</p>
+<table class="ltx_equation ltx_eqn_table" id="S2-eq:quad_costs_multiple">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E3.m1">\bm{\hat{\mu}}=\arg\min_{\bm{x}}\sum_{k=1}^{K}{(\bm{x}-\bm{\mu}_{k})}^{\scriptscriptstyle\top}\bm{W}_{k}(\bm{x}-\bm{\mu}_{k})</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(3)</span></td>
+</tr>
+</table>
+<p class="ltx_p">can be seen as a product of Gaussians <span class="ltx_Math" id="p2.m1">\prod_{k=1}^{K}\mathcal{N}(\bm{\mu}_{k},\bm{W}_{k}^{-1})</span>, with centers <span class="ltx_Math" id="p2.m2">\bm{\mu}_{k}</span> and covariance matrices <span class="ltx_Math" id="p2.m3">\bm{W}_{k}^{-1}</span>. The Gaussian <span class="ltx_Math" id="p2.m4">\mathcal{N}(\bm{\hat{\mu}},\bm{\hat{W}}^{-1})</span> resulting from this product has parameters</p>
+<table class="ltx_equation ltx_eqn_table" id="S2-eq:Ex1">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex1.m1">\bm{\hat{\mu}}={\left(\sum_{k=1}^{K}\bm{W}_{k}\right)}^{\!-1}\left(\sum_{k=1}^{K}\bm{W}_{k}\bm{\mu}_{k}\right),\quad\bm{\hat{W}}=\sum_{k=1}^{K}\bm{W}_{k}.</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr>
+</table>
+</div><div class="ltx_para" id="S2-para:p3">
+<p class="ltx_p"><span class="ltx_Math" id="p3.m1">\bm{\hat{\mu}}</span> and <span class="ltx_Math" id="p3.m2">\bm{\hat{W}}</span> are the same as the solution of (<a class="ltx_ref" href="#S2-eq:quad_costs_multiple" title="(3) ‣ 2 Quadratic costs minimization as a product of Gaussians (PoG) ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">3</span></a>) and its Hessian, respectively. Viewing the quadratic cost probabilistically can capture more information about the cost function in the form of the covariance matrix <span class="ltx_Math" id="p3.m3">\bm{\hat{W}}^{-1}</span>.</p>
+</div><div class="ltx_para" id="S2-para:p4">
+<p class="ltx_p">Figure <a class="ltx_ref" href="#S2-fig:PoG" title="Figure 1 ‣ 2 Quadratic costs minimization as a product of Gaussians (PoG) ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">1</span></a> shows an illustration for 2 Gaussians in a 2-dimensional space. It also shows that when one of the Gaussians is singular, the product corresponds to a projection operation, that we for example find in nullspace projections to solve prioritized tasks in robotics.</p>
+</div><div class="ltx_pagination ltx_role_newpage"></div><ul class="pagination justify-content-center small_menu"><li class="page-item previous_file"><a class="page-link" href="#S1">Previous</a></li><li class="page-item next_file"><a class="page-link" href="#S3">Next</a></li></ul></div></div><div class="col-sm-3"><div id="img-col"><figure class="ltx_figure figure_main" id="S2-fig:PoG"><img class="ltx_graphics ltx_centering" id="F1.g1" src="online_course/images/PoG01.png"/>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 1</span>: </span><span class="ltx_text">Quadratic costs minimization as a product of Gaussians (PoG).
+</span></figcaption>
+</figure></div></div></div>

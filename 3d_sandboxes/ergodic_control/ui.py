@@ -48,7 +48,7 @@ def update_rendering(delta, time):
             'trajectory',
             trajectory,
             0.005,
-            '#ffff00',
+            '#ff7f00',
             False,      # No shading
             True        # Transparent
         )

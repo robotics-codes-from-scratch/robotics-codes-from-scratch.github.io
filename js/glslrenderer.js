@@ -384,6 +384,8 @@ class RenderTarget
 
         if (Array.isArray(matrix))
             matrix = new Float32Array(matrix.flat(Infinity));
+        else if (!(matrix instanceof Float32Array))
+            matrix = new Float32Array(matrix);
 
         if (asVec4)
             this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA32F, width / 4, height, 0, this.gl.RGBA, this.gl.FLOAT, matrix);
@@ -399,6 +401,8 @@ class RenderTarget
 
         if (Array.isArray(data))
             data = new UInt8Array(matrix.flat(Infinity));
+        else if (!(matrix instanceof UInt8Array))
+            matrix = new UInt8Array(matrix);
 
         if (nbChannels == 4)
             this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA8, width, height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, data);

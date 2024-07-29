@@ -1,47 +1,50 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <meta content="RCFS" name="description"/>
-    <meta content="robotics codes, robotics tutorial, rcfs, robotics from scratch" name="keywords"/>
-    <meta content="Sylvain Calinon" name="author"/>
-
-    <title>RCFS</title>
-
-    <link href="static_images/favicon.ico" rel="icon" sizes="any"/>
-    <link href="static_images/favicon.svg" rel="icon" type="image/svg+xml"/>
-
-    <link href="css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="css/bootstrap-icons-1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
-    <link href="css/permanent_marker.css" rel="stylesheet"/>
-    <link href="css/sidebars.css" rel="stylesheet"/>
-    <link href="css/katex.min.css" rel="stylesheet"/>
-    <link href="https://pyscript.net/latest/pyscript.css" rel="stylesheet"/>
-    <link href="css/main-template.css" rel="stylesheet"/>
-
-    <script src="js/jquery-3.6.4.min.js"></script>
-    <script src="js/bootstrap.bundle.min.js"></script>
-    <script src="js/katex.min.js"></script>
-    <script src="js/katex-auto-render.js"></script>
-
-    <py-config type="toml">
-        packages = ['numpy', 'matplotlib']
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta content="RCFS" name="description"/>
+  <meta content="robotics codes, robotics tutorial, rcfs, robotics from scratch" name="keywords"/>
+  <meta content="Sylvain Calinon" name="author"/>
+  <title>
+   RCFS
+  </title>
+  <link href="static_images/favicon.ico" rel="icon" sizes="any"/>
+  <link href="static_images/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <link href="css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="css/bootstrap-icons-1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="css/permanent_marker.css" rel="stylesheet"/>
+  <link href="css/sidebars.css" rel="stylesheet"/>
+  <link href="css/katex.min.css" rel="stylesheet"/>
+  <link href="https://pyscript.net/latest/pyscript.css" rel="stylesheet"/>
+  <link href="css/main-template.css" rel="stylesheet"/>
+  <script src="js/jquery-3.6.4.min.js">
+  </script>
+  <script src="js/bootstrap.bundle.min.js">
+  </script>
+  <script src="js/katex.min.js">
+  </script>
+  <script src="js/katex-auto-render.js">
+  </script>
+  <script src="js/glslrenderer.js">
+  </script>
+  <py-config type="toml">
+   packages = ['numpy', 'matplotlib']
         [[fetch]]
             from = 'viewer3d/'
             files = ['viewer3d.py']
-    </py-config>
-
-    <style>
-        a {
+  </py-config>
+  <style>
+   a {
             cursor: pointer;
         }
-    </style>
-
-    <!-- Import all the necessary JavaScript dependency modules -->
-    <script src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
-    <script type="importmap">
-        {
+  </style>
+  <!-- Import all the necessary JavaScript dependency modules -->
+  <script src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js">
+  </script>
+  <script type="importmap">
+   {
             "imports": {
                 "three": "https://cdn.jsdelivr.net/npm/three@0.141.0/build/three.module.js",
                 "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.141.0/examples/jsm/",
@@ -50,35 +53,115 @@
                 "mathjs": "https://cdn.jsdelivr.net/npm/mathjs@12.0.0/+esm"
             }
         }
-    </script>
-</head>
-
-<body>
-    <nav aria-label="Light offcanvas navbar" class="navbar fixed-top" style="width: 50px;">
-        <div class="container-fluid">
-            <button aria-controls="offcanvasNavbarLight" class="navbar-toggler" data-bs-target="#offcanvasNavbarLight" data-bs-toggle="offcanvas" type="button">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div aria-labelledby="offcanvasNavbarLightLabel" class="offcanvas offcanvas-start" id="offcanvasNavbarLight" style="width: 500px;" tabindex="-1">
-                <div class="offcanvas-header">
-                    <a class="navbar-brand" href="#">
-                        <h4 class="offcanvas-title" id="offcanvasNavbarLightLabel"> <i class="bi bi-code-slash"></i> RCFS</h4>
-                    </a>
-                    <button id="close-button" aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" type="button"></button>
-                </div>
-                <div class="offcanvas-body">
-                    <!--Menu goes here-->
-                    <ul id="menu" class="list-unstyled ps-0"></ul>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!--Pages content goes here-->
-    <div id="content" class="container-fluid"></div>
-
-    <script type="module">
-        import { initViewer3D, downloadScene, downloadPandaRobot } from './viewer3d/viewer3d.js';
+  </script>
+  <!--Homepage content will be inserted here-->
+  <script id="homepage" type="data">
+   <center>
+    <img class="img-fluid" src="static_images/logo-RCFS.png"/>
+   </center>
+   <br/>
+   <div class="container">
+    <p>
+     RCFS aims to study and test learning and optimization techniques in robotics through simple 2D and 3D
+        examples (see
+     <a href="#about">
+      About
+     </a>
+     page).
+    </p>
+    <p>
+     The
+     <b>
+      menu on the top-left corner
+     </b>
+     provides sandbox examples, interactive exercises, and reading
+        material.
+    </p>
+    <p>
+     RCFS is composed of three parts:
+    </p>
+    <ul>
+     <li>
+      Interactive sandbox examples and exercises that can be run directly on this website
+            (some GIFs are shown below). All examples are interactive, either by using the code snippets
+            that can be modified, or by changing parameters with the mouse (changing the location of the
+            objects to be picked by the robot, perturbing the robot with the mouse pointer, adjusting
+            the control parameters with a set of sliders, etc.)
+     </li>
+     <li>
+      <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch" target="_blank">
+       Source codes provided in a variety of programming languages
+      </a>
+      , including Python, Matlab (with full compatibility with GNU Octave), C++ and Julia.
+     </li>
+     <li>
+      <a href="https://rcfs.ch/doc/rcfs.pdf" target="_blank">
+       An accompanying PDF
+      </a>
+      containing the corresponding descriptions of the algorithms.
+     </li>
+    </ul>
+    <br/>
+    <center>
+     <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch" target="_blank">
+      <button class="btn btn-primary btn-lg" type="button">
+       <i class="bi bi-git">
+       </i>
+       git repo
+      </button>
+     </a>
+     <a href="doc/rcfs.pdf" target="_blank">
+      <button class="btn btn-danger btn-lg" type="button">
+       <i class="bi bi-file-pdf-fill">
+       </i>
+       pdf
+      </button>
+     </a>
+     <a href="#2d_iLQR">
+      <button class="btn btn-success btn-lg" type="button">
+       <i class="bi bi-wrench-adjustable-circle-fill">
+       </i>
+       sandbox example
+      </button>
+     </a>
+    </center>
+    <br/>
+    <br/>
+   </div>
+  </script>
+ </head>
+ <body>
+  <nav aria-label="Light offcanvas navbar" class="navbar fixed-top" style="width: 50px;">
+   <div class="container-fluid">
+    <button aria-controls="offcanvasNavbarLight" class="navbar-toggler" data-bs-target="#offcanvasNavbarLight" data-bs-toggle="offcanvas" type="button">
+     <span class="navbar-toggler-icon">
+     </span>
+    </button>
+    <div aria-labelledby="offcanvasNavbarLightLabel" class="offcanvas offcanvas-start" id="offcanvasNavbarLight" style="width: 500px;" tabindex="-1">
+     <div class="offcanvas-header">
+      <a class="navbar-brand" href="#">
+       <h4 class="offcanvas-title" id="offcanvasNavbarLightLabel">
+        <i class="bi bi-code-slash">
+        </i>
+        RCFS
+       </h4>
+      </a>
+      <button aria-label="Close" class="btn-close" data-bs-dismiss="offcanvas" id="close-button" type="button">
+      </button>
+     </div>
+     <div class="offcanvas-body">
+      <!--Menu goes here-->
+      <ul class="list-unstyled ps-0" id="menu">
+      </ul>
+     </div>
+    </div>
+   </div>
+  </nav>
+  <!--Pages content goes here-->
+  <div class="container-fluid" id="content">
+  </div>
+  <script type="module">
+   import { initViewer3D, downloadScene, downloadPandaRobot } from './viewer3d/viewer3d.js';
 
         // Retrieve the base URL of the page
         const url = window.location;
@@ -89,7 +172,7 @@
         let btnOpen = null;
         let navlinks = null;
 
-        const div = document.getElementById('content');
+        const contentDiv = document.getElementById('content');
         const closeMenuButton = document.getElementById('close-button');
         const pages = new Map();
 
@@ -101,6 +184,7 @@
         const loadedRobots = [];
         const loadedScenes = [];
         const loadedScripts = {};
+        const loadedData = {};
 
         const tasks = [];
 
@@ -223,6 +307,9 @@
 
                         if (entry.assets.scripts != null)
                             assets.scripts = entry.assets.scripts.map((x) => category.id + '/' + x);
+
+                        if (entry.assets.data != null)
+                            assets.data = entry.assets.data.map((x) => category.id + '/' + x);
                     }
 
                     pages.set(entry.hash, {
@@ -235,10 +322,7 @@
                 menu.appendChild(categoryElement);
             });
 
-            if (url.hash != '')
-                navigate(url.hash.substr(1));
-            else
-                navigate('home');
+            navigate(hash);
         }
 
 
@@ -290,6 +374,7 @@
                 let robotsToLoad = [];
                 let scenesToLoad = [];
                 let scriptsToLoad = [];
+                let dataToLoad = [];
 
                 if (pageEntry.assets.robots != null)
                 {
@@ -318,7 +403,16 @@
                     }
                 }
 
-                if ((robotsToLoad.length > 0) || (scenesToLoad.length > 0) || (scriptsToLoad.length > 0))
+                if (pageEntry.assets.data != null)
+                {
+                    for (let data of pageEntry.assets.data)
+                    {
+                        if (dataToLoad[data] == null)
+                            dataToLoad.push(data);
+                    }
+                }
+
+                if ((robotsToLoad.length > 0) || (scenesToLoad.length > 0) || (scriptsToLoad.length > 0) || (dataToLoad.length > 0))
                 {
                     closeMenuButton.click();
 
@@ -366,13 +460,25 @@
                             loadedScripts[script] = await response.text();
                         }
 
+                        for (let data of dataToLoad)
+                        {
+                            const response = await fetch(baseUrl + '/' + data);
+                            if (!response.ok)
+                            {
+                                navigate('home');
+                                return;
+                            }
+
+                            loadedData[data] = new Uint8Array(await response.arrayBuffer());
+                        }
+
                         document.getElementById('pyscript_loading_splash').remove();
                     });
                 }
             }
 
             tasks.push(async () => {
-                div.innerHTML = await response.text();
+                contentDiv.innerHTML = await response.text();
                 closeMenuButton.click();
             });
 
@@ -577,6 +683,10 @@
             return loadedScripts[name];
         }
 
+        function getData(name)
+        {
+            return loadedData[name];
+        }
 
         function setEditorCode(editor, code)
         {
@@ -598,12 +708,34 @@
         }
 
 
+        function setAspectRatio(id, ratio)
+        {
+            function _resize(entries)
+            {
+                for (const entry of entries)
+                {
+                    const height = entry.contentBoxSize[0].inlineSize * ratio;
+                    entry.target.style.height = '' + height + 'px';
+                }
+            }
+
+            const element = document.getElementById(id);
+
+            element.resizeObserver = new ResizeObserver(_resize);
+            element.resizeObserver.observe(element);
+
+            const height = element.clientWidth * ratio;
+            element.style.height = '' + height + 'px';
+        }
+
         globalThis.clearMsgs = clearMsgs;
         globalThis.clearMsgsOutput = clearMsgsOutput;
         globalThis.getScript = getScript;
+        globalThis.getData = getData;
         globalThis.setEditorCode = setEditorCode;
         globalThis.scheduleTask = scheduleTask;
         globalThis.executeNextTask = executeNextTask;
+        globalThis.setAspectRatio = setAspectRatio;
 
 
         function getStorageKey()
@@ -676,9 +808,11 @@
                 navigate(dest);
         }
 
+        if (url.hash.substr(1) == '')
+            contentDiv.innerHTML = document.getElementById('homepage').text;
+
         initMenu();
         initViewer3D();
-    </script>
-
-</body>
+  </script>
+ </body>
 </html>

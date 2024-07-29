@@ -79,7 +79,7 @@
 
 <py-script>
     from viewer3d import Viewer3D, configs, logmap_S3, logmap, Shapes
-    from js import document
+    from js import document, setAspectRatio
     import numpy as np
 
     # The function that will be called once per frame
@@ -100,10 +100,10 @@
 
 
     # Resize the container of the Viewer3D to have a 1:1 aspect ratio
-    element = document.getElementById('viewer3d')
-    element.style.height = f'{element.clientWidth}px'
+    setAspectRatio('viewer3d', 1.0)
 
     # Create the Viewer3D
+    element = document.getElementById('viewer3d')
     viewer3D = Viewer3D(element)
     viewer3D.setRenderingCallback(ikUpdate)
 
