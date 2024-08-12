@@ -2,43 +2,58 @@
     <div class="col-sm-1"></div>
 
     <div class="col-sm-7">
-        <br/><br/>
+        <h3>Forward kinematics (FK)</h3>
 
-        <div onclick="clearMsgs()" onkeydown="clearMsgs()">
-            <py-repl std-err="errors" std-out="output">
-                param.nbVarX = 3 # State space dimension
-                param.l = [200, 200, 120] # Robot links lengths
-                x = [3*np.pi/4, -np.pi/2, -np.pi/4] # Initial robot state
+        <py-repl output="output">
+            param.nbVarX = 3 # State space dimension
+            param.l = [200, 200, 120] # Robot links lengths
+            x = [3*np.pi/4, -np.pi/2, -np.pi/4] # Initial robot state
 
-                # param.nbVarX = 8 # State space dimension
-                # param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
-                # x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
-                # x[0] = x[0] + np.pi
-            </py-repl>
-        </div>
+            # param.nbVarX = 8 # State space dimension
+            # param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
+            # x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
+            # x[0] = x[0] + np.pi
+        </py-repl>
 
         <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
             <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
             <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
         </div>
 
-        <p id="output" style="font-size: 70%; color: #777777;">(click on the green run button to run the code; objects and joints can be moved with the mouse)</p>
-        <p id="errors" style="font-size: 70%; color: #880000;"></p>
-    </div> <!--sm-7-->
+        <div style="margin-bottom: 10px;">
+            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
+                Instructions
+            </button>
+        </div>
+
+        <div id="instructions" class="collapse instructions">
+            <div class="card card-body">
+                <h5>Controls</h5>
+                <p>Click on the green run button to execute the code.</p>
+                <p>Joints and links can be moved by dragging them with the mouse.</p>
+                <p>Joints can also be rotated using the mouse wheel while hovering them.</p>
+                <h5>Informations</h5>
+                <p>See <a href="#S4">Forward kinematics (FK) for a planar robot manipulator</a> for more information about forward kinematics.</p>
+            </div>
+        </div>
+
+        <py-terminal id="terminal"></py-terminal>
+        <p id="output" style="display: none;"></p>
+    </div>
 
     <div class="col-sm-4">
-        <div class="sticky-sm-top">
+        <div class="sticky-sm-top" style="padding-top: 2rem;">
             <canvas height="700px" id="canvas" style="width:100%;" width="900px"></canvas>
         </div>
-    </div> <!--sm-4-->
-</div> <!--row-->
+    </div>
+</div>
 
 
 <py-script>
-    from pyodide.ffi import create_proxy
-    from js import Path2D, document, console
+    from pyodide.ffi import create_proxy, to_js
+    from js import Path2D, document, configure, displayErrorMessage
     import numpy as np
-    import asyncio
+    import traceback
 
     # Forward kinematics for end-effector (in robot coordinate system)
     def fkin(x, param):
@@ -103,7 +118,7 @@
     def onMouseDown(event):
         global mousedown, move_joint, param2
         mousedown = 1
-        if hover_joint &gt;= 0:
+        if hover_joint >= 0:
             f0 = fkin0(x, param)
             param2.l = np.append(param.l[:hover_joint], np.linalg.norm(f0[:,hover_joint] - mouse))
             param2.nbVarX = hover_joint+1
@@ -116,7 +131,7 @@
 
     def onWheel(event):
         global x
-        if hover_joint &gt;= 0:
+        if hover_joint >= 0:
             x[hover_joint] -= 0.2 * (event.deltaY/106)
 
     onMouseMoveProxy = create_proxy(onMouseMove)
@@ -165,7 +180,7 @@
         ctx.lineCap = 'round'
         ctx.lineJoin = 'round'
         for i in range(param.nbVarX):
-            if i &lt; param.nbVarX:
+            if i < param.nbVarX:
                 # Draw links outlines
                 ctx.lineWidth = '46'
                 ctx.strokeStyle = 'white'
@@ -180,7 +195,7 @@
                 ctx.lineWidth = '38'
                 ctx.strokeStyle = color
                 ctx.stroke(obj)
-                if ctx.isPointInStroke(obj, mouse0[0], mouse0[1]) and move_joint &lt; 0:
+                if ctx.isPointInStroke(obj, mouse0[0], mouse0[1]) and move_joint < 0:
                     hover_joint = i
             # Draw articulations
             ctx.lineWidth = '4'
@@ -262,17 +277,9 @@
         ctx.translate(-f[0], -f[1])
 
 
-    def errorHandler(e):
-        msg = 'Error: ' + str(e)
-        console.error(msg)
-        el = document.getElementById('errors')
-        el.innerText = msg
-        #el.textContent = msg
-
-
     def controlCommand(x, param):
         u = np.zeros(param.nbVarX)
-        if move_joint &gt;= 0:
+        if move_joint >= 0:
             # Residual and Jacobian
             df = (mouse - fkin(x[:move_joint+1], param2)) * 5
             J = Jkin(x[:move_joint+1], param2)
@@ -296,12 +303,7 @@
 
     document.addEventListener('wheel', onWheelProxy) #for standard mouse
 
-    mustStop = asyncio.Event()
-    stopped = asyncio.Event()
-
     async def cleanup():
-        mustStop.set()
-
         document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
         document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
 
@@ -313,43 +315,37 @@
 
         document.removeEventListener('wheel', onWheelProxy) #for standard mouse
 
-        await stopped.wait()
-
-    document.cleanup = cleanup
-
 
     #########################################################################################
 
     x = [3*np.pi/4, -np.pi/2, -np.pi/4] # Initial robot state
 
-    async def main():
+    async def loop(delta, time):
         global hover_joint, x
 
-        while not mustStop.is_set():
-            try:
-                u = controlCommand(x, param)
-                x += u * param.dt # Update robot state
-                f = fkin(x, param)
-            except Exception as e:
-                errorHandler(e)
-                f = np.zeros(param.nbVarX)
+        try:
+            u = controlCommand(x, param)
+            x += u * param.dt # Update robot state
+            f = fkin(x, param)
+        except Exception as e:
+            displayErrorMessage(to_js(traceback.format_exception(e)))
+            f = np.zeros(param.nbVarX)
 
-            # Reinit hovering variables
-            hover_joint = -1
+        # Reinit hovering variables
+        hover_joint = -1
 
-            # Rendering
-            clear_screen()
-            draw_robot(x, '#AAAAAA')
-            # draw_tip(f, '#FF3399')
-            draw_tip(f, '#000000')
-            if move_joint &gt;= 0:
-                f = fkin(x[:move_joint+1], param2)
-                draw_selected_point(f, '#777777')
+        # Rendering
+        clear_screen()
+        draw_robot(x, '#AAAAAA')
+        # draw_tip(f, '#FF3399')
+        draw_tip(f, '#000000')
+        if move_joint >= 0:
+            f = fkin(x[:move_joint+1], param2)
+            draw_selected_point(f, '#777777')
 
-            await asyncio.sleep(0.0001)
 
-        stopped.set()
-
-    pyscript.run_until_complete(main())
-
+    configure(to_js({
+        'loop': loop,
+        'cleanup': cleanup,
+    }))
 </py-script>

@@ -2,7 +2,7 @@
     <div class="col-sm-1"></div>
 
     <div class="col-sm-11">
-        <br/><br/>
+        <h3>Signed distance function</h3>
 
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
@@ -18,11 +18,38 @@
                 <div id='container-volumetric' style="position: relative; width: 600px; height: 600px;">
                     <canvas id="canvas-volumetric" width="600" height="600" style="position: absolute; top: 0; left: 0;"></canvas>
                 </div>
+
+                <div style="margin-bottom: 10px;">
+                    <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions-volumetric" aria-expanded="false" aria-controls="instructions-volumetric">
+                        Instructions
+                    </button>
+                </div>
+
+                <div id="instructions-volumetric" class="collapse instructions">
+                    <div class="card card-body">
+                        <h5>Controls</h5>
+                        <p>To rotate the camera, press the left mouse button and drag the mouse.</p>
+                    </div>
+                </div>
             </div>
 
             <div aria-labelledby="planar-tab" class="tab-pane fade show" id="planar-tab-pane" role="tabpanel" tabindex="0">
                 <div id='container-planar' style="position: relative; width: 600px; height: 600px;">
                     <canvas id="canvas-planar" width="600" height="600" style="position: absolute; top: 0; left: 0;"></canvas>
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions-planar" aria-expanded="false" aria-controls="instructions-planar">
+                        Instructions
+                    </button>
+                </div>
+
+                <div id="instructions-planar" class="collapse instructions">
+                    <div class="card card-body">
+                        <h5>Controls</h5>
+                        <p>The plane can be moved by pressing Shift + the left mouse button and dragging the mouse.</p>
+                        <p>To rotate the camera, press the left mouse button and drag the mouse.</p>
+                    </div>
                 </div>
             </div>
         </div>

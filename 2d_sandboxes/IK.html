@@ -2,7 +2,7 @@
     <div class="col-sm-1"></div>
 
     <div class="col-sm-7">
-        <br/><br/>
+        <h3>Inverse kinematics (IK)</h3>
 
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
@@ -21,122 +21,137 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="IK-tab" class="tab-pane fade show active" id="IK-tab-pane" role="tabpanel" tabindex="0">
-                <div onclick="clearMsgs()" onkeydown="clearMsgs()">
-                    <py-repl std-err="errors" std-out="output">
-                        x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
-                        def controlCommand(x, param):
-                            f = fkin(x, param)
-                            J = Jkin(x, param)
-                            u = np.linalg.pinv(J) @ logmap(param.Mu, f) # Position &amp; orientation tracking
-                            # u = np.linalg.pinv(J[:2,:]) @ (param.Mu[:2] - f[:2]) # Position tracking
-                            # u = np.linalg.pinv(J[2:,:]) @ (param.Mu[2:] - f[2:]) # Orientation tracking
-                            # u = J.T @ logmap(param.Mu, f) * 1E-4 # Gradient-based tracking
-                            # u = np.zeros(param.nbVarX) # Zero control commands
-                            return u
-                    </py-repl>
-                </div>
+                <py-repl output="output">
+                    x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
+
+                    def controlCommand(x, param):
+                        f = fkin(x, param)
+                        J = Jkin(x, param)
+                        u = np.linalg.pinv(J) @ logmap(param.Mu, f) # Position &amp; orientation tracking
+                        # u = np.linalg.pinv(J[:2,:]) @ (param.Mu[:2] - f[:2]) # Position tracking
+                        # u = np.linalg.pinv(J[2:,:]) @ (param.Mu[2:] - f[2:]) # Orientation tracking
+                        # u = J.T @ logmap(param.Mu, f) * 1E-4 # Gradient-based tracking
+                        # u = np.zeros(param.nbVarX) # Zero control commands
+                        return u
+                </py-repl>
             </div>
 
             <div aria-labelledby="dIK-tab" class="tab-pane fade" id="dIK-tab-pane" role="tabpanel" tabindex="0">
-                <div onclick="clearMsgs()" onkeydown="clearMsgs()">
-                    <py-repl std-err="errors" std-out="output">
-                        x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
-                        def controlCommand(x, param):
-                            f = fkin(x, param)
-                            J = Jkin(x, param)
-                            pinvJ = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E2) @ J.T # Damped pseudoinverse
-                            u = pinvJ @ logmap(param.Mu, f) # Position &amp; orientation tracking
-                            return u
-                    </py-repl>
-                </div>
+                <py-repl output="output">
+                    x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
+
+                    def controlCommand(x, param):
+                        f = fkin(x, param)
+                        J = Jkin(x, param)
+                        pinvJ = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E2) @ J.T # Damped pseudoinverse
+                        u = pinvJ @ logmap(param.Mu, f) # Position &amp; orientation tracking
+                        return u
+                </py-repl>
             </div>
 
             <div aria-labelledby="wIK-tab" class="tab-pane fade" id="wIK-tab-pane" role="tabpanel" tabindex="0">
-                <div onclick="clearMsgs()" onkeydown="clearMsgs()">
-                    <py-repl std-err="errors" std-out="output">
-                        x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
-                        def controlCommand(x, param):
-                            f = fkin(x, param)
-                            J = Jkin(x, param)
+                <py-repl output="output">
+                    x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
 
-                            # Weights in task space
-                            Wf = np.diag([1, 1, 0])
-                            pinvWJ = np.linalg.inv(J.T @ Wf @ J + np.eye(param.nbVarX) * 1E-2) @ J.T @ Wf # Weighted pseudoinverse
-                            u = pinvWJ @ logmap(param.Mu, f) # Position &amp; orientation tracking
+                    def controlCommand(x, param):
+                        f = fkin(x, param)
+                        J = Jkin(x, param)
 
-                            # # Weights in configuration space
-                            # Wx = np.diag([0.01, 1, 1])
-                            # pinvWJ =  Wx @ J[:2,:].T @ np.linalg.inv(J[:2,:] @ Wx @ J[:2,:].T + np.eye(2) * 1E-2) # Weighted pseudoinverse
-                            # u = pinvWJ @ (param.Mu[:2] - f[:2]) # Position tracking
+                        # Weights in task space
+                        Wf = np.diag([1, 1, 0])
+                        pinvWJ = np.linalg.inv(J.T @ Wf @ J + np.eye(param.nbVarX) * 1E-2) @ J.T @ Wf # Weighted pseudoinverse
+                        u = pinvWJ @ logmap(param.Mu, f) # Position &amp; orientation tracking
 
-                            return u
-                    </py-repl>
-                </div>
+                        # # Weights in configuration space
+                        # Wx = np.diag([0.01, 1, 1])
+                        # pinvWJ =  Wx @ J[:2,:].T @ np.linalg.inv(J[:2,:] @ Wx @ J[:2,:].T + np.eye(2) * 1E-2) # Weighted pseudoinverse
+                        # u = pinvWJ @ (param.Mu[:2] - f[:2]) # Position tracking
+
+                        return u
+                </py-repl>
             </div>
 
             <div aria-labelledby="pIK-tab" class="tab-pane fade" id="pIK-tab-pane" role="tabpanel" tabindex="0">
-                <div onclick="clearMsgs()" onkeydown="clearMsgs()">
-                    <py-repl std-err="errors" std-out="output">
-                        x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot pose
-                        xh = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Preferred robot pose
-                        def controlCommand(x, param):
-                            f = fkin(x, param)
-                            J = Jkin(x, param)
+                <py-repl output="output">
+                    x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot pose
+                    xh = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Preferred robot pose
 
-                            # Prioritized tracking with motion of first joint as secondary task
-                            u1 = np.linalg.pinv(J[:2,:]) @ (param.Mu[:2] - f[:2]) # Position tracking
-                            N = np.eye(param.nbVarX) - np.linalg.pinv(J[:2,:]) @ J[:2,:] # Nullspace projection matrix
-                            u = u1 + N @ [1, 0, 0] # Control commands
+                    def controlCommand(x, param):
+                        f = fkin(x, param)
+                        J = Jkin(x, param)
 
-                            # # Prioritized tracking with preferred pose maintenance as secondary task
-                            # u1 = np.linalg.pinv(J[:2,:]) @ (param.Mu[:2] - f[:2]) # Position tracking
-                            # N = np.eye(param.nbVarX) - np.linalg.pinv(J[:2,:]) @ J[:2,:] # Nullspace projection matrix
-                            # u = u1 + N @ (xh - x) # Control commands
+                        # Prioritized tracking with motion of first joint as secondary task
+                        u1 = np.linalg.pinv(J[:2,:]) @ (param.Mu[:2] - f[:2]) # Position tracking
+                        N = np.eye(param.nbVarX) - np.linalg.pinv(J[:2,:]) @ J[:2,:] # Nullspace projection matrix
+                        u = u1 + N @ [1, 0, 0] # Control commands
 
-                            # # Prioritized control (position tracking prioritized over orientation tracking)
-                            # dfp = (param.Mu[:2] - f[:2]) * 10 # Position correction
-                            # dfo = (param.Mu[2:] - f[2:]) * 10 # Orientation correction
-                            # Jp = J[:2,:] # Jacobian for position
-                            # Jo = J[2:,:] # Jacobian for orientation
-                            # pinvJp = np.linalg.inv(Jp.T @ Jp + np.eye(param.nbVarX) * 1e-2) @ Jp.T # Damped pseudoinverse
-                            # Np = np.eye(param.nbVarX) - pinvJp @ Jp # Nullspace projection operator
-                            # up = pinvJp @ dfp # Command for position tracking
-                            # JoNp = Jo @ Np
-                            # pinvJoNp = JoNp.T @ np.linalg.inv(JoNp @ JoNp.T + np.eye(1) * 1e1) # Damped pseudoinverse
-                            # uo = pinvJoNp @ (dfo - Jo @ up) # Command for orientation tracking (with position tracking prioritized)
-                            # u = up + Np @ uo # Control commands
+                        # # Prioritized tracking with preferred pose maintenance as secondary task
+                        # u1 = np.linalg.pinv(J[:2,:]) @ (param.Mu[:2] - f[:2]) # Position tracking
+                        # N = np.eye(param.nbVarX) - np.linalg.pinv(J[:2,:]) @ J[:2,:] # Nullspace projection matrix
+                        # u = u1 + N @ (xh - x) # Control commands
 
-                            return u
-                    </py-repl>
-                </div>
+                        # # Prioritized control (position tracking prioritized over orientation tracking)
+                        # dfp = (param.Mu[:2] - f[:2]) * 10 # Position correction
+                        # dfo = (param.Mu[2:] - f[2:]) * 10 # Orientation correction
+                        # Jp = J[:2,:] # Jacobian for position
+                        # Jo = J[2:,:] # Jacobian for orientation
+                        # pinvJp = np.linalg.inv(Jp.T @ Jp + np.eye(param.nbVarX) * 1e-2) @ Jp.T # Damped pseudoinverse
+                        # Np = np.eye(param.nbVarX) - pinvJp @ Jp # Nullspace projection operator
+                        # up = pinvJp @ dfp # Command for position tracking
+                        # JoNp = Jo @ Np
+                        # pinvJoNp = JoNp.T @ np.linalg.inv(JoNp @ JoNp.T + np.eye(1) * 1e1) # Damped pseudoinverse
+                        # uo = pinvJoNp @ (dfo - Jo @ up) # Command for orientation tracking (with position tracking prioritized)
+                        # u = up + Np @ uo # Control commands
+
+                        return u
+                </py-repl>
             </div>
-        </div> <!--tab-content-->
+        </div>
 
         <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
             <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
             <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
         </div>
 
-        <p id="output" style="font-size: 70%; color: #777777;">(click on the green run button to run the code; objects and joints can be moved with the mouse)</p>
-        <p id="errors" style="font-size: 70%; color: #880000;"></p>
+        <div style="margin-bottom: 10px;">
+            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
+                Instructions
+            </button>
+        </div>
 
-        <input class="w-72" id="object_angle" max="3.14159" min="-3.14159" step="0.0001" style="vertical-align:middle;" type="range" value="0"/>
-        <label>Object orientation</label>
-    </div> <!--sm-7-->
+        <div id="instructions" class="collapse instructions">
+            <div class="card card-body">
+                <h5>Controls</h5>
+                <p>Click on the green run button to execute the code.</p>
+                <p>Joints can be moved by dragging them with the mouse, or by using the mouse wheel while hovering them.</p>
+                <p>The target object can be moved by dragging it with the mouse. It can also be rotated using either the slider below or the mouse wheel while hovering it.</p>
+                <h5>Informations</h5>
+                <p>See <a href="#S5">Inverse kinematics (IK) for a planar robot manipulator</a> for more information about inverse kinematics.</p>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <input class="w-72" id="object_angle" max="3.14159" min="-3.14159" step="0.0001" style="vertical-align:middle;" type="range" value="0"/>
+            <label>Object orientation</label>
+        </div>
+
+        <py-terminal id="terminal"></py-terminal>
+        <p id="output" style="display: none;"></p>
+    </div>
 
     <div class="col-sm-4">
-        <div class="sticky-sm-top">
+        <div class="sticky-sm-top" style="padding-top: 2rem;">
             <canvas height="700px" id="canvas" style="width:100%;" width="900px"></canvas>
         </div>
-    </div> <!--sm-4-->
-</div> <!--row-->
+    </div>
+</div>
 
 
 <py-script>
-    from pyodide.ffi import create_proxy
-    from js import Path2D, document, console
+    from pyodide.ffi import create_proxy, to_js
+    from js import Path2D, document, configure, displayErrorMessage
     import numpy as np
-    import asyncio
+    import traceback
 
     object_angle = document.getElementById('object_angle')  # Objects angle
 
@@ -246,7 +261,7 @@
         mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
         mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
         mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
-        if move_joint &gt;= 0:
+        if move_joint >= 0:
             x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
             hover0 = np.copy(mouse0)
 
@@ -257,14 +272,14 @@
         mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
         mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
         mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
-        if move_joint &gt;= 0:
+        if move_joint >= 0:
             x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
             hover0 = np.copy(mouse0)
 
     def onMouseDown(event):
         global mousedown, move_joint, hover0
         mousedown = 1
-        if hover_joint &gt;= 0:
+        if hover_joint >= 0:
             move_joint = hover_joint
             hover0 = np.copy(mouse0)
 
@@ -279,7 +294,7 @@
         if hover_obj == 0:
             #param.Mu[2] += 0.2 * (event.deltaY/106)
             object_angle.value = (float)(object_angle.value) + 0.2 * (event.deltaY/106)
-        if hover_joint &gt;= 0:
+        if hover_joint >= 0:
             x[hover_joint] -= 0.2 * (event.deltaY/106)
 
     onMouseMoveProxy = create_proxy(onMouseMove)
@@ -411,7 +426,7 @@
         if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
             selected_obj = 0
         #ctx.fillRect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
-        if param.sz[0] &gt; 39 and param.sz[1] &gt; 19:
+        if param.sz[0] > 39 and param.sz[1] > 19:
             ctx.textAlign = 'center'
             ctx.textBaseline = 'middle'
             ctx.font = '10px Permanent Marker'
@@ -420,21 +435,8 @@
 
 
     def controlCommand(x, param):
-        #f_ee = fkin(x, param)
-        #J = Jkin(x, param)
-        #u = np.linalg.pinv(J) @ logmap(fh, f_ee)
         u = np.zeros(param.nbVarX)
         return u
-
-
-    #########################################################################################
-
-    def errorHandler(e):
-        msg = 'Error: ' + str(e)
-        console.error(msg)
-        el = document.getElementById('errors')
-        el.innerText = msg
-        #el.textContent = msg
 
 
     #########################################################################################
@@ -450,12 +452,7 @@
 
     document.addEventListener('wheel', onWheelProxy) #for standard mouse
 
-    mustStop = asyncio.Event()
-    stopped = asyncio.Event()
-
     async def cleanup():
-        mustStop.set()
-
         document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
         document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
 
@@ -467,49 +464,42 @@
 
         document.removeEventListener('wheel', onWheelProxy) #for standard mouse
 
-        await stopped.wait()
-
-    document.cleanup = cleanup
-
 
     #########################################################################################
 
     x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
-    #u = np.zeros(param.nbVarX)
 
-    async def main():
+    async def loop(delta, time):
         global hover_joint, hover_obj, param, x
 
-        while not mustStop.is_set():
-            try:
-                u = controlCommand(x, param)
-            except Exception as e:
-                errorHandler(e)
-                u = np.zeros(param.nbVarX)
+        try:
+            u = controlCommand(x, param)
+        except Exception as e:
+            displayErrorMessage(to_js(traceback.format_exception(e)))
+            u = np.zeros(param.nbVarX)
 
-            x += u * param.dt
+        x += u * param.dt
 
-            # Reinit hovering variables
-            hover_joint = -1
-            hover_obj = -1
+        # Reinit hovering variables
+        hover_joint = -1
+        hover_obj = -1
 
-            # Rendering
-            clear_screen()
-            draw_ground()
-            draw_obj(param, '#FF3399', '#DD1177')
-            draw_robot(x, '#CCCCCC', '#AAAAAA', '#222222', '#000000', True)
+        # Rendering
+        clear_screen()
+        draw_ground()
+        draw_obj(param, '#FF3399', '#DD1177')
+        draw_robot(x, '#CCCCCC', '#AAAAAA', '#222222', '#000000', True)
 
-            # Object selection
-            if selected_obj==0:
-                param.Mu[:2] = mouse
-                param.Mu[0] = max(min(param.Mu[0],225), -225)
-                param.Mu[1] = max(min(param.Mu[1],175), -175)
-            param.Mu[2] = (float)(object_angle.value)
+        # Object selection
+        if selected_obj==0:
+            param.Mu[:2] = mouse
+            param.Mu[0] = max(min(param.Mu[0],225), -225)
+            param.Mu[1] = max(min(param.Mu[1],175), -175)
+        param.Mu[2] = (float)(object_angle.value)
 
-            await asyncio.sleep(0.0001)
 
-        stopped.set()
-
-    pyscript.run_until_complete(main())
-
+    configure(to_js({
+        'loop': loop,
+        'cleanup': cleanup,
+    }))
 </py-script>

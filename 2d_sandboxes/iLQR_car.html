@@ -2,25 +2,36 @@
     <div class="col-sm-1"></div>
 
     <div class="col-sm-7">
-        <br/><br/>
+        <h3>iLQR for car</h3>
 
-        <div onclick="clearMsgs()" onkeydown="clearMsgs()">
-            <py-repl std-err="errors" std-out="output">
-                # Precision matrix
-                Q = np.diag([1., 1., 0, 0,  1., 1., 0, 0])
-                update_iLQR()
-            </py-repl> <!--output='output' std-out='output'-->
-        </div>
+        <py-repl output="output">
+            # Precision matrix
+            Q = np.diag([1., 1., 0, 0, 1., 1., 0, 0])
+            update_iLQR()
+        </py-repl>
 
         <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
             <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
             <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
         </div>
 
-        <p id="output" style="font-size: 70%; color: #777777;">(click on the green run button to run the code; objects and joints can be moved with the mouse)</p>
-        <p id="errors" style="font-size: 70%; color: #880000;"></p>
+        <div style="margin-bottom: 10px;">
+            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
+                Instructions
+            </button>
+        </div>
 
-        <form>
+        <div id="instructions" class="collapse instructions">
+            <div class="card card-body">
+                <h5>Controls</h5>
+                <p>Click on the green run button to execute the code.</p>
+                <p>The target cars can be moved by dragging them with the mouse. They can also be rotated using either the sliders below or the mouse wheel while hovering them.</p>
+                <h5>Informations</h5>
+                <p>See <a href="#S8">iLQR optimization</a> for more information about iLQR.</p>
+            </div>
+        </div>
+
+        <form style="margin-bottom: 20px;">
             <div class="row">
                 <div class="col-md"><label>Car 1 orientation</label><input class="w-72" id="car_angle0" max="3.14159" min="-3.14159" oninput="this.nextElementSibling.value = this.value" step="0.0001" style="vertical-align:middle;" type="range" value="0"/> <output>0.0</output></div>
                 <div class="col-md"><label>Car 2 orientation</label><input class="w-72" id="car_angle1" max="3.14159" min="-3.14159" oninput="this.nextElementSibling.value = this.value" step="0.0001" style="vertical-align:middle;" type="range" value="1.57079"/> <output>1.57079</output></div>
@@ -36,21 +47,23 @@
                 <div class="col-md"><label>Cost</label><span id="cost"></span></div>
             </div>
         </form>
-    </div> <!--sm-7-->
+
+        <py-terminal id="terminal"></py-terminal>
+        <p id="output" style="display: none;"></p>
+    </div>
 
     <div class="col-sm-4">
-        <div class="sticky-sm-top">
+        <div class="sticky-sm-top" style="padding-top: 2rem;">
             <canvas height="700px" id="canvas" style="width:100%;" width="900px"></canvas>
         </div>
-    </div> <!--sm-4-->
-</div> <!--row-->
+    </div>
+</div>
 
 
 <py-script>
-    from pyodide.ffi import create_proxy
-    from js import Path2D, document, console
+    from pyodide.ffi import create_proxy, to_js
+    from js import Path2D, document, configure
     import numpy as np
-    import asyncio
 
     #########################################################################################
     car_svg = Path2D.new('m -4.9070956,-15.985104 c -1.103,0 -2,0.897 -2,2 v 0.4375 c 1.328,0.583 2.324,1.721 2.75,3.125 0.167,0.252 0.25,0.6824985 0.25,1.4374985 v 2.0000001 h 2.99999996 v 1 H 1.0929044 v -1 h 2 c 1.103,0 2,-0.897 2,-2.0000001 v -4.9999985 c 0,-1.103 -0.897,-2 -2,-2 z m -6.0000004,4 c -0.552,0 -1,0.448 -1,1 v 22 c 0,0.553 0.448,1 1,1 h 2.0000004 c 1.654,0 3,-1.346 3,-3.0000014 V -8.9851055 c 0,-1.6539985 -1.346,-2.9999985 -3,-2.9999985 z m 44,0 c -0.553,0 -1,0.448 -1,1 v 4.6249986 c 3.242,0.617 5.80475,1.47625 5.96875,1.53125 0.016,0.005 0.01625,0.02625 0.03125,0.03125 v -6.1874986 c 0,-0.552 -0.447,-1 -1,-1 z M 8.0929044,-9.9851045 c -0.351,0 -0.66375,0.198999 -0.84375,0.499999 l -2.71875,4.5000001 h -8.4375 v 10 h 8.4375 l 2.71875,4.5 c 0.18,0.3 0.49275,0.5000004 0.84375,0.5000004 h 6.9999996 c 0.208,0 0.42475,-0.0655 0.59375,-0.1875004 l 6.71875,-4.8125 h 3.6875 c 5.05,0 11.0605,-1.9785 11.3125,-2.0625 0.411,-0.135 0.6875,-0.5055 0.6875,-0.9375 v -4 c 0,-0.43 -0.2795,-0.8005 -0.6875,-0.9375 -0.249,-0.084 -6.1555,-2.0625 -11.3125,-2.0625 h -3.6875 l -6.71875,-4.8125001 c -0.169,-0.121 -0.38575,-0.187499 -0.59375,-0.187499 z m 1.9999996,6.9999991 h 5 c 1.657,0 3,1.343 3,3.00000008 0,1.65699992 -1.343,2.99999992 -3,2.99999992 h -5 z m 28,7.8125 c -0.019,0.007 -0.0435,0.02525 -0.0625,0.03125 -0.167,0.055 -2.7185,0.885 -5.9375,1.5 v 4.6562514 c 0,0.553 0.447,1 1,1 h 4 c 0.553,0 1,-0.447 1,-1 z m -38.99999964,1.1875 v 1 H -3.9070956 v 2 c 0,0.496 -0.02575,0.809 -0.09375,1.0000004 -0.326,1.610001 -1.43725,2.918501 -2.90625,3.562501 v 0.4375 c 0,1.105 0.895,2 2,2 h 8 c 1.105,0 2,-0.895 2,-2 V 9.0148946 c 0,-1.105 -0.895,-2 -2,-2 h -2 v -1 z')
@@ -126,11 +139,11 @@
                 etmp = xtmp[:,tl].flatten('F') - param.Mu.flatten('F')
                 cost = etmp.T @ Q @ etmp + utmp.T @ R @ utmp
 
-                if cost &lt; cost0 or alpha &lt; 1e-3:
+                if cost < cost0 or alpha < 1e-3:
                     u = utmp
                     break
                 alpha /= 2
-            if np.linalg.norm(alpha * du) &lt; 1e-2: # Early stop condition
+            if np.linalg.norm(alpha * du) < 1e-2: # Early stop condition
                 break
         return x, u, cost
 
@@ -210,7 +223,7 @@
         global hover_obj, car_angles
         #if mousedown==1:
         #document.getElementById('object0_angle').value = str(param.Mu[2,0] + 0.2 * (event.deltaY/106))
-        if hover_obj &gt;= 0:
+        if hover_obj >= 0:
             car_angles[hover_obj].value = float(car_angles[hover_obj].value) + 0.2 * (event.deltaY/106)
             update_iLQR()
 
@@ -304,12 +317,7 @@
 
     document.addEventListener('wheel', onWheelProxy) #for standard mouse
 
-    mustStop = asyncio.Event()
-    stopped = asyncio.Event()
-
     async def cleanup():
-        mustStop.set()
-
         document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
         document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
 
@@ -321,10 +329,6 @@
 
         document.removeEventListener('wheel', onWheelProxy) #for standard mouse
 
-        await stopped.wait()
-
-    document.cleanup = cleanup
-
 
     #########################################################################################
 
@@ -333,44 +337,43 @@
     x, u, cost = iLQR(x0, u, param)
     cost_el.textContent = '%.3f' % cost
 
-    async def main():
-        global hover_obj, param
+    t0 = 0
+    t = 0
+    tf = 0
 
-        t0 = 0
-        t = 0
-        tf = 0
-        while not mustStop.is_set():
-            t0 += float(simulation_speed.value)
-            if t0 &gt; 19:
-                t0 = 0
-                if t &gt; param.nbData-2:
-                    tf += 1
-                    if tf &gt; 10: #Stay some iterations at the final point before starting again
-                        t = 0
-                        tf = 0
-                else:
-                    t += 1
+    async def loop(delta, time):
+        global hover_obj, param, t0, t, tf
 
-            # Reinit hovering variables
-            hover_obj = -1
+        t0 += float(simulation_speed.value)
+        if t0 > 19:
+            t0 = 0
+            if t > param.nbData-2:
+                tf += 1
+                if tf > 10: #Stay some iterations at the final point before starting again
+                    t = 0
+                    tf = 0
+            else:
+                t += 1
 
-            # Rendering
-            clear_screen()
-            draw_car(x0, '#CCCCCC')
-            draw_car(param.Mu[:,0], '#FF3399', 'True', 0)
-            draw_car(param.Mu[:,1], '#33FF99', 'True', 1)
-            draw_car(x[:,t])
+        # Reinit hovering variables
+        hover_obj = -1
 
-            # Car selection
-            if selected_obj &gt;= 0:
-                param.Mu[:2,selected_obj] = mouse
-                param.Mu[0,selected_obj] = max(min(param.Mu[0,selected_obj],225*1.8), -225*0.1) / scaling_coord
-                param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],175), -175) / scaling_coord
+        # Rendering
+        clear_screen()
+        draw_car(x0, '#CCCCCC')
+        draw_car(param.Mu[:,0], '#FF3399', 'True', 0)
+        draw_car(param.Mu[:,1], '#33FF99', 'True', 1)
+        draw_car(x[:,t])
 
-            await asyncio.sleep(0.0001)
+        # Car selection
+        if selected_obj >= 0:
+            param.Mu[:2,selected_obj] = mouse
+            param.Mu[0,selected_obj] = max(min(param.Mu[0,selected_obj],225*1.8), -225*0.1) / scaling_coord
+            param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],175), -175) / scaling_coord
 
-        stopped.set()
 
-    pyscript.run_until_complete(main())
-
+    configure(to_js({
+        'loop': loop,
+        'cleanup': cleanup,
+    }))
 </py-script>

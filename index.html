@@ -168,9 +168,17 @@
         const baseUrl = url.origin + url.pathname.substring(0, url.pathname.lastIndexOf('/'));
 
         let currentPage = null;
+        let currentPageParams = null;
         let btnSave = null;
         let btnOpen = null;
         let navlinks = null;
+
+        let mustStopLoop = false;
+        let mustReset = false;
+        let isLoopRunning = false;
+        let errorMessageDisplayed = false;
+        let loopStartTime = null;
+        let loopPreviousTime = null;
 
         const contentDiv = document.getElementById('content');
         const closeMenuButton = document.getElementById('close-button');
@@ -344,11 +352,8 @@
                 return;
             }
 
-            if (document.cleanup != null)
-            {
-                await document.cleanup();
-                document.cleanup = null;
-            }
+            await stopContentLoop();
+            currentPageParams = null;
 
             if (btnSave != null)
             {
@@ -368,6 +373,7 @@
             }
 
             currentPage = page;
+            loopStartTime = null;
 
             if (pageEntry.assets != null)
             {
@@ -477,9 +483,33 @@
                 }
             }
 
+            if (pageEntry.requirements != null)
+            {
+                let requirementsToLoad = [];
+
+                pageEntry.requirements.forEach((requirement) => {
+                    if (!loadedRequirements[requirement])
+                        requirementsToLoad.push(requirement);
+                });
+
+                if (requirementsToLoad.length > 0)
+                {
+                    tasks.push(async () => {
+                        for (let requirement of requirementsToLoad)
+                        {
+                            if (requirement == 'pyscript')
+                                initPyScript();
+
+                            loadedRequirements[requirement] = true;
+                        }
+                    });
+                }
+            }
+
             tasks.push(async () => {
                 contentDiv.innerHTML = await response.text();
                 closeMenuButton.click();
+                errorMessageDisplayed = false;
             });
 
             if (tasks.length == 1)
@@ -515,16 +545,6 @@
                         behavior: "instant"
                     });
                 }
-
-                pageEntry.requirements.forEach((requirement) => {
-                    if (loadedRequirements[requirement])
-                        return;
-
-                    if (requirement == 'pyscript')
-                        initPyScript();
-
-                    loadedRequirements[requirement] = true;
-                });
 
                 btnOpen = document.getElementById('btn-open');
                 btnSave = document.getElementById('btn-save');
@@ -605,7 +625,8 @@
                     {left: '\\begin{CD}', right: '\\end{CD}', display: true},
                     {left: '\\[', right: '\\]', display: true}
                 ],
-                throwOnError : false
+                throwOnError: false,
+                ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'option', 'py-repl'],
             });
         }
 
@@ -665,6 +686,159 @@
             document.body.appendChild(script);
         }
 
+        function configure(params)
+        {
+            currentPageParams = params;
+
+            if (currentPageParams.has('setup'))
+            {
+                if (!Array.isArray(currentPageParams.get('setup')))
+                    currentPageParams.set('setup', new Array(currentPageParams.get('setup')));
+            }
+
+            const mustExecuteNextTask = (tasks.length == 0);
+
+            tasks.push(async () => {
+                let resetFunction = null;
+                if (currentPageParams.has('loop'))
+                {
+                    resetFunction = () => {
+                        mustReset = true;
+                    };
+                }
+                else if (currentPageParams.has('reset'))
+                {
+                    resetFunction = async () => {
+                        await currentPageParams.get('reset')();
+                    };
+                }
+
+                const run_buttons = document.getElementsByClassName("py-repl-run-button");
+                for (let i = 0; i < run_buttons.length; ++i)
+                {
+                    run_buttons[i].addEventListener('mouseup', clearReplOutput);
+
+                    if (resetFunction != null)
+                        run_buttons[i].addEventListener('click', resetFunction);
+                }
+            });
+
+            if (currentPageParams.has('setup'))
+            {
+                currentPageParams.get('setup').forEach((item, index) => {
+                    tasks.push(item);
+                });
+            }
+
+            if (currentPageParams.has('loop'))
+            {
+                tasks.push(async () => {
+                    mustStopLoop = false;
+                    isLoopRunning = true;
+                    window.requestAnimationFrame(executeContentLoop);
+                });
+            }
+
+            if (mustExecuteNextTask)
+                executeNextTask();
+        }
+
+        async function executeContentLoop(time)
+        {
+            if (loopStartTime === null)
+            {
+                loopStartTime = time;
+                loopPreviousTime = time;
+            }
+
+            if (mustReset)
+            {
+                mustReset = false;
+                loopStartTime = null;
+
+                if (currentPageParams.has('reset'))
+                {
+                    window.requestAnimationFrame(async () => {
+                        await currentPageParams.get('reset')();
+                        window.requestAnimationFrame(executeContentLoop);
+                    });
+                }
+                else
+                {
+                    window.requestAnimationFrame(executeContentLoop);
+                }
+
+                return;
+            }
+
+            await currentPageParams.get('loop')(time - loopPreviousTime, time - loopStartTime);
+
+            loopPreviousTime = time;
+
+            if (!mustStopLoop)
+                window.requestAnimationFrame(executeContentLoop);
+            else
+                isLoopRunning = false;
+        }
+
+        async function stopContentLoop()
+        {
+            if (currentPageParams == null)
+                return;
+
+            if (isLoopRunning)
+            {
+                mustStopLoop = true;
+
+                while (isLoopRunning)
+                    await new Promise(r => setTimeout(r, 1));
+            }
+
+            if (currentPageParams.has('cleanup'))
+                await currentPageParams.get('cleanup')();
+        }
+
+        function displayErrorMessage(msg)
+        {
+            if (errorMessageDisplayed)
+                return;
+
+            let active_tab = 0;
+
+            if (navlinks != null)
+            {
+                for (let navlink of navlinks)
+                {
+                    if (navlink.classList.contains('active'))
+                        break;
+
+                    active_tab++;
+                }
+            }
+
+            const el = document.getElementsByClassName('py-repl-output')[active_tab];
+            console.error(msg.join('\n'))
+            el.innerHTML = '<pre class="py-error">' + msg.join('<br/>') + '</pre>'
+
+            errorMessageDisplayed = true;
+        }
+
+        function clearReplOutput()
+        {
+            let el = document.getElementById('errors');
+            if (el != undefined)
+                el.innerText = '';
+
+            el = document.getElementById('output');
+            if (el != undefined)
+                el.innerText = '';
+
+            el = document.getElementById('terminal');
+            if (el != undefined)
+                el.children[0].innerText = '';
+
+            errorMessageDisplayed = false;
+        }
 
         function clearMsgs()
         {
@@ -701,13 +875,6 @@
             el.textContent = code;
         }
 
-
-        function scheduleTask(fct)
-        {
-            tasks.push(fct);
-        }
-
-
         function setAspectRatio(id, ratio)
         {
             function _resize(entries)
@@ -728,13 +895,14 @@
             element.style.height = '' + height + 'px';
         }
 
+        globalThis.configure = configure;
         globalThis.clearMsgs = clearMsgs;
+        globalThis.displayErrorMessage = displayErrorMessage;
+        globalThis.clearReplOutput = clearReplOutput
         globalThis.clearMsgsOutput = clearMsgsOutput;
         globalThis.getScript = getScript;
         globalThis.getData = getData;
         globalThis.setEditorCode = setEditorCode;
-        globalThis.scheduleTask = scheduleTask;
-        globalThis.executeNextTask = executeNextTask;
         globalThis.setAspectRatio = setAspectRatio;
 
 

@@ -2,40 +2,48 @@
     <div class="col-sm-1"></div>
 
     <div class="col-sm-5">
-        <br/><br/>
+        <h3>Physics</h3>
 
-        <div onclick="clearMsgs()" onkeydown="clearMsgs()">
-            <py-repl std-err="errors" std-out="output">
-                def controlCommand(x):
-                    u = np.zeros(x.shape)
-                    u[0] = 1.0
+        <py-repl output="output">
+            def controlCommand(x):
+                u = np.zeros(x.shape)
+                u[0] = 1.0
 
-                    if x[0] > 2.5:
-                        # Stop controlling the robot
-                        stopControl()
+                # Stop controlling the robot once it reach some position
+                if x[0] > 2.5:
+                    print('DONE')
+                    stopControl()
 
-                    return u
-
-
-                # Reload the scene
-                reset()
-
-                # Start controlling the robot
-                startControl()
-            </py-repl>
-        </div>
+                return u
+        </py-repl>
 
         <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
             <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
             <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
         </div>
 
-        <p id="output" style="font-size: 70%; color: #777777;">(click on the green run button to run the code; the end-effector and the joints can be moved with the mouse)</p>
-        <p id="errors" style="font-size: 70%; color: #880000;"></p>
+        <div style="margin-bottom: 10px;">
+            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
+                Instructions
+            </button>
+        </div>
+
+        <div id="instructions" class="collapse instructions">
+            <div class="card card-body">
+                <h5>Controls</h5>
+                <p>Click on the green run button to execute the code.</p>
+                <p>Clicking on the end-effector makes a translation/rotation widget appears. The behavior of this widget can be changed using the buttons at the top.</p>
+                <p>Individual links can be controlled (using inverse kinematics) by dragging them with the mouse. The mouse wheel allows to rotate the corresponding joint while hovering a link.</p>
+                <p>To rotate the camera, press the left mouse button and drag the mouse. The right mouse button let you translate the camera. The mouse wheel let you zoom in/out.</p>
+            </div>
+        </div>
+
+        <py-terminal id="terminal"></py-terminal>
+        <p id="output" style="display: none;"></p>
     </div>
 
     <div class="col-sm-6">
-        <div class="sticky-sm-top">
+        <div class="sticky-sm-top" style="padding-top: 2rem;">
             <div id="viewer3d" style="width: 100%; height: 400px;"></div>
         </div>
     </div>
@@ -43,9 +51,11 @@
 
 
 <py-script>
-    from viewer3d import Viewer3D, configs, logmap_S3, logmap, Shapes
-    from js import document, setAspectRatio
+    from viewer3d import Viewer3D, configs
+    from js import document, setAspectRatio, configure, displayErrorMessage
+    from pyodide.ffi import to_js
     import numpy as np
+    import traceback
 
     # The function that will be called once per frame
     x = None
@@ -54,15 +64,18 @@
     def update(delta, time):
         global x
 
-        if x is None:
-            x = robot.jointPositions
-        elif not isinstance(x, np.ndarray):
-            x = np.array(x)
+        try:
+            if x is None:
+                x = robot.jointPositions
+            elif not isinstance(x, np.ndarray):
+                x = np.array(x)
 
-        u = controlCommand(x)
+            u = controlCommand(x)
 
-        x += u * delta
-        robot.jointPositions = x
+            x += u * delta
+            robot.jointPositions = x
+        except Exception as e:
+            displayErrorMessage(to_js(traceback.format_exception(e)))
 
     # Load the scene and retrieve the robot
     def reset():
@@ -79,7 +92,12 @@
     setAspectRatio('viewer3d', 1.0)
 
     # Create the Viewer3D
-    viewer3D = Viewer3D(document.getElementById('viewer3d'))
+    viewer3D = Viewer3D(
+        document.getElementById('viewer3d'),
+        {
+            'external_loop': True,
+        }
+    )
 
     reset()
 
@@ -87,14 +105,23 @@
     def controlCommand(x):
         return np.zeros(x.shape)
 
-    def startControl():
-        viewer3D.setRenderingCallback(update)
-
     def stopControl():
         viewer3D.setRenderingCallback(None)
 
-    async def cleanup():
-        await viewer3D.stop()
 
-    document.cleanup = cleanup
+    async def reset_workspace():
+        try:
+            reset()
+            viewer3D.setRenderingCallback(update)
+        except Exception as e:
+            displayErrorMessage(to_js(traceback.format_exception(e)))
+
+    async def loop(delta, time):
+        viewer3D.render()
+
+
+    configure(to_js({
+        'reset': reset_workspace,
+        'loop': loop,
+    }))
 </py-script>

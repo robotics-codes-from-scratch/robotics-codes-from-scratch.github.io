@@ -2,7 +2,7 @@
     <div class="col-sm-1"></div>
 
     <div class="col-sm-7">
-        <br/><br/>
+        <h3>Bimanual robot</h3>
 
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
@@ -15,42 +15,37 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="IK-tab" class="tab-pane fade show active" id="IK-tab-pane" role="tabpanel" tabindex="0">
-                <div onclick="clearMsgs()" onkeydown="clearMsgs()">
-                    <py-repl std-err="errors" std-out="output">
-                        def controlCommand(x, param):
-                            f = fkin(x, param)
-                            J = Jkin(x, param)
-                            #u = np.linalg.pinv(J) @ (param.Mu - f[:,0]) * 10 # Control commands
-                            #u = np.zeros(param.nbVarX) # Control commands
-                            pinvJ = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E4) @ J.T # Damped pseudoinverse
-                            u = pinvJ @ (param.Mu - f[:,0]) * 10 # Control commands
-                            return u
-                    </py-repl>
-                </div>
-
+                <py-repl output="output">
+                    def controlCommand(x, param):
+                        f = fkin(x, param)
+                        J = Jkin(x, param)
+                        #u = np.linalg.pinv(J) @ (param.Mu - f[:,0]) * 10 # Control commands
+                        #u = np.zeros(param.nbVarX) # Control commands
+                        pinvJ = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E4) @ J.T # Damped pseudoinverse
+                        u = pinvJ @ (param.Mu - f[:,0]) * 10 # Control commands
+                        return u
+                </py-repl>
             </div>
 
             <div aria-labelledby="pIK-tab" class="tab-pane fade" id="pIK-tab-pane" role="tabpanel" tabindex="0">
-                <div onclick="clearMsgs()" onkeydown="clearMsgs()">
-                    <py-repl std-err="errors" std-out="output">
-                        def controlCommand(x, param):
-                            f = fkin(x, param)
-                            J = Jkin(x, param)
-                            # Prioritized control (left tracking as main objective)
-                            dfl = (param.Mu[:2] - f[:2,0]) * 10 # Left hand correction
-                            dfr = (param.Mu[2:] - f[2:,0]) * 10 # Right hand correction
-                            Jl = J[:2,:] # Jacobian for left hand
-                            Jr = J[2:,:] # Jacobian for right hand
-                            pinvJl = np.linalg.inv(Jl.T @ Jl + np.eye(param.nbVarX) * 1e1) @ Jl.T # Damped pseudoinverse
-                            Nl = np.eye(param.nbVarX) - pinvJl @ Jl # Nullspace projection operator
-                            ul = pinvJl @ dfl # Command for position tracking
-                            JrNl = Jr @ Nl
-                            pinvJrNl = JrNl.T @ np.linalg.inv(JrNl @ JrNl.T + np.eye(2) * 1e4) # Damped pseudoinverse
-                            ur = pinvJrNl @ (dfr - Jr @ ul) # Command for right hand tracking (with left hand tracking prioritized)
-                            u = ul + Nl @ ur # Control commands
-                            return u
-                    </py-repl>
-                </div>
+                <py-repl output="output">
+                    def controlCommand(x, param):
+                        f = fkin(x, param)
+                        J = Jkin(x, param)
+                        # Prioritized control (left tracking as main objective)
+                        dfl = (param.Mu[:2] - f[:2,0]) * 10 # Left hand correction
+                        dfr = (param.Mu[2:] - f[2:,0]) * 10 # Right hand correction
+                        Jl = J[:2,:] # Jacobian for left hand
+                        Jr = J[2:,:] # Jacobian for right hand
+                        pinvJl = np.linalg.inv(Jl.T @ Jl + np.eye(param.nbVarX) * 1e1) @ Jl.T # Damped pseudoinverse
+                        Nl = np.eye(param.nbVarX) - pinvJl @ Jl # Nullspace projection operator
+                        ul = pinvJl @ dfl # Command for position tracking
+                        JrNl = Jr @ Nl
+                        pinvJrNl = JrNl.T @ np.linalg.inv(JrNl @ JrNl.T + np.eye(2) * 1e4) # Damped pseudoinverse
+                        ur = pinvJrNl @ (dfr - Jr @ ul) # Command for right hand tracking (with left hand tracking prioritized)
+                        u = ul + Nl @ ur # Control commands
+                        return u
+                </py-repl>
             </div>
         </div> <!--tab-content-->
 
@@ -59,23 +54,43 @@
             <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
         </div>
 
-        <p id="output" style="font-size: 70%; color: #777777;">(click on the green run button to run the code; objects and joints can be moved with the mouse)</p>
-        <p id="errors" style="font-size: 70%; color: #880000;"></p>
-    </div> <!--sm-7-->
+        <div style="margin-bottom: 10px;">
+            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
+                Instructions
+            </button>
+        </div>
+
+        <div id="instructions" class="collapse instructions">
+            <div class="card card-body">
+                <h5>Controls</h5>
+                <p>Click on the green run button to execute the code.</p>
+                <p>Joints can be moved by dragging them with the mouse, or by using the mouse wheel while hovering them.</p>
+                <p>The target objects can be moved by dragging them with the mouse.</p>
+                <h5>Informations</h5>
+                <p>
+                    See <a href="#S5">Inverse kinematics (IK) for a planar robot manipulator</a> for more information about inverse kinematics,
+                    and <a href="#S8-sec:SS5.SSS7">Bimanual robot</a> for details about a bimanual robot.
+                </p>
+            </div>
+        </div>
+
+        <py-terminal id="terminal"></py-terminal>
+        <p id="output" style="display: none;"></p>
+    </div>
 
     <div class="col-sm-4">
-        <div class="sticky-sm-top">
+        <div class="sticky-sm-top" style="padding-top: 2rem;">
             <canvas height="700px" id="canvas" style="width:100%;" width="900px"></canvas>
         </div>
-    </div> <!--sm-4-->
-</div> <!--row-->
+    </div>
+</div>
 
 
 <py-script>
-    from pyodide.ffi import create_proxy
-    from js import Path2D, document, console
+    from pyodide.ffi import create_proxy, to_js
+    from js import Path2D, document, configure, displayErrorMessage
     import numpy as np
-    import asyncio
+    import traceback
 
     # Forward kinematics for end-effector (in robot coordinate system)
     def fkin(x, param):
@@ -145,7 +160,7 @@
         mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
         mouse[0] = (mouse0[0] - canvas.width * 0.5)
         mouse[1] = -(mouse0[1] - canvas.height * 0.9)
-        if move_joint &gt;= 0:
+        if move_joint >= 0:
             x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
             hover0 = np.copy(mouse0)
 
@@ -156,14 +171,14 @@
         mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
         mouse[0] = (mouse0[0] - canvas.width * 0.5)
         mouse[1] = -(mouse0[1] - canvas.height * 0.9)
-        if move_joint &gt;= 0:
+        if move_joint >= 0:
             x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
             hover0 = np.copy(mouse0)
 
     def onMouseDown(event):
         global mousedown, move_joint, hover0
         mousedown = 1
-        if hover_joint &gt;= 0:
+        if hover_joint >= 0:
             move_joint = hover_joint
             hover0 = np.copy(mouse0)
 
@@ -175,7 +190,7 @@
 
     def onWheel(event):
         global hover_joint, x
-        if hover_joint &gt;= 0:
+        if hover_joint >= 0:
             x[hover_joint] -= 0.2 * (event.deltaY/106)
 
     onMouseMoveProxy = create_proxy(onMouseMove)
@@ -236,7 +251,7 @@
         ctx.lineCap = 'round'
         ctx.lineJoin = 'round'
         for i in range(param.nbVarX+2):
-            if i &lt; param.nbVarX+1:
+            if i < param.nbVarX+1:
                 # Draw links outlines
                 ctx.lineWidth = '46'
                 ctx.strokeStyle = 'white'
@@ -256,11 +271,13 @@
             ctx.strokeStyle = 'white'
             ctx.translate(f[0,i], f[1,i])
             ctx.stroke(obj)
-            if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and i&gt;0:
-                if i&lt;4:
+            if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and i>0:
+                if i<4:
                     hover_joint = 3-i
                 else:
                     hover_joint = i-1
+            else:
+                hover_joint = -1
             ctx.translate(-f[0,i], -f[1,i])
 
 
@@ -275,24 +292,13 @@
         ctx.fill(obj)
         if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
             selected_obj = id
+        else:
+            selected_obj = -1
 
 
     def controlCommand(x, param):
-        #f = fkin(x, param)
-        #J = Jkin(x, param)
-        #u = np.linalg.pinv(J) @ (param.Mu - f[:,0]) * 10
         u = np.zeros(param.nbVarX)
         return u
-
-
-    #########################################################################################
-
-    def errorHandler(e):
-        msg = 'Error: ' + str(e)
-        console.error(msg)
-        el = document.getElementById('errors')
-        el.innerText = msg
-        #el.textContent = msg
 
 
     #########################################################################################
@@ -308,12 +314,7 @@
 
     document.addEventListener('wheel', onWheelProxy) #for standard mouse
 
-    mustStop = asyncio.Event()
-    stopped = asyncio.Event()
-
     async def cleanup():
-        mustStop.set()
-
         document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
         document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
 
@@ -325,51 +326,45 @@
 
         document.removeEventListener('wheel', onWheelProxy) #for standard mouse
 
-        await stopped.wait()
-
-    document.cleanup = cleanup
-
 
     #########################################################################################
 
     x = np.array([np.pi/2, np.pi/2, np.pi/4, -np.pi/2, -np.pi/4]) # Initial robot state
-    #u = np.zeros(param.nbVarX)
 
-    async def main():
+    async def loop(delta, time):
         global hover_joint, x
 
-        while not mustStop.is_set():
-            try:
-                u = controlCommand(x, param)
-            except Exception as e:
-                errorHandler(e)
-                u = np.zeros(param.nbVarX)
+        try:
+            u = controlCommand(x, param)
+        except Exception as e:
+            displayErrorMessage(to_js(traceback.format_exception(e)))
+            u = np.zeros(param.nbVarX)
 
-            x += u * param.dt
+        x += u * param.dt
 
-            # Reinit hovering variables
-            hover_joint = -1
+        # Reinit hovering variables
+        hover_joint = -1
 
-            # Rendering
-            clear_screen()
-            #draw_ground()
-            draw_robot(x, '#AAAAAA')
-            draw_object(param.Mu[:2], 0, '#FF3399')
-            draw_object(param.Mu[2:], 1, '#FF9933')
+        # Rendering
+        clear_screen()
+        #draw_ground()
+        draw_robot(x, '#AAAAAA')
+        draw_object(param.Mu[:2], 0, '#FF3399')
+        draw_object(param.Mu[2:], 1, '#FF9933')
 
-            # Object selection
-            if selected_obj==0:
-                param.Mu[:2] = mouse[:2]
-                param.Mu[0] = max(min(param.Mu[0],450), -450)
-                param.Mu[1] = max(min(param.Mu[1],630), -70)
-            if selected_obj==1:
-                param.Mu[2:] = mouse[:2]
-                param.Mu[2] = max(min(param.Mu[2],450), -450)
-                param.Mu[3] = max(min(param.Mu[3],630), -70)
-            await asyncio.sleep(0.0001)
+        # Object selection
+        if selected_obj==0:
+            param.Mu[:2] = mouse[:2]
+            param.Mu[0] = max(min(param.Mu[0],450), -450)
+            param.Mu[1] = max(min(param.Mu[1],630), -70)
+        if selected_obj==1:
+            param.Mu[2:] = mouse[:2]
+            param.Mu[2] = max(min(param.Mu[2],450), -450)
+            param.Mu[3] = max(min(param.Mu[3],630), -70)
 
-        stopped.set()
 
-    pyscript.run_until_complete(main())
-
+    configure(to_js({
+        'loop': loop,
+        'cleanup': cleanup,
+    }))
 </py-script>

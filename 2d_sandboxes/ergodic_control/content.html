@@ -2,7 +2,8 @@
     <div class="col-sm-1"></div>
 
     <div class="col-sm-6">
-        <br>
+        <h3>Ergodic control</h3>
+
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
                 <button aria-controls="SMC1D-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#SMC1D-tab-pane"
@@ -17,6 +18,7 @@
                         data-bs-toggle="tab" id="HEDAC-tab" role="tab" type="button">HEDAC (2D)</button>
             </li>
         </ul>
+
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="SMC1D-tab" class="tab-pane fade show active" id="SMC1D-tab-pane" role="tabpanel" tabindex="0">
                 <py-repl id="SMC1D-tab-repl" output="output">
@@ -31,17 +33,35 @@
                 </py-repl>
             </div>
         </div>
+
         <div style="float: right; padding-right: 0.5em;">
             <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
             <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
         </div>
-        <p style="font-size: 70%; color: #777777; margin-bottom: 0;">(click on the green button to run the code)</p>
-        <p id="help" style="font-size: 70%; color: #777777;"></p>
-        <p id="output" style="font-size: 70%; color: #000000; font-family: monospace;"></p>
+
+        <div style="margin-bottom: 10px;">
+            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
+                Instructions
+            </button>
+        </div>
+
+        <div id="instructions" class="collapse instructions">
+            <div class="card card-body">
+                <h5>Controls</h5>
+                <p>Click on the green run button to execute the code.</p>
+                <p>On the 2D versions, the gaussians can be moved and scaled by dragging the red points.</p>
+                <h5>Informations</h5>
+                <p id="help"></p>
+                <p>See <a href="#S9">Ergodic control</a> for more information.</p>
+            </div>
+        </div>
+
+        <py-terminal id="terminal"></py-terminal>
+        <p id="output" style="display: none;"></p>
     </div>
 
     <div class="col-sm-5">
-        <div class="sticky-sm-top" style="padding: 2rem 1rem 1rem 1rem;">
+        <div class="sticky-sm-top" style="padding-top: 2rem;">
             <canvas id="canvas" style="width:100%;" width="900px" height="900px"></canvas>
             <canvas id="canvas_histogram" style="width:100%;" width="900px" height="450px"></canvas>
             <div id="legend" style="margin-top: 0px; font-size: 70%; color: #777777;"></div>
@@ -51,9 +71,9 @@
 
 
 <py-script>
-    from js import document, window, getScript, setEditorCode, scheduleTask, executeNextTask
-    import asyncio
-    from pyodide.ffi import create_proxy
+    from js import document, getScript, setEditorCode, configure, displayErrorMessage, clearReplOutput
+    from pyodide.ffi import create_proxy, to_js
+    import traceback
 
 
     # The configuration of each tab
@@ -102,21 +122,23 @@
     canvas_histogram = document.getElementById('canvas_histogram')
     ctx = canvas.getContext('2d')
     ctx_histogram = canvas_histogram.getContext('2d')
-    output = document.getElementById('output')
     help = document.getElementById('help')
     legend = document.getElementById('legend')
 
 
     def onTabClicked(event):
-        unregister_listeners()
-        switch_to_tab(event.target.id)
-        register_listeners()
+        try:
+            unregister_listeners()
+            switch_to_tab(event.target.id)
+            register_listeners()
+        except Exception as e:
+            displayErrorMessage(to_js(traceback.format_exception(e)))
 
 
     def switch_to_tab(id):
         global editor
 
-        output.innerText = ''
+        clearReplOutput()
 
         entry = config[id]
 
@@ -147,40 +169,27 @@
         reset()
 
 
-    mustStop = asyncio.Event()
-    stopped = asyncio.Event()
-
     async def cleanup():
         global gaussians
-        mustStop.set()
+
         unregister_listeners()
-        await stopped.wait()
+
         if 'gaussians' in globals():
             del gaussians
 
-    document.cleanup = cleanup
 
-
-    async def main():
-        run_buttons = document.getElementsByClassName("py-repl-run-button")
-        for button in run_buttons:
-            button.addEventListener('click', create_proxy(lambda evt: reset()))
-
-        switch_to_tab('SMC1D-tab')
-
-        while not mustStop.is_set():
+    async def loop(delta, time):
+        try:
             # Call the appropriate update function
             update()
 
             # Update the rendering
             draw_scene(param)
-
-            await asyncio.sleep(1E-6)
-
-        stopped.set()
+        except Exception as e:
+            displayErrorMessage(to_js(traceback.format_exception(e)))
 
 
-    async def setup():
+    async def setup_ui():
         # Initialise all the tabs
         for tab, entry in config.items():
             scripts = entry['scripts']
@@ -197,11 +206,27 @@
             button.onclick = onTabClicked
 
 
-    async def start():
-        pyscript.run_until_complete(main())
+    async def setup_switch():
+        try:
+            switch_to_tab('SMC1D-tab')
+        except Exception as e:
+            displayErrorMessage(to_js(traceback.format_exception(e)))
 
 
-    scheduleTask(create_proxy(setup))
-    scheduleTask(create_proxy(start))
-    executeNextTask()
+    async def reset_workspace():
+        try:
+            reset()
+        except Exception as e:
+            displayErrorMessage(to_js(traceback.format_exception(e)))
+
+
+    configure(to_js({
+        'setup': [
+            setup_ui,
+            setup_switch,
+        ],
+        'loop': loop,
+        'reset': reset_workspace,
+        'cleanup': cleanup,
+    }))
 </py-script2>

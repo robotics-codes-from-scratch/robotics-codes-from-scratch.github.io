@@ -1,4 +1,6 @@
 import numpy as np
+from js import displayErrorMessage
+import traceback
 
 
 ## Parameters
@@ -80,7 +82,11 @@ def update():
     t += 1
 
     # Retrieve the command
-    u, wt = controlCommand(robot.jointPositions, t, wt, param)
+    try:
+        u, wt = controlCommand(robot.jointPositions, t, wt, param)
+    except Exception as e:
+        displayErrorMessage(to_js(traceback.format_exception(e)))
+        u = np.zeros(param.x0.shape)
 
     # Apply the command to the robot
     robot.control = robot.control + u * 0.2

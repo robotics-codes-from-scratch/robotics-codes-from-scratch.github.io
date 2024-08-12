@@ -165,6 +165,15 @@ form label {
     border-color: rgb(209, 13, 19)
 }
 
+.py-terminal {
+    font-size: 0.7em;
+    max-height: 25em;
+}
+
+.py-terminal:empty {
+    display: none;
+}
+
 .py-overlay {
     top: 0;
     bottom: 0;
@@ -190,4 +199,14 @@ form label {
 
 #menu a.section span {
     color: rgba(var(--bs-dark-rgb), 0.8);
+}
+
+div.instructions {
+    font-size: 70%;
+    color: #777777;
+    margin-bottom: 10px;
+}
+
+div.instructions p {
+    margin-bottom: 10px;
 }

@@ -5265,6 +5265,9 @@ class Viewer3D {
         statistics (bool):
             enable the display of statistics about the rendering performance (default: false)
 
+        external_loop (bool):
+            indicates that the rendering frequency is controlled by the user application (default: false)
+
 
     Composition:
 
@@ -5365,7 +5368,8 @@ class Viewer3D {
 
         this._initScene();
 
-        this._render();
+        if (!this.parameters.get('external_loop'))
+            this.render();
     }
 
 
@@ -5985,6 +5989,9 @@ class Viewer3D {
 
 
     async stop() {
+        if (this.parameters.get('external_loop'))
+            return;
+
         this.mustStop = true;
 
         const viewer = this;
@@ -6019,6 +6026,7 @@ class Viewer3D {
             ['shadows', true],
             ['show_joint_positions', false],
             ['statistics', false],
+            ['external_loop', false],
         ]);
 
         return new Map([...defaults, ...parameters]);
@@ -6161,7 +6169,7 @@ class Viewer3D {
     }
 
 
-    _render() {
+    render() {
         // Retrieve the time elapsed since the last frame
         const startTime = this.clock.startTime;
         const oldTime = this.clock.oldTime;
@@ -6332,10 +6340,13 @@ class Viewer3D {
             this.renderingCallback(delta, this.clock.elapsedTime);
 
         // Request another animation frame
-        if (!this.mustStop)
-            requestAnimationFrame(() => this._render());
-        else
-            this.mustStop = false;
+        if (!this.parameters.get('external_loop'))
+        {
+            if (!this.mustStop)
+                requestAnimationFrame(() => this.render());
+            else
+                this.mustStop = false;
+        }
     }
 
 

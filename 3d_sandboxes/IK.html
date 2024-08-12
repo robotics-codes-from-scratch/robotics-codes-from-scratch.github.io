@@ -2,7 +2,7 @@
     <div class="col-sm-1"></div>
 
     <div class="col-sm-5">
-        <br/><br/>
+        <h3>Inverse kinematics (IK)</h3>
 
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
@@ -18,45 +18,39 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="posorient-tab" class="tab-pane fade show active" id="posorient-tab-pane" role="tabpanel" tabindex="0">
-                <div onclick="clearMsgs()" onkeydown="clearMsgs()">
-                    <py-repl std-err="errors" std-out="output">
-                        x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
+                <py-repl output="output">
+                    x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
 
-                        def controlCommand(x, mu):
-                            J = Jkin(x)
-                            f = fkin(x)
-                            u = np.linalg.pinv(J) @ logmap(mu, f)  # Position & orientation tracking
-                            return u
-                    </py-repl>
-                </div>
+                    def controlCommand(x, mu):
+                        J = Jkin(x)
+                        f = fkin(x)
+                        u = np.linalg.pinv(J) @ logmap(mu, f)  # Position & orientation tracking
+                        return u
+                </py-repl>
             </div>
 
             <div aria-labelledby="pos-tab" class="tab-pane fade show" id="pos-tab-pane" role="tabpanel" tabindex="0">
-                <div onclick="clearMsgs()" onkeydown="clearMsgs()">
-                    <py-repl std-err="errors" std-out="output">
-                        x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
+                <py-repl output="output">
+                    x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
 
-                        def controlCommand(x, mu):
-                            J = Jkin(x)
-                            f = fkin(x)
-                            u = np.linalg.pinv(J[0:3,:]) @ (mu[0:3] - f[0:3])  # Position tracking
-                            return u
-                    </py-repl>
-                </div>
+                    def controlCommand(x, mu):
+                        J = Jkin(x)
+                        f = fkin(x)
+                        u = np.linalg.pinv(J[0:3,:]) @ (mu[0:3] - f[0:3])  # Position tracking
+                        return u
+                </py-repl>
             </div>
 
             <div aria-labelledby="orient-tab" class="tab-pane fade show" id="orient-tab-pane" role="tabpanel" tabindex="0">
-                <div onclick="clearMsgs()" onkeydown="clearMsgs()">
-                    <py-repl std-err="errors" std-out="output">
-                        x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
+                <py-repl output="output">
+                    x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
 
-                        def controlCommand(x, mu):
-                            J = Jkin(x)
-                            f = fkin(x)
-                            u = np.linalg.pinv(J[3:,:]) @ logmap_S3(mu[3:], f[3:])  # Orientation tracking
-                            return u
-                    </py-repl>
-                </div>
+                    def controlCommand(x, mu):
+                        J = Jkin(x)
+                        f = fkin(x)
+                        u = np.linalg.pinv(J[3:,:]) @ logmap_S3(mu[3:], f[3:])  # Orientation tracking
+                        return u
+                </py-repl>
             </div>
         </div>
 
@@ -65,22 +59,45 @@
             <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
         </div>
 
-        <p id="output" style="font-size: 70%; color: #777777;">(click on the green run button to run the code; objects and joints can be moved with the mouse)</p>
-        <p id="errors" style="font-size: 70%; color: #880000;"></p>
-    </div> <!--sm-7-->
+        <div style="margin-bottom: 10px;">
+            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
+                Instructions
+            </button>
+        </div>
+
+        <div id="instructions" class="collapse instructions">
+            <div class="card card-body">
+                <h5>Controls</h5>
+                <p>Click on the green run button to execute the code.</p>
+                <p>The target object can be controlled by clicking on it, which makes a translation/rotation widget appears. The behavior of this widget can be changed using the buttons at the top.</p>
+                <p>To rotate the camera, press the left mouse button and drag the mouse. The right mouse button let you translate the camera. The mouse wheel let you zoom in/out.</p>
+                <h5>Informations</h5>
+                <p>
+                    The upper-left corner shows a representation of the logarithmic map, with the distance between the (projected) end-effector orientation (in yellow) and the one of the target (in red).
+                    See <a href="#S11">Orientation representations and Riemannian manifolds</a> for more information.
+                </p>
+                <p>See <a href="#S5">Inverse kinematics (IK) for a planar robot manipulator</a> for more information about inverse kinematics (in 2D).</p>
+            </div>
+        </div>
+
+        <py-terminal id="terminal"></py-terminal>
+        <p id="output" style="display: none;"></p>
+    </div>
 
     <div class="col-sm-6">
-        <div class="sticky-sm-top">
+        <div class="sticky-sm-top" style="padding-top: 2rem;">
             <div id="viewer3d" style="width: 100%; height: 400px;"></div>
         </div>
-    </div> <!--sm-4-->
-</div> <!--row-->
+    </div>
+</div>
 
 
 <py-script>
     from viewer3d import Viewer3D, configs, logmap_S3, logmap, Shapes
-    from js import document, setAspectRatio
+    from js import document, setAspectRatio, configure, displayErrorMessage
+    from pyodide.ffi import to_js
     import numpy as np
+    import traceback
 
     # The function that will be called once per frame
     x = None
@@ -88,15 +105,18 @@
     def ikUpdate(delta, time):
         global x
 
-        if x is None:
-            x = robot.jointPositions
-        elif not isinstance(x, np.ndarray):
-            x = np.array(x)
+        try:
+            if x is None:
+                x = robot.jointPositions
+            elif not isinstance(x, np.ndarray):
+                x = np.array(x)
 
-        u = controlCommand(x, target.transforms)
+            u = controlCommand(x, target.transforms)
 
-        x += u * 0.1
-        robot.jointPositions = x
+            x += u * delta * 5
+            robot.jointPositions = x
+        except Exception as e:
+            displayErrorMessage(to_js(traceback.format_exception(e)))
 
 
     # Resize the container of the Viewer3D to have a 1:1 aspect ratio
@@ -104,7 +124,14 @@
 
     # Create the Viewer3D
     element = document.getElementById('viewer3d')
-    viewer3D = Viewer3D(element)
+
+    viewer3D = Viewer3D(
+        element,
+        {
+            'external_loop': True,
+        }
+    )
+
     viewer3D.setRenderingCallback(ikUpdate)
 
     # Load the scene and retrieve the robot
@@ -115,6 +142,7 @@
 
     # Disable the manipulation of the joints
     viewer3D.jointsManipulationEnabled = False
+    viewer3D.endEffectorManipulationEnabled = False
 
     # Add one target
     target = viewer3D.addTarget('target', [0.0, 0.65, -0.6], [0.51, 0.46, -0.57, -0.44], '#F08967', shape=Shapes.Cone)
@@ -136,8 +164,11 @@
         return robot.Jkin(x)
 
 
-    async def cleanup():
-        await viewer3D.stop()
+    async def loop(delta, time):
+        viewer3D.render()
 
-    document.cleanup = cleanup
+
+    configure(to_js({
+        'loop': loop,
+    }))
 </py-script>

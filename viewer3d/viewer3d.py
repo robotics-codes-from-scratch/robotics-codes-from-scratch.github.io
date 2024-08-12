@@ -58,6 +58,9 @@ class Viewer3D:
             statistics (bool):
                 enable the display of statistics about the rendering performance (default: false)
 
+            external_loop (bool):
+                indicates that the rendering frequency is controlled by the user application (default: false)
+
         Composition:
             3D objects can be put on different layers, each rendered on top of the previous one.
             Each layer has its own set of settings affecting the way it is rendered. Those
@@ -594,6 +597,10 @@ class Viewer3D:
         """Sets the name of the target to be used by the logmap visualisation"""
         if self.viewer.logmap is not None:
             self.viewer.logmap.targetName = to_js(name)
+
+
+    def render(self):
+        self.viewer.render()
 
 
     async def stop(self):

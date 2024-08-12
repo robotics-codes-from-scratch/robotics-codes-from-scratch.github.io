@@ -1,4 +1,6 @@
 import numpy as np
+from js import displayErrorMessage
+import traceback
 
 
 ## Parameters
@@ -355,7 +357,19 @@ def update():
     global agent, goal_density, coverage_density, heat, coverage_block, param, trajectory
 
     # Compute the command
-    u, coverage_density, heat = controlCommand(robot.jointPositions, agent, goal_density, coverage_density, heat, coverage_block, param)
+    try:
+        u, coverage_density, heat = controlCommand(
+            robot.jointPositions,
+            agent,
+            goal_density,
+            coverage_density,
+            heat,
+            coverage_block,
+            param
+        )
+    except Exception as e:
+        displayErrorMessage(to_js(traceback.format_exception(e)))
+        u = np.zeros(param.x0.shape)
 
     # Apply the command to the robot
     robot.control = robot.control + u * 0.1

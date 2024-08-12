@@ -2,9 +2,10 @@
     <div class='col-sm-1'></div>
 
     <div class='col-sm-7'>
-        <br><br><br><br><br><br>
+        <h3>Jacobian</h3>
+        <br>
 
-        <div align='right' style='font-size: 200%;'>
+        <div align='center' style='font-size: 200%;'>
             <div id='formula0' class="ltx_Math">
                 \bm{J}(\bm{x})=\begin{bmatrix}
                 \frac{\color{#00AA00}\partial f_1}{\color{#CC0000}\partial x_1} &
@@ -40,8 +41,14 @@
                 \frac{\color{#0000CC}\partial f_2}{\color{#CC9900}\partial x_3}
                 \end{bmatrix}
             </div>
-        </div> <!--align-->
-    </div> <!--sm-7-->
+        </div>
+
+        <br><br>
+
+        <div class="instructions">
+            <p>See <a href="#S5-sec:SS1">Numerical estimation of the Jacobian</a> for more information.</p>
+        </div>
+    </div>
 
     <div class='col-sm-4'>
         <div class='sticky-sm-top'>
@@ -53,15 +60,15 @@
                 <span id='f0' class="ltx_Math" style='position:absolute; left:9999px; bottom:0px;'>\color{#00AA00}f_1</span>
                 <span id='f1' class="ltx_Math" style='position:absolute; left:9999px; bottom:0px;'>\color{#0000CC}f_2</span>
             </div>
-        </div> <!--sticky-sm-top-->
-    </div> <!--sm-4-->
-</div> <!--row-->
+        </div>
+    </div>
+</div>
+
 
 <py-script>
-    from pyodide.ffi import create_proxy
-    from js import Path2D, document, console
+    from pyodide.ffi import create_proxy, to_js
+    from js import Path2D, document, console, configure
     import numpy as np
-    import asyncio
 
     # Forward kinematics for end-effector (in robot coordinate system)
     def fkin(x, param):
@@ -79,14 +86,6 @@
         f = np.hstack([np.zeros([2,1]), f])
         return f
 
-    # Jacobian with analytical computation (for single time step)
-    def Jkin(x, param):
-        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
-        J = np.vstack([
-            -np.sin(L @ x).T @ np.diag(param.l) @ L,
-             np.cos(L @ x).T @ np.diag(param.l) @ L
-        ])
-        return J
 
     ## Parameters
     # ===============================
@@ -96,60 +95,6 @@
     param.nbVarX = 3 # State space dimension (x1,x2,x3)
     param.l = [320, 280, 160] # Robot links lengths
 
-    param2 = lambda: None # Lazy way to define an empty class in python
-
-    #########################################################################################
-
-    # Mouse events
-    mouse0 = np.zeros(2)
-    mouse = np.zeros(2)
-    mousedown = 0
-    hover_joint = -1
-    move_joint= -1
-
-    def onMouseMove(event):
-        global mouse, mouse0
-        offset = canvas.getBoundingClientRect()
-        mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
-        mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
-        mouse[0] = (mouse0[0] - canvas.width * 0.2)
-        mouse[1] = -(mouse0[1] - canvas.height * 0.9)
-
-    def onTouchMove(event):
-        global mouse, mouse0
-        offset = event.target.getBoundingClientRect()
-        mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
-        mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
-        mouse[0] = (mouse0[0] - canvas.width * 0.2)
-        mouse[1] = -(mouse0[1] - canvas.height * 0.9)
-
-    def onMouseDown(event):
-        global mousedown, move_joint, param2, formula_el
-        mousedown = 1
-    #   if hover_joint >= 0:
-    #       f0 = fkin0(x, param)
-    #       param2.l = np.append(param.l[:hover_joint], np.linalg.norm(f0[:,hover_joint] - mouse))
-    #       param2.nbVarX = hover_joint+1
-    #       move_joint = hover_joint
-    #       for i in range(param.nbVarX):
-    #           formula_el[i].setAttribute('hidden', 'hidden')
-    #       formula_el[hover_joint].removeAttribute('hidden')
-
-    def onMouseUp(event):
-        global mousedown, move_joint
-        mousedown = 0
-        move_joint = -1
-
-    def onWheel(event):
-        global x
-    #   if hover_joint >= 0:
-    #       x[hover_joint] -= 0.2 * (event.deltaY/106)
-
-    onMouseMoveProxy = create_proxy(onMouseMove)
-    onTouchMoveProxy = create_proxy(onTouchMove)
-    onMouseDownProxy = create_proxy(onMouseDown)
-    onMouseUpProxy = create_proxy(onMouseUp)
-    onWheelProxy = create_proxy(onWheel)
 
     #########################################################################################
 
@@ -172,7 +117,7 @@
 
 
     def draw_robot(x):
-        global hover_joint, x_el
+        global x_el
         f = fkin0(x, param)
 
         # Draw axes
@@ -233,8 +178,6 @@
                 ctx.lineWidth = '38'
                 ctx.strokeStyle = '#AAAAAA'
                 ctx.stroke(obj)
-                if ctx.isPointInStroke(obj, mouse0[0], mouse0[1]) and move_joint < 0:
-                    hover_joint = i
             # Draw articulations
             ctx.lineWidth = '4'
             ctx.strokeStyle = 'white'
@@ -373,117 +316,50 @@
         f_el[1].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # Vertical axis
 
 
-    def draw_selected_point(f):
-        obj = Path2D.new()
-        obj.arc(0, 0, 6, 0, 2*np.pi)
-        ctx.translate(f[0], f[1])
-        ctx.fillStyle = '#999999'
-        ctx.fill(obj)
-        ctx.translate(-f[0], -f[1])
-
-
-    def errorHandler(e):
-        msg = 'Error: ' + str(e)
-        console.error(msg)
-        el = document.getElementById('repl-err')
-        el.innerText = msg
-        #el.textContent = msg
-
-
-    def controlCommand(x, param):
+    def wiggleJoint(joint_id, frequency, t):
         u = np.zeros(param.nbVarX)
-        if move_joint >= 0:
-            # Residual and Jacobian
-            df = (mouse - fkin(x[:move_joint+1], param2)) * 5
-            J = Jkin(x[:move_joint+1], param2)
-            J = np.hstack((J, np.zeros([2,param.nbVarX-move_joint-1]))) # Augmented form
-            # IK
-            pinvJ = np.linalg.inv(J.T @ J + np.eye(J.shape[1]) * 1e4) @ J.T # Damped pseudoinverse
-            u = pinvJ @ df # Control commands
+        u[joint_id] = np.sin(2.0 * np.pi * frequency * t) * .05
         return u
 
 
-    def wiggleJoint(joint_id, t):
-        u = np.zeros(param.nbVarX)
-        u[joint_id] = np.sin(np.pi * 4 * t / tmax) * .08
-        return u
-
     #########################################################################################
 
-    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+    x0 = [np.pi/3, -np.pi/4, -np.pi/2] # Initial robot state
+    x = np.array(x0)
 
-    document.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
-    document.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
-
-    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
-    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
-
-    document.addEventListener('wheel', onWheelProxy) #for standard mouse
-
-    mustStop = asyncio.Event()
-    stopped = asyncio.Event()
-
-    async def cleanup():
-        mustStop.set()
-
-        document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-        document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
-
-        document.removeEventListener('mousedown', onMouseDownProxy) #for standard mouse
-        document.removeEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
-
-        document.removeEventListener('mouseup', onMouseUpProxy) #for standard mouse
-        document.removeEventListener('touchend', onMouseUpProxy) #for mobile interfaces
-
-        document.removeEventListener('wheel', onWheelProxy) #for standard mouse
-
-        await stopped.wait()
-
-    document.cleanup = cleanup
-
-    #########################################################################################
-    x = [np.pi/3, -np.pi/4, -np.pi/2] # Initial robot state
-    fhist = np.tile(np.array(fkin(x,param)).reshape(-1,1), [1,100])
+    fhist = np.tile(np.array(fkin(x,param)).reshape(-1,1), [1,400])
     fhist_id = 0
     joint_id = 0
-    t = 0
-    tmax = 200
+    frequency = 0.5
+    t = 0.0
+    tmax = 4.0
 
-    async def main():
-        global hover_joint, x, fhist, fhist_id, t, joint_id, formula_el
+    async def loop(delta, time):
+        global x, fhist, fhist_id, t, joint_id, formula_el
 
-        while not mustStop.is_set():
-            # u = controlCommand(x, param)
-            u = wiggleJoint(joint_id, t)
-            x += u * param.dt # Update robot state
-            f = fkin(x, param)
-            fhist[:,fhist_id] = f
-            fhist_id = (fhist_id+1) % 100
+        u = wiggleJoint(joint_id, frequency, t)
+        x += u * param.dt # Update robot state
+        f = fkin(x, param)
+        fhist[:,fhist_id] = f
+        fhist_id = (fhist_id+1) % 400
 
-            t += 1
-            if t > tmax:
-                t = 0
-                joint_id = (joint_id+1) % param.nbVarX
-                fhist = np.tile(np.array(fkin(x,param)).reshape(-1,1), [1,100])
-                for i in range(param.nbVarX):
-                    formula_el[i].setAttribute('hidden', 'hidden')
-                formula_el[joint_id].removeAttribute('hidden')
+        t += delta / 1000.0
+        if t > tmax:
+            t = 0.0
+            x = np.array(x0)
+            joint_id = (joint_id+1) % param.nbVarX
+            fhist = np.tile(np.array(fkin(x,param)).reshape(-1,1), [1,400])
+            for i in range(param.nbVarX):
+                formula_el[i].setAttribute('hidden', 'hidden')
+            formula_el[joint_id].removeAttribute('hidden')
 
-    #       # Reinit hovering variables
-    #       hover_joint = -1
+        # Rendering
+        clear_screen()
+        draw_robot(x)
+        draw_trace(fhist)
 
-            # Rendering
-            clear_screen()
-            draw_robot(x)
-            draw_trace(fhist)
-    #       if move_joint >= 0:
-    #           f = fkin(x[:move_joint+1], param2)
-    #           draw_selected_point(f)
 
-            await asyncio.sleep(0.0001)
-
-        stopped.set()
-
-    pyscript.run_until_complete(main())
+    configure(to_js({
+        'loop': loop,
+    }))
 </py-script>
