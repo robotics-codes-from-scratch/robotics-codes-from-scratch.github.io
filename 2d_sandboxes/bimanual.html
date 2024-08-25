@@ -47,7 +47,7 @@
                         return u
                 </py-repl>
             </div>
-        </div> <!--tab-content-->
+        </div>
 
         <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
             <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
@@ -62,11 +62,11 @@
 
         <div id="instructions" class="collapse instructions">
             <div class="card card-body">
-                <h5>Controls</h5>
+                <h5>Control</h5>
                 <p>Click on the green run button to execute the code.</p>
                 <p>Joints can be moved by dragging them with the mouse, or by using the mouse wheel while hovering them.</p>
                 <p>The target objects can be moved by dragging them with the mouse.</p>
-                <h5>Informations</h5>
+                <h5>Information</h5>
                 <p>
                     See <a href="#S5">Inverse kinematics (IK) for a planar robot manipulator</a> for more information about inverse kinematics,
                     and <a href="#S8-sec:SS5.SSS7">Bimanual robot</a> for details about a bimanual robot.
@@ -192,6 +192,7 @@
         global hover_joint, x
         if hover_joint >= 0:
             x[hover_joint] -= 0.2 * (event.deltaY/106)
+        event.preventDefault()
 
     onMouseMoveProxy = create_proxy(onMouseMove)
     onTouchMoveProxy = create_proxy(onTouchMove)
@@ -274,10 +275,8 @@
             if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and i>0:
                 if i<4:
                     hover_joint = 3-i
-                else:
+                elif i<6:
                     hover_joint = i-1
-            else:
-                hover_joint = -1
             ctx.translate(-f[0,i], -f[1,i])
 
 
@@ -292,8 +291,6 @@
         ctx.fill(obj)
         if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
             selected_obj = id
-        else:
-            selected_obj = -1
 
 
     def controlCommand(x, param):
@@ -303,28 +300,16 @@
 
     #########################################################################################
 
-    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+    canvas.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    canvas.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
 
-    document.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
-    document.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+    canvas.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
+    canvas.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
 
-    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
-    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+    canvas.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    canvas.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
 
-    document.addEventListener('wheel', onWheelProxy) #for standard mouse
-
-    async def cleanup():
-        document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-        document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
-
-        document.removeEventListener('mousedown', onMouseDownProxy) #for standard mouse
-        document.removeEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
-
-        document.removeEventListener('mouseup', onMouseUpProxy) #for standard mouse
-        document.removeEventListener('touchend', onMouseUpProxy) #for mobile interfaces
-
-        document.removeEventListener('wheel', onWheelProxy) #for standard mouse
+    canvas.addEventListener('wheel', onWheelProxy) #for standard mouse
 
 
     #########################################################################################
@@ -365,6 +350,5 @@
 
     configure(to_js({
         'loop': loop,
-        'cleanup': cleanup,
     }))
 </py-script>

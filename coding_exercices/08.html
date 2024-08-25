@@ -31,7 +31,7 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="question1-tab" class="tab-pane fade show active" id="question1-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl error="errors" output="output">
+                <py-repl output="output">
                     param.x0 = np.array([.2, .3])
 
                     param.nbGaussian = 2
@@ -46,7 +46,7 @@
             </div>
 
             <div aria-labelledby="question2-tab" class="tab-pane fade" id="question2-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl error="errors" output="output">
+                <py-repl output="output">
                     param.x0 = np.array([.2, .3])
 
                     param.nbGaussian = 2
@@ -70,24 +70,14 @@
             </div>
         </div>
 
+        <py-terminal id="terminal"></py-terminal>
+        <p id="output" style="display: none;"></p>
+
         <br/>
-    </div> <!--sm-7-->
+    </div>
 
     <div class="col-sm-4">
         <div class="sticky-sm-top" style="padding: 2rem 1rem 1rem 1rem;">
-            <hr/>
-            <div class="row justify-content-between">
-                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Output</button></div>
-                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgsOutput()">Clear</button></div>
-            </div>
-            <div id="output"></div>
-            <hr/>
-            <div class="row justify-content-between">
-                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Error</button></div>
-                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgs()">Clear</button></div>
-            </div>
-            <div id="errors"></div>
-            <hr/>
             <canvas height="900px" id="canvas" style="width:100%;" width="900px"></canvas>
             <form>
                 <div class="row">
@@ -95,21 +85,14 @@
                 </div>
             </form>
         </div>
-    </div> <!--sm-4-->
-</div> <!--row-->
+    </div>
+</div>
 
 
 <py-script>
-    def print(x):
-        display(x, target='output')
-</py-script>
-
-
-<py-script std-err="errors" std-out="output">
-    from pyodide.ffi import create_proxy
-    from js import Path2D, document, console
+    from pyodide.ffi import create_proxy, to_js
+    from js import Path2D, document, configure
     import numpy as np
-    import asyncio
     from math import sqrt
 
     ## Parameters
@@ -128,7 +111,7 @@
     cost_el = document.getElementById('cost')
 
 
-    def hadamard_matrix(n: int) -&gt; np.ndarray:
+    def hadamard_matrix(n: int) -> np.ndarray:
         if n == 1:
             return np.array([[1]])
         # Recursively construct a Hadamard matrix of size n/2
@@ -164,13 +147,13 @@
         distance = abs(cy - m * cx - b) / sqrt(m**2 + 1)
 
         # If the distance is greater than the radius of the circle, the line segment and the circle do not intersect
-        if distance &gt; radius:
+        if distance > radius:
             return False
         else:
             # If the distance is less than the radius, we need to check if one of the endpoints of the line segment is inside the circle
             d1 = sqrt((cx - x1)**2 + (cy - y1)**2)
             d2 = sqrt((cx - x2)**2 + (cy - y2)**2)
-            return d1 &lt;= radius or d2 &lt;= radius
+            return d1 <= radius or d2 <= radius
 
 
     def clear_screen():
@@ -278,19 +261,6 @@
 
     #########################################################################################
 
-    mustStop = asyncio.Event()
-    stopped = asyncio.Event()
-
-    async def cleanup():
-        mustStop.set()
-        await stopped.wait()
-
-    document.cleanup = cleanup
-
-
-    #########################################################################################
-
-
     # Gaussian centers
     param.Mu = np.zeros((param.nbVar,param.nbGaussian))
     param.Mu[:,0] = np.array([.5, .7])
@@ -342,30 +312,31 @@
     update_ergodic_control()
     ctx.setTransform(canvas.width, 0, 0, -canvas.height, 0, canvas.height)
 
-    async def main():
+    t = 0
+
+    async def loop(delta, time):
         global t, wt, x, found_flag, cost_el
-        t = 0
-        while not mustStop.is_set():
-            t += 1
-            u, wt = ergodic_control_command(x, t, wt, param)
-            x_prev = x.copy()
-            x += u * param.dt # Update of position
 
-            # Draw ergodic control path
-            ctx.lineWidth = '0.005'
-            ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)'
-            ctx.beginPath()
-            ctx.moveTo(x_prev[0], x_prev[1])
-            ctx.lineTo(x[0], x[1])
-            ctx.stroke()
+        t += 1
+        u, wt = ergodic_control_command(x, t, wt, param)
+        x_prev = x.copy()
+        x += u * param.dt # Update of position
 
-            if line_segment_and_circle_intersect(param.target[0], param.target[1], \
-                     param.target_radius, x_prev[0], x_prev[1], x[0], x[1]) and found_flag==0:
-                cost_el.textContent = 'Target found in ' + '%.1f' % (t*param.dt) + ' seconds'
-                found_flag = 1
-            await asyncio.sleep(1E-6)
+        # Draw ergodic control path
+        ctx.lineWidth = '0.005'
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)'
+        ctx.beginPath()
+        ctx.moveTo(x_prev[0], x_prev[1])
+        ctx.lineTo(x[0], x[1])
+        ctx.stroke()
 
-        stopped.set()
+        if line_segment_and_circle_intersect(param.target[0], param.target[1], \
+                 param.target_radius, x_prev[0], x_prev[1], x[0], x[1]) and found_flag==0:
+            cost_el.textContent = 'Target found in ' + '%.1f' % (t*param.dt) + ' seconds'
+            found_flag = 1
 
-    pyscript.run_until_complete(main())
+
+    configure(to_js({
+        'loop': loop,
+    }))
 </py-script>

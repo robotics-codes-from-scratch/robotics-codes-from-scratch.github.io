@@ -1,4 +1,11 @@
-﻿<div class="row">
+﻿<style>
+    .py-terminal {
+        margin-top: 10px;
+    }
+</style>
+
+
+<div class="row exercise">
     <div class="col-sm-1"></div>
 
     <div class="col-sm-7">
@@ -13,9 +20,10 @@
                 Change <code>param.l</code>, <code>param.m</code>. <code>param.dt</code> and <code>param.damping</code> to see how these parameters affect the dynamics. Note that some parameters will produce instable behaviors (if this happens, you can reload the page to restart from a stable initial state).
             </li>
         </ul>
+
         <br/>
 
-        <py-repl std-err="errors" std-out="output">
+        <py-repl output="output">
             x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot state (position and velocity)
             param.l = np.array([200.0, 200.0, 200.0]) # Robot links lengths
             param.m = np.array([1.0, 1.0, 1.0]) # Links masses
@@ -23,41 +31,25 @@
             param.damping = 20.0 # Viscous friction
         </py-repl>
 
-        <br/><br/>
-    </div> <!--sm-7-->
+        <py-terminal id="terminal"></py-terminal>
+        <p id="output" style="display: none;"></p>
+
+        <br/>
+    </div>
 
     <div class="col-sm-4">
         <div class="sticky-sm-top" style="padding: 2rem 1rem 1rem 1rem;">
-            <hr/>
-            <div class="row justify-content-between">
-                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Output</button></div>
-                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgsOutput()">Clear</button></div>
-            </div>
-            <div id="output"></div>
-            <hr/>
-            <div class="row justify-content-between">
-                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Error</button></div>
-                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgs()">Clear</button></div>
-            </div>
-            <div id="errors"></div>
-            <hr/>
             <canvas height="1000px" id="canvas" style="width:100%;" width="900px"></canvas>
         </div>
-    </div> <!--sm-4-->
-</div> <!--row-->
+    </div>
+</div>
 
 
 <py-script>
-    def print(x):
-        display(x, target='output')
-</py-script>
-
-
-<py-script std-err="errors" std-out="output">
-    from pyodide.ffi import create_proxy
-    from js import Path2D, document, console
+    from pyodide.ffi import create_proxy, to_js
+    from js import Path2D, document, configure, displayErrorMessage
     import numpy as np
-    import asyncio
+    import traceback
 
     # Forward kinematics for end-effector (in robot coordinate system)
     def fkin(x, param):
@@ -120,7 +112,7 @@
 
     def externalPerturbation(x, param):
         u = np.zeros(param.nbVarX)
-        if move_joint &gt;= 0:
+        if move_joint >= 0:
             f = fkin(x[:move_joint+1], param2)
             J = Jkin(x[:move_joint+1], param2)
             u[:move_joint+1] = J.T @ (mouse - f) * 1E-3 # Torque commands
@@ -167,7 +159,7 @@
     def onMouseDown(event):
         global mousedown, move_joint
         mousedown = 1
-        if hover_joint &gt;= 0:
+        if hover_joint >= 0:
             f0 = fkin0(x[:param.nbVarX], param)
             param2.l = np.append(param.l[:hover_joint], np.linalg.norm(f0[:,hover_joint] - mouse))
             param2.nbVarX = hover_joint+1
@@ -180,8 +172,9 @@
 
     def onWheel(event):
         global x
-        if hover_joint &gt;= 0:
+        if hover_joint >= 0:
             x[hover_joint] -= 0.2 * (event.deltaY/106)
+        event.preventDefault()
 
 
     onMouseMoveProxy = create_proxy(onMouseMove)
@@ -230,7 +223,7 @@
         ctx.lineCap = 'round'
         ctx.lineJoin = 'round'
         for i in range(param.nbVarX):
-            if i &lt; param.nbVarX:
+            if i < param.nbVarX:
                 # Draw links outlines
                 ctx.lineWidth = '46'
                 ctx.strokeStyle = 'white'
@@ -245,7 +238,7 @@
                 ctx.lineWidth = '38'
                 ctx.strokeStyle = color
                 ctx.stroke(obj)
-                if ctx.isPointInStroke(obj, mouse0[0], mouse0[1]) and move_joint &lt; 0:
+                if ctx.isPointInStroke(obj, mouse0[0], mouse0[1]) and move_joint < 0:
                     #console.log(i)
                     hover_joint = i
 
@@ -269,78 +262,45 @@
 
     #########################################################################################
 
-    def errorHandler(e):
-        msg = 'Error: ' + str(e)
-        console.error(msg)
-        el = document.getElementById('errors')
-        el.innerText = msg
-        #el.textContent = msg
+    canvas.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    canvas.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+    canvas.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
+    canvas.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+    canvas.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    canvas.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+    canvas.addEventListener('wheel', onWheelProxy) #for standard mouse
 
 
     #########################################################################################
 
-    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
-
-    document.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
-    document.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
-
-    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
-    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
-
-    document.addEventListener('wheel', onWheelProxy) #for standard mouse
-
-    mustStop = asyncio.Event()
-    stopped = asyncio.Event()
-
-    async def cleanup():
-        mustStop.set()
-
-        document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-        document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
-
-        document.removeEventListener('mousedown', onMouseDownProxy) #for standard mouse
-        document.removeEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
-
-        document.removeEventListener('mouseup', onMouseUpProxy) #for standard mouse
-        document.removeEventListener('touchend', onMouseUpProxy) #for mobile interfaces
-
-        document.removeEventListener('wheel', onWheelProxy) #for standard mouse
-
-        await stopped.wait()
-
-    document.cleanup = cleanup
-
-
-    #########################################################################################
     x = np.zeros(2*param.nbVarX) # Initial robot state (position and velocity)
 
-    async def main():
+    async def loop(delta, time):
         global hover_joint, x
 
-        while not mustStop.is_set():
-            try:
-                u = externalPerturbation(x, param) # Torque commands
-                ddx = fdyn(x, u, param) # Compute accelerations
-                x += np.append(x[param.nbVarX:] + 0.5 * ddx * param.dt, ddx) * param.dt # Update state
-            except Exception as e:
-                errorHandler(e)
-                x = np.zeros(2*param.nbVarX)
-        
-            # Reinit hovering variables
-            hover_joint = -1
+        try:
+            u = externalPerturbation(x, param) # Torque commands
+            ddx = fdyn(x, u, param) # Compute accelerations
+            x += np.append(x[param.nbVarX:] + 0.5 * ddx * param.dt, ddx) * param.dt # Update state
+        except Exception as e:
+            displayErrorMessage(to_js(traceback.format_exception(e)))
+            x = np.zeros(2*param.nbVarX)
+    
+        # Reinit hovering variables
+        hover_joint = -1
 
-            # Rendering
-            clear_screen()
-            draw_robot(x[:param.nbVarX], '#AAAAAA')
-            if move_joint &gt;= 0:
-                f = fkin(x[:move_joint+1], param2)
-                draw_selected_point(f, '#777777')
+        # Rendering
+        clear_screen()
+        draw_robot(x[:param.nbVarX], '#AAAAAA')
+        if move_joint >= 0:
+            f = fkin(x[:move_joint+1], param2)
+            draw_selected_point(f, '#777777')
 
-            await asyncio.sleep(0.00001)
 
-        stopped.set()
-
-    pyscript.run_until_complete(main())
-
+    configure(to_js({
+        'loop': loop,
+    }))
 </py-script>

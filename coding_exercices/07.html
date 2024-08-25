@@ -54,7 +54,7 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="question1-tab" class="tab-pane fade show active" id="question1-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl std-err="errors" std-out="output">
+                <py-repl output="output">
                     # Control weight matrix
                     R = np.identity((param.nbData-1) * param.nbVarU) * 1E-6
 
@@ -99,7 +99,7 @@
             </div>
 
             <div aria-labelledby="question2-tab" class="tab-pane fade" id="question2-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl std-err="errors" std-out="output">
+                <py-repl output="output">
                     # Control weight matrix
                     R = np.identity((param.nbData-1) * param.nbVarU) * 1E-6
 
@@ -126,25 +126,16 @@
                 </py-repl>
             </div>
 
+
+            <py-terminal id="terminal"></py-terminal>
+            <p id="output" style="display: none;"></p>
+
             <br/>
         </div>
-    </div> <!--sm-7-->
+    </div>
 
     <div class="col-sm-4">
         <div class="sticky-sm-top" style="padding: 2rem 1rem 1rem 1rem;">
-            <hr/>
-            <div class="row justify-content-between">
-                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Output</button></div>
-                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgsOutput()">Clear</button></div>
-            </div>
-            <div id="output"></div>
-            <hr/>
-            <div class="row justify-content-between">
-                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Error</button></div>
-                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgs()">Clear</button></div>
-            </div>
-            <div id="errors"></div>
-            <hr/>
             <canvas height="700px" id="canvas" style="width:100%;" width="900px"></canvas>
             <form>
                 <div class="row">
@@ -152,26 +143,20 @@
                 </div>
             </form>
         </div>
-    </div> <!--sm-4-->
-</div> <!--row-->
+    </div>
+</div>
 
 
 <py-script>
-    def print(x):
-        display(x, target='output')
-</py-script>
-
-
-<py-script std-err="errors" std-out="output">
-    from pyodide.ffi import create_proxy
-    from js import Path2D, document, console
+    from pyodide.ffi import create_proxy, to_js
+    from js import Path2D, document, configure
     import numpy as np
-    import asyncio
 
     hover_joint = -1
     selected_obj = -1
 
     #########################################################################################
+
     base1_svg = Path2D.new('m -40.741975,77.319831 c -0.47247,-4.03869 7.32825,-20.1653 10.1171,-22.57617 4.71807,-4.07862 14.00201,-4.3722 15.87822,-6.89366 1.16821,-1.06725 1.19306,-2.45846 1.19136,-4.984461 -0.005,-6.836939 0.0375,-38.9164375 -0.0588,-42.62054746 C -13.757555,-5.2728275 -9.8130348,-13.34661 -0.02248483,-13.67734 7.5903552,-13.93451 13.741895,-7.1292375 13.608255,-0.84839739 13.474625,5.4324325 13.073715,50.200081 13.741895,54.075491 c 0.66817,3.8754 3.0736,26.72695 3.0736,26.72695 l -53.47684,-0.23624 c -3.68777,-0.0163 -4.0806,-3.24637 -4.0806,-3.24637 z')
     base2_svg = Path2D.new('m -13.653647,45.770986 27.119789,-0.07088')
 
@@ -316,12 +301,12 @@
                 xtmp = xtmp.reshape([param.nbVarX, param.nbData], order='F')
                 ftmp, _ = f_reach(xtmp, param) # Residuals
                 cost = ftmp.flatten('F').T @ Q @ ftmp.flatten('F') + np.linalg.norm(utmp)**2 * param.r # Cost
-                if cost &lt; cost0 or alpha &lt; 1e-3:
+                if cost < cost0 or alpha < 1e-3:
                     u = utmp
                     #console.log("Iteration {}, cost: {}".format(i,cost))
                     break
                 alpha /= 2
-            if np.linalg.norm(du * alpha) &lt; 1E-2:
+            if np.linalg.norm(du * alpha) < 1E-2:
                 break # Stop iLQR iterations when solution is reached
         return x, cost
 
@@ -337,6 +322,7 @@
 
     #########################################################################################
     # GUI
+
     scaling_factor = 2 # General scaling factor for rendering
 
     # Mouse events
@@ -345,13 +331,6 @@
     mousedown = 0
     move_joint= -1
     hover0 = np.zeros(2)
-
-    #def onMouseMove(event):
-    #   global mouse, mouse0
-    #   mouse0[0] = event.offsetX
-    #   mouse0[1] = event.offsetY
-    #   mouse[0] = (event.offsetX - canvas.width * 0.5) / scaling_factor #(event.offsetX / (window.innerWidth*.5)) * 2 - 1
-    #   mouse[1] = (event.offsetY - canvas.height * 0.5) / scaling_factor #-(event.offsetY / (window.innerHeight*.5)) * 2 + 1
 
     def onMouseMove(event):
         global mouse, mouse0, hover0, x, active_robot_id, x_vias
@@ -391,14 +370,12 @@
 
     def onWheel(event):
         global hover_joint, x_vias
-        #if mousedown==1:
-        #document.getElementById('object0_angle').value = str(param.Mu[2,0] + 0.2 * (event.deltaY/106))
         if hover_joint >= 0:
             x_vias[hover_joint, active_robot_id] -= 0.2 * (event.deltaY/106)
             update_iLQR()
+        event.preventDefault()
 
     cost_el = document.getElementById('cost')
-    debug_el = document.getElementById('debug')
 
     onMouseMoveProxy = create_proxy(onMouseMove)
     onTouchMoveProxy = create_proxy(onTouchMove)
@@ -408,6 +385,7 @@
 
 
     #########################################################################################
+
     canvas = document.getElementById('canvas')
     ctx = canvas.getContext('2d')
 
@@ -517,7 +495,6 @@
             hover_obj = id
         if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
             selected_obj = id
-        #debug_el.innerText = str(selected_obj)
 
         #ctx.fillRect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
         if param.sz[0] > 39 and param.sz[1] > 19:
@@ -530,100 +507,67 @@
 
     #########################################################################################
 
-    def errorHandler(e):
-        msg = 'Error: ' + str(e)
-        console.error(msg)
-        el = document.getElementById('errors')
-        el.innerText = msg
-        #el.textContent = msg
+    canvas.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    canvas.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+    canvas.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
+    canvas.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+    canvas.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    canvas.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+    canvas.addEventListener('wheel', onWheelProxy) #for standard mouse
 
 
     #########################################################################################
 
-    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
-
-    document.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
-    document.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
-
-    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
-    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
-
-    document.addEventListener('wheel', onWheelProxy) #for standard mouse
-
-    mustStop = asyncio.Event()
-    stopped = asyncio.Event()
-
-    async def cleanup():
-        mustStop.set()
-
-        document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-        document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
-
-        document.removeEventListener('mousedown', onMouseDownProxy) #for standard mouse
-        document.removeEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
-
-        document.removeEventListener('mouseup', onMouseUpProxy) #for standard mouse
-        document.removeEventListener('touchend', onMouseUpProxy) #for mobile interfaces
-
-        document.removeEventListener('wheel', onWheelProxy) #for standard mouse
-
-        await stopped.wait()
-
-    document.cleanup = cleanup
-
-
-    #########################################################################################
     u = np.zeros(param.nbVarU * (param.nbData-1)) # Initial control commands
     x, cost = iLQR(x_vias[:,0], u, param)
     cost_el.textContent = '%.3f' % cost
 
-    async def main():
-        global hover_joint, hover_obj, param
+    t0 = 0
+    t = 0
+    tf = 0
 
-        t0 = 0
-        t = 0
-        tf = 0
-        while not mustStop.is_set():
-        #   time = performance.now() * 0.0005;
-            t0 += simulation_speed
-            if t0 > 19:
-                t0 = 0
-                if t > param.nbData-2:
-                    tf += 1
-                    if tf > 10: #Stay some iterations at the final point before starting again
-                        t = 0
-                        tf = 0
-                else:
-                    t += 1
+    async def loop(delta, time):
+        global hover_joint, hover_obj, param, t0, t, tf
 
-            # Reinit hovering variables
-            hover_joint = -1
-            hover_obj = -1
+        t0 += simulation_speed
+        if t0 > 19:
+            t0 = 0
+            if t > param.nbData-2:
+                tf += 1
+                if tf > 10: #Stay some iterations at the final point before starting again
+                    t = 0
+                    tf = 0
+            else:
+                t += 1
 
-            # Rendering
-            clear_screen()
-            draw_ground()
-            draw_robot(x_vias[:,0], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', True, 0) # x0
-            draw_robot(x_vias[:,1], '#FF9933', '#EE8822',  '#DD7711', '#CC6600', True, 1) # Viapose
-            draw_obj(0, param, '#FF3399', '#DD1177')
-            draw_obj(1, param, '#33FF99', '#11DD77')
-            draw_robot(x[:,t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False, -1)
+        # Reinit hovering variables
+        hover_joint = -1
+        hover_obj = -1
 
-            # Object selection
-            if selected_obj>= 0:
-                param.Mu[:2,selected_obj] = mouse
-                param.Mu[0,selected_obj] = max(min(param.Mu[0,selected_obj],225), -225)
-                param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],175), -175)
+        # Rendering
+        clear_screen()
+        draw_ground()
+        draw_robot(x_vias[:,0], '#EEEEEE', '#DDDDDD', '#CCCCCC', '#BBBBBB', True, 0) # x0
+        draw_robot(x_vias[:,1], '#FF9933', '#EE8822',  '#DD7711', '#CC6600', True, 1) # Viapose
+        draw_obj(0, param, '#FF3399', '#DD1177')
+        draw_obj(1, param, '#33FF99', '#11DD77')
+        draw_robot(x[:,t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False, -1)
 
-            param.viapoint1 = x_vias[:,1]
-            param.viapoint2 = param.Mu[:2,0]
-            param.viapoint3 = param.Mu[:2,1]
+        # Object selection
+        if selected_obj>= 0:
+            param.Mu[:2,selected_obj] = mouse
+            param.Mu[0,selected_obj] = max(min(param.Mu[0,selected_obj],225), -225)
+            param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],175), -175)
 
-            await asyncio.sleep(0.0001)
+        param.viapoint1 = x_vias[:,1]
+        param.viapoint2 = param.Mu[:2,0]
+        param.viapoint3 = param.Mu[:2,1]
 
-        stopped.set()
 
-    pyscript.run_until_complete(main())
-
+    configure(to_js({
+        'loop': loop,
+    }))
 </py-script>

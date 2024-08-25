@@ -24,7 +24,7 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="question1-tab" class="tab-pane fade show active" id="question1-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl std-err="errors" std-out="output">
+                <py-repl output="output">
                     param.nbVarPos = 3 # Dimension of position variable (here, joint angles)
                     param.nbDeriv = 1 # Number of derivatives (1 for velocity commands)
                     param.nbVarX = param.nbVarPos * param.nbDeriv # Dimension of the state space
@@ -49,7 +49,7 @@
             </div>
 
             <div aria-labelledby="answer1-tab" class="tab-pane fade" id="answer1-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl std-err="errors" std-out="output">
+                <py-repl output="output">
                     param.nbVarPos = 3 # Dimension of position variable (here, joint angles)
                     param.nbDeriv = 1 # Number of derivatives (1 for velocity commands)
                     param.nbVarX = param.nbVarPos * param.nbDeriv # Dimension of the state space
@@ -74,43 +74,25 @@
             </div>
         </div>
 
-        <br/><br/>
-    </div> <!--sm-7-->
+        <py-terminal id="terminal"></py-terminal>
+        <p id="output" style="display: none;"></p>
+
+        <br/>
+    </div>
 
     <div class="col-sm-4">
         <div class="sticky-sm-top" style="padding: 2rem 1rem 1rem 1rem;">
-            <hr/>
-            <div class="row justify-content-between">
-                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Output</button></div>
-                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgsOutput()">Clear</button></div>
-            </div>
-            <div id="output"></div>
-            <hr/>
-            <div class="row justify-content-between">
-                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Error</button></div>
-                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgs()">Clear</button></div>
-            </div>
-            <div id="errors"></div>
-            <hr/>
             <canvas height="700px" id="canvas" style="width:100%;" width="900px"></canvas>
         </div>
-    </div> <!--sm-4-->
-</div> <!--row-->
+    </div>
+</div>
 
 
 <py-script>
-    def print(x):
-        display(x, target='output')
-</py-script>
-
-
-<py-script std-err="errors" std-out="output">
-    from pyodide.ffi import create_proxy
-    from js import Path2D, document, console
+    from pyodide.ffi import create_proxy, to_js
+    from js import Path2D, document, configure
     import numpy as np
-    import asyncio
     from math import factorial
-
 
     #########################################################################################
     base1_svg = Path2D.new('m -40.741975,77.319831 c -0.47247,-4.03869 7.32825,-20.1653 10.1171,-22.57617 4.71807,-4.07862 14.00201,-4.3722 15.87822,-6.89366 1.16821,-1.06725 1.19306,-2.45846 1.19136,-4.984461 -0.005,-6.836939 0.0375,-38.9164375 -0.0588,-42.62054746 C -13.757555,-5.2728275 -9.8130348,-13.34661 -0.02248483,-13.67734 7.5903552,-13.93451 13.741895,-7.1292375 13.608255,-0.84839739 13.474625,5.4324325 13.073715,50.200081 13.741895,54.075491 c 0.66817,3.8754 3.0736,26.72695 3.0736,26.72695 l -53.47684,-0.23624 c -3.68777,-0.0163 -4.0806,-3.24637 -4.0806,-3.24637 z')
@@ -186,6 +168,7 @@
         return J
 
     #########################################################################################
+
     def compute_transfer_matrices(param):
         A1d = np.zeros((param.nbDeriv,param.nbDeriv))
         B1d = np.zeros((param.nbDeriv,1))
@@ -395,76 +378,46 @@
 
     #########################################################################################
 
-    def errorHandler(e):
-        msg = 'Error: ' + str(e)
-        console.error(msg)
-        el = document.getElementById('errors')
-        el.innerText = msg
-        #el.textContent = msg
+    canvas.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    canvas.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+    canvas.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
+    canvas.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+    canvas.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    canvas.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
 
 
     #########################################################################################
 
-    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
-
-    document.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
-    document.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
-
-    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
-    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
-
-    mustStop = asyncio.Event()
-    stopped = asyncio.Event()
-
-    async def cleanup():
-        mustStop.set()
-
-        document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-        document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
-
-        document.removeEventListener('mousedown', onMouseDownProxy) #for standard mouse
-        document.removeEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
-
-        document.removeEventListener('mouseup', onMouseUpProxy) #for standard mouse
-        document.removeEventListener('touchend', onMouseUpProxy) #for mobile interfaces
-
-        await stopped.wait()
-
-    document.cleanup = cleanup
-
-
-    #########################################################################################
     x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
     param.Mu[:,0] = x # 1st viapoint position
     param.Mu[:,1] = x # 2nd viapoint position
     xs = solve_LQR(x, param)
 
-    async def main():
-        t = 0
-        tf = 0
-        while not mustStop.is_set():
-            if t > param.nbData-2:
-                tf += 1
-                if tf > 10: #Stay some iterations at the final point before starting again
-                    t = 0
-                    tf = 0
-            else:
-                t += 1
-        
-            #xs = solve_LQR(x0, param)
-        
-            # Rendering
-            clear_screen()
-            draw_ground()
-            draw_robot(param.Mu0[:,0], '#FF3399', '#FF3399', '#DD1177', '#DD1177', False, 0)
-            draw_robot(param.Mu0[:,1], '#33FF99', '#33FF99', '#11DD77', '#11DD77', False, 1)
-            draw_robot(xs[:,t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False, -1)
+    t = 0
+    tf = 0
 
-            await asyncio.sleep(0.0001)
+    async def loop(delta, time):
+        global t, tf
+    
+        if t > param.nbData-2:
+            tf += 1
+            if tf > 10: #Stay some iterations at the final point before starting again
+                t = 0
+                tf = 0
+        else:
+            t += 1
+    
+        # Rendering
+        clear_screen()
+        draw_ground()
+        draw_robot(param.Mu0[:,0], '#FF3399', '#FF3399', '#DD1177', '#DD1177', False, 0)
+        draw_robot(param.Mu0[:,1], '#33FF99', '#33FF99', '#11DD77', '#11DD77', False, 1)
+        draw_robot(xs[:,t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False, -1)
 
-        stopped.set()
 
-    pyscript.run_until_complete(main())
-
+    configure(to_js({
+        'loop': loop,
+    }))
 </py-script>

@@ -37,7 +37,7 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="question4-tab" class="tab-pane fade show active" id="question4-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl std-err="errors" std-out="output">
+                <py-repl output="output">
                     x = np.array([-0.8, 1.8, 3.0]) # Initial robot state
 
                     def controlCommand(x, param):
@@ -53,7 +53,7 @@
             </div>
 
             <div aria-labelledby="answer4-tab" class="tab-pane fade" id="answer4-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl std-err="errors" std-out="output">
+                <py-repl output="output">
                     x = np.array([-0.8, 1.8, 3.0]) # Initial robot state
 
                     def controlCommand(x, param):
@@ -70,7 +70,7 @@
             </div>
 
             <div aria-labelledby="answer2-tab" class="tab-pane fade" id="answer2-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl std-err="errors" std-out="output">
+                <py-repl output="output">
                     x = np.array([-0.8, 1.8, 3.0]) # Initial robot state
 
                     def controlCommand(x, param):
@@ -100,28 +100,18 @@
                         # u = u_pos + N_pos @ u_ori # Control commands
 
                         return u
-                </py-repl> <!--output='repl-out' std-out='repl-out'-->
+                </py-repl>
             </div>
         </div>
 
-        <br/><br/>
-    </div> <!--sm-7-->
+        <py-terminal id="terminal"></py-terminal>
+        <p id="output" style="display: none;"></p>
+
+        <br/>
+    </div>
 
     <div class="col-sm-4">
         <div class="sticky-sm-top" style="padding: 2rem 1rem 1rem 1rem;">
-            <hr/>
-            <div class="row justify-content-between">
-                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Output</button></div>
-                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgsOutput()">Clear</button></div>
-            </div>
-            <div id="output"></div>
-            <hr/>
-            <div class="row justify-content-between">
-                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Error</button></div>
-                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgs()">Clear</button></div>
-            </div>
-            <div id="errors"></div>
-            <hr/>
             <div style="position:relative; font-size: 100%;">
                 <canvas height="700px" id="canvas" style="width:100%;" width="900px"></canvas>
                 <span id="latex0" style="position:absolute; left:9999px; bottom:0px;"><span class="ltx_Math">{\color{#DD1177}\mathcal{S}^1}</span></span>
@@ -137,22 +127,16 @@
             <label>Object orientation</label><br/>
             <input class="w-72" id="simulation_speed" max="20" min="0" step="0.01" style="vertical-align:middle;" type="range" value="10"/>
             <label>Simulation speed</label>
-        </div> <!--sticky-sm-top-->
-    </div> <!--sm-4-->
-</div> <!--row-->
+        </div>
+    </div>
+</div>
 
 
 <py-script>
-    def print(x):
-        display(x, target='output')
-</py-script>
-
-
-<py-script std-err="errors" std-out="output">
-    from pyodide.ffi import create_proxy
-    from js import Path2D, document, console
+    from pyodide.ffi import create_proxy, to_js
+    from js import Path2D, document, configure, displayErrorMessage
     import numpy as np
-    import asyncio
+    import traceback
 
     object_angle = document.getElementById('object_angle') # Object angle
     simulation_speed = document.getElementById('simulation_speed') # Simulation speed
@@ -161,6 +145,7 @@
         latex_el.append(document.getElementById('latex%d' % i)) # Latex symbols
 
     #########################################################################################
+
     base1_svg = Path2D.new('m -40.741975,77.319831 c -0.47247,-4.03869 7.32825,-20.1653 10.1171,-22.57617 4.71807,-4.07862 14.00201,-4.3722 15.87822,-6.89366 1.16821,-1.06725 1.19306,-2.45846 1.19136,-4.984461 -0.005,-6.836939 0.0375,-38.9164375 -0.0588,-42.62054746 C -13.757555,-5.2728275 -9.8130348,-13.34661 -0.02248483,-13.67734 7.5903552,-13.93451 13.741895,-7.1292375 13.608255,-0.84839739 13.474625,5.4324325 13.073715,50.200081 13.741895,54.075491 c 0.66817,3.8754 3.0736,26.72695 3.0736,26.72695 l -53.47684,-0.23624 c -3.68777,-0.0163 -4.0806,-3.24637 -4.0806,-3.24637 z')
     base2_svg = Path2D.new('m -13.653647,45.770986 27.119789,-0.07088')
 
@@ -279,21 +264,20 @@
     def onMouseDown(event):
         global mousedown
         mousedown = 1
-    #   console.log('Mouse down')
 
     def onMouseUp(event):
         global mousedown, selected_obj
         mousedown = 0
         selected_obj = -1
-    #   console.log('Mouse up')
 
     def onWheel(event):
         global hover_joint, hover_obj, x, object_angle, param
         if hover_obj == 0:
             param.Mu[2] += 0.2 * (event.deltaY/106)
             object_angle.value = float(object_angle.value) + 0.2 * (event.deltaY/106)
-        if hover_joint &gt;= 0:
+        if hover_joint >= 0:
             x[hover_joint] += 0.2 * (event.deltaY/106)
+        event.preventDefault()
 
     onMouseMoveProxy = create_proxy(onMouseMove)
     onTouchMoveProxy = create_proxy(onTouchMove)
@@ -411,7 +395,7 @@
         if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
             selected_obj = 0
         #ctx.fillRect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
-        if param.sz[0] &gt; 39 and param.sz[1] &gt; 19:
+        if param.sz[0] > 39 and param.sz[1] > 19:
             ctx.textAlign = 'center'
             ctx.textBaseline = 'middle'
             ctx.font = '10px Permanent Marker'
@@ -442,7 +426,7 @@
         ctx.lineWidth = lw
         # Draw arrow tip
         length = np.linalg.norm(x2-x1)
-        if length &gt; sz*1.5:
+        if length > sz*1.5:
             v = (x2-x1) * sz / length
             ctx.beginPath()
             ctx.moveTo(x2[0], x2[1])
@@ -493,7 +477,7 @@
         ctx.lineWidth = '3'
         ctx.strokeStyle = color
         ctx.beginPath()
-        if d &lt; 0:
+        if d < 0:
             ctx.arc(0, 0, radius, param.Mu[-1], x[-1]) # Geodesic
         else:
             ctx.arc(0, 0, radius, x[-1], param.Mu[-1]) # Geodesic
@@ -581,90 +565,62 @@
         u = np.zeros(param.nbVarX)
         return u
 
-    #########################################################################################
-
-    def errorHandler(e):
-        msg = 'Error: ' + str(e)
-        console.error(msg)
-        el = document.getElementById('errors')
-        el.innerText = msg
-        #el.textContent = msg
-
 
     #########################################################################################
 
-    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+    canvas.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    canvas.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
 
-    document.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
-    document.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+    canvas.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
+    canvas.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
 
-    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
-    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+    canvas.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    canvas.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
 
-    document.addEventListener('wheel', onWheelProxy) #for standard mouse
-
-    mustStop = asyncio.Event()
-    stopped = asyncio.Event()
-
-    async def cleanup():
-        mustStop.set()
-
-        document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-        document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
-
-        document.removeEventListener('mousedown', onMouseDownProxy) #for standard mouse
-        document.removeEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
-
-        document.removeEventListener('mouseup', onMouseUpProxy) #for standard mouse
-        document.removeEventListener('touchend', onMouseUpProxy) #for mobile interfaces
-
-        document.removeEventListener('wheel', onWheelProxy) #for standard mouse
-
-        await stopped.wait()
-
-    document.cleanup = cleanup
+    canvas.addEventListener('wheel', onWheelProxy) #for standard mouse
 
 
     #########################################################################################
+
     #x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
     x = np.array([-0.8, 1.8, 3.0]) # Initial robot state (for an orientation close to pi)
     u = np.zeros(param.nbVarX)
 
-    async def main():
-        global hover_joint, hover_obj, x, param
+    t0 = 0
 
-        t0 = 0
-        while not mustStop.is_set():
+    async def loop(delta, time):
+        global hover_joint, hover_obj, x, param, t0
+
+        try:
             t0 += float(simulation_speed.value)
-            if t0 &gt; 19:
+            if t0 > 19:
                 t0 = 0
                 u = controlCommand(x, param)
                 # Update of state
                 x += u * param.dt
+        except Exception as e:
+            displayErrorMessage(to_js(traceback.format_exception(e)))
 
-            # Reinit hovering variables
-            hover_joint = -1
-            hover_obj = -1
+        # Reinit hovering variables
+        hover_joint = -1
+        hover_obj = -1
 
-            # Rendering
-            clear_screen()
-            draw_ground()
-            draw_manifold(fkin(x,param), param)
-            draw_obj(param)
-            draw_robot(x)
+        # Rendering
+        clear_screen()
+        draw_ground()
+        draw_manifold(fkin(x,param), param)
+        draw_obj(param)
+        draw_robot(x)
 
-            # Object selection
-            if selected_obj==0:
-                param.Mu[:2] = mouse
-                param.Mu[0] = max(min(param.Mu[0],225), -225)
-                param.Mu[1] = max(min(param.Mu[1],175), -175)
-            param.Mu[2] = float(object_angle.value)
+        # Object selection
+        if selected_obj==0:
+            param.Mu[:2] = mouse
+            param.Mu[0] = max(min(param.Mu[0],225), -225)
+            param.Mu[1] = max(min(param.Mu[1],175), -175)
+        param.Mu[2] = float(object_angle.value)
 
-            await asyncio.sleep(0.0001)
 
-        stopped.set()
-
-    pyscript.run_until_complete(main())
-
+    configure(to_js({
+        'loop': loop,
+    }))
 </py-script>

@@ -1,47 +1,12 @@
-﻿<py-script>
-    def print(x):
-        display(x, target='output')
-</py-script>
+﻿<style>
+    .py-repl-output {
+        font-size: 0.7em;
+        padding-top: 0.5rem;
+    }
+</style>
 
 
-<py-script std-err="errors" std-out="output">
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from js import document, console
-    from pyodide.ffi import create_proxy
-
-    def sqrtm(a):
-        # Computing diagonalization
-        evalues, evectors = np.linalg.eig(a)
-        # Ensuring square root matrix exists
-        # assert (evalues &gt;= 0).all()
-        return evectors @ np.diag(np.sqrt(evalues)) @ np.linalg.inv(evectors)
-
-    def plot_gaussian(mu, sigma, ax, dim=None, color='r', alpha=0.5, lw=1, markersize=6, **kwargs):
-        nb_segm=24
-        mu, sigma = np.array(mu), np.array(sigma)
-        t = np.linspace(-np.pi, np.pi, nb_segm)
-        R = np.real(sqrtm(1.0 * sigma))
-        points = np.einsum('ij,ja-&gt;ia', R, np.array([np.cos(t), np.sin(t)])) + mu[:, None]
-        center, = ax.plot(mu[0], mu[1], '.', color=color, alpha=alpha)  # Mean
-        line, = ax.plot(points[0], points[1], color=color, linewidth=lw,
-                    markersize=markersize, **kwargs)  # Contour
-        return center, line
-
-    def condition_gaussian(x1, slice1, slice2, mu, sigma):
-        mu1 = mu[slice1]
-        mu2 = mu[slice2]
-        sigma11 = sigma[slice1, slice1]
-        sigma22 = sigma[slice2, slice2]
-        sigma12 = sigma[slice1, slice2]
-        sigma11_inv = np.linalg.inv(sigma11)
-        mu_C = mu2 + sigma12 @ sigma11_inv @ (x1 - mu1)
-        sigma_C = sigma22 - sigma12 @ sigma11_inv @ sigma12
-        return mu_C, sigma_C
-</py-script>
-
-
-<div class="row">
+<div class="row exercise">
     <div class="col-sm-1"> </div>
 
     <div class="col-sm-7">
@@ -66,7 +31,7 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="question-tab" class="tab-pane fade show active" id="question-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl std-err="errors" std-out="output">
+                <py-repl>
                     def gaussian_nD(x, mu, sigma):
                         D = x.shape[0]
                         cons = ((2*np.pi)**(-D/2)) * (np.linalg.det(sigma)**(-0.5))
@@ -88,7 +53,7 @@
             </div>
 
             <div aria-labelledby="answer-tab" class="tab-pane fade" id="answer-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl std-err="errors" std-out="output">
+                <py-repl>
                     def gaussian_nD(x, mu, sigma):
                         D = x.shape[0]
                         cons = ((2*np.pi)**(-D/2)) * (np.linalg.det(sigma)**(-0.5))
@@ -117,7 +82,7 @@
          to the function (you can also give other arguments that matplotlib accepts).</p>
         <p>Implement <code>product_gaussians</code> in the code above and run the code below to test your answer. You can verify your answer by clicking on the button below the code.</p>
 
-        <py-repl std-err="errors" std-out="chart">
+        <py-repl>
             mu1 = np.zeros(2)
             mu2 = np.ones(2)
             sigma1 = np.diag([.5,.1])
@@ -142,7 +107,7 @@
 
         <p>Implement <code>linear_combination</code> in the code above and run the code below to test your answer. You can verify your answer by clicking on the button below the code (the plot in the answer is generated with <span class="ltx_Math">c=0</span>).</p>
 
-        <py-repl std-err="errors" std-out="chart">
+        <py-repl>
             mu1 = np.zeros(2)
             mu2 = np.ones(2)
             sigma1 = np.diag([1,1])
@@ -182,7 +147,7 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="question2-tab" class="tab-pane fade show active" id="question2-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl std-err="errors" std-out="output">
+                <py-repl>
                     def fit_gaussian(X):
                         mu = np.zeros(2) # implement here
                         sigma = np.eye(2) # implement here
@@ -191,7 +156,7 @@
             </div>
 
             <div aria-labelledby="answer2-tab" class="tab-pane fade" id="answer2-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl std-err="errors" std-out="output">
+                <py-repl>
                     def fit_gaussian(X):
                         mu = np.mean(X, axis=-1)
                         sigma = (X-mu[:,None]).dot((X-mu[:,None]).T) / nb_data
@@ -205,7 +170,7 @@
         <p>Verify your function by plotting the resulting Gaussian distribution along with the dataset. To do this, you can run the code below by changing the noise level.
         You can also click on the button below to verify your answer (the answer is generated with <code>noise_scale=0.01</code>).</p>
 
-        <py-repl std-err="errors" std-out="chart">
+        <py-repl>
             noise_scale = 0.05 # change this to the noise level you want
             nb_data = 100
             x1 = np.linspace(0,1,nb_data)
@@ -246,7 +211,7 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="question3-tab" class="tab-pane fade show active" id="question3-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl std-err="errors" std-out="output">
+                <py-repl>
                     # Create a new dataset X2
                     x2 = np.linspace(0,1,nb_data)
                     y2 = 1.5*x2 + np.random.randn(nb_data)*noise_scale
@@ -264,7 +229,7 @@
             </div>
 
             <div aria-labelledby="answer3-tab" class="tab-pane fade" id="answer3-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl std-err="errors" std-out="output">
+                <py-repl>
                     # Create a new dataset X2
                     x2 = np.linspace(0,1,nb_data)
                     y2 = 1.5*x2 + np.random.randn(nb_data)*noise_scale
@@ -285,7 +250,7 @@
 
         <p>Plot these Gaussian distributions to verify your results with the button below.</p>
 
-        <py-repl std-err="errors" std-out="chart">
+        <py-repl>
             plt.close('all')
             fig,ax = plt.subplots(figsize=(5,5))
             plot_gaussian(mu2, sigma2, ax, color='b', label='2nd demo')
@@ -321,7 +286,7 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="question2-tab" class="tab-pane fade show active" id="question4-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl std-err="errors" std-out="chart">
+                <py-repl>
                     angle = np.pi/3
                     R = np.array([[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]])
 
@@ -352,7 +317,7 @@
             </div>
 
             <div aria-labelledby="answer4-tab" class="tab-pane fade" id="answer4-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl std-err="errors" std-out="chart">
+                <py-repl>
                     angle = np.pi/3
                     R = np.array([[np.cos(angle), -np.sin(angle)],
                           [np.sin(angle), np.cos(angle)]])
@@ -388,24 +353,44 @@
         <div class="collapse" id="answer5"><img src="static_images/Ex3-5.png"/></div>
 
         <br/>
-    </div> <!-- col-sm-7 -->
+    </div>
 
-    <div class="col-sm-4" id="div1">
-        <div class="sticky-sm-top" style="padding: 2rem 1rem 1rem 1rem;">
-            <hr/>
-            <div class="row justify-content-between">
-                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Output</button></div>
-                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgsOutput()">Clear</button></div>
-            </div>
-            <div id="output"></div>
-            <hr/>
-            <div class="row justify-content-between">
-                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Error</button></div>
-                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgs()">Clear</button></div>
-            </div>
-            <div id="errors"></div>
-            <hr/>
-            <div id="chart"></div>
-        </div>
-    </div> <!-- col-sm-4 -->
-</div> <!-- row -->
+    <div class="col-sm-4"></div>
+</div>
+
+
+<py-script>
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from js import document, console
+    from pyodide.ffi import create_proxy
+
+    def sqrtm(a):
+        # Computing diagonalization
+        evalues, evectors = np.linalg.eig(a)
+        # Ensuring square root matrix exists
+        # assert (evalues >= 0).all()
+        return evectors @ np.diag(np.sqrt(evalues)) @ np.linalg.inv(evectors)
+
+    def plot_gaussian(mu, sigma, ax, dim=None, color='r', alpha=0.5, lw=1, markersize=6, **kwargs):
+        nb_segm=24
+        mu, sigma = np.array(mu), np.array(sigma)
+        t = np.linspace(-np.pi, np.pi, nb_segm)
+        R = np.real(sqrtm(1.0 * sigma))
+        points = np.einsum('ij,ja->ia', R, np.array([np.cos(t), np.sin(t)])) + mu[:, None]
+        center, = ax.plot(mu[0], mu[1], '.', color=color, alpha=alpha)  # Mean
+        line, = ax.plot(points[0], points[1], color=color, linewidth=lw,
+                    markersize=markersize, **kwargs)  # Contour
+        return center, line
+
+    def condition_gaussian(x1, slice1, slice2, mu, sigma):
+        mu1 = mu[slice1]
+        mu2 = mu[slice2]
+        sigma11 = sigma[slice1, slice1]
+        sigma22 = sigma[slice2, slice2]
+        sigma12 = sigma[slice1, slice2]
+        sigma11_inv = np.linalg.inv(sigma11)
+        mu_C = mu2 + sigma12 @ sigma11_inv @ (x1 - mu1)
+        sigma_C = sigma22 - sigma12 @ sigma11_inv @ sigma12
+        return mu_C, sigma_C
+</py-script>

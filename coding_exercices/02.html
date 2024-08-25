@@ -1,18 +1,12 @@
-﻿<py-script>
-    def print(x):
-        display(x, target='output')
-</py-script>
+﻿<style>
+    .py-repl-output {
+        font-size: 0.7em;
+        padding-top: 0.5rem;
+    }
+</style>
 
 
-<py-script std-err="errors" std-out="output">
-    import numpy as np
-    import matplotlib.pyplot as plt
-    from js import document, console
-    from pyodide.ffi import create_proxy
-</py-script>
-
-
-<div class="row">
+<div class="row exercise">
     <div class="col-sm-1"> </div>
 
     <div class="col-sm-7">
@@ -28,7 +22,7 @@
             <li>Change the function below to plot Bézier basis functions (you can compare your result to Figure 1 in the <a href="doc/rcfs.pdf" target="_blank">RCFS documentation</a>).</li>
         </ol>
 
-        <py-repl id="rep0" std-err="errors" std-out="chart">
+        <py-repl>
             param_lambda = 1e2
             nb_data = 100
             nb_fct = 10
@@ -57,7 +51,7 @@
 
             <br/>
 
-            <py-repl id="rep1" std-err="errors" std-out="output">
+            <py-repl>
                 noise_scale = 1. # change this to the noise level you want
                 nb_data = 100
                 def generate_data(t):
@@ -68,7 +62,7 @@
 
             <br/>
 
-            <py-repl id="rep1_plot" std-err="errors" std-out="chart">
+            <py-repl>
                 fig,ax = plt.subplots(figsize=(5,5))
                 ax.plot(t,x)
                 ax.set_xlabel('t')
@@ -85,7 +79,7 @@
             <br/>
 
             <!--w = np.linalg.pinv(psi) @ x # Estimation of superposition weights from data-->
-            <py-repl id="rep2" std-err="errors" std-out="output">
+            <py-repl>
                 nbFct = 30
                 psi = build_basis_function(nb_data,nbFct)
                 def estimate_w(x, psi):
@@ -103,7 +97,7 @@
             <br/>
 
             <!--    x_hat = psi @ w # Reconstruction data-->
-            <py-repl id="rep3" std-err="errors" std-out="chart">
+            <py-repl>
                 def reconstruct(w, psi):
                     # x_hat = # Implement here: Reconstruction data
                     return x_hat
@@ -123,7 +117,7 @@
             <br/>
 
             <!--      errors.append(np.linalg.norm(x-x_hat))-->
-            <py-repl id="rep4" std-err="errors" std-out="chart">
+            <py-repl>
                 nbFcts = [] # Implement here: choose 5 different nbFct
                 errors = []
                 for nbFct in nbFcts:
@@ -158,8 +152,8 @@
         </ol>
 
         <!--    search_direction = - first_derivative(x) / second_derivative(x)-->
-        <!--  x_trial = x + alpha * search_direction-->
-        <py-repl id="rep3" std-err="errors" std-out="output">
+        <!--        x_trial = x + alpha * search_direction-->
+        <py-repl>
             def objective_function(x):
                 return x**2 + x**3
 
@@ -177,25 +171,25 @@
                 # Implement Newton's method here (one line)
                 # search_direction =
 
-            # Implement line search here (output: alpha)
-            alpha = 1.
-            for j in range(10):
-                # x_trial =  # implement a trial x in the direction of search_direction
-                cost_trial = objective_function(x_trial)
-                if cost_trial &lt; cost:
+                # Implement line search here (output: alpha)
+                alpha = 1.
+                for j in range(10):
+                    # x_trial =  # implement a trial x in the direction of search_direction
+                    cost_trial = objective_function(x_trial)
+                    if cost_trial < cost:
+                        break
+                    else:
+                        alpha = alpha * 0.5
+
+                # Convergence check
+                prev_cost = np.copy(cost)
+                x = x + alpha * search_direction
+                cost = objective_function(x)
+                cost_log += [cost]
+                if np.abs(cost-prev_cost) < 1e-6:
                     break
-                else:
-                    alpha = alpha * 0.5
 
-            # Convergence check
-            prev_cost = np.copy(cost)
-            x = x + alpha * search_direction
-            cost = objective_function(x)
-            cost_log += [cost]
-            if np.abs(cost-prev_cost) &lt; 1e-6:
-                break
-
-            x_log.append(x)
+                x_log.append(x)
 
             x_log = np.array(x_log)
             cost_log = np.array(cost_log)
@@ -204,7 +198,7 @@
 
         <br/>
 
-        <py-repl id="rep3_plot" std-err="errors" std-out="chart">
+        <py-repl>
             fig,ax = plt.subplots(figsize=(5,5))
             ax.plot(np.arange(0,i+2), cost_log)
             ax.set_xlabel('Iteration number')
@@ -217,24 +211,15 @@
         <div class="collapse" id="answer3"><img src="static_images/Ex2-3.png"/></div>
 
         <br/>
-    </div> <!-- col-sm-7 -->
+    </div>
 
-    <div class="col-sm-4" id="div1">
-        <div class="sticky-sm-top" style="padding: 2rem 1rem 1rem 1rem;">
-            <hr/>
-            <div class="row justify-content-between">
-                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Output</button></div>
-                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgsOutput()">Clear</button></div>
-            </div>
-            <div id="output"></div>
-            <hr/>
-            <div class="row justify-content-between">
-                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Error</button></div>
-                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgs()">Clear</button></div>
-            </div>
-            <div id="errors"></div>
-            <hr/>
-        <div id="chart"></div>
-        </div>
-    </div> <!-- col-sm-4 -->
-</div> <!-- row -->
+    <div class="col-sm-4"></div>
+</div>
+
+
+<py-script>
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from js import document, console
+    from pyodide.ffi import create_proxy
+</py-script>

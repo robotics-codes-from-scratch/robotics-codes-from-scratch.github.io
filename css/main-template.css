@@ -40,6 +40,10 @@ form label {
     text-align: left;
 }
 
+.ltx_p {
+    margin-top: 1rem;
+}
+
 .ltx_align_middle {
     vertical-align: middle;
 }
@@ -54,6 +58,17 @@ form label {
 
 .ltx_align_right {
     text-align: right;
+}
+
+.ltx_eqn_cell.ltx_align_left,
+.ltx_eqn_cell.ltx_align_right {
+    width: 0;
+    min-width: fit-content;
+}
+
+.ltx_eqn_cell.ltx_align_left span.ltx_Math,
+.ltx_eqn_cell.ltx_align_right span.ltx_Math {
+    text-wrap: nowrap;
 }
 
 .ltx_eqn_table {
@@ -209,4 +224,9 @@ div.instructions {
 
 div.instructions p {
     margin-bottom: 10px;
+}
+
+div.row.exercise h5 {
+    margin-top: 20px;
+    font-weight: bold;
 }

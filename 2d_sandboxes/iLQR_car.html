@@ -23,10 +23,10 @@
 
         <div id="instructions" class="collapse instructions">
             <div class="card card-body">
-                <h5>Controls</h5>
+                <h5>Control</h5>
                 <p>Click on the green run button to execute the code.</p>
                 <p>The target cars can be moved by dragging them with the mouse. They can also be rotated using either the sliders below or the mouse wheel while hovering them.</p>
-                <h5>Informations</h5>
+                <h5>Information</h5>
                 <p>See <a href="#S8">iLQR optimization</a> for more information about iLQR.</p>
             </div>
         </div>
@@ -226,6 +226,7 @@
         if hover_obj >= 0:
             car_angles[hover_obj].value = float(car_angles[hover_obj].value) + 0.2 * (event.deltaY/106)
             update_iLQR()
+        event.preventDefault()
 
     cost_el = document.getElementById('cost')
 
@@ -306,28 +307,16 @@
 
     #########################################################################################
 
-    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+    canvas.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    canvas.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
 
-    document.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
-    document.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+    canvas.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
+    canvas.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
 
-    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
-    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+    canvas.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    canvas.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
 
-    document.addEventListener('wheel', onWheelProxy) #for standard mouse
-
-    async def cleanup():
-        document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-        document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
-
-        document.removeEventListener('mousedown', onMouseDownProxy) #for standard mouse
-        document.removeEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
-
-        document.removeEventListener('mouseup', onMouseUpProxy) #for standard mouse
-        document.removeEventListener('touchend', onMouseUpProxy) #for mobile interfaces
-
-        document.removeEventListener('wheel', onWheelProxy) #for standard mouse
+    canvas.addEventListener('wheel', onWheelProxy) #for standard mouse
 
 
     #########################################################################################
@@ -374,6 +363,5 @@
 
     configure(to_js({
         'loop': loop,
-        'cleanup': cleanup,
     }))
 </py-script>

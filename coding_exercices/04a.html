@@ -1,4 +1,11 @@
-﻿<div class="row">
+﻿<style>
+    .py-terminal {
+        margin-top: 10px;
+    }
+</style>
+
+
+<div class="row exercise">
     <div class="col-sm-1"></div>
 
     <div class="col-sm-7">
@@ -32,7 +39,7 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="question4-tab" class="tab-pane fade show active" id="question4-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl std-err="errors" std-out="output">
+                <py-repl output="output">
                     param.nbVarX = 3 # State space dimension (x1,x2,x3)
                     param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
                     x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
@@ -46,7 +53,7 @@
             </div>
 
             <div aria-labelledby="answer4-tab" class="tab-pane fade" id="answer4-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl std-err="errors" std-out="output">
+                <py-repl output="output">
                     param.nbVarX = 3 # State space dimension (x1,x2,x3)
                     param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
                     x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
@@ -61,46 +68,29 @@
             </div>
         </div>
 
-        <br/><br/>
-    </div> <!--sm-7-->
+        <py-terminal id="terminal"></py-terminal>
+        <p id="output" style="display: none;"></p>
+
+        <br/>
+    </div>
 
     <div class="col-sm-4">
         <div class="sticky-sm-top" style="padding: 2rem 1rem 1rem 1rem;">
-            <hr/>
-            <div class="row justify-content-between">
-                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Output</button></div>
-                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgsOutput()">Clear</button></div>
-            </div>
-            <div id="output"></div>
-            <hr/>
-            <div class="row justify-content-between">
-                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Error</button></div>
-                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgs()">Clear</button></div>
-            </div>
-            <div id="errors"></div>
-            <hr/>
             <canvas height="700px" id="canvas" style="width:100%;" width="900px"></canvas>
         </div>
-    </div> <!--sm-4-->
-</div> <!--row-->
+    </div>
+</div>
 
 
 <py-script>
-    def print(x):
-        display(x, target='output')
-</py-script>
-
-
-<py-script std-err="errors" std-out="output">
-    from pyodide.ffi import create_proxy
-    from js import Path2D, document, console
+    from pyodide.ffi import create_proxy, to_js
+    from js import Path2D, document, configure, displayErrorMessage
     import numpy as np
-    import asyncio
+    import traceback
 
     # Forward kinematics for end-effector (in robot coordinate system)
     def fkin(x, param):
-        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
-        f = [param.l @ np.cos(L @ x), param.l @ np.sin(L @ x)]
+        f = np.zeros(2)
         return f
 
     # Forward kinematics for all joints (in robot coordinate system)
@@ -126,39 +116,28 @@
 
     # Mouse events
     mouse0 = np.zeros(2)
-    mousedown = 0
     hover_joint = -1
 
     def onMouseMove(event):
-        global mouse, mouse0
+        global mouse0
         offset = canvas.getBoundingClientRect()
         mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
         mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
 
     def onTouchMove(event):
-        global mouse, mouse0
+        global mouse0
         offset = event.target.getBoundingClientRect()
         mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
         mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
 
-    def onMouseDown(event):
-        global mousedown
-        mousedown = 1
-
-    def onMouseUp(event):
-        global mousedown
-        mousedown = 0
-
     def onWheel(event):
-        global hover_joint, x
-        if hover_joint &gt;= 0:
+        global x
+        if hover_joint >= 0:
             x[hover_joint] += 0.2 * (event.deltaY/106)
-
+        event.preventDefault()
 
     onMouseMoveProxy = create_proxy(onMouseMove)
     onTouchMoveProxy = create_proxy(onTouchMove)
-    onMouseDownProxy = create_proxy(onMouseDown)
-    onMouseUpProxy = create_proxy(onMouseUp)
     onWheelProxy = create_proxy(onWheel)
 
 
@@ -252,77 +231,37 @@
 
     #########################################################################################
 
-    def errorHandler(e):
-        msg = 'Error: ' + str(e)
-        console.error(msg)
-        el = document.getElementById('errors')
-        el.innerText = msg
-        #el.textContent = msg
+    canvas.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    canvas.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+    canvas.addEventListener('wheel', onWheelProxy) #for standard mouse
 
 
     #########################################################################################
 
-    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
-
-    document.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
-    document.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
-
-    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
-    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
-
-    document.addEventListener('wheel', onWheelProxy) #for standard mouse
-
-    mustStop = asyncio.Event()
-    stopped = asyncio.Event()
-
-    async def cleanup():
-        mustStop.set()
-
-        document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-        document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
-
-        document.removeEventListener('mousedown', onMouseDownProxy) #for standard mouse
-        document.removeEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
-
-        document.removeEventListener('mouseup', onMouseUpProxy) #for standard mouse
-        document.removeEventListener('touchend', onMouseUpProxy) #for mobile interfaces
-
-        document.removeEventListener('wheel', onWheelProxy) #for standard mouse
-
-        await stopped.wait()
-
-    document.cleanup = cleanup
-
-
-    #########################################################################################
     #x = [3*np.pi/4, -np.pi/2, -np.pi/4] # Initial robot state
     x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
     x[0] = x[0] + np.pi
 
-    async def main():
+    async def loop(delta, time):
         global hover_joint, x
 
-        while not mustStop.is_set():
-            try:
-                f = fkin(x, param)
-            except Exception as e:
-                errorHandler(e)
-                f = np.zeros(param.nbVarX)
+        try:
+            f = fkin(x, param)
+        except Exception as e:
+            displayErrorMessage(to_js(traceback.format_exception(e)))
+            f = np.zeros(param.nbVarX)
 
-            # Reinit hovering variables
-            hover_joint = -1
+        # Reinit hovering variables
+        hover_joint = -1
 
-            # Rendering
-            clear_screen()
-        #   draw_ground()
-            draw_robot(x, '#AAAAAA')
-            draw_tip(f, '#FF3399')
+        # Rendering
+        clear_screen()
+    #   draw_ground()
+        draw_robot(x, '#AAAAAA')
+        draw_tip(f, '#FF3399')
 
-            await asyncio.sleep(0.01)
 
-        stopped.set()
-
-    pyscript.run_until_complete(main())
-
+    configure(to_js({
+        'loop': loop,
+    }))
 </py-script>

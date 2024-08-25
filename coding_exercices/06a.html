@@ -21,7 +21,9 @@
                 </ul>
             </li>
         </ul>
+
         <br/>
+
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
                 <button aria-controls="question1-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#question1-tab-pane" data-bs-toggle="tab" id="question1-tab" role="tab" type="button">LQR in task space</button>
@@ -36,7 +38,7 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="question1-tab" class="tab-pane fade show active" id="question1-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl std-err="errors" std-out="output">
+                <py-repl output="output">
                     param.nbVarPos = 2 # Dimension of position variable
                     param.nbDeriv = 1 # Number of derivatives (1 for velocity commands)
                     param.nbVarX = param.nbVarPos * param.nbDeriv # Dimension of the state space
@@ -60,7 +62,7 @@
             </div>
 
             <div aria-labelledby="answer1-tab" class="tab-pane fade" id="answer1-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl std-err="errors" std-out="output">
+                <py-repl output="output">
                     param.nbVarPos = 2 # Dimension of position variable
                     param.nbDeriv = 1 # Number of derivatives (1 for velocity commands)
                     param.nbVarX = param.nbVarPos * param.nbDeriv # Dimension of the state space
@@ -83,7 +85,7 @@
             </div>
 
             <div aria-labelledby="answer2-tab" class="tab-pane fade" id="answer2-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl std-err="errors" std-out="output">
+                <py-repl output="output">
                     param.nbVarPos = 2 # Dimension of position variable
                     param.nbDeriv = 2 # Number of derivatives (2 for acceleration commands)
                     param.nbVarX = param.nbVarPos * param.nbDeriv # Dimension of the state space
@@ -105,44 +107,28 @@
             </div>
         </div>
 
-        <br/><br/>
-    </div> <!--sm-7-->
+        <py-terminal id="terminal"></py-terminal>
+        <p id="output" style="display: none;"></p>
+
+        <br/>
+    </div>
 
     <div class="col-sm-4">
         <div class="sticky-sm-top" style="padding: 2rem 1rem 1rem 1rem;">
-            <hr/>
-            <div class="row justify-content-between">
-                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Output</button></div>
-                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgsOutput()">Clear</button></div>
-            </div>
-            <div id="output"></div>
-            <hr/>
-            <div class="row justify-content-between">
-                <div class="col-auto"><button class="btn btn-light btn-sm" disabled="">Error</button></div>
-                <div class="col-auto"><button class="btn btn-outline-secondary btn-sm float-right" onclick="clearMsgs()">Clear</button></div>
-            </div>
-            <div id="errors"></div>
-            <hr/>
             <canvas height="700px" id="canvas" style="width:100%;" width="900px"></canvas>
         </div>
-    </div> <!--sm-4-->
-</div> <!--row-->
+    </div>
+</div>
 
 
 <py-script>
-    def print(x):
-        display(x, target='output')
-</py-script>
-
-
-<py-script std-err="errors" std-out="output">
-    from pyodide.ffi import create_proxy
-    from js import Path2D, document, console
+    from pyodide.ffi import create_proxy, to_js
+    from js import Path2D, document, configure
     import numpy as np
-    import asyncio
     from math import factorial
 
     #########################################################################################
+
     def compute_transfer_matrices(param):
         A1d = np.zeros((param.nbDeriv,param.nbDeriv))
         B1d = np.zeros((param.nbDeriv,1))
@@ -325,65 +311,44 @@
 
     #########################################################################################
 
-    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+    canvas.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    canvas.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
 
-    document.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
-    document.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+    canvas.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
+    canvas.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
 
-    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
-    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
-
-    mustStop = asyncio.Event()
-    stopped = asyncio.Event()
-
-    async def cleanup():
-        mustStop.set()
-
-        document.removeEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-        document.removeEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
-
-        document.removeEventListener('mousedown', onMouseDownProxy) #for standard mouse
-        document.removeEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
-
-        document.removeEventListener('mouseup', onMouseUpProxy) #for standard mouse
-        document.removeEventListener('touchend', onMouseUpProxy) #for mobile interfaces
-
-        await stopped.wait()
-
-    document.cleanup = cleanup
+    canvas.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    canvas.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
 
 
     #########################################################################################
+
     x = np.array([0,0]) # Initial position
     u = np.zeros(param.nbVarX)
     Sx, Su = compute_transfer_matrices(param)
     xs = solve_LQR(x, param)
 
-    async def main():
+    async def loop(delta, time):
         global param, xs
 
-        while not mustStop.is_set():
-            if mousedown==1:
-                xs = solve_LQR(x, param)
+        if mousedown == 1:
+            xs = solve_LQR(x, param)
 
-            # Rendering
-            clear_screen()
-            draw_line('#FF77DD')
-            draw_Gaussian(0, param, '#FF3399', '#DD1177')
-            draw_Gaussian(1, param, '#33FF99', '#11DD77')
-            draw_lqr_path(xs, param, '#000000')
+        # Rendering
+        clear_screen()
+        draw_line('#FF77DD')
+        draw_Gaussian(0, param, '#FF3399', '#DD1177')
+        draw_Gaussian(1, param, '#33FF99', '#11DD77')
+        draw_lqr_path(xs, param, '#000000')
 
-            # Object selection
-            if selected_obj &gt;= 0:
-                param.Mu[:2,selected_obj] = mouse
-                param.Mu[0,selected_obj] = max(min(param.Mu[0,selected_obj],225), -225)
-                param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],175), -175)
+        # Object selection
+        if selected_obj >= 0:
+            param.Mu[:2,selected_obj] = mouse
+            param.Mu[0,selected_obj] = max(min(param.Mu[0,selected_obj],225), -225)
+            param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],175), -175)
 
-            await asyncio.sleep(0.0001)
 
-        stopped.set()
-
-    pyscript.run_until_complete(main())
-
+    configure(to_js({
+        'loop': loop,
+    }))
 </py-script>

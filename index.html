@@ -31,6 +31,7 @@
   </script>
   <py-config type="toml">
    packages = ['numpy', 'matplotlib']
+        terminal = false
         [[fetch]]
             from = 'viewer3d/'
             files = ['viewer3d.py']
@@ -179,6 +180,7 @@
         let errorMessageDisplayed = false;
         let loopStartTime = null;
         let loopPreviousTime = null;
+        let aspectRatios = {};
 
         const contentDiv = document.getElementById('content');
         const closeMenuButton = document.getElementById('close-button');
@@ -354,6 +356,7 @@
 
             await stopContentLoop();
             currentPageParams = null;
+            aspectRatios = {};
 
             if (btnSave != null)
             {
@@ -877,23 +880,18 @@
 
         function setAspectRatio(id, ratio)
         {
-            function _resize(entries)
-            {
-                for (const entry of entries)
-                {
-                    const height = entry.contentBoxSize[0].inlineSize * ratio;
-                    entry.target.style.height = '' + height + 'px';
-                }
-            }
+            aspectRatios[id] = ratio;
 
             const element = document.getElementById(id);
-
-            element.resizeObserver = new ResizeObserver(_resize);
-            element.resizeObserver.observe(element);
-
-            const height = element.clientWidth * ratio;
-            element.style.height = '' + height + 'px';
+            element.style.height = '' + (element.clientWidth * ratio) + 'px';
         }
+
+        window.onresize = (evt) => {
+            for (const [key, value] of Object.entries(aspectRatios)) {
+                const element = document.getElementById(key);
+                element.style.height = '' + (element.clientWidth * value) + 'px';
+            }
+        };
 
         globalThis.configure = configure;
         globalThis.clearMsgs = clearMsgs;
