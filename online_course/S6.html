@@ -5,7 +5,7 @@
 </div><div class="ltx_para" id="S6-para:p2">
 <p class="ltx_p">Basis functions can for example be used to encode trajectories, whose input is a 1D time variable and whose output can be multidimensional. For basis functions <span class="ltx_Math" id="p2.m1">\bm{\phi}(t)</span> described by a time or phase variable <span class="ltx_Math" id="p2.m2">t</span>, the corresponding continuous signal <span class="ltx_Math" id="p2.m3">\bm{x}(t)</span> is encoded with <span class="ltx_Math" id="p2.m4">\bm{x}(t)=\bm{\phi}(t)\,\bm{w}</span>, with <span class="ltx_Math" id="p2.m5">t</span> a continuous time variable and <span class="ltx_Math" id="p2.m6">\bm{w}</span> a vector containing the superposition weights. Basis functions can also be employed in a discretized form by providing a specific list of time steps, which is the form we will employ next.</p>
 </div><div class="ltx_para" id="S6-para:p3">
-<p class="ltx_p">The term <em class="ltx_emph ltx_font_italic">movement primitive</em> is often used in robotics to refer to the use of basis functions to encode trajectories. It corresponds to an organization of continuous motion signals in the form of a superposition in parallel and in series of simpler signals, which can be viewed as “building blocks” to create more complex movements, see Fig. <a class="ltx_ref" href="#S6-fig:MP" title="Figure 9 ‣ Piecewise constant basis functions ‣ 6.1 Univariate trajectories ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">9</span></a>. This principle, coined in the context of motor control <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib18" title="Linear combinations of primitives in vertebrate motor control">12</a>]</cite>, remains valid for a wide range of continuous time signals (for both analysis and synthesis).</p>
+<p class="ltx_p">The term <em class="ltx_emph ltx_font_italic">movement primitive</em> is often used in robotics to refer to the use of basis functions to encode trajectories. It corresponds to an organization of continuous motion signals in the form of a superposition in parallel and in series of simpler signals, which can be viewed as “building blocks” to create more complex movements, see Fig. <a class="ltx_ref" href="#S6-fig:MP" title="Figure 9 ‣ Piecewise constant basis functions ‣ 6.1 Univariate trajectories ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">9</span></a>. This principle, coined in the context of motor control <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib18" title="Linear combinations of primitives in vertebrate motor control">12</a>]</cite>, remains valid for a wide range of continuous time signals (for both analysis and synthesis).</p>
 </div><div class="ltx_para" id="S6-para:p4">
 <p class="ltx_p">The simpler form of <em class="ltx_emph ltx_font_italic">movement primitives</em> consists of encoding a movement as a weighted superposition of simpler movements. The compression aims at working in a subspace of reduced dimensionality, while denoising the signal and capturing the essential aspects of a movement.
 </p>
@@ -15,12 +15,12 @@
 </h2>
 <div class="ltx_para" id="S6-para:SS1.p1">
 <p class="ltx_p">A univariate trajectory <span class="ltx_Math" id="SS1.p1.m1">\bm{x}^{\text{\tiny 1D}}\in\mathbb{R}^{T}</span> of <span class="ltx_Math" id="SS1.p1.m2">T</span> datapoints can be represented as a weighted sum of <span class="ltx_Math" id="SS1.p1.m3">K</span> basis functions with</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:E19">
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:E24">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E19.m1">\bm{x}^{\text{\tiny 1D}}=\sum_{k=1}^{K}\bm{\phi}_{k}\;w^{\text{\tiny 1D}}_{k}=\bm{\phi}\;\bm{w}^{\text{\tiny 1D}},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E24.m1">\bm{x}^{\text{\tiny 1D}}=\sum_{k=1}^{K}\bm{\phi}_{k}\;w^{\text{\tiny 1D}}_{k}=\bm{\phi}\;\bm{w}^{\text{\tiny 1D}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(19)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(24)</span></td>
 </tr>
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="SS1.p1.m4">\bm{\phi}</span> can be any set of basis functions, including some common forms that are presented below (see also <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib6" title="Mixture models for the analysis, edition, and synthesis of continuous time series">2</a>]</cite> for more details).</p>
@@ -29,30 +29,31 @@
 <h3 class="ltx_title ltx_title_subsubsection">Piecewise constant basis functions</h3>
 <div class="ltx_para" id="S6-para:SS1.SSSx1.p1">
 <p class="ltx_p">Piecewise constant basis functions can be computed in matrix form as</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:E20">
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:E25">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E20.m1">\bm{\phi}=\bm{I}_{K}\otimes\bm{1}_{\frac{T}{K}},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E25.m1">\bm{\phi}=\bm{I}_{K}\otimes\bm{1}_{\frac{T}{K}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(20)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(25)</span></td>
 </tr>
 </table>
-<p class="ltx_p">where <span class="ltx_Math" id="SS1.SSSx1.p1.m1">\bm{I}_{K}</span> is an identity matrix of size <span class="ltx_Math" id="SS1.SSSx1.p1.m2">K</span> and <span class="ltx_Math" id="SS1.SSSx1.p1.m3">\bm{1}_{\frac{T}{K}}</span> is a vector of length <span class="ltx_Math" id="SS1.SSSx1.p1.m4">\frac{T}{K}</span> compose of unit elements, see Fig. <a class="ltx_ref" href="#S6-fig:MP" title="Figure 9 ‣ Piecewise constant basis functions ‣ 6.1 Univariate trajectories ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">9</span></a>.</p>
+<p class="ltx_p">where <span class="ltx_Math" id="SS1.SSSx1.p1.m1">\bm{I}_{K}</span> is an identity matrix of size <span class="ltx_Math" id="SS1.SSSx1.p1.m2">K</span> and <span class="ltx_Math" id="SS1.SSSx1.p1.m3">\bm{1}_{\frac{T}{K}}</span> is a vector of length <span class="ltx_Math" id="SS1.SSSx1.p1.m4">\frac{T}{K}</span> compose of unit elements, see Fig. <a class="ltx_ref" href="#S6-fig:MP" title="Figure 9 ‣ Piecewise constant basis functions ‣ 6.1 Univariate trajectories ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">9</span></a>.
+</p>
 </div>
 </div>
 <div class="ltx_subsubsection" id="S6-sec:SS1.SSSx2">
 <h3 class="ltx_title ltx_title_subsubsection">Radial basis functions (RBFs)</h3>
 <div class="ltx_para" id="S6-para:SS1.SSSx2.p1">
 <p class="ltx_p">Gaussian radial basis functions (RBFs) can be computed in matrix form as</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:E21">
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:E26">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E21.m1">\bm{\phi}=\exp(-\lambda\;\bm{E}\odot\bm{E}),\quad\text{with}\quad\bm{E}=\bm{t}\;\bm{1}_{K}^{\scriptscriptstyle\top}-\bm{1}_{T}\;{\bm{\mu}^{\text{\tiny s}}}^{\scriptscriptstyle\top},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E26.m1">\bm{\phi}=\exp(-\lambda\;\bm{E}\odot\bm{E}),\quad\text{with}\quad\bm{E}=\bm{t}\;\bm{1}_{K}^{\scriptscriptstyle\top}-\bm{1}_{T}\;{\bm{\mu}^{\text{\tiny s}}}^{\scriptscriptstyle\top},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(21)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(26)</span></td>
 </tr>
 </table>
-<p class="ltx_p">where <span class="ltx_Math" id="SS1.SSSx2.p1.m1">\lambda</span> is bandwidth parameter, <span class="ltx_Math" id="SS1.SSSx2.p1.m2">\odot</span> is the elementwise (Hadamard) product operator, <span class="ltx_Math" id="SS1.SSSx2.p1.m3">\bm{t}\in\mathbb{R}^{T}</span> is a vector with entries linearly spaced between <span class="ltx_Math" id="SS1.SSSx2.p1.m4">0</span> to <span class="ltx_Math" id="SS1.SSSx2.p1.m5">1</span>, <span class="ltx_Math" id="SS1.SSSx2.p1.m6">\bm{\mu}^{\text{\tiny s}}\in\mathbb{R}^{K}</span> is a vector containing the RBF centers linearly spaced on the <span class="ltx_Math" id="SS1.SSSx2.p1.m7">[0,1]</span> range, and the <span class="ltx_Math" id="SS1.SSSx2.p1.m8">\exp(\cdot)</span> function is applied to each element of the matrix, see Fig. <a class="ltx_ref" href="#S6-fig:MP" title="Figure 9 ‣ Piecewise constant basis functions ‣ 6.1 Univariate trajectories ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">9</span></a>.</p>
+<p class="ltx_p">where <span class="ltx_Math" id="SS1.SSSx2.p1.m1">\lambda</span> is bandwidth parameter, <span class="ltx_Math" id="SS1.SSSx2.p1.m2">\odot</span> is the elementwise (Hadamard) product operator, <span class="ltx_Math" id="SS1.SSSx2.p1.m3">\bm{t}\in\mathbb{R}^{T}</span> is a vector with entries linearly spaced between <span class="ltx_Math" id="SS1.SSSx2.p1.m4">0</span> to <span class="ltx_Math" id="SS1.SSSx2.p1.m5">1</span>, <span class="ltx_Math" id="SS1.SSSx2.p1.m6">\bm{\mu}^{\text{\tiny s}}\in\mathbb{R}^{K}</span> is a vector containing the RBF centers linearly spaced on the <span class="ltx_Math" id="SS1.SSSx2.p1.m7">[0,1]</span> range, and the <span class="ltx_Math" id="SS1.SSSx2.p1.m8">\exp(\cdot)</span> function is applied to each element of the matrix, see Fig. <a class="ltx_ref" href="#S6-fig:MP" title="Figure 9 ‣ Piecewise constant basis functions ‣ 6.1 Univariate trajectories ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">9</span></a>.</p>
 </div>
 <div class="ltx_para" id="S6-para:SS1.SSSx2.p2">
 <p class="ltx_p">RBFs can also be employed in a rescaled form by replacing each row <span class="ltx_Math" id="SS1.SSSx2.p2.m1">\bm{\phi}_{k}</span> with <span class="ltx_Math" id="SS1.SSSx2.p2.m2">\frac{\bm{\phi}_{k}}{\sum_{i=1}^{K}\bm{\phi}_{i}}</span>.</p>
@@ -61,29 +62,29 @@
 <div class="ltx_subsubsection" id="S6-sec:SS1.SSSx3">
 <h3 class="ltx_title ltx_title_subsubsection">Bernstein basis functions</h3>
 <div class="ltx_para" id="S6-para:SS1.SSSx3.p1">
-<p class="ltx_p">Bernstein basis functions (used for Bézier curves) can be computed as</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:E22">
+<p class="ltx_p">Bernstein basis functions (used for Bézier curves) can be computed as
+</p>
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:E27">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E22.m1">\bm{\phi}_{k}=\frac{(K-1)!}{(k-1)!(K-k)!}\;{(\bm{1}_{T}-\bm{t})}^{K-k}\;\odot\;\bm{t}^{k-1},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E27.m1">\bm{\phi}_{k}=\frac{(K-1)!}{(k-1)!(K-k)!}\;{(\bm{1}_{T}-\bm{t})}^{K-k}\;\odot\;\bm{t}^{k-1},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(22)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(27)</span></td>
 </tr>
 </table>
-<p class="ltx_p"><span class="ltx_Math" id="SS1.SSSx3.p1.m1">\forall k\in\{1,\ldots,K\}</span>, where <span class="ltx_Math" id="SS1.SSSx3.p1.m2">\bm{t}\in\mathbb{R}^{T}</span> is a vector with entries linearly spaced between <span class="ltx_Math" id="SS1.SSSx3.p1.m3">0</span> to <span class="ltx_Math" id="SS1.SSSx3.p1.m4">1</span>, and <span class="ltx_Math" id="SS1.SSSx3.p1.m5">(\cdot)^{d}</span> is applied elementwise, see Fig. <a class="ltx_ref" href="#S6-fig:MP" title="Figure 9 ‣ Piecewise constant basis functions ‣ 6.1 Univariate trajectories ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">9</span></a>.</p>
+<p class="ltx_p"><span class="ltx_Math" id="SS1.SSSx3.p1.m1">\forall k\in\{1,\ldots,K\}</span>, where <span class="ltx_Math" id="SS1.SSSx3.p1.m2">\bm{t}\in\mathbb{R}^{T}</span> is a vector with entries linearly spaced between <span class="ltx_Math" id="SS1.SSSx3.p1.m3">0</span> to <span class="ltx_Math" id="SS1.SSSx3.p1.m4">1</span>, and <span class="ltx_Math" id="SS1.SSSx3.p1.m5">(\cdot)^{d}</span> is applied elementwise, see Fig. <a class="ltx_ref" href="#S6-fig:MP" title="Figure 9 ‣ Piecewise constant basis functions ‣ 6.1 Univariate trajectories ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">9</span></a>.</p>
 </div>
 </div>
 <div class="ltx_subsubsection" id="S6-sec:SS1.SSSx4">
 <h3 class="ltx_title ltx_title_subsubsection">Fourier basis functions</h3>
 <div class="ltx_para" id="S6-para:SS1.SSSx4.p1">
-<p class="ltx_p">Fourier basis functions can be computed in matrix form as
-</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:E23">
+<p class="ltx_p">Fourier basis functions can be computed in matrix form as</p>
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:E28">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E23.m1">\bm{\phi}=\exp(\bm{t}\,\bm{\tilde{k}}^{\scriptscriptstyle\top}\,2\pi i),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E28.m1">\bm{\phi}=\exp(\bm{t}\,\bm{\tilde{k}}^{\scriptscriptstyle\top}\,2\pi i),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(23)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(28)</span></td>
 </tr>
 </table>
 <p class="ltx_p">where the <span class="ltx_Math" id="SS1.SSSx4.p1.m1">\exp(\cdot)</span> function is applied to each element of the matrix, <span class="ltx_Math" id="SS1.SSSx4.p1.m2">\bm{t}\in\mathbb{R}^{T}</span> is a vector with entries linearly spaced between <span class="ltx_Math" id="SS1.SSSx4.p1.m3">0</span> to <span class="ltx_Math" id="SS1.SSSx4.p1.m4">1</span>, <span class="ltx_Math" id="SS1.SSSx4.p1.m5">\bm{\tilde{k}}={[-K\!+\!1,-K\!+\!2,\ldots,K\!-\!2,K\!-\!1]}^{\scriptscriptstyle\top}</span>, and <span class="ltx_Math" id="SS1.SSSx4.p1.m6">i</span> is the imaginary unit (<span class="ltx_Math" id="SS1.SSSx4.p1.m7">i^{2}=-1</span>).</p>
@@ -93,36 +94,36 @@
 <table class="ltx_equation ltx_eqn_table" id="S6-eq:dct">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E24.m1">\bm{\phi}=\cos(\bm{t}\,\bm{k}^{\scriptscriptstyle\top}\,2\pi i),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E29.m1">\bm{\phi}=\cos(\bm{t}\,\bm{k}^{\scriptscriptstyle\top}\,2\pi i),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(24)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(29)</span></td>
 </tr>
 </table>
-<p class="ltx_p">with <span class="ltx_Math" id="SS1.SSSx4.p2.m2">\bm{k}={[0,1,\ldots,K\!-\!2,K\!-\!1]}^{\scriptscriptstyle\top}</span>, see Fig. <a class="ltx_ref" href="#S6-fig:MP" title="Figure 9 ‣ Piecewise constant basis functions ‣ 6.1 Univariate trajectories ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">9</span></a>.</p>
+<p class="ltx_p">with <span class="ltx_Math" id="SS1.SSSx4.p2.m2">\bm{k}={[0,1,\ldots,K\!-\!2,K\!-\!1]}^{\scriptscriptstyle\top}</span>, see Fig. <a class="ltx_ref" href="#S6-fig:MP" title="Figure 9 ‣ Piecewise constant basis functions ‣ 6.1 Univariate trajectories ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">9</span></a>.</p>
 </div>
 <div class="ltx_para" id="S6-para:SS1.SSSx4.p3">
 <p class="ltx_p">Indeed, we first note that <span class="ltx_Math" id="SS1.SSSx4.p3.m1">\exp(ai)</span> is composed of a real part and an imaginary part with <span class="ltx_Math" id="SS1.SSSx4.p3.m2">\exp(ai)=\cos(a)+i\sin(a)</span>. We can see that for a given time step <span class="ltx_Math" id="SS1.SSSx4.p3.m3">t</span>, a real state <span class="ltx_Math" id="SS1.SSSx4.p3.m4">x_{t}</span> can be constructed with the Fourier series</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S6-eq:A5.EGx8">
-<tbody id="S6-eq:Ex42"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S6-eq:A5.EGx13">
+<tbody id="S6-eq:Ex52"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex42.m1">\displaystyle x_{t}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex42.m2">\displaystyle=\sum_{k=-K+1}^{K-1}w_{k}\exp(t\,k\,2\pi i)</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex52.m1">\displaystyle x_{t}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex52.m2">\displaystyle=\sum_{k=-K+1}^{K-1}w_{k}\exp(t\,k\,2\pi i)</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="S6-eq:Ex43"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S6-eq:Ex53"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex43.m1">\displaystyle=\sum_{k=-K+1}^{K-1}w_{k}\cos(t\,k\,2\pi)</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex53.m1">\displaystyle=\sum_{k=-K+1}^{K-1}w_{k}\cos(t\,k\,2\pi)</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="S6-eq:Ex44"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S6-eq:Ex54"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex44.m1">\displaystyle=w_{0}+\sum_{k=1}^{K-1}2w_{k}\cos(t\,k\,2\pi),</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex54.m1">\displaystyle=w_{0}+\sum_{k=1}^{K-1}2w_{k}\cos(t\,k\,2\pi),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
-<p class="ltx_p">where we used the properties <span class="ltx_Math" id="SS1.SSSx4.p3.m5">\cos(0)=1</span> and <span class="ltx_Math" id="SS1.SSSx4.p3.m6">\cos(-a)=\cos(a)</span> of the cosine function. Since we do not need direct correspondences between the Fourier transform and discrete cosine transform as in the above, we can omit the scaling factors for <span class="ltx_Math" id="SS1.SSSx4.p3.m7">w_{k}</span> and directly write the decomposition as in (<a class="ltx_ref" href="#S6-eq:dct" title="(24) ‣ Fourier basis functions ‣ 6.1 Univariate trajectories ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">24</span></a>).</p>
+<p class="ltx_p">where we used the properties <span class="ltx_Math" id="SS1.SSSx4.p3.m5">\cos(0)=1</span> and <span class="ltx_Math" id="SS1.SSSx4.p3.m6">\cos(-a)=\cos(a)</span> of the cosine function. Since we do not need direct correspondences between the Fourier transform and discrete cosine transform as in the above, we can omit the scaling factors for <span class="ltx_Math" id="SS1.SSSx4.p3.m7">w_{k}</span> and directly write the decomposition as in (<a class="ltx_ref" href="#S6-eq:dct" title="(29) ‣ Fourier basis functions ‣ 6.1 Univariate trajectories ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">29</span></a>).</p>
 </div>
 </div>
 </div><div class="ltx_subsection" id="S6-sec:SS2">
@@ -134,12 +135,12 @@
 <table class="ltx_equation ltx_eqn_table" id="S6-eq:Psi">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E25.m1">\bm{x}=\sum_{k=1}^{K}\bm{\Psi}_{k}\;w_{k}=\bm{\Psi}\;\bm{w},\quad\text{with}\quad\bm{\Psi}=\bm{\phi}\otimes\bm{I}=\left[\begin{matrix}\bm{I}\phi_{1,1}&amp;\bm{I}\phi_{2,1}&amp;\cdots&amp;\bm{I}\phi_{K,1}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E30.m1">\bm{x}=\sum_{k=1}^{K}\bm{\Psi}_{k}\;w_{k}=\bm{\Psi}\;\bm{w},\quad\text{with}\quad\bm{\Psi}=\bm{\phi}\otimes\bm{I}=\left[\begin{matrix}\bm{I}\phi_{1,1}&amp;\bm{I}\phi_{2,1}&amp;\cdots&amp;\bm{I}\phi_{K,1}\\
 \bm{I}\phi_{1,2}&amp;\bm{I}\phi_{2,2}&amp;\cdots&amp;\bm{I}\phi_{K,2}\\
 \vdots&amp;\vdots&amp;\ddots&amp;\vdots\\
 \bm{I}\phi_{1,T}&amp;\bm{I}\phi_{2,T}&amp;\cdots&amp;\bm{I}\phi_{K,T}\end{matrix}\right],</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(25)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(30)</span></td>
 </tr>
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="SS2.p1.m4">\otimes</span> the Kronecker product operator and <span class="ltx_Math" id="SS2.p1.m5">\bm{I}</span> is an identity matrix of size <span class="ltx_Math" id="SS2.p1.m6">D\times D</span>.</p>
@@ -152,34 +153,34 @@
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">6.3</span> </span><span class="ltx_text">Multidimensional inputs</span>
 </h2>
 <div class="ltx_para" id="S6-para:SS3.p1">
-<p class="ltx_p">Basis functions can also be used to encode signals generated by multivariate inputs <span class="ltx_Math" id="SS3.p1.m1">t_{i}</span>. For example, a Bézier surface uses two input variables <span class="ltx_Math" id="SS3.p1.m2">t_{1}</span> and <span class="ltx_Math" id="SS3.p1.m3">t_{2}</span> to cover a spatial range and generates an output variable describing the height of the surface within this rectangular region. This surface (represented as a colormap in Fig. <a class="ltx_ref" href="#S6-fig:Bezier_1D2D3D01" title="Figure 10 ‣ 6.3 Multidimensional inputs ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">10</span></a>-<em class="ltx_emph ltx_font_italic">center</em>) can be constructed from a 1D input signal by leveraging the Kronecker product operation, namely</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:E26">
+<p class="ltx_p">Basis functions can also be used to encode signals generated by multivariate inputs <span class="ltx_Math" id="SS3.p1.m1">t_{i}</span>. For example, a Bézier surface uses two input variables <span class="ltx_Math" id="SS3.p1.m2">t_{1}</span> and <span class="ltx_Math" id="SS3.p1.m3">t_{2}</span> to cover a spatial range and generates an output variable describing the height of the surface within this rectangular region. This surface (represented as a colormap in Fig. <a class="ltx_ref" href="#S6-fig:Bezier_1D2D3D01" title="Figure 10 ‣ 6.3 Multidimensional inputs ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">10</span></a>-<em class="ltx_emph ltx_font_italic">center</em>) can be constructed from a 1D input signal by leveraging the Kronecker product operation, namely</p>
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:E31">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E26.m1">\bm{\Psi}=\bm{\phi}\,\otimes\,\bm{\phi}</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E31.m1">\bm{\Psi}=\bm{\phi}\,\otimes\,\bm{\phi}</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(26)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(31)</span></td>
 </tr>
 </table>
 <p class="ltx_p">in matrix form, or</p>
 <table class="ltx_equation ltx_eqn_table" id="S6-eq:Psi2D_analytic">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E27.m1">\bm{\Psi}(\bm{t})=\bm{\phi}(t_{1})\,\otimes\,\bm{\phi}(t_{2})</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E32.m1">\bm{\Psi}(\bm{t})=\bm{\phi}(t_{1})\,\otimes\,\bm{\phi}(t_{2})</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(27)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(32)</span></td>
 </tr>
 </table>
 <p class="ltx_p">in analytic form.</p>
 </div>
 <div class="ltx_para" id="S6-para:SS3.p2">
-<p class="ltx_p">When using splines of the form <span class="ltx_Math" id="SS3.p2.m1">\bm{\phi}(t)=\bm{T}(t)\bm{B}\bm{C}</span>, (<a class="ltx_ref" href="#S6-eq:Psi2D_analytic" title="(27) ‣ 6.3 Multidimensional inputs ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">27</span></a>) can equivalently be computed as</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:E28">
+<p class="ltx_p">When using splines of the form <span class="ltx_Math" id="SS3.p2.m1">\bm{\phi}(t)=\bm{T}(t)\bm{B}\bm{C}</span>, (<a class="ltx_ref" href="#S6-eq:Psi2D_analytic" title="(32) ‣ 6.3 Multidimensional inputs ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">32</span></a>) can equivalently be computed as</p>
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:E33">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E28.m1">\bm{\Psi}(\bm{t})=\big(\bm{T}(t_{1})\,\otimes\,\bm{T}(t_{2})\big)\,\big(\bm{B}\bm{C}\,\otimes\,\bm{B}\bm{C}\big),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E33.m1">\bm{\Psi}(\bm{t})=\big(\bm{T}(t_{1})\,\otimes\,\bm{T}(t_{2})\big)\,\big(\bm{B}\bm{C}\,\otimes\,\bm{B}\bm{C}\big),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(28)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(33)</span></td>
 </tr>
 </table>
 <p class="ltx_p">which means that <span class="ltx_Math" id="SS3.p2.m2">\big(\bm{B}\bm{C}\,\otimes\,\bm{B}\bm{C}\big)</span> can be precomputed.</p>
@@ -189,29 +190,29 @@
 </div>
 <div class="ltx_para" id="S6-para:SS3.p4">
 <p class="ltx_p">Successive Kronecker products can be used so that any number of input and output dimensions <span class="ltx_Math" id="SS3.p4.m1">{d^{\text{\tiny in}}}</span> and <span class="ltx_Math" id="SS3.p4.m2">{d^{\text{\tiny out}}}</span> can be considered, with</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:E29">
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:E34">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E29.m1">\bm{\Psi}=\underbrace{\bm{\phi}\,\otimes\,\bm{\phi}\,\otimes\cdots\otimes\,\bm{\phi}}_{d^{\text{\tiny in}}}\,\otimes\,\bm{I}_{d^{\text{\tiny out}}}.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E34.m1">\bm{\Psi}=\underbrace{\bm{\phi}\,\otimes\,\bm{\phi}\,\otimes\cdots\otimes\,\bm{\phi}}_{d^{\text{\tiny in}}}\,\otimes\,\bm{I}_{d^{\text{\tiny out}}}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(29)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(34)</span></td>
 </tr>
 </table>
 </div>
 <div class="ltx_para" id="S6-para:SS3.p5">
 <p class="ltx_p">For example, a vector field in 3D can be encoded with basis functions</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:E30">
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:E35">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E30.m1">\bm{\Psi}=\bm{\phi}\,\otimes\,\bm{\phi}\,\otimes\,\bm{\phi}\,\otimes\,\bm{I}_{3},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E35.m1">\bm{\Psi}=\bm{\phi}\,\otimes\,\bm{\phi}\,\otimes\,\bm{\phi}\,\otimes\,\bm{I}_{3},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(30)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(35)</span></td>
 </tr>
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="SS3.p5.m1">\bm{I}_{3}</span> is a <span class="ltx_Math" id="SS3.p5.m2">3\!\times\!3</span> identity matrix to encode the 3 elements of the vector.</p>
 </div>
 <div class="ltx_para" id="S6-para:SS3.p6">
-<p class="ltx_p">Figure <a class="ltx_ref" href="#S6-fig:Bezier_1D2D3D01" title="Figure 10 ‣ 6.3 Multidimensional inputs ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">10</span></a> shows examples with various input dimensions to encode a signed distance field (SDF). In Fig. <a class="ltx_ref" href="#S6-fig:Bezier_1D2D3D01" title="Figure 10 ‣ 6.3 Multidimensional inputs ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">10</span></a>-<em class="ltx_emph ltx_font_italic">center</em>, several equidistant contours are displayed as closed paths, with the one corresponding to the object contour (distance zero) represented in blue. In Fig. <a class="ltx_ref" href="#S6-fig:Bezier_1D2D3D01" title="Figure 10 ‣ 6.3 Multidimensional inputs ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">10</span></a>-<em class="ltx_emph ltx_font_italic">right</em>, several isosurfaces are displayed as 3D shapes, with the one corresponding to the object surface (distance zero) represented in blue. A marching algorithm has been used here for visualization purpose to compute closed contours (in 2D) and isosurfaces (in 3D). </p>
+<p class="ltx_p">Figure <a class="ltx_ref" href="#S6-fig:Bezier_1D2D3D01" title="Figure 10 ‣ 6.3 Multidimensional inputs ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">10</span></a> shows examples with various input dimensions to encode a signed distance field (SDF). In Fig. <a class="ltx_ref" href="#S6-fig:Bezier_1D2D3D01" title="Figure 10 ‣ 6.3 Multidimensional inputs ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">10</span></a>-<em class="ltx_emph ltx_font_italic">center</em>, several equidistant contours are displayed as closed paths, with the one corresponding to the object contour (distance zero) represented in blue. In Fig. <a class="ltx_ref" href="#S6-fig:Bezier_1D2D3D01" title="Figure 10 ‣ 6.3 Multidimensional inputs ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">10</span></a>-<em class="ltx_emph ltx_font_italic">right</em>, several isosurfaces are displayed as 3D shapes, with the one corresponding to the object surface (distance zero) represented in blue. A marching algorithm has been used here for visualization purpose to compute closed contours (in 2D) and isosurfaces (in 3D). </p>
 </div>
 <div class="ltx_para" id="S6-para:SS3.p7">
 <p class="ltx_p">The analytic expression provided by the proposed encoding can be used to express the derivatives as analytic expressions, which is useful for control and planning problem, such as moving closer or away from objects, or orienting the robot gripper to be locally aligned with the surface of an object.</p>
@@ -221,36 +222,37 @@
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">6.4</span> </span><span class="ltx_text">Derivatives</span>
 </h2>
 <div class="ltx_para" id="S6-para:SS4.p1">
-<p class="ltx_p">By using basis functions as analytic expressions, the derivatives are easy to compute. For example, for 2D inputs as in (<a class="ltx_ref" href="#S6-eq:Psi2D_analytic" title="(27) ‣ 6.3 Multidimensional inputs ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">27</span></a>), we have</p>
+<p class="ltx_p">By using basis functions as analytic expressions, the derivatives are easy to compute. For example, for 2D inputs as in (<a class="ltx_ref" href="#S6-eq:Psi2D_analytic" title="(32) ‣ 6.3 Multidimensional inputs ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">32</span></a>), we have
+</p>
 <table class="ltx_equation ltx_eqn_table" id="S6-eq:parialPsi">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E31.m1">\frac{\partial\bm{\Psi}(\bm{t})}{\partial t_{1}}=\frac{\partial\bm{\phi}(t_{1})}{\partial t_{1}}\,\otimes\,\bm{\phi}(t_{2}),\qquad\qquad\frac{\partial\bm{\Psi}(\bm{t})}{\partial t_{2}}=\bm{\phi}(t_{1})\,\otimes\,\frac{\partial\bm{\phi}(t_{2})}{\partial t_{2}},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E36.m1">\frac{\partial\bm{\Psi}(\bm{t})}{\partial t_{1}}=\frac{\partial\bm{\phi}(t_{1})}{\partial t_{1}}\,\otimes\,\bm{\phi}(t_{2}),\qquad\qquad\frac{\partial\bm{\Psi}(\bm{t})}{\partial t_{2}}=\bm{\phi}(t_{1})\,\otimes\,\frac{\partial\bm{\phi}(t_{2})}{\partial t_{2}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(31)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(36)</span></td>
 </tr>
 </table>
 <p class="ltx_p">providing the derivatives of <span class="ltx_Math" id="SS4.p1.m1">\bm{\Psi}(\bm{t})</span> with respect to <span class="ltx_Math" id="SS4.p1.m2">\bm{t}</span> expressed as</p>
 <table class="ltx_equation ltx_eqn_table" id="S6-eq:dPsi">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E32.m1">\bm{\nabla}\bm{\Psi}(\bm{t})=\frac{\partial\bm{\Psi}(\bm{t})}{\partial t_{1}}\,\otimes\,\frac{\partial\bm{\Psi}(\bm{t})}{\partial t_{2}},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E37.m1">\bm{\nabla}\!\bm{\Psi}(\bm{t})=\frac{\partial\bm{\Psi}(\bm{t})}{\partial t_{1}}\,\otimes\,\frac{\partial\bm{\Psi}(\bm{t})}{\partial t_{2}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(32)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(37)</span></td>
 </tr>
 </table>
 <p class="ltx_p">which can be used to compute the 2D gradient of the SDF at location <span class="ltx_Math" id="SS4.p1.m3">\bm{t}</span> with</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:E33">
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:E38">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E33.m1">\bm{\nabla}x=\bm{\nabla}\bm{\Psi}(\bm{t})\,\bm{w}.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E38.m1">\bm{\nabla}x=\bm{\nabla}\!\bm{\Psi}(\bm{t})\,\bm{w}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(33)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(38)</span></td>
 </tr>
 </table>
 </div>
 <div class="ltx_para" id="S6-para:SS4.p2">
-<p class="ltx_p">When using splines of the form <span class="ltx_Math" id="SS4.p2.m1">\bm{\phi}(t)=\bm{T}(t)\bm{B}\bm{C}</span>, the derivatives in (<a class="ltx_ref" href="#S6-eq:parialPsi" title="(31) ‣ 6.4 Derivatives ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">31</span></a>) are simply computed as <span class="ltx_Math" id="SS4.p2.m2">\frac{\partial\bm{\phi}(t)}{\partial t}=\frac{\partial\bm{T}(t)}{\partial t}\bm{B}\bm{C}</span>. For a cubic splines, it corresponds to <span class="ltx_Math" id="SS4.p2.m3">\bm{T}(t)=[1,t,t^{2},t^{3}]</span> and <span class="ltx_Math" id="SS4.p2.m4">\frac{\partial\bm{T}(t)}{\partial t}=[0,1,2t,3t^{2}]</span>.
+<p class="ltx_p">When using splines of the form <span class="ltx_Math" id="SS4.p2.m1">\bm{\phi}(t)=\bm{T}(t)\bm{B}\bm{C}</span>, the derivatives in (<a class="ltx_ref" href="#S6-eq:parialPsi" title="(36) ‣ 6.4 Derivatives ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">36</span></a>) are simply computed as <span class="ltx_Math" id="SS4.p2.m2">\frac{\partial\bm{\phi}(t)}{\partial t}=\frac{\partial\bm{T}(t)}{\partial t}\bm{B}\bm{C}</span>. For a cubic splines, it corresponds to <span class="ltx_Math" id="SS4.p2.m3">\bm{T}(t)=[1,t,t^{2},t^{3}]</span> and <span class="ltx_Math" id="SS4.p2.m4">\frac{\partial\bm{T}(t)}{\partial t}=[0,1,2t,3t^{2}]</span>.
 <br class="ltx_break"/></p>
 </div>
 <div class="ltx_para ltx_noindent" id="S6-para:SS4.p3">
@@ -262,23 +264,23 @@
 <table class="ltx_equation ltx_eqn_table" id="S6-eq:J_SDF">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E34.m1">\bm{J}(\bm{t})=\begin{bmatrix}\frac{\partial\bm{\Psi}(\bm{t})}{\partial t_{1}}\,\bm{w}\\[5.690551pt]
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E39.m1">\bm{J}(\bm{t})=\begin{bmatrix}\frac{\partial\bm{\Psi}(\bm{t})}{\partial t_{1}}\,\bm{w}\\[5.690551pt]
 \frac{\partial\bm{\Psi}(\bm{t})}{\partial t_{2}}\,\bm{w}\\
 \vdots\end{bmatrix},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(34)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(39)</span></td>
 </tr>
 </table>
 <p class="ltx_p">and the update can be computed recursively with</p>
 <table class="ltx_equation ltx_eqn_table" id="S6-eq:update_SDF">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E35.m1">\bm{t}_{k+1}\;\leftarrow\;\bm{t}_{k}-\alpha\bm{J}(\bm{t}_{k})^{\dagger}f(\bm{t}_{k}),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E40.m1">\bm{t}_{k+1}\;\leftarrow\;\bm{t}_{k}-\alpha\bm{J}(\bm{t}_{k})^{\dagger}f(\bm{t}_{k}),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(35)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(40)</span></td>
 </tr>
 </table>
-<p class="ltx_p">as in Equation (<a class="ltx_ref" href="#S3-eq:GaussNewtonUpdate" title="(11) ‣ 3.1 Gauss–Newton algorithm ‣ 3 Newton’s method for minimization ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">11</span></a>), where <span class="ltx_Math" id="SS4.p4.m4">\bm{J}(\bm{t}_{k})^{\scriptscriptstyle\top}f(\bm{t}_{k})</span> is a gradient and <span class="ltx_Math" id="SS4.p4.m5">\bm{J}(\bm{t}_{k})^{\scriptscriptstyle\top}\bm{J}(\bm{t}_{k})</span> a Hessian matrix, and <span class="ltx_Math" id="SS4.p4.m6">\alpha</span> is a line search parameter.
+<p class="ltx_p">as in Equation (<a class="ltx_ref" href="#S3-eq:GaussNewtonUpdate" title="(10) ‣ 3.1 Gauss–Newton algorithm ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">10</span></a>), where <span class="ltx_Math" id="SS4.p4.m4">\bm{J}(\bm{t}_{k})^{\scriptscriptstyle\top}f(\bm{t}_{k})</span> is a gradient and <span class="ltx_Math" id="SS4.p4.m5">\bm{J}(\bm{t}_{k})^{\scriptscriptstyle\top}\bm{J}(\bm{t}_{k})</span> a Hessian matrix, and <span class="ltx_Math" id="SS4.p4.m6">\alpha</span> is a line search parameter.
 <br class="ltx_break"/></p>
 </div>
 <div class="ltx_para ltx_noindent" id="S6-para:SS4.p5">
@@ -287,63 +289,64 @@
 </div>
 <div class="ltx_para" id="S6-para:SS4.p6">
 <p class="ltx_p">For two shapes encoded as SDFs <span class="ltx_Math" id="SS4.p6.m1">f_{1}(\bm{t}_{1})</span> and <span class="ltx_Math" id="SS4.p6.m2">f_{2}(\bm{t}_{2})</span> using basis functions, finding the shortest segment between the two shapes boils down to the Gauss–Newton optimization of a pair of points <span class="ltx_Math" id="SS4.p6.m3">\bm{t}_{1}</span> and <span class="ltx_Math" id="SS4.p6.m4">\bm{t}_{2}</span> are expressed in their respective shape coordinate frame and are organized as <span class="ltx_Math" id="SS4.p6.m5">\bm{t}=\begin{bmatrix}\bm{t}_{1}\\
-\bm{t}_{2}\end{bmatrix}</span>, with the cost</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:E36">
+\bm{t}_{2}\end{bmatrix}</span>, with the cost
+</p>
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:E41">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E36.m1">c(\bm{t})=\frac{1}{2}\,f_{1}(\bm{t}_{1})^{2}+\frac{1}{2}\,f_{2}(\bm{t}_{2})^{2}+\frac{1}{2}\,\|\bm{A}\,\bm{t}_{2}+\bm{b}-\bm{t}_{1}\|^{2},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E41.m1">c(\bm{t})=\frac{1}{2}\,f_{1}(\bm{t}_{1})^{2}+\frac{1}{2}\,f_{2}(\bm{t}_{2})^{2}+\frac{1}{2}\,\|\bm{A}\,\bm{t}_{2}+\bm{b}-\bm{t}_{1}\|^{2},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(36)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(41)</span></td>
 </tr>
 </table>
 <p class="ltx_p">which is composed of quadratic residual terms, where <span class="ltx_Math" id="SS4.p6.m6">\bm{A}</span> and <span class="ltx_Math" id="SS4.p6.m7">\bm{b}</span> are the rotation matrix and translation vector offset between the two objects, respectively. The Jacobian of the residual terms in the above cost is given by</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:E37">
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:E42">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E37.m1">\bm{J}(\bm{t})=\begin{bmatrix}\bm{J}_{1}(\bm{t}_{1})&amp;\bm{0}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E42.m1">\bm{J}(\bm{t})=\begin{bmatrix}\bm{J}_{1}(\bm{t}_{1})&amp;\bm{0}\\
 \bm{0}&amp;\bm{J}_{2}(\bm{t}_{2})\\
 -\bm{I}&amp;\bm{A}\end{bmatrix},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(37)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(42)</span></td>
 </tr>
 </table>
-<p class="ltx_p">where <span class="ltx_Math" id="SS4.p6.m8">\bm{J}_{1}(\bm{t}_{1})</span> and <span class="ltx_Math" id="SS4.p6.m9">\bm{J}_{2}(\bm{t}_{2})</span> are the derivatives of the two SDFs as given by (<a class="ltx_ref" href="#S6-eq:J_SDF" title="(34) ‣ 6.4 Derivatives ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">34</span></a>).</p>
+<p class="ltx_p">where <span class="ltx_Math" id="SS4.p6.m8">\bm{J}_{1}(\bm{t}_{1})</span> and <span class="ltx_Math" id="SS4.p6.m9">\bm{J}_{2}(\bm{t}_{2})</span> are the derivatives of the two SDFs as given by (<a class="ltx_ref" href="#S6-eq:J_SDF" title="(39) ‣ 6.4 Derivatives ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">39</span></a>).</p>
 </div>
 <div class="ltx_para" id="S6-para:SS4.p7">
-<p class="ltx_p">Similarly to (<a class="ltx_ref" href="#S6-eq:update_SDF" title="(35) ‣ 6.4 Derivatives ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">35</span></a>), the Gauss–Newton update step is then given by
-</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:E38">
+<p class="ltx_p">Similarly to (<a class="ltx_ref" href="#S6-eq:update_SDF" title="(40) ‣ 6.4 Derivatives ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">40</span></a>), the Gauss–Newton update step is then given by</p>
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:E43">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E38.m1">\bm{t}_{k+1}\;\leftarrow\;\bm{t}_{k}-\alpha\bm{J}(\bm{t}_{k})^{\dagger}\begin{bmatrix}f_{1}(\bm{t}_{1,k})\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E43.m1">\bm{t}_{k+1}\;\leftarrow\;\bm{t}_{k}-\alpha\bm{J}(\bm{t}_{k})^{\dagger}\begin{bmatrix}f_{1}(\bm{t}_{1,k})\\
 f_{2}(\bm{t}_{2,k})\\
 \bm{A}\,\bm{t}_{2,k}+\bm{b}-\bm{t}_{1,k}\end{bmatrix}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(38)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(43)</span></td>
 </tr>
 </table>
 </div>
 <div class="ltx_para" id="S6-para:SS4.p8">
 <p class="ltx_p">A prioritized optimization scheme can also be used to have the two points on the shape boundaries as primary objective and to move these points closer as secondary objective, with a corresponding Gauss–Newton update step given by</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S6-eq:A5.EGx9">
-<tbody id="S6-eq:E41"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S6-eq:A5.EGx14">
+<tbody id="S6-eq:E46"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E41.m1">\displaystyle\bm{t}_{k+1}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E41.m2">\displaystyle\leftarrow\;\bm{t}_{k}-\alpha_{1}\bm{J}_{12}^{\dagger}\begin{bmatrix}\textstyle f_{1}(\bm{t}_{1,k})\\
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E46.m1">\displaystyle\bm{t}_{k+1}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E46.m2">\displaystyle\leftarrow\;\bm{t}_{k}-\alpha_{1}\bm{J}_{12}^{\dagger}\begin{bmatrix}\textstyle f_{1}(\bm{t}_{1,k})\\
 \textstyle f_{2}(\bm{t}_{2,k})\end{bmatrix}+\alpha_{2}\bm{N}_{12}\;\bm{J}_{3}^{\dagger}\;(\bm{A}\,\bm{t}_{2,k}+\bm{b}-\bm{t}_{1,k}),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(41)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(46)</span></td>
 </tr></tbody>
-<tbody id="S6-eq:E45"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S6-eq:E50"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E45.m1">\displaystyle\text{where}\quad\bm{J}_{12}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E45.m2">\displaystyle=\begin{bmatrix}\textstyle\bm{J}_{1}(\bm{t}_{1})&amp;\bm{0}\\
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E50.m1">\displaystyle\text{where}\quad\bm{J}_{12}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E50.m2">\displaystyle=\begin{bmatrix}\textstyle\bm{J}_{1}(\bm{t}_{1})&amp;\bm{0}\\
 \textstyle\bm{0}&amp;\bm{J}_{2}(\bm{t}_{2})\end{bmatrix},\quad\bm{N}_{12}=\bm{I}-\bm{J}_{12}^{\dagger}\bm{J}_{12},\quad\bm{J}_{3}=\begin{bmatrix}\textstyle-\bm{I}&amp;\bm{A}\end{bmatrix},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(45)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(50)</span></td>
 </tr></tbody>
 </table>
-<p class="ltx_p">with <span class="ltx_Math" id="SS4.p8.m1">\alpha_{1}</span> and <span class="ltx_Math" id="SS4.p8.m2">\alpha_{2}</span> are two line search parameters.</p>
+<p class="ltx_p">with <span class="ltx_Math" id="SS4.p8.m1">\alpha_{1}</span> and <span class="ltx_Math" id="SS4.p8.m2">\alpha_{2}</span> are two line search parameters.
+</p>
 </div>
 </div><div class="ltx_subsection" id="S6-sec:SS5">
 <h2 class="ltx_title ltx_title_subsection">
@@ -357,10 +360,10 @@ f_{2}(\bm{t}_{2,k})\\
 </div>
 <div class="ltx_para" id="S6-para:SS5.p3">
 <p class="ltx_p">For example, for the concatenation of Bézier curves, we can define <span class="ltx_Math" id="SS5.p3.m1">\bm{C}</span> as</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:E46">
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:E51">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E46.m1">\bm{C}=\begin{bmatrix}1&amp;0&amp;\cdots&amp;0&amp;0&amp;\cdots\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E51.m1">\bm{C}=\begin{bmatrix}1&amp;0&amp;\cdots&amp;0&amp;0&amp;\cdots\\
 0&amp;1&amp;\cdots&amp;0&amp;0&amp;\cdots\\
 \vdots&amp;\vdots&amp;\ddots&amp;\vdots&amp;\vdots&amp;\ddots\\
 0&amp;0&amp;\cdots&amp;1&amp;0&amp;\cdots\\
@@ -369,17 +372,17 @@ f_{2}(\bm{t}_{2,k})\\
 0&amp;0&amp;\cdots&amp;-1&amp;2&amp;\cdots\\
 \vdots&amp;\vdots&amp;\ddots&amp;\vdots&amp;\vdots&amp;\ddots\end{bmatrix},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(46)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(51)</span></td>
 </tr>
 </table>
 <p class="ltx_p">where the pattern <span class="ltx_Math" id="SS5.p3.m2">\begin{bmatrix}1&amp;0\\
 0&amp;1\\
 0&amp;1\\
 -1&amp;2\end{bmatrix}</span> is repeated for each junction of two consecutive Bézier curves. For two concatenated cubic Bézier curves, each composed of 4 Bernstein basis functions, we can see locally that this operator yields a constraint of the form</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:E47">
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:E52">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E47.m1">\begin{bmatrix}w_{3}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E52.m1">\begin{bmatrix}w_{3}\\
 w_{4}\\
 w_{5}\\
 w_{6}\end{bmatrix}=\begin{bmatrix}1&amp;0\\
@@ -388,33 +391,52 @@ w_{6}\end{bmatrix}=\begin{bmatrix}1&amp;0\\
 -1&amp;2\end{bmatrix}\begin{bmatrix}a\\
 b\end{bmatrix},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(47)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(52)</span></td>
 </tr>
 </table>
-<p class="ltx_p">which ensures that <span class="ltx_Math" id="SS5.p3.m3">w_{4}=w_{5}</span> and <span class="ltx_Math" id="SS5.p3.m4">w_{6}=-w_{3}+2w_{5}</span>. These constraints guarantee that the last control point and the first control point of the next segment are the same, and that the control point before and after are symmetric with respect to this junction point, see Fig. <a class="ltx_ref" href="#S6-fig:Bezier_1D2D3D01" title="Figure 10 ‣ 6.3 Multidimensional inputs ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">10</span></a>-<em class="ltx_emph ltx_font_italic">left</em>.</p>
+<p class="ltx_p">which ensures that <span class="ltx_Math" id="SS5.p3.m3">w_{4}=w_{5}</span> and <span class="ltx_Math" id="SS5.p3.m4">w_{6}=-w_{3}+2w_{5}</span>. These constraints guarantee that the last control point and the first control point of the next segment are the same, and that the control point before and after are symmetric with respect to this junction point, see Fig. <a class="ltx_ref" href="#S6-fig:Bezier_1D2D3D01" title="Figure 10 ‣ 6.3 Multidimensional inputs ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">10</span></a>-<em class="ltx_emph ltx_font_italic">left</em>.</p>
 </div>
 </div><div class="ltx_subsection" id="S6-sec:batchSDF">
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">6.6</span> </span><span class="ltx_text">Batch computation of basis functions coefficients</span>
 </h2>
 <div class="ltx_para" id="S6-para:SS6.p1">
-<p class="ltx_p">Based on observed data <span class="ltx_Math" id="SS6.p1.m1">\bm{x}</span>, the superposition weights <span class="ltx_Math" id="SS6.p1.m2">\bm{w}</span> can be estimated as a simple least squares estimate</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:E48">
+<p class="ltx_p">Based on observed data <span class="ltx_Math" id="SS6.p1.m1">\bm{x}</span>, the superposition weights <span class="ltx_Math" id="SS6.p1.m2">\bm{\hat{w}}</span> can be estimated as a simple least squares estimate</p>
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:E53">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E48.m1">\bm{w}=\bm{\Psi}^{\dagger}\bm{x},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E53.m1">\bm{\hat{w}}=\bm{\Psi}^{\dagger}\bm{x}={(\bm{\Psi}^{\scriptscriptstyle\top}\bm{\Psi})}^{-1}\bm{\Psi}^{\scriptscriptstyle\top}\bm{x},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(48)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(53)</span></td>
 </tr>
 </table>
 <p class="ltx_p">or as the regularized version (ridge regression)</p>
 <table class="ltx_equation ltx_eqn_table" id="S6-eq:ridge">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E49.m1">\bm{w}={(\bm{\Psi}^{\scriptscriptstyle\top}\bm{\Psi}+\lambda\bm{I})}^{-1}\bm{\Psi}^{\scriptscriptstyle\top}\bm{x}.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E54.m1">\bm{\hat{w}}={(\bm{\Psi}^{\scriptscriptstyle\top}\bm{\Psi}+\lambda\bm{I})}^{-1}\bm{\Psi}^{\scriptscriptstyle\top}\bm{x}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(49)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(54)</span></td>
 </tr>
+</table>
+</div>
+<div class="ltx_para" id="S6-para:SS6.p2">
+<p class="ltx_p">For example, if we want to fit a reference path, which can also be sparse or composed of a set of viapoints, while minimizing velocities (or similarly, any other derivatives, such as computing a minimum jerk trajectories), we can solve</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S6-eq:A5.EGx15">
+<tbody id="S6-eq:E55"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E55.m1">\displaystyle\bm{\hat{w}}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E55.m2">\displaystyle=\arg\min_{\bm{w}}\frac{1}{2}\|\bm{\Psi}\bm{w}-\bm{x}\|^{2}+\frac{\lambda}{2}\|\bm{\nabla}\!\bm{\Psi}\bm{w}\|^{2}</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(55)</span></td>
+</tr></tbody>
+<tbody id="S6-eq:ridge2"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_eqn_cell"></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E56.m1">\displaystyle={(\bm{\Psi}^{\scriptscriptstyle\top}\bm{\Psi}+\lambda\bm{\nabla}\!\bm{\Psi}^{\scriptscriptstyle\top}\bm{\nabla}\!\bm{\Psi})}^{-1}\bm{\Psi}^{\scriptscriptstyle\top}\bm{x}.</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(56)</span></td>
+</tr></tbody>
 </table>
 </div>
 </div><div class="ltx_subsection" id="S6-sec:recursiveSDF">
@@ -447,76 +469,77 @@ b\end{bmatrix},</span></td>
 <figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_float"><span class="ltx_text ltx_font_bold">Algorithm 1</span> </span>Recursive computation of weights</figcaption>
 </figure>
 <div class="ltx_para" id="S6-para:SS7.p1">
-<p class="ltx_p">The same result can be obtained by recursive computation, by providing the datapoints one-by-one or by groups of points. The algorithm starts from an initial estimate of <span class="ltx_Math" id="SS7.p1.m1">\bm{w}</span> that is iteratively refined with the arrival of new datapoints, see Fig. <a class="ltx_ref" href="#S6-fig:Bezier_2D_RLS" title="Figure 11 ‣ 6.7 Recursive computation of basis functions coefficients ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">11</span></a>.</p>
+<p class="ltx_p">The same result can be obtained by recursive computation, by providing the datapoints one-by-one or by groups of points. The algorithm starts from an initial estimate of <span class="ltx_Math" id="SS7.p1.m1">\bm{w}</span> that is iteratively refined with the arrival of new datapoints, see Fig. <a class="ltx_ref" href="#S6-fig:Bezier_2D_RLS" title="Figure 11 ‣ 6.7 Recursive computation of basis functions coefficients ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">11</span></a>.</p>
 </div>
 <div class="ltx_para" id="S6-para:SS7.p2">
 <p class="ltx_p">This recursive least squares algorithm exploits the <span class="ltx_text ltx_font_bold">Sherman-Morrison-Woodbury formulas</span> that relate the inverse of a matrix after a small-rank perturbation to the inverse of the original matrix, namely</p>
 <table class="ltx_equation ltx_eqn_table" id="S6-eq:SMW">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E50.m1">\left(\bm{B}+\bm{U}\bm{V}\right)^{-1}=\bm{B}^{-1}-\overbrace{\bm{B}^{-1}\bm{U}\left(\bm{I}+\bm{V}\bm{B}^{-1}\bm{U}\right)^{-1}\bm{V}\bm{B}^{-1}}^{\bm{E}}</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E57.m1">\left(\bm{B}+\bm{U}\bm{V}\right)^{-1}=\bm{B}^{-1}-\overbrace{\bm{B}^{-1}\bm{U}\left(\bm{I}+\bm{V}\bm{B}^{-1}\bm{U}\right)^{-1}\bm{V}\bm{B}^{-1}}^{\bm{E}}</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(50)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(57)</span></td>
 </tr>
 </table>
 <p class="ltx_p">with <span class="ltx_Math" id="SS7.p2.m1">\bm{U}\!\in\!\mathbb{R}^{n\times m}</span> and <span class="ltx_Math" id="SS7.p2.m2">\bm{V}\!\in\!\mathbb{R}^{m\times n}</span>. When <span class="ltx_Math" id="SS7.p2.m3">m\!\ll\!n</span>, the correction term <span class="ltx_Math" id="SS7.p2.m4">\bm{E}</span> can be computed more efficiently than inverting <span class="ltx_Math" id="SS7.p2.m5">\bm{B}+\bm{U}\bm{V}</span>.</p>
 </div>
 <div class="ltx_para" id="S6-para:SS7.p3">
-<p class="ltx_p">By defining <span class="ltx_Math" id="SS7.p3.m1">\bm{B}\!=\!\bm{\Psi}^{\scriptscriptstyle\top}\bm{\Psi}</span>, the above relation can be exploited to update the least squares solution (<a class="ltx_ref" href="#S6-eq:ridge" title="(49) ‣ 6.6 Batch computation of basis functions coefficients ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">49</span></a>) when new datapoints become available. Indeed, if <span class="ltx_Math" id="SS7.p3.m2">\bm{\Psi}_{\!\scriptscriptstyle\mathrm{new}}=\begin{bmatrix}\bm{\Psi},\bm{V}\end{bmatrix}</span> and <span class="ltx_Math" id="SS7.p3.m3">\bm{x}_{\!\scriptscriptstyle\mathrm{new}}=\begin{bmatrix}\bm{x}\\
+<p class="ltx_p">By defining <span class="ltx_Math" id="SS7.p3.m1">\bm{B}\!=\!\bm{\Psi}^{\scriptscriptstyle\top}\bm{\Psi}</span>, the above relation can be exploited to update the least squares solution (<a class="ltx_ref" href="#S6-eq:ridge" title="(54) ‣ 6.6 Batch computation of basis functions coefficients ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">54</span></a>) when new datapoints become available. Indeed, if <span class="ltx_Math" id="SS7.p3.m2">\bm{\Psi}_{\!\scriptscriptstyle\mathrm{new}}=\begin{bmatrix}\bm{\Psi},\bm{V}\end{bmatrix}</span> and <span class="ltx_Math" id="SS7.p3.m3">\bm{x}_{\!\scriptscriptstyle\mathrm{new}}=\begin{bmatrix}\bm{x}\\
 \bm{v}\end{bmatrix}</span>, we can see that</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S6-eq:A5.EGx10">
-<tbody id="S6-eq:E51"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S6-eq:A5.EGx16">
+<tbody id="S6-eq:E58"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E51.m1">\displaystyle\bm{B}_{\!\scriptscriptstyle\mathrm{new}}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E51.m2">\displaystyle=\bm{\Psi}_{\!\scriptscriptstyle\mathrm{new}}^{\scriptscriptstyle\top}\bm{\Psi}_{\!\scriptscriptstyle\mathrm{new}}</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E58.m1">\displaystyle\bm{B}_{\!\scriptscriptstyle\mathrm{new}}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E58.m2">\displaystyle=\bm{\Psi}_{\!\scriptscriptstyle\mathrm{new}}^{\scriptscriptstyle\top}\bm{\Psi}_{\!\scriptscriptstyle\mathrm{new}}</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(51)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(58)</span></td>
 </tr></tbody>
-<tbody id="S6-eq:E52"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S6-eq:E59"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E52.m1">\displaystyle=\bm{\Psi}^{\scriptscriptstyle\top}\bm{\Psi}+\bm{V}^{\scriptscriptstyle\top}\bm{V}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E59.m1">\displaystyle=\bm{\Psi}^{\scriptscriptstyle\top}\bm{\Psi}+\bm{V}^{\scriptscriptstyle\top}\bm{V}</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(52)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(59)</span></td>
 </tr></tbody>
-<tbody id="S6-eq:E53"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S6-eq:E60"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E53.m1">\displaystyle=\bm{B}+\bm{V}^{\scriptscriptstyle\top}\bm{V},</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E60.m1">\displaystyle=\bm{B}+\bm{V}^{\scriptscriptstyle\top}\bm{V},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(53)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(60)</span></td>
 </tr></tbody>
 </table>
-<p class="ltx_p">whose inverse can be computed using (<a class="ltx_ref" href="#S6-eq:SMW" title="(50) ‣ 6.7 Recursive computation of basis functions coefficients ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">50</span></a>), yielding</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:E54">
+<p class="ltx_p">whose inverse can be computed using (<a class="ltx_ref" href="#S6-eq:SMW" title="(57) ‣ 6.7 Recursive computation of basis functions coefficients ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">57</span></a>), yielding
+</p>
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:E61">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E54.m1">\bm{B}_{\!\scriptscriptstyle\mathrm{new}}^{-1}=\bm{B}^{-1}-\underbrace{\bm{B}^{-1}\bm{V}^{\scriptscriptstyle\top}\left(\bm{I}+\bm{V}\bm{B}^{-1}\bm{V}^{\scriptscriptstyle\top}\right)^{-1}}_{\bm{K}}\bm{V}\bm{B}^{-1}.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E61.m1">\bm{B}_{\!\scriptscriptstyle\mathrm{new}}^{-1}=\bm{B}^{-1}-\underbrace{\bm{B}^{-1}\bm{V}^{\scriptscriptstyle\top}\left(\bm{I}+\bm{V}\bm{B}^{-1}\bm{V}^{\scriptscriptstyle\top}\right)^{-1}}_{\bm{K}}\bm{V}\bm{B}^{-1}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(54)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(61)</span></td>
 </tr>
 </table>
 <p class="ltx_p">This is exploited to estimate the update as</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:E55">
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:E62">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E55.m1">\bm{w}_{\!\scriptscriptstyle\mathrm{new}}=\bm{w}+\bm{K}\Big(\bm{v}-\bm{V}\bm{w}\Big),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E62.m1">\bm{w}_{\!\scriptscriptstyle\mathrm{new}}=\bm{w}+\bm{K}\Big(\bm{v}-\bm{V}\bm{w}\Big),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(55)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(62)</span></td>
 </tr>
 </table>
 <p class="ltx_p">with Kalman gain</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:E56">
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:E63">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E56.m1">\bm{K}=\bm{B}^{-1}\bm{V}^{\scriptscriptstyle\top}\left(\bm{I}+\bm{V}\bm{B}^{-1}\bm{V}^{\scriptscriptstyle\top}\right)^{-1}.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E63.m1">\bm{K}=\bm{B}^{-1}\bm{V}^{\scriptscriptstyle\top}\left(\bm{I}+\bm{V}\bm{B}^{-1}\bm{V}^{\scriptscriptstyle\top}\right)^{-1}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(56)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(63)</span></td>
 </tr>
 </table>
 </div>
 <div class="ltx_para" id="S6-para:SS7.p4">
-<p class="ltx_p">The above equations can be used recursively, with <span class="ltx_Math" id="SS7.p4.m1">\bm{B}_{\!\scriptscriptstyle\mathrm{new}}^{-1}</span> and <span class="ltx_Math" id="SS7.p4.m2">\bm{w}_{\!\scriptscriptstyle\mathrm{new}}</span> the updates that will become <span class="ltx_Math" id="SS7.p4.m3">\bm{B}^{-1}</span> and <span class="ltx_Math" id="SS7.p4.m4">\bm{w}</span> for the next iteration. Note that the above iterative computation only uses <span class="ltx_Math" id="SS7.p4.m5">\bm{B}^{-1}</span>, which is the variable stored in memory. Namely, we never use <span class="ltx_Math" id="SS7.p4.m6">\bm{B}</span>, only the inverse. For recursive ridge regression, the algorithm starts with <span class="ltx_Math" id="SS7.p4.m7">\bm{B}^{-1}=\frac{1}{\lambda}\bm{I}</span>. After all datapoints are used, the estimate of <span class="ltx_Math" id="SS7.p4.m8">\bm{w}</span> is exactly the same as the ridge regression result (<a class="ltx_ref" href="#S6-eq:ridge" title="(49) ‣ 6.6 Batch computation of basis functions coefficients ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">49</span></a>) computed in batch form. Algorithm <a class="ltx_ref" href="#S6-alg:splineRLS" title="Algorithm 1 ‣ 6.7 Recursive computation of basis functions coefficients ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">1</span></a> summarizes the computation steps.</p>
+<p class="ltx_p">The above equations can be used recursively, with <span class="ltx_Math" id="SS7.p4.m1">\bm{B}_{\!\scriptscriptstyle\mathrm{new}}^{-1}</span> and <span class="ltx_Math" id="SS7.p4.m2">\bm{w}_{\!\scriptscriptstyle\mathrm{new}}</span> the updates that will become <span class="ltx_Math" id="SS7.p4.m3">\bm{B}^{-1}</span> and <span class="ltx_Math" id="SS7.p4.m4">\bm{w}</span> for the next iteration. Note that the above iterative computation only uses <span class="ltx_Math" id="SS7.p4.m5">\bm{B}^{-1}</span>, which is the variable stored in memory. Namely, we never use <span class="ltx_Math" id="SS7.p4.m6">\bm{B}</span>, only the inverse. For recursive ridge regression, the algorithm starts with <span class="ltx_Math" id="SS7.p4.m7">\bm{B}^{-1}=\frac{1}{\lambda}\bm{I}</span>. After all datapoints are used, the estimate of <span class="ltx_Math" id="SS7.p4.m8">\bm{w}</span> is exactly the same as the ridge regression result (<a class="ltx_ref" href="#S6-eq:ridge" title="(54) ‣ 6.6 Batch computation of basis functions coefficients ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">54</span></a>) computed in batch form. Algorithm <a class="ltx_ref" href="#S6-alg:splineRLS" title="Algorithm 1 ‣ 6.7 Recursive computation of basis functions coefficients ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">1</span></a> summarizes the computation steps.</p>
 </div>
 </div><div class="ltx_subsection" id="S6-sec:SS8">
 <h2 class="ltx_title ltx_title_subsection">
@@ -527,61 +550,61 @@ b\end{bmatrix},</span></td>
 <table class="ltx_equation ltx_eqn_table" id="S6-eq:wEikonal">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E57.m1">\min_{\bm{w}}\;\sum_{m=1}^{M}\big\|\bm{\Psi}(\bm{t}_{m})\,\bm{w}\,-\,x_{m}\big\|^{2}+\lambda\sum_{n=1}^{N}\big\|\bm{\nabla}x_{n}^{\scriptscriptstyle\top}\,\bm{\nabla}x_{n}\,-\,1\big\|^{2},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E64.m1">\min_{\bm{w}}\;\sum_{m=1}^{M}\big\|\bm{\Psi}(\bm{t}_{m})\,\bm{w}\,-\,x_{m}\big\|^{2}+\lambda\sum_{n=1}^{N}\big\|\bm{\nabla}x_{n}^{\scriptscriptstyle\top}\,\bm{\nabla}x_{n}\,-\,1\big\|^{2},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(57)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(64)</span></td>
 </tr>
 </table>
-<p class="ltx_p">where <span class="ltx_Math" id="SS8.p1.m5">\lambda</span> is a weighting factor balancing the distance matching objective and the eikonal objective (regularization). The gradient of <span class="ltx_Math" id="SS8.p1.m6">x_{n}</span> with respect to <span class="ltx_Math" id="SS8.p1.m7">\bm{t}</span> is expressed as <span class="ltx_Math" id="SS8.p1.m8">\bm{\nabla}x_{n}=\bm{\nabla}\bm{\Psi}(\bm{t}_{n})\,\bm{w}</span>, computed using (<a class="ltx_ref" href="#S6-eq:dPsi" title="(32) ‣ 6.4 Derivatives ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">32</span></a>) for a set of <span class="ltx_Math" id="SS8.p1.m9">N</span> locations <span class="ltx_Math" id="SS8.p1.m10">\bm{t}_{n}</span>, that can typically be defined to cover homogeneously the area/volume encoded in the SDF.</p>
+<p class="ltx_p">where <span class="ltx_Math" id="SS8.p1.m5">\lambda</span> is a weighting factor balancing the distance matching objective and the eikonal objective (regularization). The gradient of <span class="ltx_Math" id="SS8.p1.m6">x_{n}</span> with respect to <span class="ltx_Math" id="SS8.p1.m7">\bm{t}</span> is expressed as <span class="ltx_Math" id="SS8.p1.m8">\bm{\nabla}x_{n}=\bm{\nabla}\bm{\Psi}(\bm{t}_{n})\,\bm{w}</span>, computed using (<a class="ltx_ref" href="#S6-eq:dPsi" title="(37) ‣ 6.4 Derivatives ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">37</span></a>) for a set of <span class="ltx_Math" id="SS8.p1.m9">N</span> locations <span class="ltx_Math" id="SS8.p1.m10">\bm{t}_{n}</span>, that can typically be defined to cover homogeneously the area/volume encoded in the SDF.</p>
 </div>
 <div class="ltx_para" id="S6-para:SS8.p2">
-<p class="ltx_p">The first component of the objective in (<a class="ltx_ref" href="#S6-eq:wEikonal" title="(57) ‣ 6.8 Computation of basis functions coefficients using eikonal cost ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">57</span></a>) is to find a SDF that can fit the data. If only this first part would be required, the minimization boils down to the least squares solution of Section <a class="ltx_ref" href="#S6-sec:batchSDF" title="6.6 Batch computation of basis functions coefficients ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">6.6</span></a>. The second term adds the objective of keeping the norm of the derivatives close to one, which is related to the eikonal equation <span class="ltx_Math" id="SS8.p2.m1">\|\bm{\nabla}x\|=1</span>, see <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib22" title="Implicit geometric regularization for learning shapes">4</a>]</cite> for the use of the eikonal equation in the context of SDF modeling. Intuitively, as the basis functions encodes a SDF, it means that we expect that if we move away from a shape by a small distance <span class="ltx_Math" id="SS8.p2.m2">\Delta d</span> in the direction given by the gradient, the expected distance at this new point should also increase by <span class="ltx_Math" id="SS8.p2.m3">\Delta d</span>, which corresponds to a slope of <span class="ltx_Math" id="SS8.p2.m4">1</span> (namely, a unit norm for the gradient), as expressed in the second part of the objective function.</p>
+<p class="ltx_p">The first component of the objective in (<a class="ltx_ref" href="#S6-eq:wEikonal" title="(64) ‣ 6.8 Computation of basis functions coefficients using eikonal cost ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">64</span></a>) is to find a SDF that can fit the data. If only this first part would be required, the minimization boils down to the least squares solution of Section <a class="ltx_ref" href="#S6-sec:batchSDF" title="6.6 Batch computation of basis functions coefficients ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">6.6</span></a>. The second term adds the objective of keeping the norm of the derivatives close to one, which is related to the eikonal equation <span class="ltx_Math" id="SS8.p2.m1">\|\bm{\nabla}x\|=1</span>, see <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib22" title="Implicit geometric regularization for learning shapes">4</a>]</cite> for the use of the eikonal equation in the context of SDF modeling. Intuitively, as the basis functions encodes a SDF, it means that we expect that if we move away from a shape by a small distance <span class="ltx_Math" id="SS8.p2.m2">\Delta d</span> in the direction given by the gradient, the expected distance at this new point should also increase by <span class="ltx_Math" id="SS8.p2.m3">\Delta d</span>, which corresponds to a slope of <span class="ltx_Math" id="SS8.p2.m4">1</span> (namely, a unit norm for the gradient), as expressed in the second part of the objective function.</p>
 </div>
 <div class="ltx_para" id="S6-para:SS8.p3">
-<p class="ltx_p">By following the notation in Section <a class="ltx_ref" href="#S3-sec:GaussNewton" title="3.1 Gauss–Newton algorithm ‣ 3 Newton’s method for minimization ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">3.1</span></a>, the above objective can be written as a sum of squared functions that can be solved by Gauss–Newton optimization, with residuals and Jacobians given by</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S6-eq:A5.EGx11">
-<tbody id="S6-eq:Ex45"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<p class="ltx_p">By following the notation in Section <a class="ltx_ref" href="#S3-sec:GaussNewton" title="3.1 Gauss–Newton algorithm ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">3.1</span></a>, the above objective can be written as a sum of squared functions that can be solved by Gauss–Newton optimization, with residuals and Jacobians given by</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S6-eq:A5.EGx17">
+<tbody id="S6-eq:Ex55"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex45.m1">\displaystyle r_{1,m}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex45.m2">\displaystyle=\bm{\Psi}(\bm{t}_{m})\,\bm{w}-x_{m},\quad</span></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex45.m3">\displaystyle\bm{J}_{1,m}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex45.m4">\displaystyle=\bm{\Psi}(\bm{t}_{m}),\quad</span></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex45.m5">\displaystyle\forall m\in\{1,\ldots,M\},</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex55.m1">\displaystyle r_{1,m}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex55.m2">\displaystyle=\bm{\Psi}(\bm{t}_{m})\,\bm{w}-x_{m},\quad</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex55.m3">\displaystyle\bm{J}_{1,m}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex55.m4">\displaystyle=\bm{\Psi}(\bm{t}_{m}),\quad</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex55.m5">\displaystyle\forall m\in\{1,\ldots,M\},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="S6-eq:Ex46"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S6-eq:Ex56"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex46.m1">\displaystyle r_{2,n}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex46.m2">\displaystyle=\bm{\nabla}x_{n}^{\scriptscriptstyle\top}\,\bm{\nabla}x_{n}-1,\quad</span></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex46.m3">\displaystyle\bm{J}_{2,n}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex46.m4">\displaystyle=2\,{\bm{\nabla}x_{n}}^{\!{\scriptscriptstyle\top}}\,\bm{\nabla}\bm{\Psi}(\bm{t}_{n}),\quad</span></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex46.m5">\displaystyle\forall n\in\{1,\ldots,N\},</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex56.m1">\displaystyle r_{2,n}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex56.m2">\displaystyle=\bm{\nabla}x_{n}^{\scriptscriptstyle\top}\,\bm{\nabla}x_{n}-1,\quad</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex56.m3">\displaystyle\bm{J}_{2,n}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex56.m4">\displaystyle=2\,{\bm{\nabla}x_{n}}^{\!{\scriptscriptstyle\top}}\,\bm{\nabla}\bm{\Psi}(\bm{t}_{n}),\quad</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex56.m5">\displaystyle\forall n\in\{1,\ldots,N\},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">which provide at each iteration step <span class="ltx_Math" id="SS8.p3.m1">k</span> the Gauss–Newton update rule</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:Ex47">
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:Ex57">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex47.m1">\bm{w}_{k+1}\;\leftarrow\;\bm{w}_{k}-\alpha{\Bigg(\sum_{m=1}^{M}\bm{J}_{1,m}^{\scriptscriptstyle\top}\bm{J}_{1,m}+\lambda\sum_{n=1}^{N}\bm{J}_{2,n}^{\scriptscriptstyle\top}\bm{J}_{2,n}\Bigg)}^{\!-1}\,\Bigg(\sum_{m=1}^{M}\bm{J}_{1,m}^{\scriptscriptstyle\top}\,r_{1,m}+\lambda\sum_{n=1}^{N}\bm{J}_{2,n}^{\scriptscriptstyle\top}\,r_{2,n}\bigg),\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex57.m1">\bm{w}_{k+1}\;\leftarrow\;\bm{w}_{k}-\alpha{\Bigg(\sum_{m=1}^{M}\bm{J}_{1,m}^{\scriptscriptstyle\top}\bm{J}_{1,m}+\lambda\sum_{n=1}^{N}\bm{J}_{2,n}^{\scriptscriptstyle\top}\bm{J}_{2,n}\Bigg)}^{\!-1}\,\Bigg(\sum_{m=1}^{M}\bm{J}_{1,m}^{\scriptscriptstyle\top}\,r_{1,m}+\lambda\sum_{n=1}^{N}\bm{J}_{2,n}^{\scriptscriptstyle\top}\,r_{2,n}\bigg),\\
 </span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr>
 </table>
-<p class="ltx_p">as detailed in Section <a class="ltx_ref" href="#S3-sec:GaussNewton" title="3.1 Gauss–Newton algorithm ‣ 3 Newton’s method for minimization ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">3.1</span></a>, where the learning rate <span class="ltx_Math" id="SS8.p3.m2">\alpha</span> can be determined by line search.</p>
+<p class="ltx_p">as detailed in Section <a class="ltx_ref" href="#S3-sec:GaussNewton" title="3.1 Gauss–Newton algorithm ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">3.1</span></a>, where the learning rate <span class="ltx_Math" id="SS8.p3.m2">\alpha</span> can be determined by line search.</p>
 </div>
 <div class="ltx_para" id="S6-para:SS8.p4">
 <p class="ltx_p">Note that the above computation can be rewritten with concatenated vectors and matrices for more efficient computation exploiting linear algebra. By concatenating vertically the Jacobian matrices and residuals, we have the equivalent Gauss–Newton update rule</p>
-<table class="ltx_equation ltx_eqn_table" id="S6-eq:Ex48">
+<table class="ltx_equation ltx_eqn_table" id="S6-eq:Ex58">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex48.m1">\bm{w}_{k+1}\;\leftarrow\;\bm{w}_{k}-\alpha{\Bigg(\bm{J}_{1}^{\scriptscriptstyle\top}\bm{J}_{1}+\lambda\bm{J}_{2}^{\scriptscriptstyle\top}\bm{J}_{2}\Bigg)}^{\!-1}\,\Bigg(\bm{J}_{1}^{\scriptscriptstyle\top}\,\bm{r}_{1}+\lambda\bm{J}_{2}^{\scriptscriptstyle\top}\,\bm{r}_{2}\bigg).</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex58.m1">\bm{w}_{k+1}\;\leftarrow\;\bm{w}_{k}-\alpha{\Bigg(\bm{J}_{1}^{\scriptscriptstyle\top}\bm{J}_{1}+\lambda\bm{J}_{2}^{\scriptscriptstyle\top}\bm{J}_{2}\Bigg)}^{\!-1}\,\Bigg(\bm{J}_{1}^{\scriptscriptstyle\top}\,\bm{r}_{1}+\lambda\bm{J}_{2}^{\scriptscriptstyle\top}\,\bm{r}_{2}\bigg).</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr>
 </table>
 </div>
 <div class="ltx_para" id="S6-para:SS8.p5">
-<p class="ltx_p">Figure <a class="ltx_ref" href="#S6-fig:Bezier_2D_eikonal" title="Figure 12 ‣ 6.8 Computation of basis functions coefficients using eikonal cost ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">12</span></a> presents an example in 2D.</p>
+<p class="ltx_p">Figure <a class="ltx_ref" href="#S6-fig:Bezier_2D_eikonal" title="Figure 12 ‣ 6.8 Computation of basis functions coefficients using eikonal cost ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">12</span></a> presents an example in 2D.</p>
 </div>
 </div><ul class="pagination justify-content-center small_menu"><li class="page-item previous_file"><a class="page-link" href="#S5">Previous</a></li><li class="page-item next_file"><a class="page-link" href="#S7">Next</a></li></ul></div></div><div class="col-sm-3"><div id="img-col"><figure class="ltx_figure figure_main" id="S6-fig:MP">
 <figure class="ltx_figure ltx_align_center" id="S6-fig:F9.fig1"><a href="online_course/images/MP_basisFcts01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F9.g1" src="online_course/images/small/MP_basisFcts01.png"/></a>

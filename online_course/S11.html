@@ -1,7 +1,8 @@
 <div class="row"><div class="col-sm-7 offset-1"><div id="txt-col"><h1 class="ltx_title ltx_title_section">
 <span class="ltx_tag ltx_tag_section"><span class="ltx_text">11</span> </span><span class="ltx_text">Orientation representations and Riemannian manifolds</span>
 </h1><div class="ltx_para" id="S11-para:p1">
-<p class="ltx_p">Representing orientation is crucial in robotics. For example, controlling the 3D position of a gripper with respect to the 3D position of an object is not enough for a successful grasp with a robot manipulator. Instead, we need to consider the full 6D poses of the object and the gripper, which require to consider both position and orientation to describe the location in space of the robot’s end-effector.</p>
+<p class="ltx_p">Representing orientation is crucial in robotics. For example, controlling the 3D position of a gripper with respect to the 3D position of an object is not enough for a successful grasp with a robot manipulator. Instead, we need to consider the full 6D poses of the object and the gripper, which require to consider both position and orientation to describe the location in space of the robot’s end-effector.
+</p>
 </div><div class="ltx_para" id="S11-para:p2">
 <p class="ltx_p">There are many ways to represent orientations, including rotation matrices, Euler angles, axis-angle, unit quaternions. Each representation has pros and cons that often depend on what we want to do with these data. It sometimes requires us to consider multiple representations in the same application, by converting one representation into another.</p>
 </div><div class="ltx_subsection" id="S11-sec:SSx1">
@@ -22,8 +23,7 @@ can be directly computed with standard linear algebra, by multiplying matrices w
 <p class="ltx_p">The main advantage of Euler angles is that they are easy to interpret for human analysis in a compact form, where the rotation can be mentally interpreted by applying the three orientations in sequence. This might be an advantage over the rotation matrix, that often requires the corresponding coordinate system to be visualized on a screen to be interpreted.</p>
 </div>
 <div class="ltx_para" id="S11-para:SSx2.p3">
-<p class="ltx_p">One disadvantage of Euler angles is that they are not easy to compose, but there is another more important disadvantage that drastically limits the use of Euler angles for computation in learning and optimization problems. With Euler angles, for a given orientation, the 3 angles are uniquely determined except for singular cases when some of the considered axes have the same or opposite directions. These ambiguities are known as gimbal locks. A gimbal is a ring that is suspended so it can rotate about an axis. Gimbals are nested one within another to accommodate rotation about multiple axes. Gimbal lock refers to the loss of one degree of freedom in a three-dimensional, three-gimbal mechanism that occurs when the axes of 2 of the 3 gimbals are driven into a parallel configuration, ”locking” the system into rotation in a degenerate two-dimensional space. For example, in a pitch/yaw/roll rotational system, if the pitch is rotated 90 degrees up or down, the yaw and roll will correspond to the same motion and a degree of freedom is lost.
-</p>
+<p class="ltx_p">One disadvantage of Euler angles is that they are not easy to compose, but there is another more important disadvantage that drastically limits the use of Euler angles for computation in learning and optimization problems. With Euler angles, for a given orientation, the 3 angles are uniquely determined except for singular cases when some of the considered axes have the same or opposite directions. These ambiguities are known as gimbal locks. A gimbal is a ring that is suspended so it can rotate about an axis. Gimbals are nested one within another to accommodate rotation about multiple axes. Gimbal lock refers to the loss of one degree of freedom in a three-dimensional, three-gimbal mechanism that occurs when the axes of 2 of the 3 gimbals are driven into a parallel configuration, ”locking” the system into rotation in a degenerate two-dimensional space. For example, in a pitch/yaw/roll rotational system, if the pitch is rotated 90 degrees up or down, the yaw and roll will correspond to the same motion and a degree of freedom is lost.</p>
 </div>
 </div><div class="ltx_subsection" id="S11-sec:SSx3">
 <h2 class="ltx_title ltx_title_subsection">Axis-angle</h2>
@@ -35,12 +35,12 @@ can be directly computed with standard linear algebra, by multiplying matrices w
 <div class="ltx_para" id="S11-para:SSx4.p1">
 <p class="ltx_p">The unit quaternion is a nonminimal representation of rotations which shares some similarities with the axis-angle representation but that overcomes its limitations.
 A unit quaternion can be stored as a vector of 4 elements, but it can also be interpreted as a single number, in the same way as a complex number can be stored as a vector of two elements with the real and imaginary part. Indeed, the quaternion is an extension of complex numbers (with <span class="ltx_Math" id="SSx4.p1.m1">i^{2}=-1</span>) to additional abstract symbols <span class="ltx_Math" id="SSx4.p1.m2">i</span>, <span class="ltx_Math" id="SSx4.p1.m3">j</span>, <span class="ltx_Math" id="SSx4.p1.m4">k</span> satisfying the rules</p>
-<table class="ltx_equation ltx_eqn_table" id="S11-eq:E173">
+<table class="ltx_equation ltx_eqn_table" id="S11-eq:E180">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E173.m1">i^{2}=j^{2}=k^{2}=ijk=-1.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E180.m1">i^{2}=j^{2}=k^{2}=ijk=-1.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(173)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(180)</span></td>
 </tr>
 </table>
 </div>
@@ -49,28 +49,27 @@ A unit quaternion can be stored as a vector of 4 elements, but it can also be in
 </div>
 <div class="ltx_para" id="S11-para:SSx4.p3">
 <p class="ltx_p">While the quaternion describes a number, it is convenient in practice to store the parameters of the quaternion number <span class="ltx_Math" id="SSx4.p3.m1">q_{1}+q_{2}i+q_{3}j+q_{4}k</span> as a vector</p>
-<table class="ltx_equation ltx_eqn_table" id="S11-eq:E174">
+<table class="ltx_equation ltx_eqn_table" id="S11-eq:E181">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E174.m1">\bm{q}=\begin{bmatrix}q_{1}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E181.m1">\bm{q}=\begin{bmatrix}q_{1}\\
 q_{2}\\
 q_{3}\\
 q_{4}\end{bmatrix}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(174)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(181)</span></td>
 </tr>
 </table>
 </div>
 <div class="ltx_para" id="S11-para:SSx4.p4">
-<p class="ltx_p">The conversion from an axis-angle representation is simple and shows the connections between the two representations. For a unit axis <span class="ltx_Math" id="SSx4.p4.m1">\bm{u}</span> and a rotation angle <span class="ltx_Math" id="SSx4.p4.m2">\theta</span>, we have
-</p>
-<table class="ltx_equation ltx_eqn_table" id="S11-eq:E175">
+<p class="ltx_p">The conversion from an axis-angle representation is simple and shows the connections between the two representations. For a unit axis <span class="ltx_Math" id="SSx4.p4.m1">\bm{u}</span> and a rotation angle <span class="ltx_Math" id="SSx4.p4.m2">\theta</span>, we have</p>
+<table class="ltx_equation ltx_eqn_table" id="S11-eq:E182">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E175.m1">\bm{q}=\begin{bmatrix}\cos{\frac{\theta}{2}}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E182.m1">\bm{q}=\begin{bmatrix}\cos{\frac{\theta}{2}}\\
 {\bm{u}}\sin{\frac{\theta}{2}}\end{bmatrix}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(175)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(182)</span></td>
 </tr>
 </table>
 </div>
@@ -79,32 +78,31 @@ q_{4}\end{bmatrix}.</span></td>
 </div>
 <div class="ltx_para" id="S11-para:SSx4.p6">
 <p class="ltx_p">Conversions between quaternion algebra and linear algebra are possible. For example, the above quaternion rotation corresponds to the matrix rotation <span class="ltx_Math" id="SSx4.p6.m1">\bm{p}^{\prime}=\bm{R}\,\bm{p}</span> in standard linear algebra, where <span class="ltx_Math" id="SSx4.p6.m2">\bm{R}</span> is a rotation matrix given by</p>
-<table class="ltx_equation ltx_eqn_table" id="S11-eq:E176">
+<table class="ltx_equation ltx_eqn_table" id="S11-eq:E183">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E176.m1">\bm{R}=\begin{bmatrix}1-2q_{3}^{2}-2q_{4}^{2}&amp;2q_{2}q_{3}-2q_{4}q_{1}&amp;2q_{2}q_{4}+2q_{3}q_{1}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E183.m1">\bm{R}=\begin{bmatrix}1-2q_{3}^{2}-2q_{4}^{2}&amp;2q_{2}q_{3}-2q_{4}q_{1}&amp;2q_{2}q_{4}+2q_{3}q_{1}\\
 2q_{2}q_{3}+2q_{4}q_{1}&amp;1-2q_{2}^{2}-2q_{4}^{2}&amp;2q_{3}q_{4}-2q_{2}q_{1}\\
 2q_{2}q_{4}-2q_{3}q_{1}&amp;2q_{3}q_{4}+2q_{2}q_{1}&amp;1-2q_{2}^{2}-2q_{3}^{2}\end{bmatrix}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(176)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(183)</span></td>
 </tr>
 </table>
 </div>
 <div class="ltx_para" id="S11-para:SSx4.p7">
 <p class="ltx_p">A rotation matrix <span class="ltx_Math" id="SSx4.p7.m1">\bm{R}</span> can reversely be converted to a quaternion <span class="ltx_Math" id="SSx4.p7.m2">\bm{q}</span> by constructing a symmetric <span class="ltx_Math" id="SSx4.p7.m3">4\times 4</span> matrix</p>
-<table class="ltx_equation ltx_eqn_table" id="S11-eq:E177">
+<table class="ltx_equation ltx_eqn_table" id="S11-eq:E184">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E177.m1">K={\frac{1}{3}}{\begin{bmatrix}R_{11}\!-\!R_{22}\!-\!R_{33}&amp;R_{21}\!+\!R_{12}&amp;R_{31}\!+\!R_{13}&amp;R_{23}\!-\!R_{32}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E184.m1">K={\frac{1}{3}}{\begin{bmatrix}R_{11}\!-\!R_{22}\!-\!R_{33}&amp;R_{21}\!+\!R_{12}&amp;R_{31}\!+\!R_{13}&amp;R_{23}\!-\!R_{32}\\
 R_{21}\!+\!R_{12}&amp;R_{22}\!-\!R_{11}\!-\!R_{33}&amp;R_{32}\!+\!R_{23}&amp;R_{31}\!-\!R_{13}\\
 R_{31}\!+\!R_{13}&amp;R_{32}\!+\!R_{23}&amp;R_{33}\!-\!R_{11}\!-\!R_{22}&amp;R_{12}\!-\!R_{21}\\
 R_{23}\!-\!R_{32}&amp;R_{31}\!-\!R_{13}&amp;R_{12}\!-\!R_{21}&amp;R_{11}\!+\!R_{22}\!+\!R_{33}\end{bmatrix}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(177)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(184)</span></td>
 </tr>
 </table>
-<p class="ltx_p">whose largest eigenvalue corresponds to <span class="ltx_Math" id="SSx4.p7.m4">\bm{q}</span>.
-</p>
+<p class="ltx_p">whose largest eigenvalue corresponds to <span class="ltx_Math" id="SSx4.p7.m4">\bm{q}</span>.</p>
 </div>
 <div class="ltx_para" id="S11-para:SSx4.p8">
 <p class="ltx_p">By storing the four elements of a unit quaternion as a vector <span class="ltx_Math" id="SSx4.p8.m1">\bm{q}</span>, we can interpret <span class="ltx_Math" id="SSx4.p8.m2">\bm{q}</span> as a point on a (hyper)sphere of 4 dimensions. Indeed, the norm of 1 induces this geometry. One way to interpret and visualize this easily is to consider the corresponding problem of a 3D vector constrained to have a unit norm, which means that the points lie on a 3D sphere of radius 1. Such unit 3D vectors for example correspond to the representation of direction vectors in robotics (e.g., to represent surface normals for environment modeling). These representations form a manifold that can leverage the exploitation of Riemannian geometry, which is discussed next.</p>
@@ -125,11 +123,11 @@ Riemannian manifolds can facilitate the processing of these geometric data, whic
 
 <br class="ltx_break"/>
 <span class="ltx_text ltx_font_bold">Geodesics:</span>
-The minimum length curves between two points on a Riemannian manifold are called geodesics. Similarly to straight lines in Euclidean space, the second derivative is zero everywhere along a geodesic. The exponential map <span class="ltx_Math" id="SS1.p3.m1">\text{Exp}_{\bm{x}_{0}}:\mathcal{T}_{\bm{x}_{0}}\mathcal{M}\to\mathcal{M}</span> maps a point <span class="ltx_Math" id="SS1.p3.m2">\bm{u}</span> in the tangent space of <span class="ltx_Math" id="SS1.p3.m3">\bm{x}_{0}</span> to a point <span class="ltx_Math" id="SS1.p3.m4">\bm{x}</span> on the manifold, so that <span class="ltx_Math" id="SS1.p3.m5">\bm{x}</span> lies on the geodesic starting at <span class="ltx_Math" id="SS1.p3.m6">\bm{x}_{0}</span> in the direction <span class="ltx_Math" id="SS1.p3.m7">\bm{u}</span>. The norm of <span class="ltx_Math" id="SS1.p3.m8">\bm{u}</span> is equal to the geodesic distance between <span class="ltx_Math" id="SS1.p3.m9">\bm{x}_{0}</span> and <span class="ltx_Math" id="SS1.p3.m10">\bm{x}</span>. The inverse map is called the logarithmic map <span class="ltx_Math" id="SS1.p3.m11">\text{Log}_{\bm{x}_{0}}:\mathcal{M}\to\mathcal{T}_{\bm{x}_{0}}\mathcal{M}</span>. Figure <a class="ltx_ref" href="#S11-fig:functions" title="Figure 38 ‣ 11.1 Riemannian manifolds ‣ 11 Orientation representations and Riemannian manifolds ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">38</span></a>-<em class="ltx_emph ltx_font_italic">left</em> depicts these mapping functions.
+The minimum length curves between two points on a Riemannian manifold are called geodesics. Similarly to straight lines in Euclidean space, the second derivative is zero everywhere along a geodesic. The exponential map <span class="ltx_Math" id="SS1.p3.m1">\text{Exp}_{\bm{x}_{0}}:\mathcal{T}_{\bm{x}_{0}}\mathcal{M}\to\mathcal{M}</span> maps a point <span class="ltx_Math" id="SS1.p3.m2">\bm{u}</span> in the tangent space of <span class="ltx_Math" id="SS1.p3.m3">\bm{x}_{0}</span> to a point <span class="ltx_Math" id="SS1.p3.m4">\bm{x}</span> on the manifold, so that <span class="ltx_Math" id="SS1.p3.m5">\bm{x}</span> lies on the geodesic starting at <span class="ltx_Math" id="SS1.p3.m6">\bm{x}_{0}</span> in the direction <span class="ltx_Math" id="SS1.p3.m7">\bm{u}</span>. The norm of <span class="ltx_Math" id="SS1.p3.m8">\bm{u}</span> is equal to the geodesic distance between <span class="ltx_Math" id="SS1.p3.m9">\bm{x}_{0}</span> and <span class="ltx_Math" id="SS1.p3.m10">\bm{x}</span>. The inverse map is called the logarithmic map <span class="ltx_Math" id="SS1.p3.m11">\text{Log}_{\bm{x}_{0}}:\mathcal{M}\to\mathcal{T}_{\bm{x}_{0}}\mathcal{M}</span>. Figure <a class="ltx_ref" href="#S11-fig:functions" title="Figure 38 ‣ 11.1 Riemannian manifolds ‣ 11 Orientation representations and Riemannian manifolds ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">38</span></a>-<em class="ltx_emph ltx_font_italic">left</em> depicts these mapping functions.
 
 <br class="ltx_break"/>
 <span class="ltx_text ltx_font_bold">Parallel transport:</span>
-Parallel transport <span class="ltx_Math" id="SS1.p3.m12">\Gamma_{\bm{g}{\scriptscriptstyle{\to}}\bm{h}}:\mathcal{T}_{\bm{g}}\mathcal{M}\to\mathcal{T}_{\bm{h}}\mathcal{M}</span> moves vectors between tangent spaces such that the inner product between two vectors in a tangent space is conserved. It employs the notion of connection, defining how to associate vectors between infinitesimally close tangent spaces. This connection allows the smooth transport of a vector from one tangent space to another by sliding it (with infinitesimal moves) along a curve. Figure <a class="ltx_ref" href="#S11-fig:functions" title="Figure 38 ‣ 11.1 Riemannian manifolds ‣ 11 Orientation representations and Riemannian manifolds ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">38</span></a>-<em class="ltx_emph ltx_font_italic">right</em> depicts this operation. The flat surfaces show the coordinate systems of several tangent spaces along the geodesic. The black vectors represent the directions of the geodesic in the tangent spaces. The blue vectors are transported from <span class="ltx_Math" id="SS1.p3.m13">\bm{g}</span> to <span class="ltx_Math" id="SS1.p3.m14">\bm{h}</span>. Parallel transport allows a vector <span class="ltx_Math" id="SS1.p3.m15">\bm{u}</span> in the tangent space of <span class="ltx_Math" id="SS1.p3.m16">\bm{g}</span> to be transported to the tangent space of <span class="ltx_Math" id="SS1.p3.m17">\bm{h}</span>, by ensuring that the angle (i.e., inner product) between <span class="ltx_Math" id="SS1.p3.m18">\bm{u}</span> and the direction of the geodesic (represented as black vectors) are conserved. At point <span class="ltx_Math" id="SS1.p3.m19">\bm{g}</span>, this direction is expressed as <span class="ltx_Math" id="SS1.p3.m20">\text{Log}_{\bm{g}}(\bm{h})</span>. This operation is crucial to combine information available at <span class="ltx_Math" id="SS1.p3.m21">\bm{g}</span> with information available at <span class="ltx_Math" id="SS1.p3.m22">\bm{h}</span>, by taking into account the rotation of the coordinate systems along the geodesic. In Euclidean space (top-left inset), the parallel transport is simply the identity operator (a vector operation can be applied to any point without additional transformation). By extension, a covariance matrix <span class="ltx_Math" id="SS1.p3.m23">\bm{\Sigma}</span> can be transported with <span class="ltx_Math" id="SS1.p3.m24">\bm{\Sigma}_{{\scriptscriptstyle{\|}}}=\sum_{i=1}^{d}\Gamma_{\bm{g}{\scriptscriptstyle{\to}}\bm{h}}(\bm{v}_{i})\;\Gamma_{\bm{g}{\scriptscriptstyle{\to}}\bm{h}}^{\scriptscriptstyle\top}(\bm{v}_{i})</span>, using the eigendecomposition <span class="ltx_Math" id="SS1.p3.m25">\bm{\Sigma}=\sum_{i=1}^{d}\bm{v}_{i}\,\bm{v}_{i}^{\scriptscriptstyle\top}</span>. For many manifolds in robotics, this transport operation can equivalently be expressed as a linear mapping <span class="ltx_Math" id="SS1.p3.m26">\bm{\Sigma}_{{\scriptscriptstyle{\|}}}=\bm{A}_{\bm{g}{\scriptscriptstyle{\to}}\bm{h}}\bm{\Sigma}\,\bm{A}_{\bm{g}{\scriptscriptstyle{\to}}\bm{h}}^{\scriptscriptstyle\top}</span></p>
+Parallel transport <span class="ltx_Math" id="SS1.p3.m12">\Gamma_{\bm{g}{\scriptscriptstyle{\to}}\bm{h}}:\mathcal{T}_{\bm{g}}\mathcal{M}\to\mathcal{T}_{\bm{h}}\mathcal{M}</span> moves vectors between tangent spaces such that the inner product between two vectors in a tangent space is conserved. It employs the notion of connection, defining how to associate vectors between infinitesimally close tangent spaces. This connection allows the smooth transport of a vector from one tangent space to another by sliding it (with infinitesimal moves) along a curve. Figure <a class="ltx_ref" href="#S11-fig:functions" title="Figure 38 ‣ 11.1 Riemannian manifolds ‣ 11 Orientation representations and Riemannian manifolds ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">38</span></a>-<em class="ltx_emph ltx_font_italic">right</em> depicts this operation. The flat surfaces show the coordinate systems of several tangent spaces along the geodesic. The black vectors represent the directions of the geodesic in the tangent spaces. The blue vectors are transported from <span class="ltx_Math" id="SS1.p3.m13">\bm{g}</span> to <span class="ltx_Math" id="SS1.p3.m14">\bm{h}</span>. Parallel transport allows a vector <span class="ltx_Math" id="SS1.p3.m15">\bm{u}</span> in the tangent space of <span class="ltx_Math" id="SS1.p3.m16">\bm{g}</span> to be transported to the tangent space of <span class="ltx_Math" id="SS1.p3.m17">\bm{h}</span>, by ensuring that the angle (i.e., inner product) between <span class="ltx_Math" id="SS1.p3.m18">\bm{u}</span> and the direction of the geodesic (represented as black vectors) are conserved. At point <span class="ltx_Math" id="SS1.p3.m19">\bm{g}</span>, this direction is expressed as <span class="ltx_Math" id="SS1.p3.m20">\text{Log}_{\bm{g}}(\bm{h})</span>. This operation is crucial to combine information available at <span class="ltx_Math" id="SS1.p3.m21">\bm{g}</span> with information available at <span class="ltx_Math" id="SS1.p3.m22">\bm{h}</span>, by taking into account the rotation of the coordinate systems along the geodesic. In Euclidean space (top-left inset), the parallel transport is simply the identity operator (a vector operation can be applied to any point without additional transformation). By extension, a covariance matrix <span class="ltx_Math" id="SS1.p3.m23">\bm{\Sigma}</span> can be transported with <span class="ltx_Math" id="SS1.p3.m24">\bm{\Sigma}_{{\scriptscriptstyle{\|}}}=\sum_{i=1}^{d}\Gamma_{\bm{g}{\scriptscriptstyle{\to}}\bm{h}}(\bm{v}_{i})\;\Gamma_{\bm{g}{\scriptscriptstyle{\to}}\bm{h}}^{\scriptscriptstyle\top}(\bm{v}_{i})</span>, using the eigendecomposition <span class="ltx_Math" id="SS1.p3.m25">\bm{\Sigma}=\sum_{i=1}^{d}\bm{v}_{i}\,\bm{v}_{i}^{\scriptscriptstyle\top}</span>. For many manifolds in robotics, this transport operation can equivalently be expressed as a linear mapping <span class="ltx_Math" id="SS1.p3.m26">\bm{\Sigma}_{{\scriptscriptstyle{\|}}}=\bm{A}_{\bm{g}{\scriptscriptstyle{\to}}\bm{h}}\bm{\Sigma}\,\bm{A}_{\bm{g}{\scriptscriptstyle{\to}}\bm{h}}^{\scriptscriptstyle\top}</span></p>
 </div>
 <div class="ltx_para" id="S11-para:SS1.p4">
 <p class="ltx_p">The most common manifolds in robotics are homogeneous, with the same curvature at any point on the manifold, which provides simple analytic expressions for exponential/logarithmic mapping and parallel transport.</p>
@@ -146,66 +144,65 @@ Parallel transport <span class="ltx_Math" id="SS1.p3.m12">\Gamma_{\bm{g}{\script
 <table class="ltx_equation ltx_eqn_table" id="S11-Eq:SphereDist">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E178.m1">d(\bm{x},\bm{y})=\arccos(\bm{x}^{\scriptscriptstyle\top}\bm{y}),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E185.m1">d(\bm{x},\bm{y})=\arccos(\bm{x}^{\scriptscriptstyle\top}\bm{y}),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(178)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(185)</span></td>
 </tr>
 </table>
 <p class="ltx_p">with <span class="ltx_Math" id="SS2.p2.m1">\bm{x},\bm{y}\in\mathcal{S}^{d}</span> computed as</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S11-eq:A5.EGx39">
-<tbody id="S11-eq:E179"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S11-eq:A5.EGx45">
+<tbody id="S11-eq:E186"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E179.m1">\displaystyle\bm{y}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E179.m2">\displaystyle=\text{Exp}_{\bm{x}}(\bm{u})=\bm{x}\cos(\|\bm{u}\|)+\frac{\bm{u}}{\|\bm{u}\|}\sin(\|\bm{u}\|),</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E186.m1">\displaystyle\bm{y}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E186.m2">\displaystyle=\text{Exp}_{\bm{x}}(\bm{u})=\bm{x}\cos(\|\bm{u}\|)+\frac{\bm{u}}{\|\bm{u}\|}\sin(\|\bm{u}\|),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(179)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(186)</span></td>
 </tr></tbody>
 <tbody id="S11-Eq:SphereMaps"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E180.m1">\displaystyle\bm{u}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E180.m2">\displaystyle=\text{Log}_{\bm{x}}(\bm{y})=d(\bm{x},\bm{y})\,\frac{\bm{y}-\bm{x}^{\scriptscriptstyle\top}\bm{y}\,\bm{x}}{\|\bm{y}-\bm{x}^{\scriptscriptstyle\top}\bm{y}\,\bm{x}\|}.</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E187.m1">\displaystyle\bm{u}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E187.m2">\displaystyle=\text{Log}_{\bm{x}}(\bm{y})=d(\bm{x},\bm{y})\,\frac{\bm{y}-\bm{x}^{\scriptscriptstyle\top}\bm{y}\,\bm{x}}{\|\bm{y}-\bm{x}^{\scriptscriptstyle\top}\bm{y}\,\bm{x}\|}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(180)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(187)</span></td>
 </tr></tbody>
 </table>
 </div>
 <div class="ltx_para" id="S11-para:SS2.p3">
 <p class="ltx_p">The parallel transport of <span class="ltx_Math" id="SS2.p3.m1">\bm{v}\in\mathcal{T}_{\bm{x}}\mathcal{S}^{d}</span> to <span class="ltx_Math" id="SS2.p3.m2">\mathcal{T}_{\bm{y}}\mathcal{S}^{d}</span> is given by</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S11-eq:A5.EGx40">
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S11-eq:A5.EGx46">
 <tbody id="S11-Eq:SpherePT"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E181.m1">\displaystyle\Gamma_{\bm{x}{\scriptscriptstyle{\to}}\bm{y}}(\bm{v})</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E181.m2">\displaystyle=\bm{v}-\frac{{\text{Log}_{\bm{x}}(\bm{y})}^{\scriptscriptstyle\top}\bm{v}}{d(\bm{x},\bm{y})^{2}}\Big(\text{Log}_{\bm{x}}(\bm{y})+\text{Log}_{\bm{y}}(\bm{x})\Big).</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E188.m1">\displaystyle\Gamma_{\bm{x}{\scriptscriptstyle{\to}}\bm{y}}(\bm{v})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E188.m2">\displaystyle=\bm{v}-\frac{{\text{Log}_{\bm{x}}(\bm{y})}^{\scriptscriptstyle\top}\bm{v}}{d(\bm{x},\bm{y})^{2}}\Big(\text{Log}_{\bm{x}}(\bm{y})+\text{Log}_{\bm{y}}(\bm{x})\Big).</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(181)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(188)</span></td>
 </tr></tbody>
 </table>
 </div>
 <div class="ltx_para" id="S11-para:SS2.p4">
 <p class="ltx_p">In some applications, it can be convenient to define the parallel transport with the alternative equivalent form</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S11-eq:A5.EGx41">
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S11-eq:A5.EGx47">
 <tbody id="S11-Eq:SpherePT2"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E182.m1">\displaystyle\Gamma_{\bm{x}{\scriptscriptstyle{\to}}\bm{y}}(\bm{v})=\bm{A}_{\bm{x}{\scriptscriptstyle{\to}}\bm{y}}\,\bm{v},\quad\mathrm{with}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E189.m1">\displaystyle\Gamma_{\bm{x}{\scriptscriptstyle{\to}}\bm{y}}(\bm{v})=\bm{A}_{\bm{x}{\scriptscriptstyle{\to}}\bm{y}}\,\bm{v},\quad\mathrm{with}</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(182)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(189)</span></td>
 </tr></tbody>
-<tbody id="S11-eq:Ex122"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S11-eq:Ex132"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex122.m1">\displaystyle\bm{A}_{\bm{x}{\scriptscriptstyle{\to}}\bm{y}}=-\bm{x}\sin(\|\bm{u}\|)\bm{\overline{u}}^{{\scriptscriptstyle\top}}+\bm{\overline{u}}\cos(\|\bm{u}\|)\bm{\overline{u}}^{\scriptscriptstyle\top}+(\bm{I}-\bm{\overline{u}}\,\bm{\overline{u}}^{\scriptscriptstyle\top}),</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex132.m1">\displaystyle\bm{A}_{\bm{x}{\scriptscriptstyle{\to}}\bm{y}}=-\bm{x}\sin(\|\bm{u}\|)\bm{\overline{u}}^{{\scriptscriptstyle\top}}+\bm{\overline{u}}\cos(\|\bm{u}\|)\bm{\overline{u}}^{\scriptscriptstyle\top}+(\bm{I}-\bm{\overline{u}}\,\bm{\overline{u}}^{\scriptscriptstyle\top}),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="S11-eq:Ex123"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S11-eq:Ex133"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex123.m1">\displaystyle\bm{u}=\text{Log}_{\bm{x}}(\bm{y}),\quad\mathrm{and}\quad\bm{\overline{u}}=\frac{\bm{u}}{\|\bm{u}\|},</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex133.m1">\displaystyle\bm{u}=\text{Log}_{\bm{x}}(\bm{y}),\quad\mathrm{and}\quad\bm{\overline{u}}=\frac{\bm{u}}{\|\bm{u}\|},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">highlighting the linear structure of the operation.</p>
 </div>
 <div class="ltx_para" id="S11-para:SS2.p5">
-<p class="ltx_p">Note that in the above representation, <span class="ltx_Math" id="SS2.p5.m1">\bm{u}</span> and <span class="ltx_Math" id="SS2.p5.m2">\bm{v}</span> are described as vectors with <span class="ltx_Math" id="SS2.p5.m3">d+1</span> elements contained in <span class="ltx_Math" id="SS2.p5.m4">\mathcal{T}_{\bm{x}}\mathcal{S}^{d}</span>. An alternative representation consists of expressing <span class="ltx_Math" id="SS2.p5.m5">\bm{u}</span> and <span class="ltx_Math" id="SS2.p5.m6">\bm{v}</span> as vectors of <span class="ltx_Math" id="SS2.p5.m7">d</span> elements in the coordinate system attached to <span class="ltx_Math" id="SS2.p5.m8">\mathcal{T}_{\bm{x}}\mathcal{S}^{d}</span>.
-</p>
+<p class="ltx_p">Note that in the above representation, <span class="ltx_Math" id="SS2.p5.m1">\bm{u}</span> and <span class="ltx_Math" id="SS2.p5.m2">\bm{v}</span> are described as vectors with <span class="ltx_Math" id="SS2.p5.m3">d+1</span> elements contained in <span class="ltx_Math" id="SS2.p5.m4">\mathcal{T}_{\bm{x}}\mathcal{S}^{d}</span>. An alternative representation consists of expressing <span class="ltx_Math" id="SS2.p5.m5">\bm{u}</span> and <span class="ltx_Math" id="SS2.p5.m6">\bm{v}</span> as vectors of <span class="ltx_Math" id="SS2.p5.m7">d</span> elements in the coordinate system attached to <span class="ltx_Math" id="SS2.p5.m8">\mathcal{T}_{\bm{x}}\mathcal{S}^{d}</span>.</p>
 </div>
 </div><div class="ltx_subsection" id="S11-sec:SS3">
 <h2 class="ltx_title ltx_title_subsection">
@@ -213,10 +210,10 @@ Parallel transport <span class="ltx_Math" id="SS1.p3.m12">\Gamma_{\bm{g}{\script
 </h2>
 <div class="ltx_para" id="S11-para:SS3.p1">
 <p class="ltx_p">Several approaches can be used to extend Gaussian distributions to Riemannian manifolds. The most simple approach consists of estimating the mean of the Gaussian as a centroid on the manifold (also called Karcher/Fréchet mean), and representing the dispersion of the data as a covariance expressed in the tangent space of the mean <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib11" title="Gaussians on Riemannian manifolds: applications for robot learning and adaptive control">3</a>]</cite>. This is an approximation, because distortions arise when points are too far apart from the mean. However, this distortion is negligible in most robotics applications. In particular, this effect is strongly attenuated when the Gaussian covers a small part of the manifold. This Gaussian representation on a manifold <span class="ltx_Math" id="SS3.p1.m1">\mathcal{M}</span> is defined as</p>
-<table class="ltx_equation ltx_eqn_table" id="S11-eq:Ex124">
+<table class="ltx_equation ltx_eqn_table" id="S11-eq:Ex134">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex124.m1">\mathcal{N}_{\mathcal{M}}(\bm{x}|\bm{\mu},\bm{\Sigma})={\Big((2\pi)^{d}|\bm{\Sigma}|\Big)}^{-\frac{1}{2}}\;e^{-\frac{1}{2}{\text{Log}_{\bm{\mu}}\!(\bm{x})}^{\scriptscriptstyle\top}\,\bm{\Sigma}^{-1}\,\text{Log}_{\bm{\mu}}\!(\bm{x})},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex134.m1">\mathcal{N}_{\mathcal{M}}(\bm{x}|\bm{\mu},\bm{\Sigma})={\Big((2\pi)^{d}|\bm{\Sigma}|\Big)}^{-\frac{1}{2}}\;e^{-\frac{1}{2}{\text{Log}_{\bm{\mu}}\!(\bm{x})}^{\scriptscriptstyle\top}\,\bm{\Sigma}^{-1}\,\text{Log}_{\bm{\mu}}\!(\bm{x})},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr>
 </table>
@@ -224,25 +221,25 @@ Parallel transport <span class="ltx_Math" id="SS1.p3.m12">\Gamma_{\bm{g}{\script
 </div>
 <div class="ltx_para" id="S11-para:SS3.p2">
 <p class="ltx_p">For a set of <span class="ltx_Math" id="SS3.p2.m1">N</span> datapoints, this geometric mean corresponds to the minimization</p>
-<table class="ltx_equation ltx_eqn_table" id="S11-eq:Ex125">
+<table class="ltx_equation ltx_eqn_table" id="S11-eq:Ex135">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex125.m1">\min_{\bm{\mu}}\sum_{n=1}^{N}{\text{Log}_{\bm{\mu}}\!(\bm{x}_{n})}^{\scriptscriptstyle\top}\;\text{Log}_{\bm{\mu}}\!(\bm{x}_{n}),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex135.m1">\min_{\bm{\mu}}\sum_{n=1}^{N}{\text{Log}_{\bm{\mu}}\!(\bm{x}_{n})}^{\scriptscriptstyle\top}\;\text{Log}_{\bm{\mu}}\!(\bm{x}_{n}),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr>
 </table>
 <p class="ltx_p">which can be solved by a simple and fast Gauss-Newton iterative algorithm. The algorithm starts from an initial estimate on the manifold and an associated tangent space. The datapoints <span class="ltx_Math" id="SS3.p2.m2">\{\bm{x}_{n}\}_{n=1}^{N}</span> are projected in this tangent space to compute a direction vector, which provides an updated estimate of the mean. This process is repeated by iterating</p>
-<table class="ltx_equation ltx_eqn_table" id="S11-eq:Ex126">
+<table class="ltx_equation ltx_eqn_table" id="S11-eq:Ex136">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex126.m1">\bm{u}=\frac{1}{N}\sum_{n=1}^{N}\text{Log}_{\bm{\mu}}\!(\bm{x}_{n}),\qquad\bm{\mu}\leftarrow\text{Exp}_{\bm{\mu}}\!(\bm{u}),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex136.m1">\bm{u}=\frac{1}{N}\sum_{n=1}^{N}\text{Log}_{\bm{\mu}}\!(\bm{x}_{n}),\qquad\bm{\mu}\leftarrow\text{Exp}_{\bm{\mu}}\!(\bm{u}),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr>
 </table>
 <p class="ltx_p">until convergence. In practice, for homogeneous manifolds with constant curvatures, this iterative algorithm will converge very fast, with only a couple of iterations.</p>
 </div>
 <div class="ltx_para" id="S11-para:SS3.p3">
-<p class="ltx_p">After convergence, a covariance is computed in the tangent space as <span class="ltx_Math" id="SS3.p3.m1">\bm{\Sigma}=\frac{1}{N-1}\sum_{n=1}^{N}\text{Log}_{\bm{\mu}}\!(\bm{x}_{n})\,{\text{Log}_{\bm{\mu}}\!(\bm{x}_{n})}^{\scriptscriptstyle\top}</span>, see Fig. <a class="ltx_ref" href="#S11-fig:GaussianManifold" title="Figure 39 ‣ 11.3 Gaussian distributions on Riemannian manifolds ‣ 11 Orientation representations and Riemannian manifolds ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">39</span></a>.</p>
+<p class="ltx_p">After convergence, a covariance is computed in the tangent space as <span class="ltx_Math" id="SS3.p3.m1">\bm{\Sigma}=\frac{1}{N-1}\sum_{n=1}^{N}\text{Log}_{\bm{\mu}}\!(\bm{x}_{n})\,{\text{Log}_{\bm{\mu}}\!(\bm{x}_{n})}^{\scriptscriptstyle\top}</span>, see Fig. <a class="ltx_ref" href="#S11-fig:GaussianManifold" title="Figure 39 ‣ 11.3 Gaussian distributions on Riemannian manifolds ‣ 11 Orientation representations and Riemannian manifolds ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">39</span></a>.</p>
 </div>
 <div class="ltx_para" id="S11-para:SS3.p4">
 <p class="ltx_p">This distribution can for example be used in a control problem to represent a reference to track with an associated required precision (e.g., learned from a set of demonstrations). Importantly, this geometric mean can be directly extended to weighted distances, which will be exploited in the next sections for mixture modeling, fusion (product of Gaussians), regression (Gaussian conditioning) and planning problems.</p>
@@ -252,10 +249,10 @@ Parallel transport <span class="ltx_Math" id="SS1.p3.m12">\Gamma_{\bm{g}{\script
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">11.4</span> </span><span class="ltx_text">Other homogeneous manifolds in robotics</span>
 </h2>
 <div class="ltx_para" id="S11-para:SS4.p1">
-<p class="ltx_p">Figure <a class="ltx_ref" href="#S11-fig:SSPDH" title="Figure 40 ‣ 11.4 Other homogeneous manifolds in robotics ‣ 11 Orientation representations and Riemannian manifolds ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">40</span></a> shows four examples of homogeneous Riemannian manifolds that can be employed in robotics. For these four manifolds, the bottom graphs depict <span class="ltx_Math" id="SS4.p1.m1">\mathcal{S}^{2}</span>, <span class="ltx_Math" id="SS4.p1.m2">\mathcal{S}^{2}_{++}</span>, <span class="ltx_Math" id="SS4.p1.m3">\mathcal{H}^{2}</span> and <span class="ltx_Math" id="SS4.p1.m4">\mathcal{G}^{3,2}</span>, with a clustering problem in which the datapoints (black dots/planes) are segmented in two classes, each represented by a center (red and blue dots/planes).</p>
+<p class="ltx_p">Figure <a class="ltx_ref" href="#S11-fig:SSPDH" title="Figure 40 ‣ 11.4 Other homogeneous manifolds in robotics ‣ 11 Orientation representations and Riemannian manifolds ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">40</span></a> shows four examples of homogeneous Riemannian manifolds that can be employed in robotics. For these four manifolds, the bottom graphs depict <span class="ltx_Math" id="SS4.p1.m1">\mathcal{S}^{2}</span>, <span class="ltx_Math" id="SS4.p1.m2">\mathcal{S}^{2}_{++}</span>, <span class="ltx_Math" id="SS4.p1.m3">\mathcal{H}^{2}</span> and <span class="ltx_Math" id="SS4.p1.m4">\mathcal{G}^{3,2}</span>, with a clustering problem in which the datapoints (black dots/planes) are segmented in two classes, each represented by a center (red and blue dots/planes).</p>
 </div>
 <div class="ltx_para" id="S11-para:SS4.p2">
-<p class="ltx_p">The geodesics depicted in Fig. <a class="ltx_ref" href="#S11-fig:SSPDH" title="Figure 40 ‣ 11.4 Other homogeneous manifolds in robotics ‣ 11 Orientation representations and Riemannian manifolds ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">40</span></a> show the specificities of each manifold, see <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib11" title="Gaussians on Riemannian manifolds: applications for robot learning and adaptive control">3</a>]</cite> for details. The sphere manifold <span class="ltx_Math" id="SS4.p2.m1">\mathcal{S}^{d}</span> is characterized by constant positive curvature. The elements of <span class="ltx_Math" id="SS4.p2.m2">\mathcal{S}^{d}_{++}</span> can be represented as the interior of a convex cone embedded in its tangent space <span class="ltx_Math" id="SS4.p2.m3">\text{Sym}^{d}</span>. Here, the three axes correspond to <span class="ltx_Math" id="SS4.p2.m4">A_{11}</span>, <span class="ltx_Math" id="SS4.p2.m5">A_{12}</span> and <span class="ltx_Math" id="SS4.p2.m6">A_{22}</span> in the SPD matrix <span class="ltx_Math" id="SS4.p2.m7">\left(\begin{smallmatrix}A_{11}&amp;A_{12}\\
+<p class="ltx_p">The geodesics depicted in Fig. <a class="ltx_ref" href="#S11-fig:SSPDH" title="Figure 40 ‣ 11.4 Other homogeneous manifolds in robotics ‣ 11 Orientation representations and Riemannian manifolds ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">40</span></a> show the specificities of each manifold, see <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib11" title="Gaussians on Riemannian manifolds: applications for robot learning and adaptive control">3</a>]</cite> for details. The sphere manifold <span class="ltx_Math" id="SS4.p2.m1">\mathcal{S}^{d}</span> is characterized by constant positive curvature. The elements of <span class="ltx_Math" id="SS4.p2.m2">\mathcal{S}^{d}_{++}</span> can be represented as the interior of a convex cone embedded in its tangent space <span class="ltx_Math" id="SS4.p2.m3">\text{Sym}^{d}</span>. Here, the three axes correspond to <span class="ltx_Math" id="SS4.p2.m4">A_{11}</span>, <span class="ltx_Math" id="SS4.p2.m5">A_{12}</span> and <span class="ltx_Math" id="SS4.p2.m6">A_{22}</span> in the SPD matrix <span class="ltx_Math" id="SS4.p2.m7">\left(\begin{smallmatrix}A_{11}&amp;A_{12}\\
 A_{12}&amp;A_{22}\end{smallmatrix}\right)</span>. The hyperbolic manifold <span class="ltx_Math" id="SS4.p2.m8">\mathcal{H}^{d}</span> is characterized by constant negative curvature. Several representations exist: <span class="ltx_Math" id="SS4.p2.m9">\mathcal{H}^{2}</span> can for example be represented as the interior of a unit disk in Euclidean space, with the boundary of the disk representing infinitely remote point (Poincaré disk model, as depicted here). In this model, geodesic paths are arcs of circles intersecting the boundary perpendicularly. <span class="ltx_Math" id="SS4.p2.m10">\mathcal{G}^{d,p}</span> is the Grassmann manifold of all <span class="ltx_Math" id="SS4.p2.m11">p</span>-dimensional subspaces of <span class="ltx_Math" id="SS4.p2.m12">\mathbb{R}^{d}</span>.</p>
 </div>
 </div><div class="ltx_subsection" id="S11-sec:SS5">
@@ -270,27 +267,26 @@ A_{12}&amp;A_{22}\end{smallmatrix}\right)</span>. The hyperbolic manifold <span 
 <table class="ltx_equation ltx_eqn_table" id="S11-Eq:SPDdist">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E183.m1">d(\bm{X},\bm{Y})={\big\|\log(\bm{X}^{-\frac{1}{2}}\bm{Y}\bm{X}^{-\frac{1}{2}})\big\|}_{\text{F}},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E190.m1">d(\bm{X},\bm{Y})={\big\|\log(\bm{X}^{-\frac{1}{2}}\bm{Y}\bm{X}^{-\frac{1}{2}})\big\|}_{\text{F}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(183)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(190)</span></td>
 </tr>
 </table>
-<p class="ltx_p">the exponential and logarithmic maps on the SPD manifold can be computed as
-</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S11-eq:A5.EGx42">
-<tbody id="S11-eq:E184"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<p class="ltx_p">the exponential and logarithmic maps on the SPD manifold can be computed as</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S11-eq:A5.EGx48">
+<tbody id="S11-eq:E191"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E184.m1">\displaystyle\bm{Y}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E184.m2">\displaystyle=\text{Exp}_{\bm{X}}(\bm{U})=\bm{X}^{\frac{1}{2}}\exp\big(\bm{X}^{-\frac{1}{2}}\bm{U}\bm{X}^{-\frac{1}{2}}\big)\bm{X}^{\frac{1}{2}},</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E191.m1">\displaystyle\bm{Y}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E191.m2">\displaystyle=\text{Exp}_{\bm{X}}(\bm{U})=\bm{X}^{\frac{1}{2}}\exp\big(\bm{X}^{-\frac{1}{2}}\bm{U}\bm{X}^{-\frac{1}{2}}\big)\bm{X}^{\frac{1}{2}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(184)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(191)</span></td>
 </tr></tbody>
 <tbody id="S11-Eq:SPDmaps"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E185.m1">\displaystyle\bm{U}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E185.m2">\displaystyle=\text{Log}_{\bm{X}}(\bm{Y})=\bm{X}^{\frac{1}{2}}\log\big(\bm{X}^{-\frac{1}{2}}\bm{Y}\bm{X}^{-\frac{1}{2}}\big)\bm{X}^{\frac{1}{2}}.</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E192.m1">\displaystyle\bm{U}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E192.m2">\displaystyle=\text{Log}_{\bm{X}}(\bm{Y})=\bm{X}^{\frac{1}{2}}\log\big(\bm{X}^{-\frac{1}{2}}\bm{Y}\bm{X}^{-\frac{1}{2}}\big)\bm{X}^{\frac{1}{2}}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(185)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(192)</span></td>
 </tr></tbody>
 </table>
 </div>
@@ -299,9 +295,9 @@ A_{12}&amp;A_{22}\end{smallmatrix}\right)</span>. The hyperbolic manifold <span 
 <table class="ltx_equation ltx_eqn_table" id="S11-eq:spdPT">
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E186.m1">\Gamma_{\bm{X}{\scriptscriptstyle{\to}}\bm{Y}}(\bm{V})=\bm{A}_{\bm{X}{\scriptscriptstyle{\to}}\bm{Y}}\,\bm{V}\,\bm{A}_{\bm{X}{\scriptscriptstyle{\to}}\bm{Y}}^{\scriptscriptstyle\top},\,\mathrm{with}\,\bm{A}_{\bm{X}{\scriptscriptstyle{\to}}\bm{Y}}=\bm{Y}^{\frac{1}{2}}\bm{X}^{-\frac{1}{2}}.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E193.m1">\Gamma_{\bm{X}{\scriptscriptstyle{\to}}\bm{Y}}(\bm{V})=\bm{A}_{\bm{X}{\scriptscriptstyle{\to}}\bm{Y}}\,\bm{V}\,\bm{A}_{\bm{X}{\scriptscriptstyle{\to}}\bm{Y}}^{\scriptscriptstyle\top},\,\mathrm{with}\,\bm{A}_{\bm{X}{\scriptscriptstyle{\to}}\bm{Y}}=\bm{Y}^{\frac{1}{2}}\bm{X}^{-\frac{1}{2}}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(186)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(193)</span></td>
 </tr>
 </table>
 </div>
@@ -313,7 +309,7 @@ A_{12}&amp;A_{22}\end{smallmatrix}\right)</span>. The hyperbolic manifold <span 
 <p class="ltx_p">Manifolds with nonconstant curvature can also be employed, such as spaces endowed with a metric, characterized by a weighting matrix used to compute distances. Many problems in robotics can be formulated with such a smoothly varying matrix <span class="ltx_Math" id="SS6.p1.m1">\bm{M}</span> that measures the distance between two points <span class="ltx_Math" id="SS6.p1.m2">\bm{x}_{1}</span> and <span class="ltx_Math" id="SS6.p1.m3">\bm{x}_{2}</span> as a quadratic error term <span class="ltx_Math" id="SS6.p1.m4">c=(\bm{x}_{1}-\bm{x}_{2})^{\scriptscriptstyle\top}\bm{M}(\bm{x}_{1}-\bm{x}_{2})</span>, forming a Riemannian metric that describes the underlying manifold (with non-homogeneous curvature). This weighting matrix can for example represent levels of kinetic energy or stiffness gains to model varying impedance behaviors. Computation is often more costly for these manifolds with nonconstant curvature, because it typically requires iterative algorithms instead of the direct analytic expressions typically provided by homogeneous manifolds.</p>
 </div>
 <div class="ltx_para" id="S11-para:SS6.p2">
-<p class="ltx_p">Figure <a class="ltx_ref" href="#S11-fig:nonhomogeneousManifolds" title="Figure 41 ‣ 11.6 Non-homogeneous manifolds in robotics ‣ 11 Orientation representations and Riemannian manifolds ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">41</span></a> presents examples exploiting non-homogeneous Riemannian manifolds.</p>
+<p class="ltx_p">Figure <a class="ltx_ref" href="#S11-fig:nonhomogeneousManifolds" title="Figure 41 ‣ 11.6 Non-homogeneous manifolds in robotics ‣ 11 Orientation representations and Riemannian manifolds ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">41</span></a> presents examples exploiting non-homogeneous Riemannian manifolds.</p>
 </div>
 <div class="ltx_pagination ltx_role_newpage"></div>
 </div><ul class="pagination justify-content-center small_menu"><li class="page-item previous_file"><a class="page-link" href="#S10">Previous</a></li><li class="page-item next_file"><a class="page-link" href="#bib">Next</a></li></ul></div></div><div class="col-sm-3"><div id="img-col"><figure class="ltx_figure figure_main" id="S11-fig:functions"><a href="online_course/images/manifold-mappingAndTransportFcts01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F38.g1" src="online_course/images/small/manifold-mappingAndTransportFcts01.png"/></a>
@@ -332,7 +328,7 @@ A_{12}&amp;A_{22}\end{smallmatrix}\right)</span>. The hyperbolic manifold <span 
 <a href="online_course/images/obstacleGeodesics01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F41.g3" src="online_course/images/small/obstacleGeodesics01.png"/></a>
 <figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 41</span>: </span><em class="ltx_emph ltx_font_italic">Left:</em><span class="ltx_text"> A typical example of smoothly varying metric in robotics is when the weight matrix is a mass inertia matrix so that inertia is taken into account to generate a movement from a starting joint configuration to a target joint configuration while minimizing kinetic energy (see geodesics in solid lines). In the figure, inverse weight matrices are depicted to visualize locally the equidistant points (w.r.t the metric) that the system can reach as ellipsoids.
 The movement in dashed lines show the baseline movements that would be produced by ignoring inertia (corresponding to linear interpolation between the two poses). The metric can similarly be weighted by other precision matrices, including stiffness and manipulability ellipsoids.
-<em class="ltx_emph ltx_font_italic">Center:</em> Transformation of a scalar signed distance field (SDF), as in Figure <a class="ltx_ref" href="#S6-fig:Bezier_1D2D3D01" title="Figure 10 ‣ 6.3 Multidimensional inputs ‣ 6 Encoding with basis functions ‣ Learning and Optimization in Robotics Lecture notes"><span class="ltx_text ltx_ref_tag">10</span></a>, and its associated derivatives to a smoothly varying coordinate system to facilitate teleoperation. This coordinate system is shape-centric (both user-centric and object-centric), in the sense that it is oriented toward the surface normal while ensuring smoothness (by constructing the SDF as piecewise polynomials). In this example, the commands to approach the surface and move along the surface at a desired distance then corresponds to piecewise constant commands (see control command profiles in the graph inset).
+<em class="ltx_emph ltx_font_italic">Center:</em> Transformation of a scalar signed distance field (SDF), as in Figure <a class="ltx_ref" href="#S6-fig:Bezier_1D2D3D01" title="Figure 10 ‣ 6.3 Multidimensional inputs ‣ 6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">10</span></a>, and its associated derivatives to a smoothly varying coordinate system to facilitate teleoperation. This coordinate system is shape-centric (both user-centric and object-centric), in the sense that it is oriented toward the surface normal while ensuring smoothness (by constructing the SDF as piecewise polynomials). In this example, the commands to approach the surface and move along the surface at a desired distance then corresponds to piecewise constant commands (see control command profiles in the graph inset).
 <em class="ltx_emph ltx_font_italic">Right:</em> This coordinate system can be used to define a cost function with a quadratic error defined by a covariance matrix. This matrix can be shaped by the distance, to provide a Riemannian metric that smoothly distorts distances when being close to objects, users and obstacles (represented as covariance ellipses in the figure). This can be used in control and planning to define geodesic paths based on this metric. This will generate paths that naturally curve around obstacles when the obstacles are close (see the two point-to-point trajectories in green, either far from the obstacle or close to the obstacle). The figure inset shows that the metric can also be interpreted as a surface lying in a higher dimensional space (here, in 3D), where the geodesics then correspond to the shortest Euclidean path on this surface. It is relevant to note here that we don’t need to know about this corresponding embedding, which is for some problems hard to construct), and that we instead only need the metric to compute geodesics on the Riemannian manifold.
 </span></figcaption>
 </figure></div></div></div>
