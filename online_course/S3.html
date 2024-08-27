@@ -1,9 +1,15 @@
 <div class="row"><div class="col-sm-7 offset-1"><div id="txt-col"><h1 class="ltx_title ltx_title_section">
 <span class="ltx_tag ltx_tag_section"><span class="ltx_text">3</span> </span><span class="ltx_text">Newton’s method for minimization</span>
-</h1><div class="ltx_para" id="S3-para:p1">
+</h1><figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:NewtonProblem"><a href="online_course/images/NewtonMethod1D_problem01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F2.g1" src="online_course/images/small/NewtonMethod1D_problem01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 2</span>: </span><span class="ltx_text">Problem formulation.
+</span></figcaption>
+</figure><div class="ltx_para" id="S3-para:p1">
 <p class="ltx_p">We would like the find the value of a decision variable <span class="ltx_Math" id="p1.m1">x</span> that would give us a cost <span class="ltx_Math" id="p1.m2">c(x)</span> that is a small as possible, see Figure <a class="ltx_ref" href="#S3-fig:NewtonProblem" title="Figure 2 ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">2</span></a>. Imagine that we start from an initial guess <span class="ltx_Math" id="p1.m3">x_{1}</span> and that can observe the behavior of this cost function within a very small region around our initial guess. Now let’s assume that we can make several consecutive guesses that will each time provide us with similar local information about the behavior of the cost around the points that we guessed. From this information, what point would you select as second guess (see question marks in the figure), based on the information that you obtained from the first guess? There were two relevant information in the small portion of curve that we can observe in the figure to make a smart choice. First, the trend of the curve indicates that the cost seems to decrease if we move on the left side, and increase if we move on the right side. Namely, the slope <span class="ltx_Math" id="p1.m4">c^{\prime}(x_{1})</span> of the function <span class="ltx_Math" id="p1.m5">c(x)</span> at point <span class="ltx_Math" id="p1.m6">x_{1}</span> is positive. Second, we can observe that the portion of the curve has some curvature that can be also be informative about the way the trend of the curve <span class="ltx_Math" id="p1.m7">c(x)</span> will change by moving to the left or to the right. Namely, how much the slope <span class="ltx_Math" id="p1.m8">c^{\prime}(x_{1})</span> will change, corresponding to an acceleration <span class="ltx_Math" id="p1.m9">c^{\prime\prime}(x_{1})</span> around our first guess <span class="ltx_Math" id="p1.m10">x_{1}</span>. This is informative to estimate how much we should move to the left of the first guess to wisely select a second guess. 
 <br class="ltx_break"/></p>
-</div><div class="ltx_para" id="S3-para:p2">
+</div><figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:Newton"><a href="online_course/images/NewtonMethod1D01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F3.g1" src="online_course/images/small/NewtonMethod1D01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 3</span>: </span><span class="ltx_text">Newton’s method for minimization, starting from an initial estimate <span class="ltx_Math" id="F3.m2">x_{1}</span> and converging to a local minimum (red point) after 5 iterations.
+</span></figcaption>
+</figure><div class="ltx_para" id="S3-para:p2">
 <p class="ltx_p">Now that we have this intuition, we can move to a more formal problem formulation. Newton’s method attempts to solve <span class="ltx_Math" id="p2.m1">\min_{x}c(x)</span> or <span class="ltx_Math" id="p2.m2">\max_{x}c(x)</span> from an initial guess <span class="ltx_Math" id="p2.m3">x_{1}</span> by using a sequence of <span class="ltx_text ltx_font_bold">second-order Taylor approximations</span> of <span class="ltx_Math" id="p2.m4">c(x)</span> around the iterates, see Fig. <a class="ltx_ref" href="#S3-fig:Newton" title="Figure 3 ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">3</span></a>.</p>
 </div><div class="ltx_para" id="S3-para:p3">
 <p class="ltx_p">The second-order Taylor expansion around the point <span class="ltx_Math" id="p3.m1">x_{k}</span> can be expressed as</p>
@@ -18,7 +24,10 @@
 <p class="ltx_p">where <span class="ltx_Math" id="p3.m2">c^{\prime}(x_{k})</span> and <span class="ltx_Math" id="p3.m3">c^{\prime\prime}(x_{k})</span> are the first and second derivatives at point <span class="ltx_Math" id="p3.m4">x_{k}</span>.</p>
 </div><div class="ltx_para" id="S3-para:p4">
 <p class="ltx_p">We are interested in solving minimization problems with this approximation. If the second derivative <span class="ltx_Math" id="p4.m1">c^{\prime\prime}(x_{k})</span> is positive, the quadratic approximation is a convex function of <span class="ltx_Math" id="p4.m2">\Delta x_{k}</span>, and its minimum can be found by setting the derivative to zero.</p>
-</div><div class="ltx_pagination ltx_role_newpage"></div><div class="ltx_para" id="S3-para:p5">
+</div><div class="ltx_pagination ltx_role_newpage"></div><figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:optimPrinciple"><a href="online_course/images/optim_principle01.png" target="_blank"><img class="ltx_graphics" id="F4.g1" src="online_course/images/small/optim_principle01.png"/></a>
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 4</span>: </span><span class="ltx_text">Finding local optima by localizing the points whose derivatives are zero (horizontal slopes).
+</span></figcaption>
+</figure><div class="ltx_para" id="S3-para:p5">
 <p class="ltx_p">To find the local optima of a function, we can localize the points whose derivatives are zero, see Figure <a class="ltx_ref" href="#S3-fig:optimPrinciple" title="Figure 4 ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">4</span></a> for an illustration.</p>
 </div><div class="ltx_para" id="S3-para:p6">
 <p class="ltx_p">Thus, by differentiating (<a class="ltx_ref" href="#S3-eq:Taylor_1D" title="(4) ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">4</span></a>) w.r.t. <span class="ltx_Math" id="p6.m1">\Delta x_{k}</span> and equating to zero, we obtain</p>
@@ -39,7 +48,10 @@
 </tr>
 </table>
 <p class="ltx_p">which corresponds to the offset to apply to <span class="ltx_Math" id="p6.m2">x_{k}</span> to minimize the second-order polynomial approximation of the cost at this point.</p>
-</div><div class="ltx_para" id="S3-para:p7">
+</div><figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:NewtonNegativeHessian"><a href="online_course/images/NewtonMethod_negativeHessian01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F5.g1" src="online_course/images/small/NewtonMethod_negativeHessian01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 5</span>: </span><span class="ltx_text">Newton update that would be achieved when the second derivative is negative.
+</span></figcaption>
+</figure><div class="ltx_para" id="S3-para:p7">
 <p class="ltx_p">It is important that <span class="ltx_Math" id="p7.m1">c^{\prime\prime}(x_{k})</span> is positive if we want to find local minima, see Figure <a class="ltx_ref" href="#S3-fig:NewtonNegativeHessian" title="Figure 5 ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">5</span></a> for an illustration.</p>
 </div><div class="ltx_para" id="S3-para:p8">
 <p class="ltx_p">By starting from an initial estimate <span class="ltx_Math" id="p8.m1">x_{1}</span> and by recursively refining the current estimate by computing the offset that would minimize the polynomial approximation of the cost at the current estimate, we obtain at each iteration <span class="ltx_Math" id="p8.m2">k</span> the recursion</p>
@@ -56,6 +68,10 @@
 </p>
 </div><div class="ltx_subsubsection" id="S3-sec:SS0.SSSx1">
 <h3 class="ltx_title ltx_title_subsubsection">Multidimensional case</h3>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:Newton2D"><a href="online_course/images/NewtonMethod2D01.jpg" target="_blank"><img class="ltx_graphics ltx_centering" id="F6.g1" src="online_course/images/small/NewtonMethod2D01.jpg"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 6</span>: </span><span class="ltx_text">Newton’s method for minimization with 2D decision variables.
+</span></figcaption>
+</figure>
 <div class="ltx_para" id="S3-para:SS0.SSSx1.p1">
 <p class="ltx_p">For functions that depend on multiple variables stored as multidimensional vectors <span class="ltx_Math" id="SS0.SSSx1.p1.m1">\bm{x}</span>, the cost function <span class="ltx_Math" id="SS0.SSSx1.p1.m2">c(\bm{x})</span> can similarly be approximated by a second-order Taylor expansion around the point <span class="ltx_Math" id="SS0.SSSx1.p1.m3">\bm{x}_{k}</span> with</p>
 <table class="ltx_equation ltx_eqn_table" id="S3-eq:Taylor_nD">
@@ -364,19 +380,4 @@
 <p class="ltx_p">minimizes the constrained cost. The first part of this augmented state then gives us the solution of (<a class="ltx_ref" href="#S3-eq:LSconstraints" title="(17) ‣ 3.3 Least squares with constraints ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">17</span></a>).</p>
 </div>
 <div class="ltx_pagination ltx_role_newpage"></div>
-</div><ul class="pagination justify-content-center small_menu"><li class="page-item previous_file"><a class="page-link" href="#S2">Previous</a></li><li class="page-item next_file"><a class="page-link" href="#S4">Next</a></li></ul></div></div><div class="col-sm-3"><div id="img-col"><figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:NewtonProblem"><a href="online_course/images/NewtonMethod1D_problem01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F2.g1" src="online_course/images/small/NewtonMethod1D_problem01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 2</span>: </span><span class="ltx_text">Problem formulation.
-</span></figcaption>
-</figure><figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:Newton"><a href="online_course/images/NewtonMethod1D01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F3.g1" src="online_course/images/small/NewtonMethod1D01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 3</span>: </span><span class="ltx_text">Newton’s method for minimization, starting from an initial estimate <span class="ltx_Math" id="F3.m2">x_{1}</span> and converging to a local minimum (red point) after 5 iterations.
-</span></figcaption>
-</figure><figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:optimPrinciple"><a href="online_course/images/optim_principle01.png" target="_blank"><img class="ltx_graphics" id="F4.g1" src="online_course/images/small/optim_principle01.png"/></a>
-<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 4</span>: </span><span class="ltx_text">Finding local optima by localizing the points whose derivatives are zero (horizontal slopes).
-</span></figcaption>
-</figure><figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:NewtonNegativeHessian"><a href="online_course/images/NewtonMethod_negativeHessian01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F5.g1" src="online_course/images/small/NewtonMethod_negativeHessian01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 5</span>: </span><span class="ltx_text">Newton update that would be achieved when the second derivative is negative.
-</span></figcaption>
-</figure><figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:Newton2D"><a href="online_course/images/NewtonMethod2D01.jpg" target="_blank"><img class="ltx_graphics ltx_centering" id="F6.g1" src="online_course/images/small/NewtonMethod2D01.jpg"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 6</span>: </span><span class="ltx_text">Newton’s method for minimization with 2D decision variables.
-</span></figcaption>
-</figure></div></div></div>
+</div><ul class="pagination justify-content-center small_menu"><li class="page-item previous_file"><a class="page-link" href="#S2">Previous</a></li><li class="page-item next_file"><a class="page-link" href="#S4">Next</a></li></ul></div></div><div class="col-sm-3"><div id="img-col"></div></div></div>

@@ -92,6 +92,34 @@ x_{k},&amp;\text{otherwise},\end{cases}</span></td>
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">5.2</span> </span><span class="ltx_text">Inverse kinematics (IK) with task prioritization</span>
 </h2>
+<figure class="ltx_figure figure_main" id="S5-fig:nullspace">
+<table>
+<tr>
+<td class="ltx_subfigure">
+<figure class="ltx_figure ltx_align_center" id="S5-fig:nullspace1"><a href="online_course/images/IK_nullspace01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F7.sf1.g1" src="online_course/images/small/IK_nullspace01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">(a)</span> </span><span class="ltx_text">Moving the first joint as secondary task</span></figcaption>
+</figure>
+</td>
+<td class="ltx_subfigure">
+<figure class="ltx_figure ltx_align_center" id="S5-fig:F7.sf2"><a href="online_course/images/IK_nullspace02.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F7.sf2.g1" src="online_course/images/small/IK_nullspace02.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">(b)</span> </span><span class="ltx_text">Orientation tracking a as secondary task</span></figcaption>
+</figure>
+</td>
+<td class="ltx_subfigure">
+<figure class="ltx_figure ltx_align_center" id="S5-fig:F7.sf3"><a href="online_course/images/IK_nullspace03.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F7.sf3.g1" src="online_course/images/small/IK_nullspace03.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">(c)</span> </span><span class="ltx_text">Position tracking as secondary task</span></figcaption>
+</figure>
+</td>
+<td class="ltx_subfigure">
+<figure class="ltx_figure ltx_align_center" id="S5-fig:F7.sf4"><a href="online_course/images/IK_nullspace04.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F7.sf4.g1" src="online_course/images/small/IK_nullspace04.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">(d)</span> </span><span class="ltx_text">Tracking of a moving object with the right hand as secondary task</span></figcaption>
+</figure>
+</td>
+</tr>
+</table>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 8</span>: </span><span class="ltx_text">Examples of nullspace controllers. The red paths represent the trajectories of moving objects that need to be tracked by the robot endeffectors.
+</span></figcaption>
+</figure>
 <div class="ltx_para" id="S5-para:SS2.p1">
 <p class="ltx_p">In (<a class="ltx_ref" href="#S5-eq:IK_LS" title="(22) ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">22</span></a>), the pseudoinverse provides a single least norm solution. This result can be generalized to obtain all solutions of the linear system with</p>
 <table class="ltx_equation ltx_eqn_table" id="S5-eq:IK_nullspace">
@@ -146,19 +174,4 @@ x_{k},&amp;\text{otherwise},\end{cases}</span></td>
 </tr>
 </table>
 </div>
-</div><ul class="pagination justify-content-center small_menu"><li class="page-item previous_file"><a class="page-link" href="#S4">Previous</a></li><li class="page-item next_file"><a class="page-link" href="#S6">Next</a></li></ul></div></div><div class="col-sm-3"><div id="img-col"><figure class="ltx_figure figure_main" id="S5-fig:nullspace">
-<figure class="ltx_figure ltx_align_center" id="S5-fig:nullspace1"><a href="online_course/images/IK_nullspace01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F7.sf1.g1" src="online_course/images/small/IK_nullspace01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">(a)</span> </span><span class="ltx_text">Moving the first joint as secondary task</span></figcaption>
-</figure>
-<figure class="ltx_figure ltx_align_center" id="S5-fig:F7.sf2"><a href="online_course/images/IK_nullspace02.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F7.sf2.g1" src="online_course/images/small/IK_nullspace02.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">(b)</span> </span><span class="ltx_text">Orientation tracking a as secondary task</span></figcaption>
-</figure>
-<figure class="ltx_figure ltx_align_center" id="S5-fig:F7.sf3"><a href="online_course/images/IK_nullspace03.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F7.sf3.g1" src="online_course/images/small/IK_nullspace03.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">(c)</span> </span><span class="ltx_text">Position tracking as secondary task</span></figcaption>
-</figure>
-<figure class="ltx_figure ltx_align_center" id="S5-fig:F7.sf4"><a href="online_course/images/IK_nullspace04.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F7.sf4.g1" src="online_course/images/small/IK_nullspace04.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">(d)</span> </span><span class="ltx_text">Tracking of a moving object with the right hand as secondary task</span></figcaption>
-</figure>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 8</span>: </span><span class="ltx_text">Examples of nullspace controllers. The red paths represent the trajectories of moving objects that need to be tracked by the robot endeffectors.
-</span></figcaption>
-</figure></div></div></div>
+</div><ul class="pagination justify-content-center small_menu"><li class="page-item previous_file"><a class="page-link" href="#S4">Previous</a></li><li class="page-item next_file"><a class="page-link" href="#S6">Next</a></li></ul></div></div><div class="col-sm-3"><div id="img-col"></div></div></div>

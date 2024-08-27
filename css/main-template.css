@@ -103,8 +103,9 @@ form label {
     float: right;
 }
 
-.ltx_graphics {
+#img-col .ltx_graphics {
     width: 100%;
+    max-width: 400px;
 }
 
 .ltx_float {
@@ -143,6 +144,14 @@ form label {
     padding-top: 20px;
     font-size: 0.8rem;
     text-align: justify;
+}
+
+.ltx_centering,
+.ltx_img_landscape {
+    max-width: 100%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .ltx_lst_language_Python {
@@ -229,4 +238,8 @@ div.instructions p {
 div.row.exercise h5 {
     margin-top: 20px;
     font-weight: bold;
+}
+
+.pagination {
+    margin-top: 20px;
 }

@@ -637,34 +637,7 @@
         // Online course: spread out the images vertically
         function spreadOutImages()
         {
-            const style = document.getElementById('online-course-figures');
-            if (style != undefined)
-                style.remove();
 
-            const txt_column = document.querySelector('#txt-col');
-            const img_column = document.querySelector('#img-col');
-
-            if ((txt_column != undefined) && (img_column != undefined))
-            {
-                let txt_height = txt_column.offsetHeight;
-                let img_height = img_column.offsetHeight;
-
-                let margin = 50;
-
-                if (txt_height > img_height && screen.width >= 576) {
-                    let nb_figures = document.querySelectorAll('.figure_main').length;
-                    let computed_margin = (txt_height - img_height) / nb_figures;
-
-                    if (computed_margin > margin) {
-                        margin = computed_margin;
-                    }
-                }
-
-                const style = document.createElement('style');
-                style.id = 'online-course-figures';
-                style.innerHTML = '.figure_main{ margin-top:' + Math.round(margin/2) + 'px; margin-bottom:' + Math.round(margin/2) + 'px; }';
-                document.head.appendChild(style);
-            }
         }
 
 

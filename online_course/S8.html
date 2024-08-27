@@ -137,6 +137,10 @@ The evolution of the state in (<a class="ltx_ref" href="#S8-eq:DS" title="(91) �
 </table>
 <p class="ltx_p">which can be used to update the control commands estimate at each iteration step of the iLQR algorithm.</p>
 </div>
+<figure class="ltx_figure figure_main" id="S8-fig:iLQR_summary"><a href="online_course/images/iLQR-eqs-overview01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F17.g1" src="online_course/images/small/iLQR-eqs-overview01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 17</span>: </span><span class="ltx_text">Summary of the iLQR optimization procedure in batch form.
+</span></figcaption>
+</figure>
 <div class="ltx_para" id="S8-para:SS1.p5">
 <p class="ltx_p">The complete iLQR procedure is described in Algorithm <a class="ltx_ref" href="#S8-alg:iLQRbatch" title="Algorithm 4 ‣ 8.4 Updates by considering step sizes ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">4</span></a> (including backtracking line search). Figure <a class="ltx_ref" href="#S8-fig:iLQR_summary" title="Figure 17 ‣ 8.1 Batch formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">17</span></a> also presents an illustrative summary of the iLQR optimization procedure in batch form.</p>
 </div>
@@ -599,6 +603,10 @@ For the batch formulation in Section <a class="ltx_ref" href="#S8-sec:iLQRbatch"
 <h3 class="ltx_title ltx_title_subsubsection">
 <span class="ltx_tag ltx_tag_subsubsection"><span class="ltx_text">8.5.1</span> </span><span class="ltx_text">Robot manipulator</span>
 </h3>
+<figure class="ltx_figure figure_main" id="S8-fig:transformations"><a href="online_course/images/transformations01.jpg" target="_blank"><img class="ltx_graphics ltx_centering" id="F18.g1" src="online_course/images/small/transformations01.jpg"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 18</span>: </span><span class="ltx_text">Typical transformations involved in a manipulation task involving a robot, a vision system, a visual marker on the object, and a desired grasping location on the object.
+</span></figcaption>
+</figure>
 <div class="ltx_para" id="S8-para:SS5.SSS1.p1">
 <p class="ltx_p">We define a manipulation task involving a set of transformations as in Fig. <a class="ltx_ref" href="#S8-fig:transformations" title="Figure 18 ‣ 8.5.1 Robot manipulator ‣ 8.5 iLQR with quadratic cost on f(xt) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">18</span></a>. By relying on these transformation operators, we will next describe all variables in the robot frame of reference (defined by <span class="ltx_Math" id="SS5.SSS1.p1.m1">\bm{0}</span>, <span class="ltx_Math" id="SS5.SSS1.p1.m2">\bm{e}_{1}</span> and <span class="ltx_Math" id="SS5.SSS1.p1.m3">\bm{e}_{2}</span> in the figure).</p>
 </div>
@@ -648,6 +656,10 @@ For the batch formulation in Section <a class="ltx_ref" href="#S8-sec:iLQRbatch"
 <h3 class="ltx_title ltx_title_subsubsection">
 <span class="ltx_tag ltx_tag_subsubsection"><span class="ltx_text">8.5.2</span> </span><span class="ltx_text">Bounded joint space</span>
 </h3>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S8-fig:fcut"><a href="online_course/images/fcut01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F19.g1" src="online_course/images/small/fcut01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 19</span>: </span><span class="ltx_text">ReLU-like functions used in optimization costs. The derivatives of these functions are simple, providing Jacobians whose entries are either <span class="ltx_Math" id="F19.m3">0</span> or <span class="ltx_Math" id="F19.m4">\pm 1</span>.
+</span></figcaption>
+</figure>
 <div class="ltx_para" id="S8-para:SS5.SSS2.p1">
 <p class="ltx_p">The iLQR solution in (<a class="ltx_ref" href="#S8-eq:du" title="(117) ‣ 8.5 iLQR with quadratic cost on f(xt) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">117</span></a>) can be used to keep the state within a boundary (e.g., joint angle limits). We denote <span class="ltx_Math" id="SS5.SSS2.p1.m1">\bm{f}(\bm{x})=\bm{f}^{\text{\tiny cut}}(\bm{x})</span> as the vertical concatenation of <span class="ltx_Math" id="SS5.SSS2.p1.m2">\bm{f}^{\text{\tiny cut}}(\bm{x}_{t})</span> and <span class="ltx_Math" id="SS5.SSS2.p1.m3">\bm{J}(\bm{x})=\bm{J}^{\text{\tiny cut}}(\bm{x})</span> as a diagonal concatenation of diagonal Jacobian matrices <span class="ltx_Math" id="SS5.SSS2.p1.m4">\bm{J}^{\text{\tiny cut}}(\bm{x}_{t})</span>. Each element <span class="ltx_Math" id="SS5.SSS2.p1.m5">i</span> of <span class="ltx_Math" id="SS5.SSS2.p1.m6">\bm{f}^{\text{\tiny cut}}(\bm{x}_{t})</span> and <span class="ltx_Math" id="SS5.SSS2.p1.m7">\bm{J}^{\text{\tiny cut}}(\bm{x}_{t})</span> is defined as</p>
 <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S8-eq:A5.EGx25">
@@ -703,6 +715,10 @@ Based on the above definitions, <span class="ltx_Math" id="SS5.SSS3.p1.m1">\bm{f
 </tr></tbody>
 </table>
 </div>
+<figure class="ltx_figure figure_main" id="S8-fig:iLQR_manipulator"><a href="online_course/images/iLQR_objectBoundaries01.jpg" target="_blank"><img class="ltx_graphics" id="F20.g1" src="online_course/images/small/iLQR_objectBoundaries01.jpg"/></a>
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 20</span>: </span><span class="ltx_text">Example of a viapoints task in which a planar robot with 3 joints needs to sequentially reach 2 objects, with object boundaries defining the allowed reaching points on the objects surfaces. <em class="ltx_emph ltx_font_italic">Left:</em> Reaching task with two viapoints at <span class="ltx_Math" id="F20.m5">t=25</span> and <span class="ltx_Math" id="F20.m6">t=50</span>. <em class="ltx_emph ltx_font_italic">Right:</em> Corresponding values of the cost function for the endeffector space at <span class="ltx_Math" id="F20.m7">t=25</span> and <span class="ltx_Math" id="F20.m8">t=50</span>.
+</span></figcaption>
+</figure>
 </div>
 <div class="ltx_subsubsection" id="S8-sec:reaching">
 <h3 class="ltx_title ltx_title_subsubsection">
@@ -737,6 +753,9 @@ Based on the above definitions, <span class="ltx_Math" id="SS5.SSS3.p1.m1">\bm{f
 <h3 class="ltx_title ltx_title_subsubsection">
 <span class="ltx_tag ltx_tag_subsubsection"><span class="ltx_text">8.5.5</span> </span><span class="ltx_text">Initial state optimization</span>
 </h3>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S8-fig:iLQR_initStateOptim"><a href="online_course/images/iLQR_initStateOptim01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F21.g1" src="online_course/images/small/iLQR_initStateOptim01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 21</span>: </span><span class="ltx_text">Optimal robot base location for a viapoint task, by defining a kinematic chain with both revolute and prismatic joints, which is employed to encode the location of the robot base in the plane as two prismatic joint variables. In this example, the prismatic joints in green represent the initial states that we estimate, and the angular joints in blue represent the state variables that can be moved during the task. </span></figcaption>
+</figure>
 <div class="ltx_para" id="S8-para:SS5.SSS5.p1">
 <p class="ltx_p">Similarly as in Section <a class="ltx_ref" href="#S7-sec:initStateOptim" title="7.1 LQT with initial state optimization ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">7.1</span></a>, iLQR can easily be extended to determine the optimal initial state <span class="ltx_Math" id="SS5.SSS5.p1.m1">\bm{x}_{1}</span> together with the optimal control commands <span class="ltx_Math" id="SS5.SSS5.p1.m2">\bm{u}</span>, by defining <span class="ltx_Math" id="SS5.SSS5.p1.m3">\bm{\tilde{u}}={[\bm{x}_{1}^{\scriptscriptstyle\top},\bm{u}^{\scriptscriptstyle\top}]}^{\scriptscriptstyle\top}</span> as a vector concatenating <span class="ltx_Math" id="SS5.SSS5.p1.m4">\bm{x}_{1}</span> and <span class="ltx_Math" id="SS5.SSS5.p1.m5">\bm{u}</span>.</p>
 </div>
@@ -776,6 +795,10 @@ Based on the above definitions, <span class="ltx_Math" id="SS5.SSS3.p1.m1">\bm{f
 <h3 class="ltx_title ltx_title_subsubsection">
 <span class="ltx_tag ltx_tag_subsubsection"><span class="ltx_text">8.5.6</span> </span><span class="ltx_text">Center of mass</span>
 </h3>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S8-fig:iLQR_CoM"><a href="online_course/images/iLQR_CoM01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F22.g1" src="online_course/images/small/iLQR_CoM01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 22</span>: </span><span class="ltx_text">Reaching task with a humanoid (side view) by keeping the center of mass in an area defined by the feet location.
+</span></figcaption>
+</figure>
 <div class="ltx_para" id="S8-para:SS5.SSS6.p1">
 <p class="ltx_p">If we assume an equal mass for each link concentrated at the joint (i.e., assuming that the motors and gripper are heavier than the link structures), the forward kinematics function to determine the center of a mass of an articulated chain can simply be computed with</p>
 <table class="ltx_equation ltx_eqn_table" id="S8-eq:Ex96">
@@ -804,6 +827,16 @@ Based on the above definitions, <span class="ltx_Math" id="SS5.SSS3.p1.m1">\bm{f
 <h3 class="ltx_title ltx_title_subsubsection">
 <span class="ltx_tag ltx_tag_subsubsection"><span class="ltx_text">8.5.7</span> </span><span class="ltx_text">Bimanual robot</span>
 </h3>
+<figure class="ltx_figure figure_main" id="S8-fig:iLQR_bimanual">
+<table>
+<tr>
+<td class="ltx_subgraphics"><a href="online_course/images/iLQR_bimanual02.png" target="_blank"><img class="ltx_graphics" id="F23.g1" src="online_course/images/small/iLQR_bimanual02.png"/></a></td>
+<td class="ltx_subgraphics"><a href="online_course/images/iLQR_bimanual01.png" target="_blank"><img class="ltx_graphics" id="F23.g2" src="online_course/images/small/iLQR_bimanual01.png"/></a></td>
+</tr>
+</table>
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 23</span>: </span><span class="ltx_text">Reaching tasks with a bimanual robot (frontal view). <em class="ltx_emph ltx_font_italic">Left:</em> with a target for each hand. <em class="ltx_emph ltx_font_italic">Right:</em> with a target for the hand on the left, while keeping the center of mass at the same location during the whole movement.
+</span></figcaption>
+</figure>
 <div class="ltx_para" id="S8-para:SS5.SSS7.p1">
 <p class="ltx_p">We consider a 5-link planar bimanual robot with a torso link shared by the two arms, see Fig. <a class="ltx_ref" href="#S8-fig:iLQR_bimanual" title="Figure 23 ‣ 8.5.7 Bimanual robot ‣ 8.5 iLQR with quadratic cost on f(xt) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">23</span></a>. We define the forward kinematics function as</p>
 <table class="ltx_equation ltx_eqn_table" id="S8-eq:Ex98">
@@ -864,6 +897,10 @@ Based on the above definitions, <span class="ltx_Math" id="SS5.SSS3.p1.m1">\bm{f
 <h3 class="ltx_title ltx_title_subsubsection">
 <span class="ltx_tag ltx_tag_subsubsection"><span class="ltx_text">8.5.8</span> </span><span class="ltx_text">Obstacle avoidance with ellipsoid shapes</span>
 </h3>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S8-fig:iLQR_obstacle"><a href="online_course/images/iLQR_ellipsoidObstacle01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F24.g1" src="online_course/images/small/iLQR_ellipsoidObstacle01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 24</span>: </span><span class="ltx_text">Reaching task with obstacle avoidance, by starting from <span class="ltx_Math" id="F24.m3">\bm{x}_{1}</span> and reaching <span class="ltx_Math" id="F24.m4">\bm{\mu}_{T}</span> while avoiding the two obstacles in red.
+</span></figcaption>
+</figure>
 <div class="ltx_para" id="S8-para:SS5.SSS8.p1">
 <p class="ltx_p">By taking as example a point-mass system, iLQR can be used to solve an ellipsoidal obstacle avoidance problem with the cost (typically used with other costs, see Fig. <a class="ltx_ref" href="#S8-fig:iLQR_obstacle" title="Figure 24 ‣ 8.5.8 Obstacle avoidance with ellipsoid shapes ‣ 8.5 iLQR with quadratic cost on f(xt) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">24</span></a> for an example). We first define a ReLU-like function and its gradient as (see also Fig. <a class="ltx_ref" href="#S8-fig:fcut" title="Figure 19 ‣ 8.5.2 Bounded joint space ‣ 8.5 iLQR with quadratic cost on f(xt) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">19</span></a>-<em class="ltx_emph ltx_font_italic">right</em>)</p>
 <table class="ltx_equation ltx_eqn_table" id="S8-eq:Ex103">
@@ -937,6 +974,10 @@ Based on the above definitions, <span class="ltx_Math" id="SS5.SSS3.p1.m1">\bm{f
 <h3 class="ltx_title ltx_title_subsubsection">
 <span class="ltx_tag ltx_tag_subsubsection"><span class="ltx_text">8.5.10</span> </span><span class="ltx_text">Manipulability tracking</span>
 </h3>
+<figure class="ltx_figure figure_main" id="S8-fig:iLQR_manipulability"><a href="online_course/images/iLQR_manipulability01.png" target="_blank"><img class="ltx_graphics" id="F25.g1" src="online_course/images/small/iLQR_manipulability01.png"/></a>
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 25</span>: </span><span class="ltx_text">Example of iLQR optimization with a cost on manipulability, where the goal is to reach, at the end of the motion, a desired manipulability defined at the center of mass (CoM) of a bimanual planar robot. The initial pose of the bimanual robot is displayed in light gray and the final pose of the robot is displayed in dark gray. The desired manipulability is represented by the red ellipse. The achieved manipulability at the end of the motion is represented by the gray ellipse. Both manipulability ellipses are displayed at the CoM reached at the end of the motion, displayed as a semi-filled dark gray disc (the CoM at the beginning of the motion is displayed in lighter gray color). We can see that the posture adopted by the robot to approach the desired manipulability is to extend both arms, which is the pose allowing the robot to swiftly move its center of mass in case of unexpected perturbations.
+</span></figcaption>
+</figure>
 <div class="ltx_para" id="S8-para:SS5.SSS10.p1">
 <p class="ltx_p">Skills transfer can exploit manipulability ellipsoids in the form of geometric descriptors representing the skills to be transferred to the robot. As these ellipsoids lie on symmetric positive definite (SPD) manifolds, Riemannian geometry can be used to learn and reproduce these descriptors in a probabilistic manner <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib11" title="Gaussians on Riemannian manifolds: applications for robot learning and adaptive control">3</a>]</cite>.</p>
 </div>
@@ -987,6 +1028,10 @@ Based on the above definitions, <span class="ltx_Math" id="SS5.SSS3.p1.m1">\bm{f
 <h3 class="ltx_title ltx_title_subsubsection">
 <span class="ltx_tag ltx_tag_subsubsection"><span class="ltx_text">8.5.11</span> </span><span class="ltx_text">Decoupling of control commands</span>
 </h3>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S8-fig:iLQR_decoupling"><a href="online_course/images/iLQR_decoupling01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F26.g1" src="online_course/images/small/iLQR_decoupling01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 26</span>: </span><span class="ltx_text">2D reaching task problem (initial point in black and target point in red), with an additional cost to favor the decoupling of the control commands.
+</span></figcaption>
+</figure>
 <div class="ltx_para" id="S8-para:SS5.SSS11.p1">
 <p class="ltx_p">In some situations, we would like to control a robot by avoiding that all degrees of freedom are controlled at the same time. For example, we might in some cases prefer that a mobile manipulator stops moving the arm while the platform is moving and vice versa.</p>
 </div>
@@ -1027,6 +1072,10 @@ Based on the above definitions, <span class="ltx_Math" id="SS5.SSS3.p1.m1">\bm{f
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">8.6</span> </span><span class="ltx_text">iLQR with control primitives</span>
 </h2>
+<figure class="ltx_figure figure_main" id="S8-fig:iLQR_humanoid"><a href="online_course/images/iLQR_humanoid_CP01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F27.g1" src="online_course/images/small/iLQR_humanoid_CP01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 27</span>: </span><span class="ltx_text">Reaching task with control primitives.
+</span></figcaption>
+</figure>
 <div class="ltx_para" id="S8-para:SS6.p1">
 <p class="ltx_p">The use of control primitives can be extended to iLQR, by considering <span class="ltx_Math" id="SS6.p1.m1">\Delta\bm{u}=\bm{\Psi}\Delta\bm{w}</span>.
 For problems with quadratic cost on <span class="ltx_Math" id="SS6.p1.m2">\bm{f}(\bm{x}_{t})</span> (see previous Section), the update of the weights vector is then given by</p>
@@ -1062,6 +1111,10 @@ For problems with quadratic cost on <span class="ltx_Math" id="SS6.p1.m2">\bm{f}
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">8.7</span> </span><span class="ltx_text">iLQR for spacetime optimization</span>
 </h2>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S8-fig:iLQR_spacetime"><a href="online_course/images/iLQR_spacetime01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F28.g1" src="online_course/images/small/iLQR_spacetime01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 28</span>: </span><span class="ltx_text">Spacetime optimization with iLQR for a viapoints task, where the estimated durations between consecutive viapoints are shown in blue.
+</span></figcaption>
+</figure>
 <div class="ltx_para" id="S8-para:SS7.p1">
 <p class="ltx_p">We define a phase variable <span class="ltx_Math" id="SS7.p1.m1">s_{t}</span> starting from <span class="ltx_Math" id="SS7.p1.m2">s_{1}=0</span> at the beginning of the movement.
 With an augmented state <span class="ltx_Math" id="SS7.p1.m3">\bm{x}_{t}={[\mathbf{x}_{t}^{\scriptscriptstyle\top},s_{t}]}^{\scriptscriptstyle\top}</span> and control command <span class="ltx_Math" id="SS7.p1.m4">\bm{u}_{t}={[{\bm{u}^{\mathbf{x}}_{t}}^{\scriptscriptstyle\top},u^{s}_{t}]}^{\scriptscriptstyle\top}</span>, we define the evolution of the system <span class="ltx_Math" id="SS7.p1.m5">\bm{x}_{t+1}=\bm{d}(\bm{x}_{t},\bm{u}_{t})</span> as</p>
@@ -1104,6 +1157,16 @@ With an augmented state <span class="ltx_Math" id="SS7.p1.m3">\bm{x}_{t}={[\math
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">8.8</span> </span><span class="ltx_text">iLQR with offdiagonal elements in the precision matrix</span>
 </h2>
+<figure class="ltx_figure figure_main" id="S8-fig:iLQR_manipulator_objAffordances">
+<table>
+<tr>
+<td class="ltx_subgraphics"><a href="online_course/images/iLQR_objAffordances01.png" target="_blank"><img class="ltx_graphics" id="F29.g1" src="online_course/images/small/iLQR_objAffordances01.png"/></a></td>
+<td class="ltx_subgraphics"><a href="online_course/images/iLQR_objAffordances02.png" target="_blank"><img class="ltx_graphics" id="F29.g2" src="online_course/images/small/iLQR_objAffordances02.png"/></a></td>
+</tr>
+</table>
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 29</span>: </span><span class="ltx_text">Manipulation with object affordances cost. The depicted <em class="ltx_emph ltx_font_italic">pick-and-place</em> task requires the offset at the picking location to be the same as the offset at the placing location, which can be achieved by setting a precision matrix with nonzero offdiagonal entries, see main text for details. In this example, an additional cost is set for choosing the picking and placing points within the object boundaries, which was also used for the task depicted in Fig. <a class="ltx_ref" href="#S8-fig:iLQR_manipulator" title="Figure 20 ‣ 8.5.3 Bounded task space ‣ 8.5 iLQR with quadratic cost on f(xt) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">20</span></a>. We can see with the resulting motions that when picking the object, the robot anticipates what will be done later with this object, which can be viewed as a basic form of object affordance. In the two situations depicted in the figure, the robot efficiently chooses a grasping point close to one of the corners of the object, different in the two situations, so that the robot can bring the object at the desired location with less effort and without reaching joint angle limits.
+</span></figcaption>
+</figure>
 <div class="ltx_para" id="S8-para:SS8.p1">
 <p class="ltx_p">Spatial and/or temporal constraints can be considered by setting <span class="ltx_Math" id="SS8.p1.m1">\left[\begin{smallmatrix}\bm{I}&amp;-\bm{I}\\
 -\bm{I}&amp;\bm{I}\end{smallmatrix}\right]</span> in the corresponding entries of the precision matrix <span class="ltx_Math" id="SS8.p1.m2">\bm{Q}</span>. With this formulation, we can constrain two positions to be the same without having to predetermine the position at which the two should meet. Indeed, we can see that a cost <span class="ltx_Math" id="SS8.p1.m3">c\!=\!\left[\begin{smallmatrix}x_{i}\\
@@ -1118,6 +1181,10 @@ x_{j}\end{smallmatrix}\right]\!=\!(x_{i}-x_{j})^{2}</span> is minimized when <sp
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">8.9</span> </span><span class="ltx_text">Car steering</span>
 </h2>
+<figure class="ltx_figure figure_main" id="S8-fig:iLQR_car_bicopter"><a href="online_course/images/car-bicopter01.jpg" target="_blank"><img class="ltx_graphics ltx_centering" id="F30.g1" src="online_course/images/small/car-bicopter01.jpg"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 30</span>: </span><span class="ltx_text">iLQR for car and bicopter control/planning problems.
+</span></figcaption>
+</figure>
 <div class="ltx_para ltx_noindent" id="S8-para:SS9.p1">
 <p class="ltx_p"><span class="ltx_text ltx_font_bold">Velocity Control Input</span>
 <br class="ltx_break"/>A car motion with position <span class="ltx_Math" id="SS9.p1.m1">(x_{1},x_{2})</span>, car orientation <span class="ltx_Math" id="SS9.p1.m2">\theta</span>, and front wheels orientation <span class="ltx_Math" id="SS9.p1.m3">\phi</span> (see Fig. <a class="ltx_ref" href="#S8-fig:iLQR_car_bicopter" title="Figure 30 ‣ 8.9 Car steering ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">30</span></a>-<em class="ltx_emph ltx_font_italic">left</em>) is characterized by equations</p>
@@ -1238,49 +1305,4 @@ Its first order Taylor expansion around <span class="ltx_Math" id="SS9.p2.m7">(\
 </table>
 <p class="ltx_p">which can then be converted to a discrete form with (<a class="ltx_ref" href="#A3-eq:AdAc" title="(198) ‣ Appendix C Linear systems used in the bimanual tennis serve example ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">198</span></a>).</p>
 </div>
-</div><ul class="pagination justify-content-center small_menu"><li class="page-item previous_file"><a class="page-link" href="#S7">Previous</a></li><li class="page-item next_file"><a class="page-link" href="#S9">Next</a></li></ul></div></div><div class="col-sm-3"><div id="img-col"><figure class="ltx_figure figure_main" id="S8-fig:iLQR_summary"><a href="online_course/images/iLQR-eqs-overview01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F17.g1" src="online_course/images/small/iLQR-eqs-overview01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 17</span>: </span><span class="ltx_text">Summary of the iLQR optimization procedure in batch form.
-</span></figcaption>
-</figure><figure class="ltx_figure figure_main" id="S8-fig:transformations"><a href="online_course/images/transformations01.jpg" target="_blank"><img class="ltx_graphics ltx_centering" id="F18.g1" src="online_course/images/small/transformations01.jpg"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 18</span>: </span><span class="ltx_text">Typical transformations involved in a manipulation task involving a robot, a vision system, a visual marker on the object, and a desired grasping location on the object.
-</span></figcaption>
-</figure><figure class="ltx_figure ltx_align_floatright figure_main" id="S8-fig:fcut"><a href="online_course/images/fcut01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F19.g1" src="online_course/images/small/fcut01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 19</span>: </span><span class="ltx_text">ReLU-like functions used in optimization costs. The derivatives of these functions are simple, providing Jacobians whose entries are either <span class="ltx_Math" id="F19.m3">0</span> or <span class="ltx_Math" id="F19.m4">\pm 1</span>.
-</span></figcaption>
-</figure><figure class="ltx_figure figure_main" id="S8-fig:iLQR_manipulator"><a href="online_course/images/iLQR_objectBoundaries01.jpg" target="_blank"><img class="ltx_graphics" id="F20.g1" src="online_course/images/small/iLQR_objectBoundaries01.jpg"/></a>
-<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 20</span>: </span><span class="ltx_text">Example of a viapoints task in which a planar robot with 3 joints needs to sequentially reach 2 objects, with object boundaries defining the allowed reaching points on the objects surfaces. <em class="ltx_emph ltx_font_italic">Left:</em> Reaching task with two viapoints at <span class="ltx_Math" id="F20.m5">t=25</span> and <span class="ltx_Math" id="F20.m6">t=50</span>. <em class="ltx_emph ltx_font_italic">Right:</em> Corresponding values of the cost function for the endeffector space at <span class="ltx_Math" id="F20.m7">t=25</span> and <span class="ltx_Math" id="F20.m8">t=50</span>.
-</span></figcaption>
-</figure><figure class="ltx_figure ltx_align_floatright figure_main" id="S8-fig:iLQR_initStateOptim"><a href="online_course/images/iLQR_initStateOptim01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F21.g1" src="online_course/images/small/iLQR_initStateOptim01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 21</span>: </span><span class="ltx_text">Optimal robot base location for a viapoint task, by defining a kinematic chain with both revolute and prismatic joints, which is employed to encode the location of the robot base in the plane as two prismatic joint variables. In this example, the prismatic joints in green represent the initial states that we estimate, and the angular joints in blue represent the state variables that can be moved during the task. </span></figcaption>
-</figure><figure class="ltx_figure ltx_align_floatright figure_main" id="S8-fig:iLQR_CoM"><a href="online_course/images/iLQR_CoM01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F22.g1" src="online_course/images/small/iLQR_CoM01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 22</span>: </span><span class="ltx_text">Reaching task with a humanoid (side view) by keeping the center of mass in an area defined by the feet location.
-</span></figcaption>
-</figure><figure class="ltx_figure figure_main" id="S8-fig:iLQR_bimanual">
-<a href="online_course/images/iLQR_bimanual02.png" target="_blank"><img class="ltx_graphics" id="F23.g1" src="online_course/images/small/iLQR_bimanual02.png"/></a>
-<a href="online_course/images/iLQR_bimanual01.png" target="_blank"><img class="ltx_graphics" id="F23.g2" src="online_course/images/small/iLQR_bimanual01.png"/></a>
-<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 23</span>: </span><span class="ltx_text">Reaching tasks with a bimanual robot (frontal view). <em class="ltx_emph ltx_font_italic">Left:</em> with a target for each hand. <em class="ltx_emph ltx_font_italic">Right:</em> with a target for the hand on the left, while keeping the center of mass at the same location during the whole movement.
-</span></figcaption>
-</figure><figure class="ltx_figure ltx_align_floatright figure_main" id="S8-fig:iLQR_obstacle"><a href="online_course/images/iLQR_ellipsoidObstacle01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F24.g1" src="online_course/images/small/iLQR_ellipsoidObstacle01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 24</span>: </span><span class="ltx_text">Reaching task with obstacle avoidance, by starting from <span class="ltx_Math" id="F24.m3">\bm{x}_{1}</span> and reaching <span class="ltx_Math" id="F24.m4">\bm{\mu}_{T}</span> while avoiding the two obstacles in red.
-</span></figcaption>
-</figure><figure class="ltx_figure figure_main" id="S8-fig:iLQR_manipulability"><a href="online_course/images/iLQR_manipulability01.png" target="_blank"><img class="ltx_graphics" id="F25.g1" src="online_course/images/small/iLQR_manipulability01.png"/></a>
-<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 25</span>: </span><span class="ltx_text">Example of iLQR optimization with a cost on manipulability, where the goal is to reach, at the end of the motion, a desired manipulability defined at the center of mass (CoM) of a bimanual planar robot. The initial pose of the bimanual robot is displayed in light gray and the final pose of the robot is displayed in dark gray. The desired manipulability is represented by the red ellipse. The achieved manipulability at the end of the motion is represented by the gray ellipse. Both manipulability ellipses are displayed at the CoM reached at the end of the motion, displayed as a semi-filled dark gray disc (the CoM at the beginning of the motion is displayed in lighter gray color). We can see that the posture adopted by the robot to approach the desired manipulability is to extend both arms, which is the pose allowing the robot to swiftly move its center of mass in case of unexpected perturbations.
-</span></figcaption>
-</figure><figure class="ltx_figure ltx_align_floatright figure_main" id="S8-fig:iLQR_decoupling"><a href="online_course/images/iLQR_decoupling01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F26.g1" src="online_course/images/small/iLQR_decoupling01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 26</span>: </span><span class="ltx_text">2D reaching task problem (initial point in black and target point in red), with an additional cost to favor the decoupling of the control commands.
-</span></figcaption>
-</figure><figure class="ltx_figure figure_main" id="S8-fig:iLQR_humanoid"><a href="online_course/images/iLQR_humanoid_CP01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F27.g1" src="online_course/images/small/iLQR_humanoid_CP01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 27</span>: </span><span class="ltx_text">Reaching task with control primitives.
-</span></figcaption>
-</figure><figure class="ltx_figure ltx_align_floatright figure_main" id="S8-fig:iLQR_spacetime"><a href="online_course/images/iLQR_spacetime01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F28.g1" src="online_course/images/small/iLQR_spacetime01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 28</span>: </span><span class="ltx_text">Spacetime optimization with iLQR for a viapoints task, where the estimated durations between consecutive viapoints are shown in blue.
-</span></figcaption>
-</figure><figure class="ltx_figure figure_main" id="S8-fig:iLQR_manipulator_objAffordances">
-<a href="online_course/images/iLQR_objAffordances01.png" target="_blank"><img class="ltx_graphics" id="F29.g1" src="online_course/images/small/iLQR_objAffordances01.png"/></a>
-<a href="online_course/images/iLQR_objAffordances02.png" target="_blank"><img class="ltx_graphics" id="F29.g2" src="online_course/images/small/iLQR_objAffordances02.png"/></a>
-<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 29</span>: </span><span class="ltx_text">Manipulation with object affordances cost. The depicted <em class="ltx_emph ltx_font_italic">pick-and-place</em> task requires the offset at the picking location to be the same as the offset at the placing location, which can be achieved by setting a precision matrix with nonzero offdiagonal entries, see main text for details. In this example, an additional cost is set for choosing the picking and placing points within the object boundaries, which was also used for the task depicted in Fig. <a class="ltx_ref" href="#S8-fig:iLQR_manipulator" title="Figure 20 ‣ 8.5.3 Bounded task space ‣ 8.5 iLQR with quadratic cost on f(xt) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">20</span></a>. We can see with the resulting motions that when picking the object, the robot anticipates what will be done later with this object, which can be viewed as a basic form of object affordance. In the two situations depicted in the figure, the robot efficiently chooses a grasping point close to one of the corners of the object, different in the two situations, so that the robot can bring the object at the desired location with less effort and without reaching joint angle limits.
-</span></figcaption>
-</figure><figure class="ltx_figure figure_main" id="S8-fig:iLQR_car_bicopter"><a href="online_course/images/car-bicopter01.jpg" target="_blank"><img class="ltx_graphics ltx_centering" id="F30.g1" src="online_course/images/small/car-bicopter01.jpg"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 30</span>: </span><span class="ltx_text">iLQR for car and bicopter control/planning problems.
-</span></figcaption>
-</figure></div></div></div>
+</div><ul class="pagination justify-content-center small_menu"><li class="page-item previous_file"><a class="page-link" href="#S7">Previous</a></li><li class="page-item next_file"><a class="page-link" href="#S9">Next</a></li></ul></div></div><div class="col-sm-3"><div id="img-col"></div></div></div>
