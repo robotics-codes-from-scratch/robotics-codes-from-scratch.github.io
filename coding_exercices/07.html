@@ -54,81 +54,20 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="question1-tab" class="tab-pane fade show active" id="question1-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl output="output">
-                    # Control weight matrix
-                    R = np.identity((param.nbData-1) * param.nbVarU) * 1E-6
-
-                    # Precision matrices
-                    Q1 = np.eye(param.nbVarX)
-                    Q2 = np.eye(param.nbVarF)
-                    Q3 = np.eye(param.nbVarF)
-
-                    # Time occurrence of viapoints
-                    tl = np.array([33, 66, 100])
-
-                    # Joint angle configuration at the first viapoint
-                    # print(x[:,tl[0]])
-
-                    # End-effector position at the first viapoint
-                    # print(fkin(x[:,tl[0]], param))
-
-                    # Corresponding Jacobian at the first viapoint
-                    # print(Jkin(x[:,tl[0]], param))
-
-                    # print(param.viapoint1) #First viapoint
-                    # print(param.viapoint2) #Second viapoint
-                    # print(param.viapoint3) #Third viapoint
-
-                    def compute_fJ(x, param):
-                        # Residual when reaching the first viapoint (in joint space, orange robot)
-                        f1 = np.zeros(param.nbVarX) # To be replaced
-                        # Residual when reaching the second viapoint (in task space, pink object)
-                        f2 = np.zeros(param.nbVarF) # To be replaced
-                        # Residual when reaching the third viapoint (in task space, green object)
-                        f3 = np.zeros(param.nbVarF) # To be replaced
-                        # Jacobian of the residual when reaching the first viapoint (in joint space, orange robot)
-                        J1 = np.zeros((param.nbVarX, param.nbVarX)) # To be replaced
-                        # Jacobian of the residual when reaching the second viapoint (in task space, pink object)
-                        J2 = np.zeros((param.nbVarF, param.nbVarX)) # To be replaced
-                        # Jacobian of the residual when reaching the third viapoint (in task space, green object)
-                        J3 = np.zeros((param.nbVarF, param.nbVarX)) # To be replaced
-                        return f1,f2,f3,J1,J2,J3
-
-                    update_iLQR()
-                </py-repl>
+                <editor id="editor1" src="question"></editor>
             </div>
 
             <div aria-labelledby="question2-tab" class="tab-pane fade" id="question2-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl output="output">
-                    # Control weight matrix
-                    R = np.identity((param.nbData-1) * param.nbVarU) * 1E-6
-
-                    # Precision matrix
-                    Q1 = np.eye(param.nbVarX)
-                    Q2 = np.eye(param.nbVarF)
-                    Q3 = np.eye(param.nbVarF)
-
-                    # Time occurrence of viapoints
-                    tl = np.array([33, 66, 100])
-
-                    def compute_fJ(x, param):
-                        # Viapoint residuals
-                        f1 = x[:,tl[0]] - param.viapoint1
-                        f2 = fkin(x[:,tl[1]], param) - param.viapoint2
-                        f3 = fkin(x[:,tl[2]], param) - param.viapoint3
-                        # Corresponding Jacobians
-                        J1 = np.eye(param.nbVarX)
-                        J2 = Jkin(x[:,tl[1]], param)
-                        J3 = Jkin(x[:,tl[2]], param)
-                        return f1,f2,f3,J1,J2,J3
-
-                    update_iLQR()
-                </py-repl>
+                <editor id="editor2" src="answer"></editor>
             </div>
 
+            <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
+                <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+                <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+            </div>
 
-            <py-terminal id="terminal"></py-terminal>
-            <p id="output" style="display: none;"></p>
+            <pre id="errors" class="py-error"></pre>
+            <pre id="output" class="py-output"></pre>
 
             <br/>
         </div>
@@ -147,10 +86,82 @@
 </div>
 
 
-<py-script>
-    from pyodide.ffi import create_proxy, to_js
-    from js import Path2D, document, configure
+<script id="question" type="python">
+    # Control weight matrix
+    R = np.identity((param.nbData-1) * param.nbVarU) * 1E-6
+
+    # Precision matrices
+    Q1 = np.eye(param.nbVarX)
+    Q2 = np.eye(param.nbVarF)
+    Q3 = np.eye(param.nbVarF)
+
+    # Time occurrence of viapoints
+    tl = np.array([33, 66, 100])
+
+    # Joint angle configuration at the first viapoint
+    # print(x[:,tl[0]])
+
+    # End-effector position at the first viapoint
+    # print(fkin(x[:,tl[0]], param))
+
+    # Corresponding Jacobian at the first viapoint
+    # print(Jkin(x[:,tl[0]], param))
+
+    # print(param.viapoint1) #First viapoint
+    # print(param.viapoint2) #Second viapoint
+    # print(param.viapoint3) #Third viapoint
+
+    def compute_fJ(x, param):
+        # Residual when reaching the first viapoint (in joint space, orange robot)
+        f1 = np.zeros(param.nbVarX) # To be replaced
+        # Residual when reaching the second viapoint (in task space, pink object)
+        f2 = np.zeros(param.nbVarF) # To be replaced
+        # Residual when reaching the third viapoint (in task space, green object)
+        f3 = np.zeros(param.nbVarF) # To be replaced
+        # Jacobian of the residual when reaching the first viapoint (in joint space, orange robot)
+        J1 = np.zeros((param.nbVarX, param.nbVarX)) # To be replaced
+        # Jacobian of the residual when reaching the second viapoint (in task space, pink object)
+        J2 = np.zeros((param.nbVarF, param.nbVarX)) # To be replaced
+        # Jacobian of the residual when reaching the third viapoint (in task space, green object)
+        J3 = np.zeros((param.nbVarF, param.nbVarX)) # To be replaced
+        return f1,f2,f3,J1,J2,J3
+
+    update_iLQR()
+</script>
+
+
+<script id="answer" type="python">
+    # Control weight matrix
+    R = np.identity((param.nbData-1) * param.nbVarU) * 1E-6
+
+    # Precision matrix
+    Q1 = np.eye(param.nbVarX)
+    Q2 = np.eye(param.nbVarF)
+    Q3 = np.eye(param.nbVarF)
+
+    # Time occurrence of viapoints
+    tl = np.array([33, 66, 100])
+
+    def compute_fJ(x, param):
+        # Viapoint residuals
+        f1 = x[:,tl[0]] - param.viapoint1
+        f2 = fkin(x[:,tl[1]], param) - param.viapoint2
+        f3 = fkin(x[:,tl[2]], param) - param.viapoint3
+        # Corresponding Jacobians
+        J1 = np.eye(param.nbVarX)
+        J2 = Jkin(x[:,tl[1]], param)
+        J3 = Jkin(x[:,tl[2]], param)
+        return f1,f2,f3,J1,J2,J3
+
+    update_iLQR()
+</script>
+
+
+<script id="page_code" type="python">
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document
     import numpy as np
+    from rcfs import configure, executePythonCode
 
     hover_joint = -1
     selected_obj = -1
@@ -567,7 +578,14 @@
         param.viapoint3 = param.Mu[:2,1]
 
 
-    configure(to_js({
+    async def reset(tab_id, editor):
+        executePythonCode(editor.getContent())
+
+
+    configure({
         'loop': loop,
-    }))
-</py-script>
+        'reset': reset,
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

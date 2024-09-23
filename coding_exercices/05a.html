@@ -1,6 +1,6 @@
 ﻿<style>
-    .py-terminal {
-        margin-top: 10px;
+    .python-editor {
+        margin-bottom: 10px;
     }
 </style>
 
@@ -23,16 +23,15 @@
 
         <br/>
 
-        <py-repl output="output">
-            x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot state (position and velocity)
-            param.l = np.array([200.0, 200.0, 200.0]) # Robot links lengths
-            param.m = np.array([1.0, 1.0, 1.0]) # Links masses
-            param.dt = 1E-2 # Time step length
-            param.damping = 20.0 # Viscous friction
-        </py-repl>
+        <editor id="editor" src="code" output="output" errors="errors"></editor>
 
-        <py-terminal id="terminal"></py-terminal>
-        <p id="output" style="display: none;"></p>
+        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
+            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        </div>
+
+        <pre id="errors" class="py-error"></pre>
+        <pre id="output" class="py-output"></pre>
 
         <br/>
     </div>
@@ -45,11 +44,20 @@
 </div>
 
 
-<py-script>
-    from pyodide.ffi import create_proxy, to_js
-    from js import Path2D, document, configure, displayErrorMessage
+<script id="code" type="python">
+    x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot state (position and velocity)
+    param.l = np.array([200.0, 200.0, 200.0]) # Robot links lengths
+    param.m = np.array([1.0, 1.0, 1.0]) # Links masses
+    param.dt = 1E-2 # Time step length
+    param.damping = 20.0 # Viscous friction
+</script>
+
+
+<script id="page_code" type="python">
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document
     import numpy as np
-    import traceback
+    from rcfs import configure, displayError
 
     # Forward kinematics for end-effector (in robot coordinate system)
     def fkin(x, param):
@@ -286,7 +294,7 @@
             ddx = fdyn(x, u, param) # Compute accelerations
             x += np.append(x[param.nbVarX:] + 0.5 * ddx * param.dt, ddx) * param.dt # Update state
         except Exception as e:
-            displayErrorMessage(to_js(traceback.format_exception(e)))
+            displayError(e)
             x = np.zeros(2*param.nbVarX)
     
         # Reinit hovering variables
@@ -300,7 +308,7 @@
             draw_selected_point(f, '#777777')
 
 
-    configure(to_js({
+    configure({
         'loop': loop,
-    }))
-</py-script>
+    })
+</script>

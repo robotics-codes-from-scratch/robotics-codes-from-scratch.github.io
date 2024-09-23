@@ -4,18 +4,7 @@
     <div class="col-sm-5">
         <h3>Physics</h3>
 
-        <py-repl output="output">
-            def controlCommand(x):
-                u = np.zeros(x.shape)
-                u[0] = 1.0
-
-                # Stop controlling the robot once it reach some position
-                if x[0] > 2.5:
-                    print('DONE')
-                    stopControl()
-
-                return u
-        </py-repl>
+        <editor id="editor" src="user_code"></editor>
 
         <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
             <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
@@ -38,8 +27,8 @@
             </div>
         </div>
 
-        <py-terminal id="terminal"></py-terminal>
-        <p id="output" style="display: none;"></p>
+        <pre id="errors" class="py-error"></pre>
+        <pre id="output" class="py-output"></pre>
     </div>
 
     <div class="col-sm-6">
@@ -50,12 +39,25 @@
 </div>
 
 
-<py-script>
+<script id="user_code" type="python">
+    def controlCommand(x):
+        u = np.zeros(x.shape)
+        u[0] = 1.0
+
+        # Stop controlling the robot once it reach some position
+        if x[0] > 2.5:
+            print('DONE')
+            stopControl()
+
+        return u
+</script>
+
+
+<script id="page_code" type="python">
     from viewer3d import Viewer3D, configs
-    from js import document, setAspectRatio, configure, displayErrorMessage
-    from pyodide.ffi import to_js
+    from js import document, setAspectRatio
+    from rcfs import configure, displayError
     import numpy as np
-    import traceback
 
     # The function that will be called once per frame
     x = None
@@ -75,7 +77,7 @@
             x += u * delta
             robot.jointPositions = x
         except Exception as e:
-            displayErrorMessage(to_js(traceback.format_exception(e)))
+            displayError(e)
 
     # Load the scene and retrieve the robot
     def reset():
@@ -109,19 +111,22 @@
         viewer3D.setRenderingCallback(None)
 
 
-    async def reset_workspace():
+    async def run():
         try:
             reset()
             viewer3D.setRenderingCallback(update)
         except Exception as e:
-            displayErrorMessage(to_js(traceback.format_exception(e)))
+            displayError(e)
+
 
     async def loop(delta, time):
         viewer3D.render()
 
 
-    configure(to_js({
-        'reset': reset_workspace,
+    configure({
         'loop': loop,
-    }))
-</py-script>
+        'run': run,
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

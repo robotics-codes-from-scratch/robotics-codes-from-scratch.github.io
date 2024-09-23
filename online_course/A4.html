@@ -1,41 +1,41 @@
 <div class="row"><div class="col-sm-7 offset-1"><div id="txt-col"><h1 class="ltx_title ltx_title_appendix">
 <span class="ltx_tag ltx_tag_appendix">Appendix D </span>Equivalence between LQT and LQR with augmented state space</h1><div class="ltx_para" id="A4-para:p1">
 <p class="ltx_p">The equivalence between the original LQT problem and the corresponding LQR problem with an augmented state space can be shown by using the block matrices composition rule</p>
-<table class="ltx_equation ltx_eqn_table" id="A4-eq:Ex153">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="A4-eq:Ex126">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex153.m1">\bm{M}=\footnotesize\begin{bmatrix}\bm{M}_{11}&amp;\bm{M}_{12}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex126.m1">\bm{M}=\footnotesize\begin{bmatrix}\bm{M}_{11}&amp;\bm{M}_{12}\\
 \bm{M}_{21}&amp;\bm{M}_{22}\end{bmatrix}\quad\iff\quad\bm{M}^{-1}=\footnotesize\begin{bmatrix}\bm{I}&amp;\bm{0}\\
 -\bm{M}_{22}^{-1}\bm{M}_{21}&amp;\bm{I}\end{bmatrix}\begin{bmatrix}\bm{S}^{-1}&amp;\bm{0}\\
 \bm{0}&amp;\bm{M}_{22}^{-1}\end{bmatrix}\begin{bmatrix}\bm{I}&amp;-\bm{M}_{12}\bm{M}_{22}^{-1}\\
 \bm{0}&amp;\bm{I}\end{bmatrix},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr>
+</tr></tbody>
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="p1.m1">\bm{M}_{11}\!\in\!\mathbb{R}^{d\times d}</span>, <span class="ltx_Math" id="p1.m2">\bm{M}_{12}\!\in\!\mathbb{R}^{d\times D}</span>, <span class="ltx_Math" id="p1.m3">\bm{M}_{21}\!\in\!\mathbb{R}^{D\times d}</span>, <span class="ltx_Math" id="p1.m4">\bm{M}_{22}\!\in\!\mathbb{R}^{D\times D}</span>,
 and <span class="ltx_Math" id="p1.m5">\bm{S}=\bm{M}_{11}-\bm{M}_{12}\bm{M}_{22}^{-1}\bm{M}_{21}</span> the Schur complement of the matrix <span class="ltx_Math" id="p1.m6">\bm{M}</span>.</p>
 </div><div class="ltx_para" id="A4-para:p2">
 <p class="ltx_p">In our case, we have</p>
-<table class="ltx_equation ltx_eqn_table" id="A4-eq:Ex154">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="A4-eq:Ex127">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex154.m1">\begin{bmatrix}\bm{Q}^{-1}\!+\!\bm{\mu}\bm{\mu}^{\scriptscriptstyle\top}&amp;\bm{\mu}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex127.m1">\begin{bmatrix}\bm{Q}^{-1}\!+\!\bm{\mu}\bm{\mu}^{\scriptscriptstyle\top}&amp;\bm{\mu}\\
 \bm{\mu}^{\scriptscriptstyle\top}&amp;1\end{bmatrix}^{-1}=\begin{bmatrix}\bm{I}&amp;\bm{0}\\
 -\bm{\mu}^{\scriptscriptstyle\top}&amp;1\end{bmatrix}\begin{bmatrix}\bm{Q}&amp;\bm{0}\\
 \bm{0}&amp;1\end{bmatrix}\begin{bmatrix}\bm{I}&amp;-\bm{\mu}\\
 \bm{0}&amp;1\end{bmatrix},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr>
+</tr></tbody>
 </table>
 <p class="ltx_p">and it is easy to see that</p>
-<table class="ltx_equation ltx_eqn_table" id="A4-eq:Ex155">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="A4-eq:Ex128">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex155.m1">{(\bm{x}-\bm{\mu})}^{\scriptscriptstyle\top}\bm{Q}(\bm{x}-\bm{\mu})=\begin{bmatrix}\bm{x}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex128.m1">{(\bm{x}-\bm{\mu})}^{\scriptscriptstyle\top}\bm{Q}(\bm{x}-\bm{\mu})=\begin{bmatrix}\bm{x}\\
 1\end{bmatrix}^{\scriptscriptstyle\top}\begin{bmatrix}\bm{Q}^{-1}\!+\!\bm{\mu}\bm{\mu}^{\scriptscriptstyle\top}&amp;\bm{\mu}\\
 \bm{\mu}^{\scriptscriptstyle\top}&amp;1\end{bmatrix}^{-1}\begin{bmatrix}\bm{x}\\
 1\end{bmatrix}-1.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr>
+</tr></tbody>
 </table>
 </div><ul class="pagination justify-content-center small_menu"><li class="page-item previous_file"><a class="page-link" href="#A3">Previous</a></li><li class="page-item next_file"><a class="page-link" href="#A5">Next</a></li></ul></div></div><div class="col-sm-3"><div id="img-col"></div></div></div>

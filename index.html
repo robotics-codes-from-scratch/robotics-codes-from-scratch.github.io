@@ -17,7 +17,7 @@
   <link href="css/permanent_marker.css" rel="stylesheet"/>
   <link href="css/sidebars.css" rel="stylesheet"/>
   <link href="css/katex.min.css" rel="stylesheet"/>
-  <link href="https://pyscript.net/latest/pyscript.css" rel="stylesheet"/>
+  <link href="https://pyscript.net/releases/2024.8.2/core.css" rel="stylesheet"/>
   <link href="css/main-template.css" rel="stylesheet"/>
   <script src="js/jquery-3.6.4.min.js">
   </script>
@@ -28,6 +28,8 @@
   <script src="js/katex-auto-render.js">
   </script>
   <script src="js/glslrenderer.js">
+  </script>
+  <script src="js/editor.bundle.js">
   </script>
   <py-config type="toml">
    packages = ['numpy', 'matplotlib']
@@ -161,6 +163,12 @@
   <!--Pages content goes here-->
   <div class="container-fluid" id="content">
   </div>
+  <div class="py-overlay" id="splashscreen">
+   <div class="smooth spinner">
+   </div>
+   <div class="label" id="splashscreen-labels">
+   </div>
+  </div>
   <script type="module">
    import { initViewer3D, downloadScene, downloadPandaRobot } from './viewer3d/viewer3d.js';
 
@@ -175,9 +183,8 @@
         let navlinks = null;
 
         let mustStopLoop = false;
-        let mustReset = false;
+        let mustCallRun = false;
         let isLoopRunning = false;
-        let errorMessageDisplayed = false;
         let loopStartTime = null;
         let loopPreviousTime = null;
         let aspectRatios = {};
@@ -197,6 +204,7 @@
         const loadedData = {};
 
         const tasks = [];
+        let isExecutingTasks = false;
 
 
         // Populate the menu content
@@ -375,6 +383,9 @@
                 navlinks = null;
             }
 
+            if (document._setOutputTargets != undefined)
+                document._setOutputTargets(null, null);
+
             currentPage = page;
             loopStartTime = null;
 
@@ -425,21 +436,7 @@
                 {
                     closeMenuButton.click();
 
-                    const overlay = document.createElement('div');
-                    overlay.id = 'pyscript_loading_splash';
-                    overlay.className = 'py-overlay';
-                    overlay.style.zIndex = 2000;
-
-                    overlay.innerHTML = '<div class="py-pop-up">' +
-                        '<div class="smooth spinner"></div>' +
-                        '<div id="pyscript-loading-label" class="label">' +
-                            '<div id="pyscript-operation-details">' +
-                                '<p>Downloading assets...</p>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>';
-
-                    document.body.appendChild(overlay);
+                    displaySplashScreen('Downloading assets...');
 
                     tasks.push(async () => {
                         for (let robot of robotsToLoad)
@@ -481,7 +478,7 @@
                             loadedData[data] = new Uint8Array(await response.arrayBuffer());
                         }
 
-                        document.getElementById('pyscript_loading_splash').remove();
+                        //document.getElementById('pyscript_loading_splash').remove();
                     });
                 }
             }
@@ -498,6 +495,8 @@
                 if (requirementsToLoad.length > 0)
                 {
                     tasks.push(async () => {
+                        displaySplashScreen('Initializing PyScript...');
+
                         for (let requirement of requirementsToLoad)
                         {
                             if (requirement == 'pyscript')
@@ -512,7 +511,9 @@
             tasks.push(async () => {
                 contentDiv.innerHTML = await response.text();
                 closeMenuButton.click();
-                errorMessageDisplayed = false;
+
+                if (document._clearOutputTargets != undefined)
+                    document._clearOutputTargets();
             });
 
             if (tasks.length == 1)
@@ -526,7 +527,7 @@
             });
 
             tasks.push(async () => {
-                spreadOutImages();
+
 
                 if (page != 'home')
                 {
@@ -561,19 +562,29 @@
                         btnOpen.style.display = 'inline';
                     else
                         btnOpen.style.display = 'none';
-
-                    navlinks = document.getElementsByClassName('nav-link');
-                    if (navlinks.length > 0)
-                    {
-                        for (let navlink of navlinks)
-                            navlink.addEventListener('click', onTabChanged);
-                    }
-                    else
-                    {
-                        navlinks = null;
-                    }
                 }
+
+                navlinks = document.getElementsByClassName('nav-link');
+                if (navlinks.length > 0)
+                {
+                    for (let navlink of navlinks)
+                        navlink.addEventListener('click', onTabChanged);
+                }
+                else
+                {
+                    navlinks = null;
+                }
+
+                if (document._executePythonScript != undefined)
+                    createEditors();
             });
+
+            if (document._executePythonScript != undefined)
+            {
+                tasks.push(async () => {
+                    document._executePythonScript('page_code');
+                });
+            }
 
             executeNextTask();
         }
@@ -588,6 +599,12 @@
                     await task();
                     executeNextTask();
                 });
+
+                isExecutingTasks = true;
+            }
+            else
+            {
+                isExecutingTasks = false;
             }
         }
 
@@ -634,11 +651,7 @@
         }
 
 
-        // Online course: spread out the images vertically
-        function spreadOutImages()
-        {
 
-        }
 
 
         function initPyScript()
@@ -657,14 +670,62 @@
 
             // Add the PyScript script to the document
             const script = document.createElement('script');
-            script.src = 'https://pyscript.net/latest/pyscript.min.js';
-            script.type = 'text/javascript';
+            script.src = 'https://pyscript.net/releases/2024.8.2/core.js';
+            script.type = 'module';
             document.body.appendChild(script);
         }
+
+
+        function createEditors()
+        {
+            const editors = document.getElementsByTagName('editor');
+
+            if (editors.length > 0)
+                displaySplashScreen('Creating editors...');
+
+            for (let i = 0; i < editors.length; ++i)
+            {
+                const element = editors[i];
+                element.className = 'python-editor';
+
+                let userCode = '';
+
+                if (element.hasAttribute('src'))
+                    userCode = document._getPythonScript(element.getAttribute('src'));
+                else if (element.hasAttribute('script'))
+                    userCode = getScript(element.getAttribute('script'));
+
+                element.editor = CodeEditor.create(
+                    element.id,
+                    userCode,
+                    (code) => {
+                        document._pushOutputTargets(
+                            element.hasAttribute('output') ? element.getAttribute('output') : null,
+                            element.hasAttribute('errors') ? element.getAttribute('errors') : null,
+                        );
+
+                        document._clearOutputTargets();
+                        document._executePythonCode(code);
+
+                        mustCallRun = true;
+
+                        document._popOutputTargets();
+                    }
+                )
+
+                element.editor.defaultCode = userCode;
+            }
+        }
+
 
         function configure(params)
         {
             currentPageParams = params;
+
+            document._setOutputTargets(
+                currentPageParams.has('output') ? currentPageParams.get('output') : null,
+                currentPageParams.has('errors') ? currentPageParams.get('errors') : null,
+            );
 
             if (currentPageParams.has('setup'))
             {
@@ -672,30 +733,20 @@
                     currentPageParams.set('setup', new Array(currentPageParams.get('setup')));
             }
 
-            const mustExecuteNextTask = (tasks.length == 0);
-
             tasks.push(async () => {
-                let resetFunction = null;
+                let runFunction = null;
+
                 if (currentPageParams.has('loop'))
                 {
-                    resetFunction = () => {
-                        mustReset = true;
+                    runFunction = () => {
+                        mustCallRun = true;
                     };
                 }
-                else if (currentPageParams.has('reset'))
+                else if (currentPageParams.has('run'))
                 {
-                    resetFunction = async () => {
-                        await currentPageParams.get('reset')();
+                    runFunction = async () => {
+                        await currentPageParams.get('run')();
                     };
-                }
-
-                const run_buttons = document.getElementsByClassName("py-repl-run-button");
-                for (let i = 0; i < run_buttons.length; ++i)
-                {
-                    run_buttons[i].addEventListener('mouseup', clearReplOutput);
-
-                    if (resetFunction != null)
-                        run_buttons[i].addEventListener('click', resetFunction);
                 }
             });
 
@@ -715,8 +766,10 @@
                 });
             }
 
-            if (mustExecuteNextTask)
+            if (!isExecutingTasks)
                 executeNextTask();
+
+            hideSplashScreen();
         }
 
         async function executeContentLoop(time)
@@ -727,15 +780,15 @@
                 loopPreviousTime = time;
             }
 
-            if (mustReset)
+            if (mustCallRun)
             {
-                mustReset = false;
+                mustCallRun = false;
                 loopStartTime = null;
 
-                if (currentPageParams.has('reset'))
+                if (currentPageParams.has('run'))
                 {
                     window.requestAnimationFrame(async () => {
-                        await currentPageParams.get('reset')();
+                        await currentPageParams.get('run')();
                         window.requestAnimationFrame(executeContentLoop);
                     });
                 }
@@ -774,60 +827,6 @@
                 await currentPageParams.get('cleanup')();
         }
 
-        function displayErrorMessage(msg)
-        {
-            if (errorMessageDisplayed)
-                return;
-
-            let active_tab = 0;
-
-            if (navlinks != null)
-            {
-                for (let navlink of navlinks)
-                {
-                    if (navlink.classList.contains('active'))
-                        break;
-
-                    active_tab++;
-                }
-            }
-
-            const el = document.getElementsByClassName('py-repl-output')[active_tab];
-            console.error(msg.join('\n'))
-            el.innerHTML = '<pre class="py-error">' + msg.join('<br/>') + '</pre>'
-
-            errorMessageDisplayed = true;
-        }
-
-        function clearReplOutput()
-        {
-            let el = document.getElementById('errors');
-            if (el != undefined)
-                el.innerText = '';
-
-            el = document.getElementById('output');
-            if (el != undefined)
-                el.innerText = '';
-
-            el = document.getElementById('terminal');
-            if (el != undefined)
-                el.children[0].innerText = '';
-
-            errorMessageDisplayed = false;
-        }
-
-        function clearMsgs()
-        {
-            const el = document.getElementById('errors');
-            el.innerText = '';
-        }
-
-        function clearMsgsOutput()
-        {
-            const el = document.getElementById('output');
-            el.innerText = '';
-        }
-
         function getScript(name)
         {
             return loadedScripts[name];
@@ -840,15 +839,10 @@
 
         function setEditorCode(editor, code)
         {
-            let el = editor.querySelector("div.cm-content");
-            if (el == null)
-            {
-                el = editor.querySelector("div.py-repl-editor div");
-                el = el.shadowRoot.querySelector("div.cm-content");
-            }
+            if (editor instanceof(HTMLElement))
+                editor = editor.editor;
 
-            el.replaceChildren();
-            el.textContent = code;
+            editor.setContent(code);
         }
 
         function setAspectRatio(id, ratio)
@@ -866,15 +860,12 @@
             }
         };
 
-        globalThis.configure = configure;
-        globalThis.clearMsgs = clearMsgs;
-        globalThis.displayErrorMessage = displayErrorMessage;
-        globalThis.clearReplOutput = clearReplOutput
-        globalThis.clearMsgsOutput = clearMsgsOutput;
-        globalThis.getScript = getScript;
+        globalThis._configure = configure;
+        globalThis._getScript = getScript;
         globalThis.getData = getData;
         globalThis.setEditorCode = setEditorCode;
         globalThis.setAspectRatio = setAspectRatio;
+        globalThis._createEditors = createEditors;
 
 
         function getStorageKey()
@@ -902,10 +893,10 @@
             {
                 const navlink_target_id = active_navlink.getAttribute('data-bs-target').substr(1);
                 const navlink_target = document.getElementById(navlink_target_id);
-                return navlink_target.getElementsByTagName('py-repl')[0];
+                return navlink_target.getElementsByClassName('python-editor')[0].editor;
             }
 
-            return document.getElementsByTagName('py-repl')[0];
+            return document.getElementsByClassName('python-editor')[0].editor;
         }
 
 
@@ -913,7 +904,7 @@
         {
             const editor = getActiveEditor();
 
-            window.localStorage.setItem(getStorageKey(), editor.getPySrc());
+            window.localStorage.setItem(getStorageKey(), editor.getContent());
             btnOpen.style.display = 'inline';
         }
 
@@ -927,16 +918,53 @@
         }
 
 
-        function onTabChanged(event)
+        async function onTabChanged(event)
         {
-            if (window.localStorage.getItem(getStorageKey()) != null)
-                btnOpen.style.display = 'inline';
-            else
-                btnOpen.style.display = 'none';
+            if (btnOpen)
+            {
+                if (window.localStorage.getItem(getStorageKey()) != null)
+                    btnOpen.style.display = 'inline';
+                else
+                    btnOpen.style.display = 'none';
+            }
+
+            document._clearOutputTargets();
+
+            if (currentPageParams.has('reset'))
+            {
+                const active_navlink = document.getElementsByClassName('nav-link active')[0];
+                await currentPageParams.get('reset')(active_navlink.id, getActiveEditor());
+            }
         }
 
 
-        window.onorientationchange = spreadOutImages;
+        function displaySplashScreen(text)
+        {
+            const div = document.getElementById('splashscreen');
+            const labels = document.getElementById('splashscreen-labels');
+
+            const entry = document.createElement('p');
+            entry.textContent = text;
+
+            labels.appendChild(entry);
+
+            div.style.visibility = 'visible';
+        }
+
+
+        function hideSplashScreen()
+        {
+            const div = document.getElementById('splashscreen');
+            const labels = document.getElementById('splashscreen-labels');
+
+            labels.innerHTML = '';
+
+            div.style.visibility = 'hidden';
+        }
+
+
+
+
 
         window.onhashchange = function() {
             const dest = window.location.hash.substr(1);
@@ -952,6 +980,171 @@
 
         initMenu();
         initViewer3D();
+  </script>
+  <script type="py">
+        # This script defines the API usable from Python scripts in individual pages,
+        # accessible by doing "from rcfs import ..."
+        from pyscript import display
+        from pyodide.ffi import to_js
+        from js import document, console
+        from js import _configure as _jsConfigure
+        from js import _getScript as _jsGetScript
+        from js import _createEditors as _jsCreateEditors
+        import types
+        import sys
+        import traceback
+
+
+        _output = None
+        _errors = None
+        _savedOutput = None
+        _savedErrors = None
+        _errorMessageDisplayed = False
+
+        _display = display
+
+        def display(*kargs, **kwargs):
+            if ('target' not in kwargs) and (_output is not None):
+                kwargs['target'] = _output
+
+            if len(kargs) == 0:
+                kargs = ['\n']
+
+            _display(*kargs, **kwargs)
+            console.log(*[ repr(x) for x in kargs ])
+
+        print = display
+
+
+        def _displayError(exception):
+            global _errorMessageDisplayed
+
+            if _errorMessageDisplayed:
+                return
+
+            text = traceback.format_exception(exception)
+            text = ''.join(text)
+            console.log(text)
+
+            if _errors:
+                el = document.getElementById(_errors)
+                if el:
+                    el.textContent= text
+
+            _errorMessageDisplayed = True
+
+
+        def _clearOutputTargets():
+            global _errorMessageDisplayed
+
+            if _output:
+                el = document.getElementById(_output)
+                if el:
+                    el.innerText = ''
+
+            if _errors:
+                el = document.getElementById(_errors)
+                if el:
+                    el.innerText = ''
+
+            _errorMessageDisplayed = False
+
+
+        def _setOutputTargets(output, errors):
+            global _output, _errors
+
+            _output = output
+            _errors = errors
+
+
+        def _pushOutputTargets(output, errors):
+            global _output, _errors, _savedOutput, _savedErrors
+
+            if output is not None:
+                _savedOutput = _output
+                _output = output
+
+            if errors is not None:
+                _savedErrors = _errors
+                _errors = errors
+
+
+        def _popOutputTargets():
+            global _output, _errors, _savedOutput, _savedErrors
+
+            if _savedOutput is not None:
+                _output = _savedOutput
+                _savedOutput = None
+
+            if _savedErrors is not None:
+                _errors = _savedErrors
+                _savedErrors = None
+
+
+        def _configure(config):
+            _jsConfigure(to_js(config))
+
+
+        def _getPythonScript(id):
+            script = document.getElementById(id)
+            if (script is None) or (script.tagName != 'SCRIPT'):
+                return None
+
+            code = script.textContent
+
+            if code[0] == '\n':
+                code = code[1:]
+
+            if code[0] == ' ':
+                indent = 1
+                while code[indent] == ' ':
+                    indent += 1
+
+                lines = code.split('\n')
+                lines = [ l[indent:] if len(l) >= indent else l for l in lines ]
+                code = '\n'.join(lines)
+
+            if code[-1] == '\n':
+                code = code[:-1]
+
+            return code
+
+
+        def _executePythonCode(code):
+            if code is None:
+                return
+
+            try:
+                exec(code, globals())
+            except Exception as e:
+                _displayError(e)
+
+
+        def _executePythonScript(id):
+            _executePythonCode(_getPythonScript(id))
+
+
+        document._displayError = _displayError
+        document._clearOutputTargets = _clearOutputTargets
+        document._setOutputTargets = _setOutputTargets
+        document._pushOutputTargets = _pushOutputTargets
+        document._popOutputTargets = _popOutputTargets
+        document._executePythonScript = _executePythonScript
+        document._executePythonCode = _executePythonCode
+        document._getPythonScript = _getPythonScript
+
+
+        _rcfs = types.ModuleType('rcfs')
+        _rcfs.displayError = _displayError
+        _rcfs.configure = _configure
+        _rcfs.executePythonScript = _executePythonScript
+        _rcfs.executePythonCode = _executePythonCode
+        _rcfs.getScript = _jsGetScript
+
+        sys.modules['rcfs'] = _rcfs
+
+        _jsCreateEditors()
+        _executePythonScript('page_code')
   </script>
  </body>
 </html>

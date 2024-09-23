@@ -18,75 +18,15 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="impedance-tab" class="tab-pane fade show active" id="impedance-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl output="output">
-                    #x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
-                    x_target = np.array([-np.pi/4, -np.pi/2, np.pi/4]) # Target in joint space
-
-                    param.damping = 20.0 # Viscous friction
-
-                    #kP = 400.0 # Stiffness gain
-                    #kV = 10.0 # Damping gain
-
-                    KP = np.diag([4E2, 4E2, 4E2]) # Joint space stiffness matrix
-                    KV = np.diag([1E1, 1E1, 1E1]) # Joint space damping matrix
-
-                    def controlCommand(x, param):
-                        # Torques for gravity compensation
-                        #ug = inverse_dynamics(np.append(x[:param.nbVarX], np.zeros(param.nbVarX)), np.zeros(param.nbVarX), param) 
-                        ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
-                        #u = kP * (x_target - x[:param.nbVarX]) - kV * x[param.nbVarX:] + ug # Impedance controller in joint space
-                        u = KP @ (x_target - x[:param.nbVarX]) - KV @ x[param.nbVarX:] + ug # Impedance controller in joint space
-                        return u
-                </py-repl>
+                <editor id="editor-impedance" src="user_code_impedance"></editor>
             </div>
 
             <div aria-labelledby="taskimpedance-tab" class="tab-pane fade" id="taskimpedance-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl output="output">
-                    x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
-                    f_target = fkin(np.array([-np.pi/4, -np.pi/2, np.pi/4]), param) # Target in task space
-
-                    KP = np.diag([4E-2, 4E-2, 4E2]) # Task space stiffness (position and orientation)
-                    KV = np.diag([1E-3, 1E-3, 1E1]) # Task space damping (position and orientation)
-
-                    def controlCommand(x, param):
-                        ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
-                        f = fkin(x[:param.nbVarX], param) # Forward kinematics
-                        J = Jkin(x[:param.nbVarX], param) # Corresponding Jacobian matrix
-                        df = J @ x[param.nbVarX:] # End-effector velocity
-                        rf = np.hstack([f_target[:2] - f[:2], logmap(f_target[2], f[2])]) # Residual vector
-                        u = J.T @ (KP @ rf - KV @ df) + ug # Impedance controller in task space
-                        return u
-                </py-repl>
+                <editor id="editor-taskimpedance" src="user_code_taskimpedance"></editor>
             </div>
 
             <div aria-labelledby="taskimpedance2-tab" class="tab-pane fade" id="taskimpedance2-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl output="output">
-                    x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
-
-                    dist_target = 20.0 # Targeted distance to maintain
-                    f_target = np.array([-200.0, -400.0, 0]) # SDF location in task space 
-                    sdf_disc_radius = 80.0 # Disc radius
-                    sdf_box_size = np.array([160.0, 100.0]) # Box width and height
-                    sdf_box_offset = np.array([60.0, -60.0]) # Box position wrt the disc
-                    sdf_smoothing_ratio = 10.0 # Smoothing factor for softmax composition of SDF shapes 
-
-                    KP = np.diag([4E-2, 0E-2, 0E3]) # Task space stiffness (position and orientation)
-                    KP0 = np.copy(KP)
-                    KV = np.diag([1E-3, 1E-3, 1E1]) # Task space damping (position and orientation)
-
-                    def controlCommand(x, param):
-                        global KP
-                        ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
-                        f = fkin(x[:param.nbVarX], param) # Forward kinematics
-                        J = Jkin(x[:param.nbVarX], param) # Corresponding Jacobian matrix
-                        df = J @ x[param.nbVarX:] # End-effector velocity
-                        dist, grad = sdf(f) # Signed distance function and corresponding gradient
-                        R = np.array([[grad[0], -grad[1]], [grad[1], grad[0]]]) # Local coordinate system (rotation matrix)
-                        KP[:2,:2] = R @ KP0[:2,:2] @ R.T # Adapt stiffness to local coordinate system
-                        grad[:2] = grad[:2] * (dist - dist_target) # Residual vector
-                        u = J.T @ (KP @ grad - KV @ df) + ug # Impedance controller in task space
-                        return u
-                </py-repl>
+                <editor id="editor-taskimpedance2" src="user_code_taskimpedance2"></editor>
             </div>
         </div>
 
@@ -111,8 +51,8 @@
             </div>
         </div>
 
-        <py-terminal id="terminal"></py-terminal>
-        <p id="output" style="display: none;"></p>
+        <pre id="errors" class="py-error"></pre>
+        <pre id="output" class="py-output"></pre>
     </div>
 
     <div class="col-sm-4">
@@ -123,11 +63,80 @@
 </div>
 
 
-<py-script>
-    from pyodide.ffi import create_proxy, to_js
-    from js import Path2D, document, configure, displayErrorMessage, clearReplOutput
+<script id="user_code_impedance" type="python">
+    #x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
+    x_target = np.array([-np.pi/4, -np.pi/2, np.pi/4]) # Target in joint space
+
+    param.damping = 20.0 # Viscous friction
+
+    #kP = 400.0 # Stiffness gain
+    #kV = 10.0 # Damping gain
+
+    KP = np.diag([4E2, 4E2, 4E2]) # Joint space stiffness matrix
+    KV = np.diag([1E1, 1E1, 1E1]) # Joint space damping matrix
+
+    def controlCommand(x, param):
+        # Torques for gravity compensation
+        #ug = inverse_dynamics(np.append(x[:param.nbVarX], np.zeros(param.nbVarX)), np.zeros(param.nbVarX), param) 
+        ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
+        #u = kP * (x_target - x[:param.nbVarX]) - kV * x[param.nbVarX:] + ug # Impedance controller in joint space
+        u = KP @ (x_target - x[:param.nbVarX]) - KV @ x[param.nbVarX:] + ug # Impedance controller in joint space
+        return u
+</script>
+
+
+<script id="user_code_taskimpedance" type="python">
+    x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
+    f_target = fkin(np.array([-np.pi/4, -np.pi/2, np.pi/4]), param) # Target in task space
+
+    KP = np.diag([4E-2, 4E-2, 4E2]) # Task space stiffness (position and orientation)
+    KV = np.diag([1E-3, 1E-3, 1E1]) # Task space damping (position and orientation)
+
+    def controlCommand(x, param):
+        ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
+        f = fkin(x[:param.nbVarX], param) # Forward kinematics
+        J = Jkin(x[:param.nbVarX], param) # Corresponding Jacobian matrix
+        df = J @ x[param.nbVarX:] # End-effector velocity
+        rf = np.hstack([f_target[:2] - f[:2], logmap(f_target[2], f[2])]) # Residual vector
+        u = J.T @ (KP @ rf - KV @ df) + ug # Impedance controller in task space
+        return u
+</script>
+
+
+<script id="user_code_taskimpedance2" type="python">
+    x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
+
+    dist_target = 20.0 # Targeted distance to maintain
+    f_target = np.array([-200.0, -400.0, 0]) # SDF location in task space 
+    sdf_disc_radius = 80.0 # Disc radius
+    sdf_box_size = np.array([160.0, 100.0]) # Box width and height
+    sdf_box_offset = np.array([60.0, -60.0]) # Box position wrt the disc
+    sdf_smoothing_ratio = 10.0 # Smoothing factor for softmax composition of SDF shapes 
+
+    KP = np.diag([4E-2, 0E-2, 0E3]) # Task space stiffness (position and orientation)
+    KP0 = np.copy(KP)
+    KV = np.diag([1E-3, 1E-3, 1E1]) # Task space damping (position and orientation)
+
+    def controlCommand(x, param):
+        global KP
+        ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
+        f = fkin(x[:param.nbVarX], param) # Forward kinematics
+        J = Jkin(x[:param.nbVarX], param) # Corresponding Jacobian matrix
+        df = J @ x[param.nbVarX:] # End-effector velocity
+        dist, grad = sdf(f) # Signed distance function and corresponding gradient
+        R = np.array([[grad[0], -grad[1]], [grad[1], grad[0]]]) # Local coordinate system (rotation matrix)
+        KP[:2,:2] = R @ KP0[:2,:2] @ R.T # Adapt stiffness to local coordinate system
+        grad[:2] = grad[:2] * (dist - dist_target) # Residual vector
+        u = J.T @ (KP @ grad - KV @ df) + ug # Impedance controller in task space
+        return u
+</script>
+
+
+<script id="page_code" type="python">
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document
+    from rcfs import configure, displayError, executePythonScript, executePythonCode
     import numpy as np
-    import traceback
 
     # SDF for circle
     def sdf_circle(f, p, r):
@@ -461,26 +470,6 @@
 
     #########################################################################################
 
-    def onTabClicked(event):
-        clearReplOutput()
-
-        if isinstance(event, str):
-            pane = document.getElementById(event + '-pane')
-        else:
-            pane = document.getElementById(event.target.id + '-pane')
-
-        editor = pane.getElementsByTagName('py-repl')[0]
-
-        try:
-            user_code = editor.getPySrc()
-        except AttributeError:
-            user_code = editor.textContent
-
-        exec(user_code, globals())
-
-
-    #########################################################################################
-
     #x = np.zeros(2*param.nbVarX) # Initial robot state (position and velocity)
     x = np.array([-np.pi/3.7, -np.pi/2.2, np.pi/4.1, 0, 0, 0]) # Initial robot state (position and velocity)
     x_target = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Target in joint space
@@ -503,7 +492,7 @@
             ddx = fdyn(x, u, param) # Compute accelerations
             x += np.append(x[param.nbVarX:] + 0.5 * ddx * param.dt, ddx) * param.dt # Update state
         except Exception as e:
-            displayErrorMessage(to_js(traceback.format_exception(e)))
+            displayError(e)
 
         # Reinit hovering variables
         hover_joint = -1
@@ -529,16 +518,20 @@
             f = fkin(x[:param.nbVarX], param)
             draw_Gaussian(f, np.linalg.inv(KP[:2,:2] * 1E2 + np.eye(2)*1E-2), '#FF3399', '#DD1177') # Draw stiffness ellipsoid
 
-    async def setup_ui():
-        nav_links = document.getElementsByClassName('nav-link')
-        for i in range(nav_links.length):
-            nav_links[i].onclick = onTabClicked
 
-        onTabClicked('impedance-tab')
+    async def setup():
+        executePythonScript('user_code_impedance')
 
 
-    configure(to_js({
-        'setup': setup_ui,
+    async def reset(tab_id, editor):
+        executePythonCode(editor.getContent())
+
+
+    configure({
+        'setup': setup,
         'loop': loop,
-    }))
-</py-script>
+        'reset': reset,
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

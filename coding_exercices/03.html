@@ -1,7 +1,6 @@
 ﻿<style>
-    .py-repl-output {
-        font-size: 0.7em;
-        padding-top: 0.5rem;
+    .python-editor {
+        margin-bottom: 10px;
     }
 </style>
 
@@ -31,49 +30,16 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="question-tab" class="tab-pane fade show active" id="question-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl>
-                    def gaussian_nD(x, mu, sigma):
-                        D = x.shape[0]
-                        cons = ((2*np.pi)**(-D/2)) * (np.linalg.det(sigma)**(-0.5))
-                        return cons*np.exp(-0.5*(x-mu).dot(np.linalg.inv(sigma))@ (x-mu))
-
-                    def linear_combination(A1, A2, c, mu1, mu2, sigma1, sigma2):
-                        mu_L = np.zeros(2) # Implement here
-                        sigma_L = np.eye(2) # Implement here
-                        return mu_L, sigma_L
-
-                    def product_gaussians(mu1, mu2, sigma1, sigma2):
-                        sigma1_inv = np.linalg.inv(sigma1)
-                        sigma2_inv = np.linalg.inv(sigma2)
-                        sigma_P = np.eye(2)# Implement here
-                        mu_P = np.zeros(2) # Implement here
-                        c = 0. # Implement here
-                        return mu_P, sigma_P, c
-                </py-repl>
+                <editor id="question1_editor1" src="question1_question" output="question1_output1" errors="question1_errors1"></editor>
             </div>
 
             <div aria-labelledby="answer-tab" class="tab-pane fade" id="answer-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl>
-                    def gaussian_nD(x, mu, sigma):
-                        D = x.shape[0]
-                        cons = ((2*np.pi)**(-D/2)) * (np.linalg.det(sigma)**(-0.5))
-                        return cons*np.exp(-0.5*(x-mu).dot(np.linalg.inv(sigma))@ (x-mu))
-
-                    def linear_combination(A1, A2, c, mu1, mu2, sigma1, sigma2):
-                        mu_L = A1 @ mu1 + A2 @ mu2 + c
-                        sigma_L = A1 @ sigma1 @ A1.T + A2 @ sigma2 @ A2.T
-                        return mu_L, sigma_L
-
-                    def product_gaussians(mu1, mu2, sigma1, sigma2):
-                        sigma1_inv = np.linalg.inv(sigma1)
-                        sigma2_inv = np.linalg.inv(sigma2)
-                        sigma_P = np.linalg.inv(sigma1_inv + sigma2_inv)
-                        mu_P = sigma_P @ (sigma1_inv @ mu1 + sigma2_inv @ mu2)
-                        c = gaussian_nD(mu1, mu2, sigma1 + sigma2)
-                        return mu_P, sigma_P, c
-                </py-repl>
+                <editor id="question1_editor2" src="question1_answer" output="question1_output1" errors="question1_errors1"></editor>
             </div>
         </div>
+
+        <pre id="question1_errors1" class="py-error"></pre>
+        <pre id="question1_output1" class="py-output"></pre>
 
         <br/>
 
@@ -82,23 +48,9 @@
          to the function (you can also give other arguments that matplotlib accepts).</p>
         <p>Implement <code>product_gaussians</code> in the code above and run the code below to test your answer. You can verify your answer by clicking on the button below the code.</p>
 
-        <py-repl>
-            mu1 = np.zeros(2)
-            mu2 = np.ones(2)
-            sigma1 = np.diag([.5,.1])
-            sigma2 = np.diag([1,1])
-            mu_P, sigma_P, c = product_gaussians(mu1, mu2, sigma1, sigma2)
-
-            plt.close('all')
-            fig,ax = plt.subplots(figsize=(5,5))
-            plot_gaussian(mu1, sigma1, ax, color='r', label='first Gaussian')
-            plot_gaussian(mu2, sigma2, ax, color='b', label='second Gaussian')
-            plot_gaussian(mu_P, sigma_P, ax, color='k', label='product of Gaussians' )
-            ax.legend()
-            ax.axis('off')
-            ax.set_aspect('equal')
-            fig
-        </py-repl>
+        <editor id="question1_editor3" src="question1_code1" output="question1_output2" errors="question1_errors2"></editor>
+        <pre id="question1_errors2" class="py-error"></pre>
+        <pre id="question1_output2" class="py-output"></pre>
 
         <div class="col-auto"><button aria-controls="answer1" aria-expanded="false" class="btn btn-light btn-sm" data-bs-target="#answer1" data-bs-toggle="collapse">Show/hide answer</button></div>
         <div class="collapse" id="answer1"><img src="static_images/Ex3-1.png"/></div>
@@ -107,25 +59,9 @@
 
         <p>Implement <code>linear_combination</code> in the code above and run the code below to test your answer. You can verify your answer by clicking on the button below the code (the plot in the answer is generated with <span class="ltx_Math">c=0</span>).</p>
 
-        <py-repl>
-            mu1 = np.zeros(2)
-            mu2 = np.ones(2)
-            sigma1 = np.diag([1,1])
-            sigma2 = np.diag([1,1])
-            A1 = np.diag([1., 1])
-            A2 = np.diag([1., 1])
-            c  = np.random.randn(2)
-            mu_L, sigma_L = linear_combination(A1, A2, c, mu1, mu2, sigma1, sigma2)
-
-            plt.close('all')
-            fig,ax = plt.subplots(figsize=(5,5))
-            plot_gaussian(mu1, sigma1, ax, color='r', label='first Gaussian')
-            plot_gaussian(mu2, sigma2, ax, color='b', label='second Gaussian')
-            plot_gaussian(mu_L, sigma_L, ax, color='k', label='Linear combination' )
-            ax.legend()
-            ax.axis('off')
-            fig
-        </py-repl>
+        <editor id="question1_editor4" src="question1_code2" output="question1_output3" errors="question1_errors3"></editor>
+        <pre id="question1_errors3" class="py-error"></pre>
+        <pre id="question1_output3" class="py-output"></pre>
 
         <div class="col-auto"><button aria-controls="answer2" aria-expanded="false" class="btn btn-light btn-sm" data-bs-target="#answer2" data-bs-toggle="collapse">Show/hide answer</button></div>
         <div class="collapse" id="answer2"><img src="static_images/Ex3-2.png"/></div>
@@ -147,46 +83,25 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="question2-tab" class="tab-pane fade show active" id="question2-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl>
-                    def fit_gaussian(X):
-                        mu = np.zeros(2) # implement here
-                        sigma = np.eye(2) # implement here
-                        return mu, sigma
-                </py-repl>
+                <editor id="question2_editor1" src="question2_question" output="question2_output1" errors="question2_errors1"></editor>
             </div>
 
             <div aria-labelledby="answer2-tab" class="tab-pane fade" id="answer2-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl>
-                    def fit_gaussian(X):
-                        mu = np.mean(X, axis=-1)
-                        sigma = (X-mu[:,None]).dot((X-mu[:,None]).T) / nb_data
-                        return mu, sigma
-                </py-repl>
+                <editor id="question2_editor2" src="question2_answer" output="question2_output1" errors="question2_errors1"></editor>
             </div>
         </div>
+
+        <pre id="question2_errors1" class="py-error"></pre>
+        <pre id="question2_output1" class="py-output"></pre>
 
         <br/>
 
         <p>Verify your function by plotting the resulting Gaussian distribution along with the dataset. To do this, you can run the code below by changing the noise level.
         You can also click on the button below to verify your answer (the answer is generated with <code>noise_scale=0.01</code>).</p>
 
-        <py-repl>
-            noise_scale = 0.05 # change this to the noise level you want
-            nb_data = 100
-            x1 = np.linspace(0,1,nb_data)
-            y1 = 0.3*x1 + 0.1 + np.random.randn(nb_data)*noise_scale
-            X1 = np.stack([x1,y1])
-            mu1, sigma1 = fit_gaussian(X1)
-
-            plt.close('all')
-            fig,ax = plt.subplots(figsize=(5,5))
-            plot_gaussian(mu1, sigma1, ax=ax)
-            ax.plot(x1,y1, '.')
-            ax.set_xlabel('x')
-            ax.set_ylabel('y')
-            fig.tight_layout()
-            fig
-        </py-repl>
+        <editor id="question2_editor3" src="question2_code" output="question2_output2" errors="question2_errors2"></editor>
+        <pre id="question2_errors2" class="py-error"></pre>
+        <pre id="question2_output2" class="py-output"></pre>
 
         <div class="col-auto"><button aria-controls="answer3" aria-expanded="false" class="btn btn-light btn-sm" data-bs-target="#answer3" data-bs-toggle="collapse">Show/hide answer</button></div>
         <div class="collapse" id="answer3"><img src="static_images/Ex3-3.png"/></div>
@@ -211,61 +126,24 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="question3-tab" class="tab-pane fade show active" id="question3-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl>
-                    # Create a new dataset X2
-                    x2 = np.linspace(0,1,nb_data)
-                    y2 = 1.5*x2 + np.random.randn(nb_data)*noise_scale
-                    X2 = np.stack([x2,y2])
-
-                    # Fit another Gaussian distribution
-                    mu2, sigma2 = fit_gaussian(X2)
-
-                    # Compute the resulting Gaussian for the intersection case
-                    mu_intersection, sigma_intersection = np.zeros(2), np.eye(2) # implement here
-
-                    # Compute the resulting Gaussian for the union case
-                    mu_union, sigma_union = np.zeros(2), np.eye(2) # implement here
-                </py-repl>
+                <editor id="question3_editor1" src="question3_question" output="question3_output1" errors="question3_errors1"></editor>
             </div>
 
             <div aria-labelledby="answer3-tab" class="tab-pane fade" id="answer3-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl>
-                    # Create a new dataset X2
-                    x2 = np.linspace(0,1,nb_data)
-                    y2 = 1.5*x2 + np.random.randn(nb_data)*noise_scale
-                    X2 = np.stack([x2,y2])
-
-                    # Fit another Gaussian distribution
-                    mu2, sigma2 = fit_gaussian(X2)
-
-                    # Compute the resulting Gaussian for the intersection case
-                    mu_intersection, sigma_intersection, c = product_gaussians(mu1, mu2, sigma1, sigma2) # implement here
-                    # Compute the resulting Gaussian for the union case
-                    mu_union, sigma_union = fit_gaussian(np.concatenate([X1, X2], axis=-1)) # implement here
-                </py-repl>
+                <editor id="question3_editor2" src="question3_answer" output="question3_output1" errors="question3_errors1"></editor>
             </div>
         </div>
+
+        <pre id="question3_errors1" class="py-error"></pre>
+        <pre id="question3_output1" class="py-output"></pre>
 
         <br/>
 
         <p>Plot these Gaussian distributions to verify your results with the button below.</p>
 
-        <py-repl>
-            plt.close('all')
-            fig,ax = plt.subplots(figsize=(5,5))
-            plot_gaussian(mu2, sigma2, ax, color='b', label='2nd demo')
-            plot_gaussian(mu1, sigma1, ax, color='orange', label='1st demo')
-            plot_gaussian(mu_intersection, sigma_intersection, ax, color='k', label='intersection')
-            plot_gaussian(mu_union, sigma_union, ax, color='g', label='union')
-
-            ax.legend()
-            ax.plot(x2,y2, '.')
-            ax.plot(x1,y1, '.')
-            ax.set_xlabel('x')
-            ax.set_ylabel('y')
-            fig.tight_layout()
-            fig
-        </py-repl>
+        <editor id="question3_editor3" src="question3_code1" output="question3_output2" errors="question3_errors2"></editor>
+        <pre id="question3_errors2" class="py-error"></pre>
+        <pre id="question3_output2" class="py-output"></pre>
 
         <div class="col-auto"><button aria-controls="answer4" aria-expanded="false" class="btn btn-light btn-sm" data-bs-target="#answer4" data-bs-toggle="collapse">Show/hide answer</button></div>
         <div class="collapse" id="answer4"><img src="static_images/Ex3-4.png"/></div>
@@ -286,68 +164,16 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="question2-tab" class="tab-pane fade show active" id="question4-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl>
-                    angle = np.pi/3
-                    R = np.array([[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]])
-
-                    # Find mu_rotated and sigma_rotated without refitting.
-                    mu_intersection_rotated, sigma_intersection_rotated = np.zeros(2), np.eye(2) #implement here
-                    mu_union_rotated, sigma_union_rotated = np.zeros(2), np.eye(2) #implement here
-
-                    # Plotting
-                    plt.close('all')
-                    fig,ax = plt.subplots(figsize=(5,5))
-                    plot_gaussian(mu_intersection, sigma_intersection, ax=ax, color='k', label='intersection')
-                    plot_gaussian(mu_intersection_rotated, sigma_intersection_rotated, ax=ax, color='gray', label='intersection rotated')
-                    plot_gaussian(mu_union, sigma_union, ax, color='g', label='union')
-                    plot_gaussian(mu_union_rotated, sigma_union_rotated, ax=ax, color='g', alpha=0.7, label='union rotated')
-
-                    X2_rotated = R @ X2
-                    X1_rotated = R @ X1
-                    ax.plot(x2,y2, 'r.', alpha=0.1)
-                    ax.plot(x1,y1, 'b.', alpha=0.1)
-                    ax.plot(X2_rotated[0],X2_rotated[1], 'r.', alpha=0.1)
-                    ax.plot(X1_rotated[0],X1_rotated[1], 'b.', alpha=0.1)
-                    ax.set_xlabel('x')
-                    ax.set_ylabel('y')
-                    ax.legend()
-                    fig.tight_layout()
-                    fig
-                </py-repl>
+                <editor id="question3_editor4" src="question3_question2" output="question3_output3" errors="question3_errors3"></editor>
             </div>
 
             <div aria-labelledby="answer4-tab" class="tab-pane fade" id="answer4-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl>
-                    angle = np.pi/3
-                    R = np.array([[np.cos(angle), -np.sin(angle)],
-                          [np.sin(angle), np.cos(angle)]])
-
-                    # Find mu_rotated and sigma_rotated without refitting.
-                    mu_intersection_rotated, sigma_intersection_rotated = linear_combination(R, R*0, 0, mu_intersection, mu_intersection, sigma_intersection, sigma_intersection) #implement here
-                    mu_union_rotated, sigma_union_rotated = linear_combination(R, R*0, 0, mu_union, mu_union, sigma_union, sigma_union) #implement here
-
-                    # Plotting
-                    plt.close('all')
-                    fig,ax = plt.subplots(figsize=(5,5))
-                    plot_gaussian(mu_intersection, sigma_intersection, ax=ax, color='k', label='intersection')
-                    plot_gaussian(mu_intersection_rotated, sigma_intersection_rotated, ax=ax, color='gray', label='intersection rotated')
-                    plot_gaussian(mu_union, sigma_union, ax, color='g', label='union')
-                    plot_gaussian(mu_union_rotated, sigma_union_rotated, ax=ax, color='g', alpha=0.7, label='union rotated')
-
-                    X2_rotated = R @ X2
-                    X1_rotated = R @ X1
-                    ax.plot(x2,y2, 'r.', alpha=0.1)
-                    ax.plot(x1,y1, 'b.', alpha=0.1)
-                    ax.plot(X2_rotated[0],X2_rotated[1], 'r.', alpha=0.1)
-                    ax.plot(X1_rotated[0],X1_rotated[1], 'b.', alpha=0.1)
-                    ax.set_xlabel('x')
-                    ax.set_ylabel('y')
-                    ax.legend()
-                    fig.tight_layout()
-                    fig
-                </py-repl>
+                <editor id="question3_editor5" src="question3_answer2" output="question3_output3" errors="question3_errors3"></editor>
             </div>
         </div>
+
+        <pre id="question3_errors3" class="py-error"></pre>
+        <pre id="question3_output3" class="py-output"></pre>
 
         <div class="col-auto"><button aria-controls="answer5" aria-expanded="false" class="btn btn-light btn-sm" data-bs-target="#answer5" data-bs-toggle="collapse">Show/hide answer</button></div>
         <div class="collapse" id="answer5"><img src="static_images/Ex3-5.png"/></div>
@@ -359,11 +185,234 @@
 </div>
 
 
-<py-script>
+<script id="question1_question" type="python">
+    def gaussian_nD(x, mu, sigma):
+        D = x.shape[0]
+        cons = ((2*np.pi)**(-D/2)) * (np.linalg.det(sigma)**(-0.5))
+        return cons*np.exp(-0.5*(x-mu).dot(np.linalg.inv(sigma))@ (x-mu))
+
+    def linear_combination(A1, A2, c, mu1, mu2, sigma1, sigma2):
+        mu_L = np.zeros(2) # Implement here
+        sigma_L = np.eye(2) # Implement here
+        return mu_L, sigma_L
+
+    def product_gaussians(mu1, mu2, sigma1, sigma2):
+        sigma1_inv = np.linalg.inv(sigma1)
+        sigma2_inv = np.linalg.inv(sigma2)
+        sigma_P = np.eye(2)# Implement here
+        mu_P = np.zeros(2) # Implement here
+        c = 0. # Implement here
+        return mu_P, sigma_P, c
+</script>
+
+
+<script id="question1_answer" type="python">
+    def gaussian_nD(x, mu, sigma):
+        D = x.shape[0]
+        cons = ((2*np.pi)**(-D/2)) * (np.linalg.det(sigma)**(-0.5))
+        return cons*np.exp(-0.5*(x-mu).dot(np.linalg.inv(sigma))@ (x-mu))
+
+    def linear_combination(A1, A2, c, mu1, mu2, sigma1, sigma2):
+        mu_L = A1 @ mu1 + A2 @ mu2 + c
+        sigma_L = A1 @ sigma1 @ A1.T + A2 @ sigma2 @ A2.T
+        return mu_L, sigma_L
+
+    def product_gaussians(mu1, mu2, sigma1, sigma2):
+        sigma1_inv = np.linalg.inv(sigma1)
+        sigma2_inv = np.linalg.inv(sigma2)
+        sigma_P = np.linalg.inv(sigma1_inv + sigma2_inv)
+        mu_P = sigma_P @ (sigma1_inv @ mu1 + sigma2_inv @ mu2)
+        c = gaussian_nD(mu1, mu2, sigma1 + sigma2)
+        return mu_P, sigma_P, c
+</script>
+
+
+<script id="question1_code1" type="python">
+    mu1 = np.zeros(2)
+    mu2 = np.ones(2)
+    sigma1 = np.diag([.5,.1])
+    sigma2 = np.diag([1,1])
+    mu_P, sigma_P, c = product_gaussians(mu1, mu2, sigma1, sigma2)
+
+    fig,ax = plt.subplots(figsize=(5,5))
+    plot_gaussian(mu1, sigma1, ax, color='r', label='first Gaussian')
+    plot_gaussian(mu2, sigma2, ax, color='b', label='second Gaussian')
+    plot_gaussian(mu_P, sigma_P, ax, color='k', label='product of Gaussians' )
+    ax.legend()
+    ax.axis('off')
+    ax.set_aspect('equal')
+    print(fig)
+</script>
+
+
+<script id="question1_code2" type="python">
+    mu1 = np.zeros(2)
+    mu2 = np.ones(2)
+    sigma1 = np.diag([1,1])
+    sigma2 = np.diag([1,1])
+    A1 = np.diag([1., 1])
+    A2 = np.diag([1., 1])
+    c  = np.random.randn(2)
+    mu_L, sigma_L = linear_combination(A1, A2, c, mu1, mu2, sigma1, sigma2)
+
+    fig,ax = plt.subplots(figsize=(5,5))
+    plot_gaussian(mu1, sigma1, ax, color='r', label='first Gaussian')
+    plot_gaussian(mu2, sigma2, ax, color='b', label='second Gaussian')
+    plot_gaussian(mu_L, sigma_L, ax, color='k', label='Linear combination' )
+    ax.legend()
+    ax.axis('off')
+    print(fig)
+</script>
+
+
+<script id="question2_question" type="python">
+    def fit_gaussian(X):
+        mu = np.zeros(2) # implement here
+        sigma = np.eye(2) # implement here
+        return mu, sigma
+</script>
+
+
+<script id="question2_answer" type="python">
+    def fit_gaussian(X):
+        mu = np.mean(X, axis=-1)
+        sigma = (X-mu[:,None]).dot((X-mu[:,None]).T) / nb_data
+        return mu, sigma
+</script>
+
+
+<script id="question2_code" type="python">
+    noise_scale = 0.05 # change this to the noise level you want
+    nb_data = 100
+    x1 = np.linspace(0,1,nb_data)
+    y1 = 0.3*x1 + 0.1 + np.random.randn(nb_data)*noise_scale
+    X1 = np.stack([x1,y1])
+    mu1, sigma1 = fit_gaussian(X1)
+
+    fig,ax = plt.subplots(figsize=(5,5))
+    plot_gaussian(mu1, sigma1, ax=ax)
+    ax.plot(x1,y1, '.')
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    fig.tight_layout()
+    print(fig)
+</script>
+
+
+<script id="question3_question" type="python">
+    # Create a new dataset X2
+    x2 = np.linspace(0,1,nb_data)
+    y2 = 1.5*x2 + np.random.randn(nb_data)*noise_scale
+    X2 = np.stack([x2,y2])
+
+    # Fit another Gaussian distribution
+    mu2, sigma2 = fit_gaussian(X2)
+
+    # Compute the resulting Gaussian for the intersection case
+    mu_intersection, sigma_intersection = np.zeros(2), np.eye(2) # implement here
+
+    # Compute the resulting Gaussian for the union case
+    mu_union, sigma_union = np.zeros(2), np.eye(2) # implement here
+</script>
+
+
+<script id="question3_answer" type="python">
+    # Create a new dataset X2
+    x2 = np.linspace(0,1,nb_data)
+    y2 = 1.5*x2 + np.random.randn(nb_data)*noise_scale
+    X2 = np.stack([x2,y2])
+
+    # Fit another Gaussian distribution
+    mu2, sigma2 = fit_gaussian(X2)
+
+    # Compute the resulting Gaussian for the intersection case
+    mu_intersection, sigma_intersection, c = product_gaussians(mu1, mu2, sigma1, sigma2) # implement here
+    # Compute the resulting Gaussian for the union case
+    mu_union, sigma_union = fit_gaussian(np.concatenate([X1, X2], axis=-1)) # implement here
+</script>
+
+
+<script id="question3_code1" type="python">
+    fig,ax = plt.subplots(figsize=(5,5))
+    plot_gaussian(mu2, sigma2, ax, color='b', label='2nd demo')
+    plot_gaussian(mu1, sigma1, ax, color='orange', label='1st demo')
+    plot_gaussian(mu_intersection, sigma_intersection, ax, color='k', label='intersection')
+    plot_gaussian(mu_union, sigma_union, ax, color='g', label='union')
+
+    ax.legend()
+    ax.plot(x2,y2, '.')
+    ax.plot(x1,y1, '.')
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    fig.tight_layout()
+    print(fig)
+</script>
+
+
+<script id="question3_question2" type="python">
+    angle = np.pi/3
+    R = np.array([[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]])
+
+    # Find mu_rotated and sigma_rotated without refitting.
+    mu_intersection_rotated, sigma_intersection_rotated = np.zeros(2), np.eye(2) #implement here
+    mu_union_rotated, sigma_union_rotated = np.zeros(2), np.eye(2) #implement here
+
+    # Plotting
+    fig,ax = plt.subplots(figsize=(5,5))
+    plot_gaussian(mu_intersection, sigma_intersection, ax=ax, color='k', label='intersection')
+    plot_gaussian(mu_intersection_rotated, sigma_intersection_rotated, ax=ax, color='gray', label='intersection rotated')
+    plot_gaussian(mu_union, sigma_union, ax, color='g', label='union')
+    plot_gaussian(mu_union_rotated, sigma_union_rotated, ax=ax, color='g', alpha=0.7, label='union rotated')
+
+    X2_rotated = R @ X2
+    X1_rotated = R @ X1
+    ax.plot(x2,y2, 'r.', alpha=0.1)
+    ax.plot(x1,y1, 'b.', alpha=0.1)
+    ax.plot(X2_rotated[0],X2_rotated[1], 'r.', alpha=0.1)
+    ax.plot(X1_rotated[0],X1_rotated[1], 'b.', alpha=0.1)
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.legend()
+    fig.tight_layout()
+    print(fig)
+</script>
+
+
+<script id="question3_answer2" type="python">
+    angle = np.pi/3
+    R = np.array([[np.cos(angle), -np.sin(angle)],
+          [np.sin(angle), np.cos(angle)]])
+
+    # Find mu_rotated and sigma_rotated without refitting.
+    mu_intersection_rotated, sigma_intersection_rotated = linear_combination(R, R*0, 0, mu_intersection, mu_intersection, sigma_intersection, sigma_intersection) #implement here
+    mu_union_rotated, sigma_union_rotated = linear_combination(R, R*0, 0, mu_union, mu_union, sigma_union, sigma_union) #implement here
+
+    # Plotting
+    fig,ax = plt.subplots(figsize=(5,5))
+    plot_gaussian(mu_intersection, sigma_intersection, ax=ax, color='k', label='intersection')
+    plot_gaussian(mu_intersection_rotated, sigma_intersection_rotated, ax=ax, color='gray', label='intersection rotated')
+    plot_gaussian(mu_union, sigma_union, ax, color='g', label='union')
+    plot_gaussian(mu_union_rotated, sigma_union_rotated, ax=ax, color='g', alpha=0.7, label='union rotated')
+
+    X2_rotated = R @ X2
+    X1_rotated = R @ X1
+    ax.plot(x2,y2, 'r.', alpha=0.1)
+    ax.plot(x1,y1, 'b.', alpha=0.1)
+    ax.plot(X2_rotated[0],X2_rotated[1], 'r.', alpha=0.1)
+    ax.plot(X1_rotated[0],X1_rotated[1], 'b.', alpha=0.1)
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.legend()
+    fig.tight_layout()
+    print(fig)
+</script>
+
+
+<script id="page_code" type="python">
     import numpy as np
     import matplotlib.pyplot as plt
-    from js import document, console
-    from pyodide.ffi import create_proxy
+    from rcfs import configure
+
 
     def sqrtm(a):
         # Computing diagonalization
@@ -393,4 +442,7 @@
         mu_C = mu2 + sigma12 @ sigma11_inv @ (x1 - mu1)
         sigma_C = sigma22 - sigma12 @ sigma11_inv @ sigma12
         return mu_C, sigma_C
-</py-script>
+
+
+    configure({})
+</script>

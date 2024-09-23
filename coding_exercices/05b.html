@@ -1,6 +1,6 @@
 ﻿<style>
-    .py-terminal {
-        margin-top: 10px;
+    .python-editor {
+        margin-bottom: 10px;
     }
 </style>
 
@@ -46,52 +46,25 @@
 
             <div class="tab-content" id="myTabContent">
                 <div aria-labelledby="question5-tab" class="tab-pane fade show active" id="question5-tab-pane" role="tabpanel" tabindex="0">
-                    <py-repl output="output">
-                        q_target = np.array([-np.pi/4, -np.pi/2, np.pi/4])
-                        kP = 400.0 # Stiffness gain
-                        kV = 10.0 # Damping gain
-                        def controlCommand(x, param):
-                            q = x[:param.nbVarX]
-                            dq = x[param.nbVarX:]
-                            u = np.zeros(param.nbVarX)
-
-                            # Question 1: Gravity compensation
-                            # u = inverse_dynamics(x, ddq, param) # Gravity compensation and Coriolis force compensation
-
-                            # Question 2: Joint impedance control for reaching upright position
-                            # u = ... # Implement here
-
-                            return u
-                    </py-repl>
+                    <editor id="editor1" src="question"></editor>
                 </div>
 
                 <div aria-labelledby="answer1-tab" class="tab-pane fade" id="answer1-tab-pane" role="tabpanel" tabindex="0">
-                    <py-repl output="output">
-                        def controlCommand(x, param):
-                            # Question 1: Gravity Compensation Term (g(q))
-                            xtmp = np.append(x[:param.nbVarX], np.zeros(param.nbVarX))
-                            u = inverse_dynamics(xtmp, np.zeros(param.nbVarX), param)
-                            return u
-                    </py-repl>
+                    <editor id="editor2" src="answer1"></editor>
                 </div>
 
                 <div aria-labelledby="answer2-tab" class="tab-pane fade" id="answer2-tab-pane" role="tabpanel" tabindex="0">
-                    <py-repl output="output">
-                        q_target = np.array([-np.pi/4, -np.pi/2, np.pi/4])
-                        kP = 400.0 # Stiffness gain
-                        kV = 10.0 # Damping gain
-                        def controlCommand(x, param):
-                            # Question 2: Joint impedance control for reaching upright position 
-                            q = x[:param.nbVarX]
-                            dq = x[param.nbVarX:]
-                            u = kP * (q_target - q) - kV * dq + inverse_dynamics(x, np.zeros(param.nbVarX), param)
-                            return u
-                    </py-repl>
+                    <editor id="editor3" src="answer2"></editor>
                 </div>
             </div>
 
-            <py-terminal id="terminal"></py-terminal>
-            <p id="output" style="display: none;"></p>
+            <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
+                <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+                <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+            </div>
+
+            <pre id="errors" class="py-error"></pre>
+            <pre id="output" class="py-output"></pre>
 
             <br/>
         </p>
@@ -105,11 +78,54 @@
 </div>
 
 
-<py-script>
-    from pyodide.ffi import create_proxy, to_js
-    from js import Path2D, document, configure, displayErrorMessage
+<script id="question" type="python">
+    q_target = np.array([-np.pi/4, -np.pi/2, np.pi/4])
+    kP = 400.0 # Stiffness gain
+    kV = 10.0 # Damping gain
+
+    def controlCommand(x, param):
+        q = x[:param.nbVarX]
+        dq = x[param.nbVarX:]
+        u = np.zeros(param.nbVarX)
+
+        # Question 1: Gravity compensation
+        # u = inverse_dynamics(x, ddq, param) # Gravity compensation and Coriolis force compensation
+
+        # Question 2: Joint impedance control for reaching upright position
+        # u = ... # Implement here
+
+        return u
+</script>
+
+
+<script id="answer1" type="python">
+    def controlCommand(x, param):
+        # Question 1: Gravity Compensation Term (g(q))
+        xtmp = np.append(x[:param.nbVarX], np.zeros(param.nbVarX))
+        u = inverse_dynamics(xtmp, np.zeros(param.nbVarX), param)
+        return u
+</script>
+
+
+<script id="answer2" type="python">
+    q_target = np.array([-np.pi/4, -np.pi/2, np.pi/4])
+    kP = 400.0 # Stiffness gain
+    kV = 10.0 # Damping gain
+
+    def controlCommand(x, param):
+        # Question 2: Joint impedance control for reaching upright position 
+        q = x[:param.nbVarX]
+        dq = x[param.nbVarX:]
+        u = kP * (q_target - q) - kV * dq + inverse_dynamics(x, np.zeros(param.nbVarX), param)
+        return u
+</script>
+
+
+<script id="page_code" type="python">
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document
     import numpy as np
-    import traceback
+    from rcfs import configure, displayError, executePythonCode
 
     # Forward kinematics for end-effector (in robot coordinate system)
     def fkin(x, param):
@@ -360,7 +376,7 @@
             ddx = fdyn(x, u, param) # Compute accelerations
             x += np.append(x[param.nbVarX:] + 0.5 * ddx * param.dt, ddx) * param.dt # Update state
         except Exception as e:
-            displayErrorMessage(to_js(traceback.format_exception(e)))
+            displayError(e)
             u = np.zeros(param.nbVarX)
             x = np.zeros(2*param.nbVarX)
     
@@ -375,7 +391,14 @@
             draw_selected_point(f, '#777777')
 
 
-    configure(to_js({
+    async def reset(tab_id, editor):
+        executePythonCode(editor.getContent())
+
+
+    configure({
         'loop': loop,
-    }))
-</py-script>
+        'reset': reset,
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

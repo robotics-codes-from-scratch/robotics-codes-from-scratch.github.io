@@ -8,13 +8,13 @@
 </h2>
 <div class="ltx_para" id="S10-para:SS1.p1">
 <p class="ltx_p">A torque-controlled robot can be expressed by the dynamical model</p>
-<table class="ltx_equation ltx_eqn_table" id="S10-eq:dynmodel">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S10-eq:E163">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E175.m1">\bm{\tau}=\bm{M}(\bm{x})\bm{\ddot{x}}+\bm{c}(\bm{x},\bm{\dot{x}})+\bm{g}(\bm{x})+\bm{h}(\bm{x},\bm{\dot{x}})+\bm{\tau}_{\text{ext}},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E163.m1">\bm{\tau}=\bm{M}(\bm{x})\bm{\ddot{x}}+\bm{c}(\bm{x},\bm{\dot{x}})+\bm{g}(\bm{x})+\bm{h}(\bm{x},\bm{\dot{x}})+\bm{\tau}_{\text{ext}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(175)</span></td>
-</tr>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(163)</span></td>
+</tr></tbody>
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="SS1.p1.m1">\bm{\tau}</span> is the actuation torque (the input variable to the robot), <span class="ltx_Math" id="SS1.p1.m2">\bm{M}(\bm{x})</span> is the inertia matrix (symmetric positive-definite matrix), <span class="ltx_Math" id="SS1.p1.m3">\bm{c}(\bm{x},\bm{\dot{x}})=\bm{C}(\bm{x},\bm{\dot{x}})\,\bm{\dot{x}}</span> is the Coriolis and centrifugal torque, <span class="ltx_Math" id="SS1.p1.m4">\bm{g}(\bm{x})</span> is the gravitational torque, <span class="ltx_Math" id="SS1.p1.m5">\bm{h}(\bm{x},\bm{\dot{x}})</span> is the friction torque, <span class="ltx_Math" id="SS1.p1.m6">\bm{\tau}_{\text{ext}}</span> is the torque resulting from external forces from the environment.</p>
 </div>
@@ -29,34 +29,34 @@
 </div>
 <div class="ltx_para" id="S10-para:SS1.p5">
 <p class="ltx_p">By using the estimated model parameters of our robot, we can design a control law to reach the desired reference as</p>
-<table class="ltx_equation ltx_eqn_table" id="S10-eq:impedcontroller">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S10-eq:E164">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E176.m1">\bm{\tau}=\bm{K}^{\scriptscriptstyle{JP}}(\bm{x}^{d}-\bm{x})+\bm{K}^{\scriptscriptstyle{JV}}(\bm{\dot{x}}^{d}-\bm{\dot{x}})+\bm{\hat{M}}(\bm{x})\,\bm{\ddot{x}}^{d}+\bm{\hat{c}}(\bm{x},\bm{\dot{x}})+\bm{\hat{g}}(\bm{x})+\bm{\hat{h}}(\bm{x},\bm{\dot{x}}),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E164.m1">\bm{\tau}=\bm{K}^{\scriptscriptstyle{JP}}(\bm{x}^{d}-\bm{x})+\bm{K}^{\scriptscriptstyle{JV}}(\bm{\dot{x}}^{d}-\bm{\dot{x}})+\bm{\hat{M}}(\bm{x})\,\bm{\ddot{x}}^{d}+\bm{\hat{c}}(\bm{x},\bm{\dot{x}})+\bm{\hat{g}}(\bm{x})+\bm{\hat{h}}(\bm{x},\bm{\dot{x}}),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(176)</span></td>
-</tr>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(164)</span></td>
+</tr></tbody>
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="SS1.p5.m1">\bm{K}^{\scriptscriptstyle{JP}}</span> and <span class="ltx_Math" id="SS1.p5.m2">\bm{K}^{\scriptscriptstyle{JV}}</span> are stiffness and damping matrices in joint space.</p>
 </div>
 <div class="ltx_para" id="S10-para:SS1.p6">
-<p class="ltx_p">If we apply this control law to our robot, which will affected by the different physical effects of the physical world as described in (<a class="ltx_ref" href="#S10-eq:dynmodel" title="(175) ‣ 10.1 Impedance control in joint space ‣ 10 Torque-controlled robots ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">175</span></a>), we will obtain a closed-loop system (controlled robot) of the form</p>
-<table class="ltx_equation ltx_eqn_table" id="S10-eq:mechanicalImpedance">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<p class="ltx_p">If we apply this control law to our robot, which will affected by the different physical effects of the physical world as described in (<a class="ltx_ref" href="#S10-eq:E163" title="In 10.1 Impedance control in joint space ‣ 10 Torque-controlled robots ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">163</span></a>), we will obtain a closed-loop system (controlled robot) of the form</p>
+<table class="ltx_equation ltx_eqn_table" id="S10-eq:E165">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E177.m1">\bm{K}^{\scriptscriptstyle{JP}}\bm{e}+\bm{K}^{\scriptscriptstyle{JV}}\bm{\dot{e}}+\bm{M}\bm{\ddot{e}}=\bm{\tau}_{\text{ext}},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E165.m1">\bm{K}^{\scriptscriptstyle{JP}}\bm{e}+\bm{K}^{\scriptscriptstyle{JV}}\bm{\dot{e}}+\bm{M}\bm{\ddot{e}}=\bm{\tau}_{\text{ext}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(177)</span></td>
-</tr>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(165)</span></td>
+</tr></tbody>
 </table>
-<p class="ltx_p">with error term <span class="ltx_Math" id="SS1.p6.m1">\bm{e}=\bm{x}^{d}-\bm{x}</span>. This closed-loop system is simply obtained by inserting our designed control commands (<a class="ltx_ref" href="#S10-eq:impedcontroller" title="(176) ‣ 10.1 Impedance control in joint space ‣ 10 Torque-controlled robots ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">176</span></a>) into (<a class="ltx_ref" href="#S10-eq:dynmodel" title="(175) ‣ 10.1 Impedance control in joint space ‣ 10 Torque-controlled robots ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">175</span></a>). Thus, with the proposed control law, we can see with (<a class="ltx_ref" href="#S10-eq:mechanicalImpedance" title="(177) ‣ 10.1 Impedance control in joint space ‣ 10 Torque-controlled robots ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">177</span></a>) that the controlled robot acts as a mechanical impedance to the environment, corresponding to a mass-spring-damper system in joint space.</p>
+<p class="ltx_p">with error term <span class="ltx_Math" id="SS1.p6.m1">\bm{e}=\bm{x}^{d}-\bm{x}</span>. This closed-loop system is simply obtained by inserting our designed control commands (<a class="ltx_ref" href="#S10-eq:E164" title="In 10.1 Impedance control in joint space ‣ 10 Torque-controlled robots ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">164</span></a>) into (<a class="ltx_ref" href="#S10-eq:E163" title="In 10.1 Impedance control in joint space ‣ 10 Torque-controlled robots ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">163</span></a>). Thus, with the proposed control law, we can see with (<a class="ltx_ref" href="#S10-eq:E165" title="In 10.1 Impedance control in joint space ‣ 10 Torque-controlled robots ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">165</span></a>) that the controlled robot acts as a mechanical impedance to the environment, corresponding to a mass-spring-damper system in joint space.</p>
 </div>
 </div><div class="ltx_subsection" id="S10-sec:SS2">
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">10.2</span> </span><span class="ltx_text">Impedance control in task space</span>
 </h2>
 <div class="ltx_para" id="S10-para:SS2.p1">
-<p class="ltx_p">The same principle can also be applied to task space by expressing all parts composing the dynamical model of (<a class="ltx_ref" href="#S10-eq:dynmodel" title="(175) ‣ 10.1 Impedance control in joint space ‣ 10 Torque-controlled robots ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">175</span></a>) in the endeffector coordinate system.</p>
+<p class="ltx_p">The same principle can also be applied to task space by expressing all parts composing the dynamical model of (<a class="ltx_ref" href="#S10-eq:E163" title="In 10.1 Impedance control in joint space ‣ 10 Torque-controlled robots ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">163</span></a>) in the endeffector coordinate system.</p>
 </div>
 <div class="ltx_para" id="S10-para:SS2.p2">
 <p class="ltx_p">Since we used the term <em class="ltx_emph ltx_font_italic">joint torques</em> in the previous section to refer to force commands at the joint angle level, we will use the term <em class="ltx_emph ltx_font_italic">wrench</em> to refer to the forces at the level of the endeffector in task space. In the most generic case, the wrench <span class="ltx_Math" id="SS2.p2.m1">\bm{w}</span> will be a 6D force vector by considering both translation and rotational parts (3D for each). The wrench <span class="ltx_Math" id="SS2.p2.m2">\bm{w}</span> applied to the endeffector will then produce reaction torques at joint level, with <span class="ltx_Math" id="SS2.p2.m3">\bm{\tau}=\bm{J}(\bm{x})^{\scriptscriptstyle\top}\bm{w}</span>, corresponding to the principle of virtual work.</p>
@@ -65,29 +65,29 @@
 <p class="ltx_p">By using the relations <span class="ltx_Math" id="SS2.p3.m1">\bm{\dot{f}}=\bm{J}(\bm{x})\bm{\dot{x}}</span> and <span class="ltx_Math" id="SS2.p3.m2">\bm{\ddot{f}}=\bm{\dot{J}}(\bm{x})\bm{\dot{x}}+\bm{J}(\bm{x})\bm{\ddot{x}}\,\approx\bm{J}(\bm{x})\bm{\ddot{x}}</span>, we can see that <span class="ltx_Math" id="SS2.p3.m3">\bm{\tau}=\bm{M}(\bm{x})\,\bm{\ddot{x}}</span> in the joint coordinate system becomes <span class="ltx_Math" id="SS2.p3.m4">\bm{w}=\bm{\Lambda}(\bm{x})\,\bm{\ddot{f}}</span>, with <span class="ltx_Math" id="SS2.p3.m5">\bm{\Lambda}(\bm{x})={\Big(\bm{J}(\bm{x})\,\bm{M}(\bm{x})^{-1}\bm{J}(\bm{x})^{\scriptscriptstyle\top}\Big)}^{-1}</span> in the endeffector coordinate system.<span class="ltx_note ltx_role_footnote" id="footnote2"><sup class="ltx_note_mark">2</sup><span class="ltx_note_outer"><span class="ltx_note_content"><sup class="ltx_note_mark">2</sup><span class="ltx_tag ltx_tag_note">2</span>We can see this with <span class="ltx_Math" id="footnote2.m1">\bm{J}^{\scriptscriptstyle\top}\bm{w}=\bm{M}\bm{\ddot{x}}\iff\bm{M}^{-1}\bm{J}^{\scriptscriptstyle\top}\bm{w}=\bm{\ddot{x}}\iff\bm{J}\bm{M}^{-1}\bm{J}^{\scriptscriptstyle\top}\bm{w}=\bm{J}\bm{\ddot{x}}\iff\bm{w}={(\bm{J}\bm{M}^{-1}\bm{J}^{\scriptscriptstyle\top})}^{-1}\bm{\ddot{f}}</span>.</span></span></span></p>
 </div>
 <div class="ltx_para" id="S10-para:SS2.p4">
-<p class="ltx_p">Similarly to (<a class="ltx_ref" href="#S10-eq:impedcontroller" title="(176) ‣ 10.1 Impedance control in joint space ‣ 10 Torque-controlled robots ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">176</span></a>), we can then define a control law as</p>
-<table class="ltx_equation ltx_eqn_table" id="S10-eq:impedcontrollerTaskSpace">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<p class="ltx_p">Similarly to (<a class="ltx_ref" href="#S10-eq:E164" title="In 10.1 Impedance control in joint space ‣ 10 Torque-controlled robots ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">164</span></a>), we can then define a control law as</p>
+<table class="ltx_equation ltx_eqn_table" id="S10-eq:E166">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E178.m1">\bm{\tau}=\bm{J}(\bm{x})^{\scriptscriptstyle\top}\Big(\bm{K}^{\scriptscriptstyle{P}}(\bm{f}^{d}-\bm{f})+\bm{K}^{\scriptscriptstyle{V}}(\bm{\dot{f}}^{d}-\bm{\dot{f}})+\bm{\hat{\Lambda}}(\bm{x})\,\bm{\ddot{f}}^{d}\Big)+\bm{\hat{c}}(\bm{x},\bm{\dot{x}})+\bm{\hat{g}}(\bm{x})+\bm{\hat{h}}(\bm{x},\bm{\dot{x}}),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E166.m1">\bm{\tau}=\bm{J}(\bm{x})^{\scriptscriptstyle\top}\Big(\bm{K}^{\scriptscriptstyle{P}}(\bm{f}^{d}-\bm{f})+\bm{K}^{\scriptscriptstyle{V}}(\bm{\dot{f}}^{d}-\bm{\dot{f}})+\bm{\hat{\Lambda}}(\bm{x})\,\bm{\ddot{f}}^{d}\Big)+\bm{\hat{c}}(\bm{x},\bm{\dot{x}})+\bm{\hat{g}}(\bm{x})+\bm{\hat{h}}(\bm{x},\bm{\dot{x}}),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(178)</span></td>
-</tr>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(166)</span></td>
+</tr></tbody>
 </table>
 <p class="ltx_p">with</p>
-<table class="ltx_equation ltx_eqn_table" id="S10-eq:E179">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S10-eq:E167">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E179.m1">\bm{\hat{\Lambda}}(\bm{x})={\Big(\bm{J}(\bm{x})\,\bm{\hat{M}}(\bm{x})^{-1}\bm{J}(\bm{x})^{\scriptscriptstyle\top}\Big)}^{-1}.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E167.m1">\bm{\hat{\Lambda}}(\bm{x})={\Big(\bm{J}(\bm{x})\,\bm{\hat{M}}(\bm{x})^{-1}\bm{J}(\bm{x})^{\scriptscriptstyle\top}\Big)}^{-1}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(179)</span></td>
-</tr>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(167)</span></td>
+</tr></tbody>
 </table>
 </div>
 <div class="ltx_para" id="S10-para:SS2.p5">
 <p class="ltx_p">The controlled robot then acts as a mechanical impedance corresponding to a mass-spring-damper system in task space.</p>
 </div>
-</div><div class="ltx_subsection" id="S10-sec:FD">
+</div><div class="ltx_subsection" id="S10-sec:SS3">
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">10.3</span> </span><span class="ltx_text">Forward dynamics for a planar robot manipulator and associated control strategy</span>
 </h2>

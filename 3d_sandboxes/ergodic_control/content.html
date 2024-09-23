@@ -17,12 +17,10 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="SMC-tab" class="tab-pane fade show active" id="SMC-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl id="SMC-tab-repl" output="output">
-                </py-repl>
+                <editor id="editor-SMC" script="3d_sandboxes/ergodic_control/smc_example.py"></editor>
             </div>
             <div aria-labelledby="HEDAC-tab" class="tab-pane fade" id="HEDAC-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl id="HEDAC-tab-repl" output="output">
-                </py-repl>
+                <editor id="editor-HEDAC" script="3d_sandboxes/ergodic_control/hedac_example.py"></editor>
             </div>
         </div>
 
@@ -49,8 +47,8 @@
             </div>
         </div>
 
-        <py-terminal id="terminal"></py-terminal>
-        <p id="output" style="display: none;"></p>
+        <pre id="errors" class="py-error"></pre>
+        <pre id="output" class="py-output"></pre>
     </div>
 
     <div class="col-sm-5">
@@ -62,11 +60,10 @@
 </div>
 
 
-<py-script>
+<script id="page_code" type="python">
     from viewer3d import Viewer3D, configs
-    from js import document, window, getScript, setEditorCode, setAspectRatio, configure, displayErrorMessage
-    from pyodide.ffi import create_proxy, to_js
-    import traceback
+    from js import document, setAspectRatio
+    from rcfs import configure, getScript, displayError, executePythonCode
 
 
     # The configuration of each tab
@@ -74,7 +71,6 @@
         'SMC-tab': {
             'scripts': {
                 'main': 'smc.py',
-                'user': 'smc_example.py',
                 'ui': 'ui.py',
                 'common': 'common.py',
             },
@@ -86,7 +82,6 @@
         'HEDAC-tab': {
             'scripts': {
                 'main': 'hedac.py',
-                'user': 'hedac_example.py',
                 'ui': 'ui.py',
                 'common': 'common.py',
             },
@@ -125,18 +120,7 @@
     viewer3D.robotToolsEnabled = False
 
 
-    async def cleanup():
-        global gaussians
-        del gaussians
-
-
-    def onTabClicked(event):
-        switch_to_tab(event.target.id)
-
-
-    def switch_to_tab(id):
-        output.innerText = ''
-
+    def switch_to_tab(id, editor=None):
         entry = config[id]
 
         texts = entry['texts']
@@ -144,25 +128,25 @@
         legend.innerHTML = texts['legend']
 
         scripts = entry['scripts']
-        exec(scripts['main']['code'], globals())
-        exec(scripts['ui']['code'], globals())
+
+        executePythonCode(scripts['main']['code'])
+        executePythonCode(scripts['ui']['code'])
 
         if 'common' in scripts:
-            exec(scripts['common']['code'], globals())
+            executePythonCode(scripts['common']['code'])
 
-        editor = document.getElementById(id + '-repl')
-        try:
-            user_code = editor.getPySrc()
-        except AttributeError:
-            user_code = editor.textContent
-
-        exec(user_code, globals())
-
-        reset()
+        if editor is not None:
+            executePythonCode(editor.getContent())
+            reset()
 
 
-    async def setup_ui():
-        # Initialise all the tabs
+    async def cleanup():
+        global gaussians
+        del gaussians
+
+
+    async def setup():
+        # Retrieve all the script
         for tab, entry in config.items():
             scripts = entry['scripts']
 
@@ -172,37 +156,39 @@
                     'code': getScript('3d_sandboxes/ergodic_control/' + filename),
                 }
 
-            setEditorCode(document.getElementById(tab + '-repl'), scripts['user']['code'])
-
-            button = document.getElementById(tab)
-            button.onclick = onTabClicked
-
-
-    async def setup_switch():
         try:
-            switch_to_tab('SMC-tab')
+            switch_to_tab('SMC-tab', None)
+            executePythonCode(getScript('3d_sandboxes/ergodic_control/smc_example.py'))
+            reset()
         except Exception as e:
-            displayErrorMessage(to_js(traceback.format_exception(e)))
+            displayError(e)
 
 
     async def loop(delta, time):
         viewer3D.render()
 
 
-    async def reset_workspace():
+    async def tabChanged(tab_id, editor):
+        try:
+            switch_to_tab(tab_id, editor)
+        except Exception as e:
+            displayError(e)
+
+
+    async def run():
         try:
             reset()
         except Exception as e:
-            displayErrorMessage(to_js(traceback.format_exception(e)))
+            displayError(e)
 
 
-    configure(to_js({
-        'setup': [
-            setup_ui,
-            setup_switch,
-        ],
+    configure({
+        'setup': setup,
         'loop': loop,
-        'reset': reset_workspace,
+        'run': run,
+        'reset': tabChanged,
         'cleanup': cleanup,
-    }))
-</py-script>
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

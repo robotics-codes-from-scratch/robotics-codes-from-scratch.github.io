@@ -15,53 +15,11 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="IK1-tab" class="tab-pane fade show active" id="IK1-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl output="output">
-                    a = .7
-                    x = np.array([np.pi/2-a, 2*a, -a, 3*np.pi/4, 3*np.pi/4]) # Initial robot state
-
-                    # Coordinated control (position tracking with coordination matrix)
-                    def controlCommand(x, param):
-                        u = np.zeros(param.nbVarX)
-                        if move_joint >= 0:
-                            # Imposed coordination matrix (no correlations imposed on the last two joints)
-                            C = [[-1,0,0], [2,0,0], [-1,0,0], [0,1,0], [0,0,1]]
-                            # Residual and Jacobian
-                            df = (mouse - fkin(x[:move_joint+1], param2)) * 5
-                            J = Jkin(x[:move_joint+1], param2)
-                            J = np.hstack((J, np.zeros([2,param.nbVarX-move_joint-1]))) # Augmented form
-                            J = J @ C # Imposed coordination
-                            # IK
-                            pinvJ = np.linalg.inv(J.T @ J + np.eye(J.shape[1]) * 1e-1) @ J.T # Damped pseudoinverse
-                            u = C @ pinvJ @ df # Control commands with imposed coordination
-                        return u
-                </py-repl>
+                <editor id="editor-ik1" src="user_code_ik1"></editor>
             </div>
 
             <div aria-labelledby="IK2-tab" class="tab-pane fade" id="IK2-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl output="output">
-                    # Prioritized control (CoM tracking prioritized over position tracking)
-                    def controlCommand(x, param):
-                        u = np.zeros(param.nbVarX)
-                        if move_joint >= 0:
-                            # Residuals and Jacobian for primary task
-                            df1 = (param.Mu_CoM - fkin_CoM(x, param)) * 5
-                            J1 = Jkin_CoM(x, param)
-                            df1 = df1[:1] # Track only horizontal location of CoM
-                            J1 = J1[:1,:] # Track only horizontal location of CoM
-                            # Residual and Jacobian for secondary task
-                            df2 = (mouse - fkin(x[:move_joint+1], param2)) * 5
-                            J2 = Jkin(x[:move_joint+1], param2)
-                            J2 = np.hstack((J2, np.zeros([2,param.nbVarX-move_joint-1]))) # Augmented form
-                            # Prioritized control
-                            pinvJ1 = np.linalg.inv(J1.T @ J1 + np.eye(J1.shape[1]) * 1e-1) @ J1.T # Damped pseudoinverse
-                            N1 = np.eye(param.nbVarX) - pinvJ1 @ J1 # Nullspace projection operator
-                            u1 = pinvJ1 @ df1 # Command for position tracking
-                            J2N1 = J2 @ N1
-                            pinvJ2N1 = np.linalg.inv(J2N1.T @ J2N1 + np.eye(J2N1.shape[1]) * 1e5) @ J2N1.T # Damped pseudoinverse
-                            u2 = pinvJ2N1 @ (df2 - J2 @ u1) # Command for orientation tracking (with position tracking prioritized)
-                            u = u1 + N1 @ u2 # Control commands
-                        return u
-                </py-repl>
+                <editor id="editor-ik2" src="user_code_ik2"></editor>
             </div>
         </div>
 
@@ -90,8 +48,8 @@
             </div>
         </div>
 
-        <py-terminal id="terminal"></py-terminal>
-        <p id="output" style="display: none;"></p>
+        <pre id="errors" class="py-error"></pre>
+        <pre id="output" class="py-output"></pre>
     </div>
 
     <div class="col-sm-4">
@@ -102,11 +60,62 @@
 </div>
 
 
-<py-script>
-    from pyodide.ffi import create_proxy, to_js
-    from js import Path2D, document, configure, displayErrorMessage
+<script id="user_code_ik1" type="python">
+    a = .7
+    x = np.array([np.pi/2-a, 2*a, -a, 3*np.pi/4, 3*np.pi/4]) # Initial robot state
+
+    # Coordinated control (position tracking with coordination matrix)
+    def controlCommand(x, param):
+        u = np.zeros(param.nbVarX)
+        if move_joint >= 0:
+            # Imposed coordination matrix (no correlations imposed on the last two joints)
+            C = [[-1,0,0], [2,0,0], [-1,0,0], [0,1,0], [0,0,1]]
+            # Residual and Jacobian
+            df = (mouse - fkin(x[:move_joint+1], param2)) * 5
+            J = Jkin(x[:move_joint+1], param2)
+            J = np.hstack((J, np.zeros([2,param.nbVarX-move_joint-1]))) # Augmented form
+            J = J @ C # Imposed coordination
+            # IK
+            pinvJ = np.linalg.inv(J.T @ J + np.eye(J.shape[1]) * 1e-1) @ J.T # Damped pseudoinverse
+            u = C @ pinvJ @ df # Control commands with imposed coordination
+        return u
+</script>
+
+
+<script id="user_code_ik2" type="python">
+    a = .7
+    x = np.array([np.pi/2-a, 2*a, -a, 3*np.pi/4, 3*np.pi/4]) # Initial robot state
+
+    # Prioritized control (CoM tracking prioritized over position tracking)
+    def controlCommand(x, param):
+        u = np.zeros(param.nbVarX)
+        if move_joint >= 0:
+            # Residuals and Jacobian for primary task
+            df1 = (param.Mu_CoM - fkin_CoM(x, param)) * 5
+            J1 = Jkin_CoM(x, param)
+            df1 = df1[:1] # Track only horizontal location of CoM
+            J1 = J1[:1,:] # Track only horizontal location of CoM
+            # Residual and Jacobian for secondary task
+            df2 = (mouse - fkin(x[:move_joint+1], param2)) * 5
+            J2 = Jkin(x[:move_joint+1], param2)
+            J2 = np.hstack((J2, np.zeros([2,param.nbVarX-move_joint-1]))) # Augmented form
+            # Prioritized control
+            pinvJ1 = np.linalg.inv(J1.T @ J1 + np.eye(J1.shape[1]) * 1e-1) @ J1.T # Damped pseudoinverse
+            N1 = np.eye(param.nbVarX) - pinvJ1 @ J1 # Nullspace projection operator
+            u1 = pinvJ1 @ df1 # Command for position tracking
+            J2N1 = J2 @ N1
+            pinvJ2N1 = np.linalg.inv(J2N1.T @ J2N1 + np.eye(J2N1.shape[1]) * 1e5) @ J2N1.T # Damped pseudoinverse
+            u2 = pinvJ2N1 @ (df2 - J2 @ u1) # Command for orientation tracking (with position tracking prioritized)
+            u = u1 + N1 @ u2 # Control commands
+        return u
+</script>
+
+
+<script id="page_code" type="python">
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document
+    from rcfs import configure, displayError, executePythonScript, executePythonCode
     import numpy as np
-    import traceback
 
     # Forward kinematics for end-effector (in robot coordinate system)
     def fkin(x, param):
@@ -378,22 +387,6 @@
     #       u = u1 + N1 @ u2 # Control commands
     #   return u
 
-    # Coordinated control (position tracking with coordination matrix)
-    def controlCommand(x, param):
-        u = np.zeros(param.nbVarX)
-        if move_joint >= 0:
-            C = [[-1,0,0], [2,0,0], [-1,0,0], [0,1,0], [0,0,1]] # Imposed coordination (no correlations imposed on the last two joints)
-            # Residual and Jacobian
-            df = (mouse - fkin(x[:move_joint+1], param2)) * 5
-            J = Jkin(x[:move_joint+1], param2)
-            J = np.hstack((J, np.zeros([2,param.nbVarX-move_joint-1]))) # Augmented form
-            J = J @ C # Imposed coordination
-            # IK
-            pinvJ = np.linalg.inv(J.T @ J + np.eye(J.shape[1]) * 1e4) @ J.T # Damped pseudoinverse
-            u = C @ pinvJ @ df # Control commands with imposed coordination
-        return u
-
-
     #########################################################################################
 
     canvas.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
@@ -409,8 +402,6 @@
 
 
     #########################################################################################
-    a = .7
-    x = np.array([np.pi/2-a, 2*a, -a, 3*np.pi/4, 3*np.pi/4]) # Initial robot state
 
     async def loop(delta, time):
         global hover_joint, x
@@ -418,7 +409,7 @@
         try:
             u = controlCommand(x, param)
         except Exception as e:
-            displayErrorMessage(to_js(traceback.format_exception(e)))
+            displayError(e)
             u = np.zeros(param.nbVarX)
 
         x += u * param.dt # Update robot state
@@ -445,7 +436,19 @@
             draw_selected_point(f, '#777777')
 
 
-    configure(to_js({
+    async def setup():
+        executePythonScript('user_code_ik1')
+
+
+    async def reset(tab_id, editor):
+        executePythonCode(editor.getContent())
+
+
+    configure({
+        'setup': setup,
         'loop': loop,
-    }))
-</py-script>
+        'reset': reset,
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

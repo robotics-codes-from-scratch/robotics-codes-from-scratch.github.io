@@ -1,160 +1,157 @@
 <div class="row"><div class="col-sm-7 offset-1"><div id="txt-col"><h1 class="ltx_title ltx_title_section">
 <span class="ltx_tag ltx_tag_section"><span class="ltx_text">3</span> </span><span class="ltx_text">Newton’s method for minimization</span>
-</h1><figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:NewtonProblem"><a href="online_course/images/NewtonMethod1D_problem01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F2.g1" src="online_course/images/small/NewtonMethod1D_problem01.png"/></a>
+</h1><figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:F2"><a href="online_course/images/NewtonMethod1D_problem01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_square" id="F2.g1" src="online_course/images/small/NewtonMethod1D_problem01.png"/></a>
 <figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 2</span>: </span><span class="ltx_text">Problem formulation.
 </span></figcaption>
 </figure><div class="ltx_para" id="S3-para:p1">
-<p class="ltx_p">We would like the find the value of a decision variable <span class="ltx_Math" id="p1.m1">x</span> that would give us a cost <span class="ltx_Math" id="p1.m2">c(x)</span> that is a small as possible, see Figure <a class="ltx_ref" href="#S3-fig:NewtonProblem" title="Figure 2 ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">2</span></a>. Imagine that we start from an initial guess <span class="ltx_Math" id="p1.m3">x_{1}</span> and that can observe the behavior of this cost function within a very small region around our initial guess. Now let’s assume that we can make several consecutive guesses that will each time provide us with similar local information about the behavior of the cost around the points that we guessed. From this information, what point would you select as second guess (see question marks in the figure), based on the information that you obtained from the first guess? There were two relevant information in the small portion of curve that we can observe in the figure to make a smart choice. First, the trend of the curve indicates that the cost seems to decrease if we move on the left side, and increase if we move on the right side. Namely, the slope <span class="ltx_Math" id="p1.m4">c^{\prime}(x_{1})</span> of the function <span class="ltx_Math" id="p1.m5">c(x)</span> at point <span class="ltx_Math" id="p1.m6">x_{1}</span> is positive. Second, we can observe that the portion of the curve has some curvature that can be also be informative about the way the trend of the curve <span class="ltx_Math" id="p1.m7">c(x)</span> will change by moving to the left or to the right. Namely, how much the slope <span class="ltx_Math" id="p1.m8">c^{\prime}(x_{1})</span> will change, corresponding to an acceleration <span class="ltx_Math" id="p1.m9">c^{\prime\prime}(x_{1})</span> around our first guess <span class="ltx_Math" id="p1.m10">x_{1}</span>. This is informative to estimate how much we should move to the left of the first guess to wisely select a second guess. 
+<p class="ltx_p">We would like the find the value of a decision variable <span class="ltx_Math" id="p1.m1">x</span> that would give us a cost <span class="ltx_Math" id="p1.m2">c(x)</span> that is a small as possible, see Figure <a class="ltx_ref" href="#S3-fig:F2" title="Figure 2 ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">2</span></a>. Imagine that we start from an initial guess <span class="ltx_Math" id="p1.m3">x_{1}</span> and that can observe the behavior of this cost function within a very small region around our initial guess. Now let’s assume that we can make several consecutive guesses that will each time provide us with similar local information about the behavior of the cost around the points that we guessed. From this information, what point would you select as second guess (see question marks in the figure), based on the information that you obtained from the first guess? There were two relevant information in the small portion of curve that we can observe in the figure to make a smart choice. First, the trend of the curve indicates that the cost seems to decrease if we move on the left side, and increase if we move on the right side. Namely, the slope <span class="ltx_Math" id="p1.m4">c^{\prime}(x_{1})</span> of the function <span class="ltx_Math" id="p1.m5">c(x)</span> at point <span class="ltx_Math" id="p1.m6">x_{1}</span> is positive. Second, we can observe that the portion of the curve has some curvature that can be also be informative about the way the trend of the curve <span class="ltx_Math" id="p1.m7">c(x)</span> will change by moving to the left or to the right. Namely, how much the slope <span class="ltx_Math" id="p1.m8">c^{\prime}(x_{1})</span> will change, corresponding to an acceleration <span class="ltx_Math" id="p1.m9">c^{\prime\prime}(x_{1})</span> around our first guess <span class="ltx_Math" id="p1.m10">x_{1}</span>. This is informative to estimate how much we should move to the left of the first guess to wisely select a second guess. 
 <br class="ltx_break"/></p>
-</div><figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:Newton"><a href="online_course/images/NewtonMethod1D01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F3.g1" src="online_course/images/small/NewtonMethod1D01.png"/></a>
+</div><figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:F3"><a href="online_course/images/NewtonMethod1D01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F3.g1" src="online_course/images/small/NewtonMethod1D01.png"/></a>
 <figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 3</span>: </span><span class="ltx_text">Newton’s method for minimization, starting from an initial estimate <span class="ltx_Math" id="F3.m2">x_{1}</span> and converging to a local minimum (red point) after 5 iterations.
 </span></figcaption>
 </figure><div class="ltx_para" id="S3-para:p2">
-<p class="ltx_p">Now that we have this intuition, we can move to a more formal problem formulation. Newton’s method attempts to solve <span class="ltx_Math" id="p2.m1">\min_{x}c(x)</span> or <span class="ltx_Math" id="p2.m2">\max_{x}c(x)</span> from an initial guess <span class="ltx_Math" id="p2.m3">x_{1}</span> by using a sequence of <span class="ltx_text ltx_font_bold">second-order Taylor approximations</span> of <span class="ltx_Math" id="p2.m4">c(x)</span> around the iterates, see Fig. <a class="ltx_ref" href="#S3-fig:Newton" title="Figure 3 ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">3</span></a>.</p>
+<p class="ltx_p">Now that we have this intuition, we can move to a more formal problem formulation. Newton’s method attempts to solve <span class="ltx_Math" id="p2.m1">\min_{x}c(x)</span> or <span class="ltx_Math" id="p2.m2">\max_{x}c(x)</span> from an initial guess <span class="ltx_Math" id="p2.m3">x_{1}</span> by using a sequence of <span class="ltx_text ltx_font_bold">second-order Taylor approximations</span> of <span class="ltx_Math" id="p2.m4">c(x)</span> around the iterates, see Fig. <a class="ltx_ref" href="#S3-fig:F3" title="Figure 3 ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">3</span></a>.</p>
 </div><div class="ltx_para" id="S3-para:p3">
 <p class="ltx_p">The second-order Taylor expansion around the point <span class="ltx_Math" id="p3.m1">x_{k}</span> can be expressed as</p>
-<table class="ltx_equation ltx_eqn_table" id="S3-eq:Taylor_1D">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S3-eq:E4">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E4.m1">c(x_{k}\!+\!\Delta x_{k})\approx c(x_{k})+c^{\prime}(x_{k})\;\Delta x_{k}+\frac{1}{2}c^{\prime\prime}(x_{k})\;\Delta x_{k}^{2},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(4)</span></td>
-</tr>
+</tr></tbody>
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="p3.m2">c^{\prime}(x_{k})</span> and <span class="ltx_Math" id="p3.m3">c^{\prime\prime}(x_{k})</span> are the first and second derivatives at point <span class="ltx_Math" id="p3.m4">x_{k}</span>.</p>
 </div><div class="ltx_para" id="S3-para:p4">
 <p class="ltx_p">We are interested in solving minimization problems with this approximation. If the second derivative <span class="ltx_Math" id="p4.m1">c^{\prime\prime}(x_{k})</span> is positive, the quadratic approximation is a convex function of <span class="ltx_Math" id="p4.m2">\Delta x_{k}</span>, and its minimum can be found by setting the derivative to zero.</p>
-</div><div class="ltx_pagination ltx_role_newpage"></div><figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:optimPrinciple"><a href="online_course/images/optim_principle01.png" target="_blank"><img class="ltx_graphics" id="F4.g1" src="online_course/images/small/optim_principle01.png"/></a>
+</div><div class="ltx_pagination ltx_role_newpage"></div><figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:F4"><a href="online_course/images/optim_principle01.png" target="_blank"><img class="ltx_graphics ltx_img_landscape" id="F4.g1" src="online_course/images/small/optim_principle01.png"/></a>
 <figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 4</span>: </span><span class="ltx_text">Finding local optima by localizing the points whose derivatives are zero (horizontal slopes).
 </span></figcaption>
 </figure><div class="ltx_para" id="S3-para:p5">
-<p class="ltx_p">To find the local optima of a function, we can localize the points whose derivatives are zero, see Figure <a class="ltx_ref" href="#S3-fig:optimPrinciple" title="Figure 4 ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">4</span></a> for an illustration.</p>
+<p class="ltx_p">To find the local optima of a function, we can localize the points whose derivatives are zero, see Figure <a class="ltx_ref" href="#S3-fig:F4" title="Figure 4 ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">4</span></a> for an illustration.</p>
 </div><div class="ltx_para" id="S3-para:p6">
-<p class="ltx_p">Thus, by differentiating (<a class="ltx_ref" href="#S3-eq:Taylor_1D" title="(4) ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">4</span></a>) w.r.t. <span class="ltx_Math" id="p6.m1">\Delta x_{k}</span> and equating to zero, we obtain</p>
+<p class="ltx_p">Thus, by differentiating (<a class="ltx_ref" href="#S3-eq:E4" title="In 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">4</span></a>) w.r.t. <span class="ltx_Math" id="p6.m1">\Delta x_{k}</span> and equating to zero, we obtain</p>
 <table class="ltx_equation ltx_eqn_table" id="S3-eq:Ex3">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex3.m1">c^{\prime}(x_{k})+c^{\prime\prime}(x_{k})\,\Delta x_{k}=0,</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr>
+</tr></tbody>
 </table>
-<p class="ltx_p">meaning that the minimum is given by
-</p>
+<p class="ltx_p">meaning that the minimum is given by</p>
 <table class="ltx_equation ltx_eqn_table" id="S3-eq:Ex4">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex4.m1">\Delta\hat{x}_{k}=-\frac{c^{\prime}(x_{k})}{c^{\prime\prime}(x_{k})}</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr>
+</tr></tbody>
 </table>
 <p class="ltx_p">which corresponds to the offset to apply to <span class="ltx_Math" id="p6.m2">x_{k}</span> to minimize the second-order polynomial approximation of the cost at this point.</p>
-</div><figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:NewtonNegativeHessian"><a href="online_course/images/NewtonMethod_negativeHessian01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F5.g1" src="online_course/images/small/NewtonMethod_negativeHessian01.png"/></a>
+</div><figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:F5"><a href="online_course/images/NewtonMethod_negativeHessian01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_square" id="F5.g1" src="online_course/images/small/NewtonMethod_negativeHessian01.png"/></a>
 <figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 5</span>: </span><span class="ltx_text">Newton update that would be achieved when the second derivative is negative.
 </span></figcaption>
 </figure><div class="ltx_para" id="S3-para:p7">
-<p class="ltx_p">It is important that <span class="ltx_Math" id="p7.m1">c^{\prime\prime}(x_{k})</span> is positive if we want to find local minima, see Figure <a class="ltx_ref" href="#S3-fig:NewtonNegativeHessian" title="Figure 5 ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">5</span></a> for an illustration.</p>
+<p class="ltx_p">It is important that <span class="ltx_Math" id="p7.m1">c^{\prime\prime}(x_{k})</span> is positive if we want to find local minima, see Figure <a class="ltx_ref" href="#S3-fig:F5" title="Figure 5 ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">5</span></a> for an illustration.</p>
 </div><div class="ltx_para" id="S3-para:p8">
 <p class="ltx_p">By starting from an initial estimate <span class="ltx_Math" id="p8.m1">x_{1}</span> and by recursively refining the current estimate by computing the offset that would minimize the polynomial approximation of the cost at the current estimate, we obtain at each iteration <span class="ltx_Math" id="p8.m2">k</span> the recursion</p>
-<table class="ltx_equation ltx_eqn_table" id="S3-eq:Taylor_1D_update">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S3-eq:E5">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E5.m1">x_{k+1}=x_{k}-\frac{c^{\prime}(x_{k})}{c^{\prime\prime}(x_{k})}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(5)</span></td>
-</tr>
+</tr></tbody>
 </table>
 </div><div class="ltx_para" id="S3-para:p9">
-<p class="ltx_p">The geometric interpretation of Newton’s method is that at each iteration, it amounts to the fitting of a paraboloid to the surface of <span class="ltx_Math" id="p9.m1">c(x)</span> at <span class="ltx_Math" id="p9.m2">x_{k}</span>, having the same slopes and curvature as the surface at that point, and then proceeding to the maximum or minimum of that paraboloid. Note that if <span class="ltx_Math" id="p9.m3">c(x)</span> is a quadratic function, then the exact extremum is found in one step, which corresponds to the resolution of a least-squares problem.
-</p>
+<p class="ltx_p">The geometric interpretation of Newton’s method is that at each iteration, it amounts to the fitting of a paraboloid to the surface of <span class="ltx_Math" id="p9.m1">c(x)</span> at <span class="ltx_Math" id="p9.m2">x_{k}</span>, having the same slopes and curvature as the surface at that point, and then proceeding to the maximum or minimum of that paraboloid. Note that if <span class="ltx_Math" id="p9.m3">c(x)</span> is a quadratic function, then the exact extremum is found in one step, which corresponds to the resolution of a least-squares problem.</p>
 </div><div class="ltx_subsubsection" id="S3-sec:SS0.SSSx1">
 <h3 class="ltx_title ltx_title_subsubsection">Multidimensional case</h3>
-<figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:Newton2D"><a href="online_course/images/NewtonMethod2D01.jpg" target="_blank"><img class="ltx_graphics ltx_centering" id="F6.g1" src="online_course/images/small/NewtonMethod2D01.jpg"/></a>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:F6"><a href="online_course/images/NewtonMethod2D01.jpg" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F6.g1" src="online_course/images/small/NewtonMethod2D01.jpg"/></a>
 <figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 6</span>: </span><span class="ltx_text">Newton’s method for minimization with 2D decision variables.
 </span></figcaption>
 </figure>
 <div class="ltx_para" id="S3-para:SS0.SSSx1.p1">
 <p class="ltx_p">For functions that depend on multiple variables stored as multidimensional vectors <span class="ltx_Math" id="SS0.SSSx1.p1.m1">\bm{x}</span>, the cost function <span class="ltx_Math" id="SS0.SSSx1.p1.m2">c(\bm{x})</span> can similarly be approximated by a second-order Taylor expansion around the point <span class="ltx_Math" id="SS0.SSSx1.p1.m3">\bm{x}_{k}</span> with</p>
-<table class="ltx_equation ltx_eqn_table" id="S3-eq:Taylor_nD">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S3-eq:E6">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E6.m1">c(\bm{x}_{k}\!+\!\Delta\bm{x}_{k})\approx c(\bm{x}_{k})+\Delta\bm{x}_{k}^{\scriptscriptstyle\top}\,\frac{\partial c}{\partial\bm{x}}\Big|_{\bm{x}_{k}}+\frac{1}{2}\Delta\bm{x}_{k}^{\scriptscriptstyle\top}\,\frac{\partial^{2}c}{\partial\bm{x}^{2}}\Big|_{\bm{x}_{k}}\Delta\bm{x}_{k},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(6)</span></td>
-</tr>
+</tr></tbody>
 </table>
-<p class="ltx_p">which can also be rewritten in augmented vector form as
-</p>
+<p class="ltx_p">which can also be rewritten in augmented vector form as</p>
 <table class="ltx_equation ltx_eqn_table" id="S3-eq:Ex5">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex5.m1">c(\bm{x}_{k}\!+\!\Delta\bm{x}_{k})\approx c(\bm{x}_{k})+\frac{1}{2}\begin{bmatrix}1\\
 \Delta\bm{x}_{k}\end{bmatrix}^{\!{\scriptscriptstyle\top}}\begin{bmatrix}0&amp;\bm{g}_{\bm{x}}^{\scriptscriptstyle\top}\\
 \bm{g}_{\bm{x}}&amp;\bm{H}_{\bm{x}\bm{x}}\end{bmatrix}\begin{bmatrix}1\\
 \Delta\bm{x}_{k}\end{bmatrix},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr>
+</tr></tbody>
 </table>
 <p class="ltx_p">with gradient vector</p>
-<table class="ltx_equation ltx_eqn_table" id="S3-eq:Taylor_grad">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S3-eq:E7">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E7.m1">\bm{g}(\bm{x}_{k})=\frac{\partial c}{\partial\bm{x}}\Big|_{\bm{x}_{k}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(7)</span></td>
-</tr>
+</tr></tbody>
 </table>
 <p class="ltx_p">and Hessian matrix</p>
-<table class="ltx_equation ltx_eqn_table" id="S3-eq:Taylor_Hess">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S3-eq:E8">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E8.m1">\bm{H}(\bm{x}_{k})=\frac{\partial^{2}c}{\partial\bm{x}^{2}}\Big|_{\bm{x}_{k}}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(8)</span></td>
-</tr>
+</tr></tbody>
 </table>
 </div>
 <div class="ltx_para" id="S3-para:SS0.SSSx1.p2">
-<p class="ltx_p">We are interested in solving minimization problems with this approximation. If the Hessian matrix <span class="ltx_Math" id="SS0.SSSx1.p2.m1">\bm{H}(\bm{x}_{k})</span> is positive definite, the quadratic approximation is a convex function of <span class="ltx_Math" id="SS0.SSSx1.p2.m2">\Delta\bm{x}_{k}</span>, and its minimum can be found by setting the derivatives to zero, see Figure <a class="ltx_ref" href="#S3-fig:Newton2D" title="Figure 6 ‣ Multidimensional case ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">6</span></a>.</p>
+<p class="ltx_p">We are interested in solving minimization problems with this approximation. If the Hessian matrix <span class="ltx_Math" id="SS0.SSSx1.p2.m1">\bm{H}(\bm{x}_{k})</span> is positive definite, the quadratic approximation is a convex function of <span class="ltx_Math" id="SS0.SSSx1.p2.m2">\Delta\bm{x}_{k}</span>, and its minimum can be found by setting the derivatives to zero, see Figure <a class="ltx_ref" href="#S3-fig:F6" title="Figure 6 ‣ Multidimensional case ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">6</span></a>.</p>
 </div>
 <div class="ltx_para" id="S3-para:SS0.SSSx1.p3">
-<p class="ltx_p">By differentiating (<a class="ltx_ref" href="#S3-eq:Taylor_nD" title="(6) ‣ Multidimensional case ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">6</span></a>) w.r.t. <span class="ltx_Math" id="SS0.SSSx1.p3.m1">\Delta\bm{x}_{k}</span> and equation to zero, we obtain that</p>
+<p class="ltx_p">By differentiating (<a class="ltx_ref" href="#S3-eq:E6" title="In Multidimensional case ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">6</span></a>) w.r.t. <span class="ltx_Math" id="SS0.SSSx1.p3.m1">\Delta\bm{x}_{k}</span> and equation to zero, we obtain that</p>
 <table class="ltx_equation ltx_eqn_table" id="S3-eq:Ex6">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex6.m1">\Delta\bm{\hat{x}}_{k}=-{\bm{H}(\bm{x}_{k})}^{-1}\,\bm{g}(\bm{x}_{k}),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr>
+</tr></tbody>
 </table>
 <p class="ltx_p">is the offset to apply to <span class="ltx_Math" id="SS0.SSSx1.p3.m2">\bm{x}_{k}</span> to minimize the second-order polynomial approximation of the cost at this point.</p>
 </div>
 <div class="ltx_para" id="S3-para:SS0.SSSx1.p4">
 <p class="ltx_p">By starting from an initial estimate <span class="ltx_Math" id="SS0.SSSx1.p4.m1">\bm{x}_{1}</span> and by recursively refining the current estimate by computing the offset that would minimize the polynomial approximation of the cost at the current estimate, we obtain at each iteration <span class="ltx_Math" id="SS0.SSSx1.p4.m2">k</span> the recursion</p>
-<table class="ltx_equation ltx_eqn_table" id="S3-eq:Taylor_nD_update">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S3-eq:E9">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E9.m1">\bm{x}_{k+1}=\bm{x}_{k}-{\bm{H}(\bm{x}_{k})}^{-1}\,\bm{g}(\bm{x}_{k}).</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(9)</span></td>
-</tr>
+</tr></tbody>
 </table>
 </div>
-</div><div class="ltx_subsection" id="S3-sec:GaussNewton">
+</div><div class="ltx_subsection" id="S3-sec:SS1">
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">3.1</span> </span><span class="ltx_text">Gauss–Newton algorithm</span>
 </h2>
 <div class="ltx_para" id="S3-para:SS1.p1">
 <p class="ltx_p">The Gauss–Newton algorithm is a special case of Newton’s method in which the cost is quadratic (sum of squared function values), with <span class="ltx_Math" id="SS1.p1.m1">c(\bm{x})=\sum_{i=1}^{R}r_{i}^{2}(\bm{x})=\bm{r}^{\scriptscriptstyle\top}\bm{r}=\|r\|^{2}</span>, where <span class="ltx_Math" id="SS1.p1.m2">\bm{r}</span> are residual vectors. We neglect in this case the second-order derivative terms of the Hessian. The gradient and Hessian can in this case be computed with</p>
 <table class="ltx_equation ltx_eqn_table" id="S3-eq:Ex7">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex7.m1">\bm{g}=2\bm{J}_{\bm{r}}^{\scriptscriptstyle\top}\bm{r},\quad\bm{H}\approx 2\bm{J}_{\bm{r}}^{\scriptscriptstyle\top}\bm{J}_{\bm{r}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr>
+</tr></tbody>
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="SS1.p1.m3">\bm{J}_{\bm{r}}\in\mathbb{R}^{R\times D}</span> is the Jacobian matrix of <span class="ltx_Math" id="SS1.p1.m4">\bm{r}\in\mathbb{R}^{R}</span>. This definition of the Hessian matrix makes it positive definite, which is useful to solve minimization problems as for well conditioned Jacobian matrices, we do not need to verify the positive definiteness of the Hessian matrix at each iteration.</p>
 </div>
 <div class="ltx_para" id="S3-para:SS1.p2">
-<p class="ltx_p">The update rule in (<a class="ltx_ref" href="#S3-eq:Taylor_nD_update" title="(9) ‣ Multidimensional case ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">9</span></a>) then becomes</p>
+<p class="ltx_p">The update rule in (<a class="ltx_ref" href="#S3-eq:E9" title="In Multidimensional case ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">9</span></a>) then becomes</p>
 <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S3-eq:A5.EGx2">
 <tbody id="S3-eq:Ex8"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
@@ -162,7 +159,7 @@
 <td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex8.m2">\displaystyle=\bm{x}_{k}-{\big(\bm{J}_{\bm{r}}^{\scriptscriptstyle\top}(\bm{x}_{k})\bm{J}_{\bm{r}}(\bm{x}_{k})\big)}^{-1}\,\bm{J}_{\bm{r}}^{\scriptscriptstyle\top}(\bm{x}_{k})\,\bm{r}(\bm{x}_{k})</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="S3-eq:GaussNewtonUpdate"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S3-eq:E10"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
 <td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E10.m1">\displaystyle=\bm{x}_{k}-\bm{J}_{\bm{r}}^{\dagger}(\bm{x}_{k})\,\bm{r}(\bm{x}_{k}),</span></td>
@@ -175,33 +172,33 @@
 <div class="ltx_para" id="S3-para:SS1.p3">
 <p class="ltx_p">The Gauss–Newton algorithm is the workhorse of many robotics problems, including inverse kinematics and optimal control, as we will see in the next sections.</p>
 </div>
-</div><div class="ltx_subsection" id="S3-sec:LS">
+</div><div class="ltx_subsection" id="S3-sec:SS2">
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">3.2</span> </span><span class="ltx_text">Least squares</span>
 </h2>
 <div class="ltx_para" id="S3-para:SS2.p1">
 <p class="ltx_p">When the cost <span class="ltx_Math" id="SS2.p1.m1">c(\bm{x})</span> is a quadratic function w.r.t. <span class="ltx_Math" id="SS2.p1.m2">\bm{x}</span>, the optimization problem can be solved directly, without requiring iterative steps. Indeed, for any matrix <span class="ltx_Math" id="SS2.p1.m3">\bm{A}</span> and vector <span class="ltx_Math" id="SS2.p1.m4">\bm{b}</span>, we can see that if</p>
-<table class="ltx_equation ltx_eqn_table" id="S3-eq:costquadratic">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S3-eq:E11">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E11.m1">c(\bm{x})=\|\bm{A}\bm{x}-\bm{b}\|^{2}=(\bm{A}\bm{x}-\bm{b})^{\scriptscriptstyle\top}(\bm{A}\bm{x}-\bm{b}),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(11)</span></td>
-</tr>
+</tr></tbody>
 </table>
 <p class="ltx_p">deriving <span class="ltx_Math" id="SS2.p1.m5">c(\bm{x})</span> w.r.t. <span class="ltx_Math" id="SS2.p1.m6">\bm{x}</span> and equating to zero yields</p>
-<table class="ltx_equation ltx_eqn_table" id="S3-eq:costquadraticsolution">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S3-eq:E12">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E12.m1">\bm{A}\bm{x}-\bm{b}=\bm{0}\iff\bm{x}=(\bm{A}^{\scriptscriptstyle\top}\bm{A})^{-1}\bm{A}^{\scriptscriptstyle\top}\bm{b}=\bm{A}^{\dagger}\bm{b},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(12)</span></td>
-</tr>
+</tr></tbody>
 </table>
 <p class="ltx_p">which corresponds to the standard analytic least squares estimate. We will see later in the inverse kinematics section that for the complete solution can also include a nullspace structure.</p>
 </div>
 <div class="ltx_para" id="S3-para:SS2.p2">
-<p class="ltx_p">In contrast to the Gauss–Newton algorithm presented in Section <a class="ltx_ref" href="#S3-sec:GaussNewton" title="3.1 Gauss–Newton algorithm ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">3.1</span></a>, the optimization problem in (<a class="ltx_ref" href="#S3-eq:costquadratic" title="(11) ‣ 3.2 Least squares ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">11</span></a>), described by a quadratic cost on the decision variable <span class="ltx_Math" id="SS2.p2.m1">\bm{x}</span>, admits the solution (<a class="ltx_ref" href="#S3-eq:costquadraticsolution" title="(12) ‣ 3.2 Least squares ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">12</span></a>) that can be computed directly without relying on an iterative procedure. We can observe that if we follow the Gauss–Newton procedure, the residual vector corresponding to the cost (<a class="ltx_ref" href="#S3-eq:costquadratic" title="(11) ‣ 3.2 Least squares ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">11</span></a>) is <span class="ltx_Math" id="SS2.p2.m2">\bm{r}=\bm{A}\bm{x}-\bm{b}</span> and its Jacobian matrix is <span class="ltx_Math" id="SS2.p2.m3">\bm{J}_{\bm{r}}=\bm{A}</span>. By starting from an initial estimate <span class="ltx_Math" id="SS2.p2.m4">\bm{x}_{0}</span>, the Gauss–Newton update in (<a class="ltx_ref" href="#S3-eq:GaussNewtonUpdate" title="(10) ‣ 3.1 Gauss–Newton algorithm ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">10</span></a>) then takes the form</p>
+<p class="ltx_p">In contrast to the Gauss–Newton algorithm presented in Section <a class="ltx_ref" href="#S3-sec:SS1" title="3.1 Gauss–Newton algorithm ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">3.1</span></a>, the optimization problem in (<a class="ltx_ref" href="#S3-eq:E11" title="In 3.2 Least squares ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">11</span></a>), described by a quadratic cost on the decision variable <span class="ltx_Math" id="SS2.p2.m1">\bm{x}</span>, admits the solution (<a class="ltx_ref" href="#S3-eq:E12" title="In 3.2 Least squares ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">12</span></a>) that can be computed directly without relying on an iterative procedure. We can observe that if we follow the Gauss–Newton procedure, the residual vector corresponding to the cost (<a class="ltx_ref" href="#S3-eq:E11" title="In 3.2 Least squares ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">11</span></a>) is <span class="ltx_Math" id="SS2.p2.m2">\bm{r}=\bm{A}\bm{x}-\bm{b}</span> and its Jacobian matrix is <span class="ltx_Math" id="SS2.p2.m3">\bm{J}_{\bm{r}}=\bm{A}</span>. By starting from an initial estimate <span class="ltx_Math" id="SS2.p2.m4">\bm{x}_{0}</span>, the Gauss–Newton update in (<a class="ltx_ref" href="#S3-eq:E10" title="In 3.1 Gauss–Newton algorithm ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">10</span></a>) then takes the form</p>
 <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S3-eq:A5.EGx3">
 <tbody id="S3-eq:Ex9"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
@@ -239,7 +236,7 @@
 <td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex13.m2">\displaystyle=\arg\min_{\bm{x}}\;\|\bm{A}\bm{x}-\bm{b}\|^{2}+\alpha\|\bm{x}\|^{2}</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="S3-eq:regLS"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S3-eq:E13"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
 <td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E13.m1">\displaystyle=(\bm{A}^{\scriptscriptstyle\top}\bm{A}+\alpha\bm{I})^{-1}\bm{A}^{\scriptscriptstyle\top}\bm{b},</span></td>
@@ -247,7 +244,7 @@
 <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(13)</span></td>
 </tr></tbody>
 </table>
-<p class="ltx_p">which is also called penalized least squares, robust regression, damped least squares or Tikhonov regularization. In (<a class="ltx_ref" href="#S3-eq:regLS" title="(13) ‣ 3.2 Least squares ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">13</span></a>), <span class="ltx_Math" id="SS2.p3.m1">\bm{I}</span> denotes an identity matrix (diagonal matrix with 1 as elements in the diagonal). <span class="ltx_Math" id="SS2.p3.m2">\alpha</span> is typically a small scalar value acting as a regularization term when inverting the matrix <span class="ltx_Math" id="SS2.p3.m3">\bm{A}^{\scriptscriptstyle\top}\bm{A}</span>.</p>
+<p class="ltx_p">which is also called penalized least squares, robust regression, damped least squares or Tikhonov regularization. In (<a class="ltx_ref" href="#S3-eq:E13" title="In 3.2 Least squares ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">13</span></a>), <span class="ltx_Math" id="SS2.p3.m1">\bm{I}</span> denotes an identity matrix (diagonal matrix with 1 as elements in the diagonal). <span class="ltx_Math" id="SS2.p3.m2">\alpha</span> is typically a small scalar value acting as a regularization term when inverting the matrix <span class="ltx_Math" id="SS2.p3.m3">\bm{A}^{\scriptscriptstyle\top}\bm{A}</span>.</p>
 </div>
 <div class="ltx_para" id="S3-para:SS2.p4">
 <p class="ltx_p">The cost can also be weighted by a matrix <span class="ltx_Math" id="SS2.p4.m1">\bm{W}</span>, providing the weighted least squares solution</p>
@@ -264,7 +261,7 @@
 <td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex15.m1">\displaystyle=\arg\min_{\bm{x}}\;(\bm{A}\bm{x}-\bm{b})^{\scriptscriptstyle\top}\bm{W}(\bm{A}\bm{x}-\bm{b})</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="S3-eq:WLS"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S3-eq:E14"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
 <td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E14.m1">\displaystyle=(\bm{A}^{\scriptscriptstyle\top}\bm{W}\bm{A})^{-1}\bm{A}^{\scriptscriptstyle\top}\bm{W}\bm{b}.</span></td>
@@ -274,7 +271,7 @@
 </table>
 </div>
 <div class="ltx_para" id="S3-para:SS2.p5">
-<p class="ltx_p">By combining (<a class="ltx_ref" href="#S3-eq:regLS" title="(13) ‣ 3.2 Least squares ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">13</span></a>) and (<a class="ltx_ref" href="#S3-eq:WLS" title="(14) ‣ 3.2 Least squares ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">14</span></a>), a weighted ridge regression problem can be defined as</p>
+<p class="ltx_p">By combining (<a class="ltx_ref" href="#S3-eq:E13" title="In 3.2 Least squares ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">13</span></a>) and (<a class="ltx_ref" href="#S3-eq:E14" title="In 3.2 Least squares ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">14</span></a>), a weighted ridge regression problem can be defined as</p>
 <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S3-eq:A5.EGx6">
 <tbody id="S3-eq:Ex16"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
@@ -282,7 +279,7 @@
 <td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex16.m2">\displaystyle=\arg\min_{\bm{x}}\;\|\bm{A}\bm{x}-\bm{b}\|^{2}_{\bm{W}}+\alpha\|\bm{x}\|^{2}</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="S3-eq:regWLS"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S3-eq:E15"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
 <td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E15.m1">\displaystyle=(\bm{A}^{\scriptscriptstyle\top}\bm{W}\bm{A}+\alpha\bm{I})^{-1}\bm{A}^{\scriptscriptstyle\top}\bm{W}\bm{b}.</span></td>
@@ -292,16 +289,16 @@
 </table>
 </div>
 <div class="ltx_para" id="S3-para:SS2.p6">
-<p class="ltx_p">If the matrices and vectors in (<a class="ltx_ref" href="#S3-eq:regWLS" title="(15) ‣ 3.2 Least squares ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">15</span></a>) have the structure</p>
+<p class="ltx_p">If the matrices and vectors in (<a class="ltx_ref" href="#S3-eq:E15" title="In 3.2 Least squares ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">15</span></a>) have the structure</p>
 <table class="ltx_equation ltx_eqn_table" id="S3-eq:Ex17">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex17.m1">\bm{W}=\begin{bmatrix}\bm{W}_{1}&amp;\bm{0}\\
 \bm{0}&amp;\bm{W}_{2}\end{bmatrix},\quad\bm{A}=\begin{bmatrix}\bm{A}_{1}\\
 \bm{A}_{2}\end{bmatrix},\quad\bm{b}=\begin{bmatrix}\bm{b}_{1}\\
 \bm{b}_{2}\end{bmatrix},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr>
+</tr></tbody>
 </table>
 <p class="ltx_p">we can consider an optimization problem using only the first part of the matrices, yielding the estimate</p>
 <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S3-eq:A5.EGx7">
@@ -311,7 +308,7 @@
 <td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex18.m2">\displaystyle=\arg\min_{\bm{x}}\;\|\bm{A}_{1}\bm{x}-\bm{b}_{1}\|^{2}_{\bm{W}_{1}}+\alpha\|\bm{x}\|^{2}</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="S3-eq:regWLS1"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S3-eq:E16"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
 <td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E16.m1">\displaystyle=(\bm{A}_{1}^{\scriptscriptstyle\top}\bm{W}_{1}\bm{A}_{1}+\alpha\bm{I})^{-1}\bm{A}_{1}^{\scriptscriptstyle\top}\bm{W}_{1}\bm{b}_{1}.</span></td>
@@ -319,65 +316,65 @@
 <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(16)</span></td>
 </tr></tbody>
 </table>
-<p class="ltx_p">which is the same as the result of computing (<a class="ltx_ref" href="#S3-eq:regWLS" title="(15) ‣ 3.2 Least squares ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">15</span></a>) with <span class="ltx_Math" id="SS2.p6.m1">\bm{W}_{2}=\bm{0}</span>.</p>
+<p class="ltx_p">which is the same as the result of computing (<a class="ltx_ref" href="#S3-eq:E15" title="In 3.2 Least squares ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">15</span></a>) with <span class="ltx_Math" id="SS2.p6.m1">\bm{W}_{2}=\bm{0}</span>.</p>
 </div>
-</div><div class="ltx_subsection" id="S3-sec:LSconstraints">
+</div><div class="ltx_subsection" id="S3-sec:SS3">
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">3.3</span> </span><span class="ltx_text">Least squares with constraints</span>
 </h2>
 <div class="ltx_para" id="S3-para:SS3.p1">
 <p class="ltx_p">A constrained minimization problem of the form</p>
-<table class="ltx_equation ltx_eqn_table" id="S3-eq:LSconstraints">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S3-eq:E17">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E17.m1">\min_{\bm{x}}\;(\bm{A}\bm{x}-\bm{b})^{\scriptscriptstyle\top}(\bm{A}\bm{x}-\bm{b}),\quad\text{s.t.}\quad\bm{C}\bm{x}=\bm{h},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(17)</span></td>
-</tr>
+</tr></tbody>
 </table>
 <p class="ltx_p">can also be solved analytically by considering a Lagrange multiplier variable <span class="ltx_Math" id="SS3.p1.m1">\bm{\lambda}</span> allowing us to rewrite the objective as</p>
 <table class="ltx_equation ltx_eqn_table" id="S3-eq:Ex19">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex19.m1">\min_{\bm{x},\bm{\lambda}}\;(\bm{A}\bm{x}-\bm{b})^{\scriptscriptstyle\top}(\bm{A}\bm{x}-\bm{b})+\bm{\lambda}^{\scriptscriptstyle\top}(\bm{C}\bm{x}-\bm{h}).</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr>
+</tr></tbody>
 </table>
 </div>
 <div class="ltx_para" id="S3-para:SS3.p2">
 <p class="ltx_p">Differentiating with respect to <span class="ltx_Math" id="SS3.p2.m1">\bm{x}</span> and <span class="ltx_Math" id="SS3.p2.m2">\bm{\lambda}</span> and equating to zero yields</p>
 <table class="ltx_equation ltx_eqn_table" id="S3-eq:Ex20">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex20.m1">\bm{A}^{\scriptscriptstyle\top}(\bm{A}\bm{x}-\bm{b})+\bm{C}^{\scriptscriptstyle\top}\bm{\lambda}=\bm{0},\quad\bm{C}\bm{x}-\bm{h}=\bm{0},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr>
+</tr></tbody>
 </table>
 <p class="ltx_p">which can rewritten in matrix form as</p>
 <table class="ltx_equation ltx_eqn_table" id="S3-eq:Ex21">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex21.m1">\begin{bmatrix}\bm{A}^{\scriptscriptstyle\top}\!\bm{A}&amp;\bm{C}^{\scriptscriptstyle\top}\\
 \bm{C}&amp;\bm{0}\end{bmatrix}\begin{bmatrix}\bm{x}\\
 \bm{\lambda}\end{bmatrix}=\begin{bmatrix}\bm{A}^{\scriptscriptstyle\top}\bm{b}\\
 \bm{h}\end{bmatrix}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr>
+</tr></tbody>
 </table>
 </div>
 <div class="ltx_para" id="S3-para:SS3.p3">
 <p class="ltx_p">With this augmented state representation, we can then see that</p>
 <table class="ltx_equation ltx_eqn_table" id="S3-eq:Ex22">
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex22.m1">\begin{bmatrix}\bm{x}\\
 \bm{\lambda}\end{bmatrix}=\begin{bmatrix}\bm{A}^{\scriptscriptstyle\top}\!\bm{A}&amp;\bm{C}^{\scriptscriptstyle\top}\\
 \bm{C}&amp;\bm{0}\end{bmatrix}^{-1}\begin{bmatrix}\bm{A}^{\scriptscriptstyle\top}\bm{b}\\
 \bm{h}\end{bmatrix}</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr>
+</tr></tbody>
 </table>
-<p class="ltx_p">minimizes the constrained cost. The first part of this augmented state then gives us the solution of (<a class="ltx_ref" href="#S3-eq:LSconstraints" title="(17) ‣ 3.3 Least squares with constraints ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">17</span></a>).</p>
+<p class="ltx_p">minimizes the constrained cost. The first part of this augmented state then gives us the solution of (<a class="ltx_ref" href="#S3-eq:E17" title="In 3.3 Least squares with constraints ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">17</span></a>).</p>
 </div>
 <div class="ltx_pagination ltx_role_newpage"></div>
 </div><ul class="pagination justify-content-center small_menu"><li class="page-item previous_file"><a class="page-link" href="#S2">Previous</a></li><li class="page-item next_file"><a class="page-link" href="#S4">Next</a></li></ul></div></div><div class="col-sm-3"><div id="img-col"></div></div></div>

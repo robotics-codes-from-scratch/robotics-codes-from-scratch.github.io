@@ -1,6 +1,5 @@
 import numpy as np
-from js import displayErrorMessage
-import traceback
+from rcfs import displayError
 
 
 ## Parameters
@@ -85,7 +84,7 @@ def update():
     try:
         u, wt = controlCommand(robot.jointPositions, t, wt, param)
     except Exception as e:
-        displayErrorMessage(to_js(traceback.format_exception(e)))
+        displayError(e)
         u = np.zeros(param.x0.shape)
 
     # Apply the command to the robot

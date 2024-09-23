@@ -1,4 +1,11 @@
-﻿<div class="row">
+﻿<style>
+    .python-editor {
+        margin-bottom: 10px;
+    }
+</style>
+
+
+<div class="row">
     <div class="col-sm-1"></div>
 
     <div class="col-sm-7">
@@ -38,77 +45,25 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="question1-tab" class="tab-pane fade show active" id="question1-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl output="output">
-                    param.nbVarPos = 2 # Dimension of position variable
-                    param.nbDeriv = 1 # Number of derivatives (1 for velocity commands)
-                    param.nbVarX = param.nbVarPos * param.nbDeriv # Dimension of the state space
-                    param.r = 1E-3 # Control command weight
-                    # param.Mu = np.array([[100, 100], [0, 100]]) # Viapoints positions
-
-                    x = np.array([0, 0]) # Initial position
-
-                    # Time occurrence of viapoints
-                    tl = np.array([50, 100])
-
-                    # Precision matrix for the first viapoint
-                    # Q1 = np.diag([1.0, 1.0]) # Precision matrix for a state described by position
-                    Q1 = np.eye(param.nbVarX)
-
-                    # Precision matrix for the second viapoint
-                    Q2 = np.eye(param.nbVarX)
-
-                    xs = solve_LQR(x, param) #Compute trajectory 
-                </py-repl>
+                <editor id="editor1" src="question"></editor>
             </div>
 
             <div aria-labelledby="answer1-tab" class="tab-pane fade" id="answer1-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl output="output">
-                    param.nbVarPos = 2 # Dimension of position variable
-                    param.nbDeriv = 1 # Number of derivatives (1 for velocity commands)
-                    param.nbVarX = param.nbVarPos * param.nbDeriv # Dimension of the state space
-                    param.r = 1E-3 # Control command weight
-                    param.Mu = np.array([[-50, 100], [0, 100]]) # Viapoints positions
-
-                    x = np.array([0, 0]) # Initial position
-
-                    # Time occurrence of viapoints
-                    tl = np.array([50, 100])
-
-                    # Precision matrix for the first viapoint
-                    Q1 = np.diag([10.0, 0.0])
-
-                    # Precision matrix for the second viapoint
-                    Q2 = np.eye(param.nbVarX)
-
-                    xs = solve_LQR(x, param) #Compute trajectory 
-                </py-repl>
+                <editor id="editor2" src="answer1"></editor>
             </div>
 
             <div aria-labelledby="answer2-tab" class="tab-pane fade" id="answer2-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl output="output">
-                    param.nbVarPos = 2 # Dimension of position variable
-                    param.nbDeriv = 2 # Number of derivatives (2 for acceleration commands)
-                    param.nbVarX = param.nbVarPos * param.nbDeriv # Dimension of the state space
-                    param.r = 1E-3 # Control command weight
-
-                    x = np.array([0, 0]) # Initial position
-
-                    # Time occurrence of viapoints
-                    tl = np.array([20, 100])
-
-                    # Precision matrix for the first viapoint
-                    Q1 = np.diag([1.0, 1.0, 0, 0])
-
-                    # Precision matrix for the second viapoint
-                    Q2 = np.eye(param.nbVarX)
-
-                    xs = solve_LQR(x, param) #Compute trajectory 
-                </py-repl>
+                <editor id="editor3" src="answer2"></editor>
             </div>
         </div>
 
-        <py-terminal id="terminal"></py-terminal>
-        <p id="output" style="display: none;"></p>
+        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
+            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        </div>
+
+        <pre id="errors" class="py-error"></pre>
+        <pre id="output" class="py-output"></pre>
 
         <br/>
     </div>
@@ -121,11 +76,78 @@
 </div>
 
 
-<py-script>
-    from pyodide.ffi import create_proxy, to_js
-    from js import Path2D, document, configure
+<script id="question" type="python">
+    param.nbVarPos = 2 # Dimension of position variable
+    param.nbDeriv = 1 # Number of derivatives (1 for velocity commands)
+    param.nbVarX = param.nbVarPos * param.nbDeriv # Dimension of the state space
+    param.r = 1E-3 # Control command weight
+    # param.Mu = np.array([[100, 100], [0, 100]]) # Viapoints positions
+
+    x = np.array([0, 0]) # Initial position
+
+    # Time occurrence of viapoints
+    tl = np.array([50, 100])
+
+    # Precision matrix for the first viapoint
+    # Q1 = np.diag([1.0, 1.0]) # Precision matrix for a state described by position
+    Q1 = np.eye(param.nbVarX)
+
+    # Precision matrix for the second viapoint
+    Q2 = np.eye(param.nbVarX)
+
+    xs = solve_LQR(x, param) #Compute trajectory 
+</script>
+
+
+<script id="answer1" type="python">
+    param.nbVarPos = 2 # Dimension of position variable
+    param.nbDeriv = 1 # Number of derivatives (1 for velocity commands)
+    param.nbVarX = param.nbVarPos * param.nbDeriv # Dimension of the state space
+    param.r = 1E-3 # Control command weight
+    param.Mu = np.array([[-50, 100], [0, 100]]) # Viapoints positions
+
+    x = np.array([0, 0]) # Initial position
+
+    # Time occurrence of viapoints
+    tl = np.array([50, 100])
+
+    # Precision matrix for the first viapoint
+    Q1 = np.diag([10.0, 0.0])
+
+    # Precision matrix for the second viapoint
+    Q2 = np.eye(param.nbVarX)
+
+    xs = solve_LQR(x, param) #Compute trajectory 
+</script>
+
+
+<script id="answer2" type="python">
+    param.nbVarPos = 2 # Dimension of position variable
+    param.nbDeriv = 2 # Number of derivatives (2 for acceleration commands)
+    param.nbVarX = param.nbVarPos * param.nbDeriv # Dimension of the state space
+    param.r = 1E-3 # Control command weight
+
+    x = np.array([0, 0]) # Initial position
+
+    # Time occurrence of viapoints
+    tl = np.array([20, 100])
+
+    # Precision matrix for the first viapoint
+    Q1 = np.diag([1.0, 1.0, 0, 0])
+
+    # Precision matrix for the second viapoint
+    Q2 = np.eye(param.nbVarX)
+
+    xs = solve_LQR(x, param) #Compute trajectory 
+</script>
+
+
+<script id="page_code" type="python">
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document
     import numpy as np
     from math import factorial
+    from rcfs import configure, executePythonCode
 
     #########################################################################################
 
@@ -348,7 +370,14 @@
             param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],175), -175)
 
 
-    configure(to_js({
+    async def reset(tab_id, editor):
+        executePythonCode(editor.getContent())
+
+
+    configure({
         'loop': loop,
-    }))
-</py-script>
+        'reset': reset,
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

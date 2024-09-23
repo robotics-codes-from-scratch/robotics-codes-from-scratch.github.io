@@ -271,15 +271,15 @@
                 "sections": [
                     {
                         "title": "3.1  Gauss\u2013Newton algorithm",
-                        "hash": "S3-sec:GaussNewton"
+                        "hash": "S3-sec:SS1"
                     },
                     {
                         "title": "3.2  Least squares",
-                        "hash": "S3-sec:LS"
+                        "hash": "S3-sec:SS2"
                     },
                     {
                         "title": "3.3  Least squares with constraints",
-                        "hash": "S3-sec:LSconstraints"
+                        "hash": "S3-sec:SS3"
                     }
                 ]
             },
@@ -295,11 +295,11 @@
                 "sections": [
                     {
                         "title": "5.1  Numerical estimation of the Jacobian",
-                        "hash": "S5-sec:IKnum"
+                        "hash": "S5-sec:SS1"
                     },
                     {
                         "title": "5.2  Inverse kinematics (IK) with task prioritization",
-                        "hash": "S5-sec:IK_nullspace"
+                        "hash": "S5-sec:SS2"
                     }
                 ]
             },
@@ -330,11 +330,11 @@
                     },
                     {
                         "title": "6.6  Batch computation of basis functions coefficients",
-                        "hash": "S6-sec:batchSDF"
+                        "hash": "S6-sec:SS6"
                     },
                     {
                         "title": "6.7  Recursive computation of basis functions coefficients",
-                        "hash": "S6-sec:recursiveSDF"
+                        "hash": "S6-sec:SS7"
                     },
                     {
                         "title": "6.8  Computation of basis functions coefficients using eikonal cost",
@@ -349,7 +349,7 @@
                 "sections": [
                     {
                         "title": "7.1  LQT with initial state optimization",
-                        "hash": "S7-sec:initStateOptim"
+                        "hash": "S7-sec:SS1"
                     },
                     {
                         "title": "7.2  LQT with smoothness cost",
@@ -361,19 +361,19 @@
                     },
                     {
                         "title": "7.4  LQR with a recursive formulation",
-                        "hash": "S7-sec:LQRrecursive"
+                        "hash": "S7-sec:SS4"
                     },
                     {
                         "title": "7.5  LQT with a recursive formulation and an augmented state space",
-                        "hash": "S7-sec:augmState"
+                        "hash": "S7-sec:SS5"
                     },
                     {
                         "title": "7.6  Least squares formulation of recursive LQR",
-                        "hash": "S7-sec:LQRLS"
+                        "hash": "S7-sec:SS6"
                     },
                     {
                         "title": "7.7  Dynamical movement primitives (DMP) reformulated as LQT with control primitives",
-                        "hash": "S7-sec:DMPLQT"
+                        "hash": "S7-sec:SS7"
                     }
                 ]
             },
@@ -384,15 +384,15 @@
                 "sections": [
                     {
                         "title": "8.1  Batch formulation of iLQR",
-                        "hash": "S8-sec:iLQRbatch"
+                        "hash": "S8-sec:SS1"
                     },
                     {
                         "title": "8.2  Recursive formulation of iLQR",
-                        "hash": "S8-sec:iLQRrecursive"
+                        "hash": "S8-sec:SS2"
                     },
                     {
                         "title": "8.3  Least squares formulation of recursive iLQR",
-                        "hash": "S8-sec:iLQRLS"
+                        "hash": "S8-sec:SS3"
                     },
                     {
                         "title": "8.4  Updates by considering step sizes",
@@ -400,7 +400,7 @@
                     },
                     {
                         "title": "8.5  iLQR with quadratic cost on ",
-                        "hash": "S8-sec:iLQR_quadraticCost"
+                        "hash": "S8-sec:SS5"
                     },
                     {
                         "title": "8.6  iLQR with control primitives",
@@ -431,11 +431,11 @@
                 "sections": [
                     {
                         "title": "9.1  Spectral-based ergodic control (SMC)",
-                        "hash": "S9-sec:SMC"
+                        "hash": "S9-sec:SS1"
                     },
                     {
                         "title": "9.2  Diffusion-based ergodic control (HEDAC)",
-                        "hash": "S9-sec:HEDAC"
+                        "hash": "S9-sec:SS2"
                     }
                 ]
             },
@@ -454,7 +454,7 @@
                     },
                     {
                         "title": "10.3  Forward dynamics for a planar robot manipulator and associated control strategy",
-                        "hash": "S10-sec:FD"
+                        "hash": "S10-sec:SS3"
                     }
                 ]
             },
@@ -465,7 +465,7 @@
                 "sections": [
                     {
                         "title": "11.1  Riemannian manifolds",
-                        "hash": "S11-sec:Riemannian"
+                        "hash": "S11-sec:SS1"
                     },
                     {
                         "title": "11.2  Sphere manifolds ",

@@ -65,9 +65,10 @@
 </div>
 
 
-<py-script>
+<script id="page_code" type="python">
     from pyodide.ffi import create_proxy, to_js
-    from js import Path2D, document, console, configure
+    from js import Path2D, document
+    from rcfs import configure
     import numpy as np
 
     # Forward kinematics for end-effector (in robot coordinate system)
@@ -359,7 +360,7 @@
         draw_trace(fhist)
 
 
-    configure(to_js({
+    configure({
         'loop': loop,
-    }))
-</py-script>
+    })
+</script>

@@ -4,11 +4,7 @@
     <div class="col-sm-7">
         <h3>iLQR for bicopter</h3>
 
-        <py-repl output="output">
-            # Precision matrix
-            Q = np.diag([1., 1., 0, 0, 0, 0, 1., 1., 1., 1., 0, 0])
-            update_iLQR()
-        </py-repl>
+        <editor id="editor" src="user_code"></editor>
 
         <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
             <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
@@ -44,8 +40,8 @@
             </div>
         </form>
 
-        <py-terminal id="terminal"></py-terminal>
-        <p id="output" style="display: none;"></p>
+        <pre id="errors" class="py-error"></pre>
+        <pre id="output" class="py-output"></pre>
     </div>
 
     <div class="col-sm-4">
@@ -56,9 +52,17 @@
 </div>
 
 
-<py-script>
-    from pyodide.ffi import create_proxy, to_js
-    from js import Path2D, document, configure
+<script id="user_code" type="python">
+    # Precision matrix
+    Q = np.diag([1., 1., 0, 0, 0, 0, 1., 1., 1., 1., 0, 0])
+    update_iLQR()
+</script>
+
+
+<script id="page_code" type="python">
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document
+    from rcfs import configure, displayError
     import numpy as np
 
     #########################################################################################
@@ -342,7 +346,9 @@
             param.Mu[1,selected_obj] = max(min(param.Mu[1,selected_obj],350*0.1), -350*1.8) / scaling_coord
 
 
-    configure(to_js({
+    configure({
         'loop': loop,
-    }))
-</py-script>
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

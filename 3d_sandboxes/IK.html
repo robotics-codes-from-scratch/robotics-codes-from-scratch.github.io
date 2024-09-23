@@ -18,39 +18,15 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="posorient-tab" class="tab-pane fade show active" id="posorient-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl output="output">
-                    x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
-
-                    def controlCommand(x, mu):
-                        J = Jkin(x)
-                        f = fkin(x)
-                        u = np.linalg.pinv(J) @ logmap(mu, f)  # Position & orientation tracking
-                        return u
-                </py-repl>
+                <editor id="editor-posorient" src="user_code_posorient"></editor>
             </div>
 
             <div aria-labelledby="pos-tab" class="tab-pane fade show" id="pos-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl output="output">
-                    x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
-
-                    def controlCommand(x, mu):
-                        J = Jkin(x)
-                        f = fkin(x)
-                        u = np.linalg.pinv(J[0:3,:]) @ (mu[0:3] - f[0:3])  # Position tracking
-                        return u
-                </py-repl>
+                <editor id="editor-pos" src="user_code_pos"></editor>
             </div>
 
             <div aria-labelledby="orient-tab" class="tab-pane fade show" id="orient-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl output="output">
-                    x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
-
-                    def controlCommand(x, mu):
-                        J = Jkin(x)
-                        f = fkin(x)
-                        u = np.linalg.pinv(J[3:,:]) @ logmap_S3(mu[3:], f[3:])  # Orientation tracking
-                        return u
-                </py-repl>
+                <editor id="editor-orient" src="user_code_orient"></editor>
             </div>
         </div>
 
@@ -80,8 +56,8 @@
             </div>
         </div>
 
-        <py-terminal id="terminal"></py-terminal>
-        <p id="output" style="display: none;"></p>
+        <pre id="errors" class="py-error"></pre>
+        <pre id="output" class="py-output"></pre>
     </div>
 
     <div class="col-sm-6">
@@ -92,12 +68,44 @@
 </div>
 
 
-<py-script>
+<script id="user_code_posorient" type="python">
+    x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
+
+    def controlCommand(x, mu):
+        J = Jkin(x)
+        f = fkin(x)
+        u = np.linalg.pinv(J) @ logmap(mu, f)  # Position & orientation tracking
+        return u
+</script>
+
+
+<script id="user_code_pos" type="python">
+    x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
+
+    def controlCommand(x, mu):
+        J = Jkin(x)
+        f = fkin(x)
+        u = np.linalg.pinv(J[0:3,:]) @ (mu[0:3] - f[0:3])  # Position tracking
+        return u
+</script>
+
+
+<script id="user_code_orient" type="python">
+    x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
+
+    def controlCommand(x, mu):
+        J = Jkin(x)
+        f = fkin(x)
+        u = np.linalg.pinv(J[3:,:]) @ logmap_S3(mu[3:], f[3:])  # Orientation tracking
+        return u
+</script>
+
+
+<script id="page_code" type="python">
     from viewer3d import Viewer3D, configs, logmap_S3, logmap, Shapes
-    from js import document, setAspectRatio, configure, displayErrorMessage
-    from pyodide.ffi import to_js
+    from js import document, setAspectRatio
+    from rcfs import configure, displayError
     import numpy as np
-    import traceback
 
     # The function that will be called once per frame
     x = None
@@ -116,7 +124,7 @@
             x += u * delta * 5
             robot.jointPositions = x
         except Exception as e:
-            displayErrorMessage(to_js(traceback.format_exception(e)))
+            displayError(e)
 
 
     # Resize the container of the Viewer3D to have a 1:1 aspect ratio
@@ -168,7 +176,9 @@
         viewer3D.render()
 
 
-    configure(to_js({
+    configure({
         'loop': loop,
-    }))
-</py-script>
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

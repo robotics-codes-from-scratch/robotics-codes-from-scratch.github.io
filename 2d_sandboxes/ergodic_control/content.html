@@ -21,16 +21,13 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="SMC1D-tab" class="tab-pane fade show active" id="SMC1D-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl id="SMC1D-tab-repl" output="output">
-                </py-repl>
+                <editor id="editor-SMC1D" script="2d_sandboxes/ergodic_control/smc_1d_example.py"></editor>
             </div>
             <div aria-labelledby="SMC2D-tab" class="tab-pane fade" id="SMC2D-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl id="SMC2D-tab-repl" output="output">
-                </py-repl>
+                <editor id="editor-SMC2D" script="2d_sandboxes/ergodic_control/smc_2d_example.py"></editor>
             </div>
             <div aria-labelledby="HEDAC-tab" class="tab-pane fade" id="HEDAC-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl id="HEDAC-tab-repl" output="output">
-                </py-repl>
+                <editor id="editor-HEDAC" script="2d_sandboxes/ergodic_control/hedac_example.py"></editor>
             </div>
         </div>
 
@@ -56,8 +53,8 @@
             </div>
         </div>
 
-        <py-terminal id="terminal"></py-terminal>
-        <p id="output" style="display: none;"></p>
+        <pre id="errors" class="py-error"></pre>
+        <pre id="output" class="py-output"></pre>
     </div>
 
     <div class="col-sm-5">
@@ -70,10 +67,10 @@
 </div>
 
 
-<py-script>
-    from js import document, getScript, setEditorCode, configure, displayErrorMessage, clearReplOutput
-    from pyodide.ffi import create_proxy, to_js
-    import traceback
+<script id="page_code" type="python">
+    from pyodide.ffi import create_proxy
+    from js import document
+    from rcfs import configure, getScript, displayError, executePythonCode
 
 
     # The configuration of each tab
@@ -81,7 +78,6 @@
         'SMC1D-tab': {
             'scripts': {
                 'main': 'smc_1d.py',
-                'user': 'smc_1d_example.py',
                 'ui': 'smc_1d_ui.py',
             },
             'texts': {
@@ -92,7 +88,6 @@
         'SMC2D-tab': {
             'scripts': {
                 'main': 'smc_2d.py',
-                'user': 'smc_2d_example.py',
                 'ui': 'ui.py',
                 'common': 'common.py',
             },
@@ -105,7 +100,6 @@
         'HEDAC-tab': {
             'scripts': {
                 'main': 'hedac.py',
-                'user': 'hedac_example.py',
                 'ui': 'ui.py',
                 'common': 'common.py',
             },
@@ -126,20 +120,7 @@
     legend = document.getElementById('legend')
 
 
-    def onTabClicked(event):
-        try:
-            unregister_listeners()
-            switch_to_tab(event.target.id)
-            register_listeners()
-        except Exception as e:
-            displayErrorMessage(to_js(traceback.format_exception(e)))
-
-
-    def switch_to_tab(id):
-        global editor
-
-        clearReplOutput()
-
+    def switch_to_tab(id, editor=None):
         entry = config[id]
 
         if ('has_histogram' in entry) and entry['has_histogram']:
@@ -152,21 +133,16 @@
         legend.innerHTML = texts['legend']
 
         scripts = entry['scripts']
-        exec(scripts['main']['code'], globals())
-        exec(scripts['ui']['code'], globals())
+
+        executePythonCode(scripts['main']['code'])
+        executePythonCode(scripts['ui']['code'])
 
         if 'common' in scripts:
-            exec(scripts['common']['code'], globals())
+            executePythonCode(scripts['common']['code'])
 
-        editor = document.getElementById(id + '-repl')
-        try:
-            user_code = editor.getPySrc()
-        except AttributeError:
-            user_code = editor.textContent
-
-        exec(user_code, globals())
-
-        reset()
+        if editor is not None:
+            executePythonCode(editor.getContent())
+            reset()
 
 
     async def cleanup():
@@ -186,11 +162,11 @@
             # Update the rendering
             draw_scene(param)
         except Exception as e:
-            displayErrorMessage(to_js(traceback.format_exception(e)))
+            displayError(e)
 
 
-    async def setup_ui():
-        # Initialise all the tabs
+    async def setup():
+        # Retrieve all the script
         for tab, entry in config.items():
             scripts = entry['scripts']
 
@@ -200,33 +176,37 @@
                     'code': getScript('2d_sandboxes/ergodic_control/' + filename),
                 }
 
-            setEditorCode(document.getElementById(tab + '-repl'), scripts['user']['code'])
-
-            button = document.getElementById(tab)
-            button.onclick = onTabClicked
-
-
-    async def setup_switch():
         try:
-            switch_to_tab('SMC1D-tab')
+            switch_to_tab('SMC1D-tab', None)
+            executePythonCode(getScript('2d_sandboxes/ergodic_control/smc_1d_example.py'))
+            reset()
         except Exception as e:
-            displayErrorMessage(to_js(traceback.format_exception(e)))
+            displayError(e)
 
 
-    async def reset_workspace():
+    async def tabChanged(tab_id, editor):
+        try:
+            unregister_listeners()
+            switch_to_tab(tab_id, editor)
+            register_listeners()
+        except Exception as e:
+            displayError(e)
+
+
+    async def run():
         try:
             reset()
         except Exception as e:
-            displayErrorMessage(to_js(traceback.format_exception(e)))
+            displayError(e)
 
 
-    configure(to_js({
-        'setup': [
-            setup_ui,
-            setup_switch,
-        ],
+    configure({
+        'setup': setup,
         'loop': loop,
-        'reset': reset_workspace,
+        'run': run,
+        'reset': tabChanged,
         'cleanup': cleanup,
-    }))
-</py-script2>
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

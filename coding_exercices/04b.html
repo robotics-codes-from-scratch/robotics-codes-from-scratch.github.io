@@ -1,6 +1,6 @@
 ﻿<style>
-    .py-terminal {
-        margin-top: 10px;
+    .python-editor {
+        margin-bottom: 10px;
     }
 </style>
 
@@ -28,10 +28,10 @@
 
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
-                <button aria-controls="question4-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#question4-tab-pane" data-bs-toggle="tab" id="question4-tab" role="tab" type="button">Question</button>
+                <button aria-controls="question1-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#question1-tab-pane" data-bs-toggle="tab" id="question1-tab" role="tab" type="button">Question</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button aria-controls="answer4-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#answer4-tab-pane" data-bs-toggle="tab" id="answer4-tab" role="tab" type="button">Answer 1</button>
+                <button aria-controls="answer1-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#answer1-tab-pane" data-bs-toggle="tab" id="answer1-tab" role="tab" type="button">Answer 1</button>
             </li>
             <li class="nav-item" role="presentation">
                 <button aria-controls="answer2-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#answer2-tab-pane" data-bs-toggle="tab" id="answer2-tab" role="tab" type="button">Answer 2</button>
@@ -39,54 +39,26 @@
         </ul>
 
         <div class="tab-content" id="myTabContent">
-            <div aria-labelledby="question4-tab" class="tab-pane fade show active" id="question4-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl output="output">
-                    x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
-
-                    def controlCommand(x, param):
-                        target_position = param.Mu[:2]
-                        current_ee_position = fkin(x, param)[:2]
-                        jacobian = Jkin(x, param)[:2]
-                        u = np.zeros(param.nbVarX) # Implement here
-                        return u
-                </py-repl>
+            <div aria-labelledby="question1-tab" class="tab-pane fade show active" id="question1-tab-pane" role="tabpanel" tabindex="0">
+                <editor id="editor1" src="question" output="output" errors="errors"></editor>
             </div>
 
-            <div aria-labelledby="answer4-tab" class="tab-pane fade" id="answer4-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl output="output">
-                    x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
-
-                    def controlCommand(x, param):
-                        # Answer 1:
-                        alpha = 10. # See how alpha changes the reaction of the robot. What is a good way to automatically adjust it?
-                        target_position = param.Mu[:2]
-                        current_ee_position = fkin(x, param)[:2]
-                        jacobian = Jkin(x, param)[:2]
-                        u = alpha * np.linalg.pinv(jacobian) @ (target_position - current_ee_position) # Position tracking
-                        return u
-                </py-repl>
+            <div aria-labelledby="answer1-tab" class="tab-pane fade" id="answer1-tab-pane" role="tabpanel" tabindex="0">
+                <editor id="editor2" src="answer1" output="output" errors="errors"></editor>
             </div>
 
             <div aria-labelledby="answer2-tab" class="tab-pane fade" id="answer2-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl output="output">
-                    x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
-                    x_hat = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Desired robot state
-
-                    def controlCommand(x, param):
-                        target_position = param.Mu[:2]
-                        current_ee_position = fkin(x, param)[:2]
-                        jacobian = Jkin(x, param)[:2]
-                        # Answer 2:
-                        jacobian_pinv = np.linalg.pinv(jacobian)
-                        nullspace_matrix = np.eye(param.nbVarX) - jacobian_pinv @ jacobian # Nullspace projection operator
-                        u = jacobian_pinv @ (target_position - current_ee_position) + nullspace_matrix @ (x_hat - x)
-                        return u
-                </py-repl>
+                <editor id="editor3" src="answer2" output="output" errors="errors"></editor>
             </div>
         </div>
 
-        <py-terminal id="terminal"></py-terminal>
-        <p id="output" style="display: none;"></p>
+        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
+            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        </div>
+
+        <pre id="errors" class="py-error"></pre>
+        <pre id="output" class="py-output"></pre>
 
         <br/>
     </div>
@@ -99,11 +71,53 @@
 </div>
 
 
-<py-script>
-    from pyodide.ffi import create_proxy, to_js
-    from js import Path2D, document, configure, displayErrorMessage
+<script id="question" type="python">
+    x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
+
+    def controlCommand(x, param):
+        target_position = param.Mu[:2]
+        current_ee_position = fkin(x, param)[:2]
+        jacobian = Jkin(x, param)[:2]
+        u = np.zeros(param.nbVarX) # Implement here
+        return u
+</script>
+
+
+<script id="answer1" type="python">
+    x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
+
+    def controlCommand(x, param):
+        # Answer 1:
+        alpha = 10. # See how alpha changes the reaction of the robot. What is a good way to automatically adjust it?
+        target_position = param.Mu[:2]
+        current_ee_position = fkin(x, param)[:2]
+        jacobian = Jkin(x, param)[:2]
+        u = alpha * np.linalg.pinv(jacobian) @ (target_position - current_ee_position) # Position tracking
+        return u
+</script>
+
+
+<script id="answer2" type="python">
+    x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
+    x_hat = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Desired robot state
+
+    def controlCommand(x, param):
+        target_position = param.Mu[:2]
+        current_ee_position = fkin(x, param)[:2]
+        jacobian = Jkin(x, param)[:2]
+        # Answer 2:
+        jacobian_pinv = np.linalg.pinv(jacobian)
+        nullspace_matrix = np.eye(param.nbVarX) - jacobian_pinv @ jacobian # Nullspace projection operator
+        u = jacobian_pinv @ (target_position - current_ee_position) + nullspace_matrix @ (x_hat - x)
+        return u
+</script>
+
+
+<script id="page_code" type="python">
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document
     import numpy as np
-    import traceback
+    from rcfs import configure, displayError
 
     object_angle = document.getElementById('object_angle')  # Objects angle
     object_angle = lambda: None
@@ -406,7 +420,7 @@
         try:
             u = controlCommand(x, param)
         except Exception as e:
-            displayErrorMessage(to_js(traceback.format_exception(e)))
+            displayError(e)
             u = np.zeros(param.nbVarX)
 
         x += u * param.dt
@@ -429,7 +443,7 @@
         param.Mu[2] = (float)(object_angle.value)
 
 
-    configure(to_js({
+    configure({
         'loop': loop,
-    }))
-</py-script>
+    })
+</script>

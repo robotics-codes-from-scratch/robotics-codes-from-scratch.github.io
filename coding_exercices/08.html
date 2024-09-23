@@ -31,47 +31,21 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="question1-tab" class="tab-pane fade show active" id="question1-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl output="output">
-                    param.x0 = np.array([.2, .3])
-
-                    param.nbGaussian = 2
-                    param.Mu = np.ones((param.nbVar,param.nbGaussian)) * .5 # Implement here
-                    param.Sigma = np.zeros((param.nbVar,param.nbVar,param.nbGaussian)) # Implement here
-
-                    # Sampling from GMM to define the target
-                    param.target = np.array([.5, .5]) # implement here
-
-                    update_ergodic_control()
-                </py-repl>
+                <editor id="editor1" src="question"></editor>
             </div>
 
             <div aria-labelledby="question2-tab" class="tab-pane fade" id="question2-tab-pane" role="tabpanel" tabindex="0">
-                <py-repl output="output">
-                    param.x0 = np.array([.2, .3])
-
-                    param.nbGaussian = 2
-                    param.Mu = np.zeros((param.nbVar,param.nbGaussian))
-                    param.Sigma = np.zeros((param.nbVar,param.nbVar,param.nbGaussian))
-                    for i in range(param.nbGaussian):
-                        param.Mu[:,i] = np.random.uniform(0.1,0.9,param.nbVar)
-                        sigma_v = np.random.uniform(-1.0, 1.0, param.nbVar)
-                        sigma_scale = np.random.uniform(0, 0.1, 1)
-                        sigma_regularization = np.random.uniform(0, 0.01, 1)
-                        sigma_v = sigma_v / np.linalg.norm(sigma_v)
-                        param.Sigma[:,:,i] = np.outer(sigma_v,sigma_v) * sigma_scale + sigma_regularization
-
-                    # Sampling from GMM to define the target
-                    gaussian_id = np.random.choice(np.arange(0,param.nbGaussian))
-                    param.target = np.random.multivariate_normal(param.Mu[:,gaussian_id],param.Sigma[:,:,gaussian_id])
-                    param.target = np.clip(param.target, 0.01, 0.99) # Target within [0,1]
-
-                    update_ergodic_control()
-                </py-repl>
+                <editor id="editor2" src="answer"></editor>
             </div>
         </div>
 
-        <py-terminal id="terminal"></py-terminal>
-        <p id="output" style="display: none;"></p>
+        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
+            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        </div>
+
+        <pre id="errors" class="py-error"></pre>
+        <pre id="output" class="py-output"></pre>
 
         <br/>
     </div>
@@ -89,11 +63,50 @@
 </div>
 
 
-<py-script>
-    from pyodide.ffi import create_proxy, to_js
-    from js import Path2D, document, configure
+<script id="question" type="python">
+    param.x0 = np.array([.2, .3])
+
+    param.nbGaussian = 2
+    param.Mu = np.ones((param.nbVar,param.nbGaussian)) * .5 # Implement here
+    param.Sigma = np.zeros((param.nbVar,param.nbVar,param.nbGaussian)) # Implement here
+
+    # Sampling from GMM to define the target
+    param.target = np.array([.5, .5]) # implement here
+
+    update_ergodic_control()
+</script>
+
+
+<script id="answer" type="python">
+    param.x0 = np.array([.2, .3])
+
+    param.nbGaussian = 2
+    param.Mu = np.zeros((param.nbVar,param.nbGaussian))
+    param.Sigma = np.zeros((param.nbVar,param.nbVar,param.nbGaussian))
+
+    for i in range(param.nbGaussian):
+        param.Mu[:,i] = np.random.uniform(0.1,0.9,param.nbVar)
+        sigma_v = np.random.uniform(-1.0, 1.0, param.nbVar)
+        sigma_scale = np.random.uniform(0, 0.1, 1)
+        sigma_regularization = np.random.uniform(0, 0.01, 1)
+        sigma_v = sigma_v / np.linalg.norm(sigma_v)
+        param.Sigma[:,:,i] = np.outer(sigma_v,sigma_v) * sigma_scale + sigma_regularization
+
+    # Sampling from GMM to define the target
+    gaussian_id = np.random.choice(np.arange(0,param.nbGaussian))
+    param.target = np.random.multivariate_normal(param.Mu[:,gaussian_id],param.Sigma[:,:,gaussian_id])
+    param.target = np.clip(param.target, 0.01, 0.99) # Target within [0,1]
+
+    update_ergodic_control()
+</script>
+
+
+<script id="page_code" type="python">
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document
     import numpy as np
     from math import sqrt
+    from rcfs import configure, executePythonCode
 
     ## Parameters
     # ===============================
@@ -336,7 +349,14 @@
             found_flag = 1
 
 
-    configure(to_js({
+    async def reset(tab_id, editor):
+        executePythonCode(editor.getContent())
+
+
+    configure({
         'loop': loop,
-    }))
-</py-script>
+        'reset': reset,
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

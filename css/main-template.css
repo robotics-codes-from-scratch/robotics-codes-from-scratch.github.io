@@ -181,38 +181,43 @@ form label {
     padding: 10px;
 }
 
-.py-repl-editor {
-    background: #EEEEEE;
+.python-editor {
     box-sizing: border-box;
-    border-width: 0px;
-    border-style: solid;
-    border-color: rgb(209, 13, 19)
+    font-size: 0.8em;
 }
 
-.py-terminal {
+.python-editor .cm-content {
+    background-color: #EEEEEE;
+}
+
+.py-output {
     font-size: 0.7em;
-    max-height: 25em;
+    max-height: 100em;
+    color: rgb(33, 37, 41);
+    padding: 0.5rem;
+    overflow: auto;
+    border: 1px solid #DDDDDD;
 }
 
-.py-terminal:empty {
+.py-output:empty {
     display: none;
 }
 
-.py-overlay {
-    top: 0;
-    bottom: 0;
-    left: 66.666%;
-    right: 0;
-    opacity: 0.5;
-    background: rgba(0, 0, 0, 1);
+.py-error {
+    border: 1px solid red;
+    background: rgb(255, 221, 221);
+    color: black;
+    font-family: courier, monospace;
+    white-space: pre; overflow-x:
+    auto; padding: 8px; margin-top: 8px;
+}
+
+.py-error:empty {
+    display: none;
 }
 
 .generated-menu-item {
     text-align: left;
-}
-
-.py-repl-run-button {
-    opacity: 1;
 }
 
 #menu a.section {
@@ -242,4 +247,53 @@ div.row.exercise h5 {
 
 .pagination {
     margin-top: 20px;
+}
+
+.spinner::after {
+    content: "";
+    box-sizing: border-box;
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    top: calc(40% - 20px);
+    left: calc(50% - 20px);
+    border-radius: 50%;
+}
+
+.spinner.smooth::after {
+    border-top: 4px solid rgba(255, 255, 255, 1);
+    border-left: 4px solid rgba(255, 255, 255, 1);
+    border-right: 4px solid rgba(255, 255, 255, 0);
+    animation: spinner 0.6s linear infinite;
+}
+
+@keyframes spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.py-overlay .label {
+    text-align: center;
+    width: 100%;
+    display: block;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.8rem;
+}
+
+.py-overlay {
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.5);
+    transition: opacity 500ms;
+    visibility: hidden;
+    color: visible;
+    opacity: 1;
 }

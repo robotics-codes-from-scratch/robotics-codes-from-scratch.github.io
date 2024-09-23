@@ -4,16 +4,7 @@
     <div class="col-sm-7">
         <h3>Forward kinematics (FK)</h3>
 
-        <py-repl output="output">
-            param.nbVarX = 3 # State space dimension
-            param.l = [200, 200, 120] # Robot links lengths
-            x = [3*np.pi/4, -np.pi/2, -np.pi/4] # Initial robot state
-
-            # param.nbVarX = 8 # State space dimension
-            # param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
-            # x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
-            # x[0] = x[0] + np.pi
-        </py-repl>
+        <editor id="editor" src="user_code"></editor>
 
         <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
             <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
@@ -37,8 +28,8 @@
             </div>
         </div>
 
-        <py-terminal id="terminal"></py-terminal>
-        <p id="output" style="display: none;"></p>
+        <pre id="errors" class="py-error"></pre>
+        <pre id="output" class="py-output"></pre>
     </div>
 
     <div class="col-sm-4">
@@ -49,11 +40,23 @@
 </div>
 
 
-<py-script>
-    from pyodide.ffi import create_proxy, to_js
-    from js import Path2D, document, configure, displayErrorMessage
+<script id="user_code" type="python">
+    param.nbVarX = 3 # State space dimension
+    param.l = [200, 200, 120] # Robot links lengths
+    x = [3*np.pi/4, -np.pi/2, -np.pi/4] # Initial robot state
+
+    # param.nbVarX = 8 # State space dimension
+    # param.l = np.ones(param.nbVarX) * 800 / param.nbVarX # Robot links lengths
+    # x = -np.ones(param.nbVarX) * np.pi / param.nbVarX # Initial robot state
+    # x[0] = x[0] + np.pi
+</script>
+
+
+<script id="page_code" type="python">
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document
+    from rcfs import configure, displayError
     import numpy as np
-    import traceback
 
     # Forward kinematics for end-effector (in robot coordinate system)
     def fkin(x, param):
@@ -317,7 +320,7 @@
             x += u * param.dt # Update robot state
             f = fkin(x, param)
         except Exception as e:
-            displayErrorMessage(to_js(traceback.format_exception(e)))
+            displayError(e)
             f = np.zeros(param.nbVarX)
 
         # Reinit hovering variables
@@ -333,7 +336,9 @@
             draw_selected_point(f, '#777777')
 
 
-    configure(to_js({
+    configure({
         'loop': loop,
-    }))
-</py-script>
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>
