@@ -548,7 +548,10 @@
         elif document.getElementById('taskimpedance2-tab').ariaSelected=='true':
             f = fkin(x[:param.nbVarX], param)
             draw_Gaussian(f, np.linalg.inv(KP[:2,:2] * 1E2 + np.eye(2)*1E-2), '#FF3399', '#DD1177') # Draw stiffness ellipsoid
-            draw_arrow(f[:2], f_target[:2], color='#3333FF')
+
+            diff, grad = sdf(f)
+            if diff[0] > 20.1:
+                draw_arrow(f[:2], f[:2] + diff[0] * grad[:2], color='#3333FF')
 
 
     async def setup():
