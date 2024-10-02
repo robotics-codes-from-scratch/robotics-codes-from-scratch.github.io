@@ -734,9 +734,10 @@
 </script>
 
 
-<py-script>
+<script id="page_code" type="python">
     from js import document, GlslRenderer, getData
     from pyodide.ffi import to_js
+    from rcfs import configure
     import numpy as np
     import io
 
@@ -780,7 +781,9 @@
         if (evt.buttons == 1) and (evt.button == 0) and evt.shiftKey:
             planeDistance += -evt.movementX * 0.001
             planeDistance = max(0.4, min(planeDistance, 0.728))
-            renderer_planar.setUniform("u_planeDistance", planeDistance);
+            renderer_planar.setUniform("u_planeDistance", planeDistance)
 
-    renderer_planar.canvas.onmousemove = onPlaneDistanceChanged;
-</py-script>
+    renderer_planar.canvas.onmousemove = onPlaneDistanceChanged
+
+    configure({})
+</script>

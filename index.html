@@ -477,8 +477,6 @@
 
                             loadedData[data] = new Uint8Array(await response.arrayBuffer());
                         }
-
-                        //document.getElementById('pyscript_loading_splash').remove();
                     });
                 }
             }
@@ -1124,6 +1122,21 @@
             _executePythonCode(_getPythonScript(id))
 
 
+        def _executePythonCodeAsModule(code, moduleName):
+            if code is None:
+                return
+
+            try:
+                _globals = {}
+                exec(code, _globals)
+                _module = types.ModuleType(moduleName)
+                for k in _globals.keys():
+                    setattr(_module, k, _globals[k])
+                sys.modules[moduleName] = _module
+            except Exception as e:
+                _displayError(e)
+
+
         document._displayError = _displayError
         document._clearOutputTargets = _clearOutputTargets
         document._setOutputTargets = _setOutputTargets
@@ -1139,6 +1152,7 @@
         _rcfs.configure = _configure
         _rcfs.executePythonScript = _executePythonScript
         _rcfs.executePythonCode = _executePythonCode
+        _rcfs.executePythonCodeAsModule = _executePythonCodeAsModule
         _rcfs.getScript = _jsGetScript
 
         sys.modules['rcfs'] = _rcfs

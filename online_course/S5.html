@@ -61,9 +61,61 @@ J_{3,1}&amp;J_{3,2}&amp;J_{3,3}&amp;\ldots\\
 <span class="ltx_tag ltx_tag_listingline">1</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">J</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_font_typewriter">=</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">np</span><span class="ltx_text ltx_font_typewriter">.</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">array</span><span class="ltx_text ltx_font_typewriter">([-</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">np</span><span class="ltx_text ltx_font_typewriter">.</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">sin</span><span class="ltx_text ltx_font_typewriter">(</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">L</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">x</span><span class="ltx_text ltx_font_typewriter">).</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">T</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">np</span><span class="ltx_text ltx_font_typewriter">.</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">diag</span><span class="ltx_text ltx_font_typewriter">(</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">l</span><span class="ltx_text ltx_font_typewriter">)</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">L</span><span class="ltx_text ltx_font_typewriter">,</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">np</span><span class="ltx_text ltx_font_typewriter">.</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">cos</span><span class="ltx_text ltx_font_typewriter">(</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">L</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">x</span><span class="ltx_text ltx_font_typewriter">).</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">T</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">np</span><span class="ltx_text ltx_font_typewriter">.</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">diag</span><span class="ltx_text ltx_font_typewriter">(</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">l</span><span class="ltx_text ltx_font_typewriter">)</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">L</span><span class="ltx_text ltx_font_typewriter">])</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_comment ltx_font_typewriter">#Jacobian<span class="ltx_text ltx_lst_space"> </span>(for<span class="ltx_text ltx_lst_space"> </span>endeffector)</span>
 </div>
 </div>
-</div><div class="ltx_para" id="S5-para:p3">
+</div><table style="width: 100%;">
+<tbody>
+<tr>
+<td align="right" style="font-size: 120%;">
+<div class="ltx_Math" id="formula0">
+                    \bm{J}(\bm{x})=\begin{bmatrix}
+                    \frac{\color{#00AA00}\partial f_1}{\color{#CC0000}\partial x_1} &amp;
+                    {\color{#CCCCCC}\frac{\partial f_1}{\partial x_2}} &amp;
+                    {\color{#CCCCCC}\frac{\partial f_1}{\partial x_3}}
+                    \\[2mm]
+                    \frac{\color{#0000CC}\partial f_2}{\color{#CC0000}\partial x_1} &amp;
+                    {\color{#CCCCCC}\frac{\partial f_2}{\partial x_2}} &amp;
+                    {\color{#CCCCCC}\frac{\partial f_2}{\partial x_3}}
+                    \end{bmatrix}
+                </div>
+<div class="ltx_Math" hidden="hidden" id="formula1">
+                    \bm{J}(\bm{x})=\begin{bmatrix}
+                    {\color{#CCCCCC}\frac{\partial f_1}{\partial x_1}} &amp;
+                    \frac{\color{#00AA00}\partial f_1}{\color{#CC5500}\partial x_2} &amp;
+                    {\color{#CCCCCC}\frac{\partial f_1}{\partial x_3}}
+                    \\[2mm]
+                    {\color{#CCCCCC}\frac{\partial f_2}{\partial x_1}} &amp;
+                    \frac{\color{#0000CC}\partial f_2}{\color{#CC5500}\partial x_2} &amp;
+                    {\color{#CCCCCC}\frac{\partial f_2}{\partial x_3}}
+                    \end{bmatrix}
+                </div>
+<div class="ltx_Math" hidden="hidden" id="formula2">
+                    \bm{J}(\bm{x})=\begin{bmatrix}
+                    {\color{#CCCCCC}\frac{\partial f_1}{\partial x_1}} &amp;
+                    {\color{#CCCCCC}\frac{\partial f_1}{\partial x_2}} &amp;
+                    \frac{\color{#00AA00}\partial f_1}{\color{#CC9900}\partial x_3}
+                    \\[2mm]
+                    {\color{#CCCCCC}\frac{\partial f_2}{\partial x_1}} &amp;
+                    {\color{#CCCCCC}\frac{\partial f_2}{\partial x_2}} &amp;
+                    \frac{\color{#0000CC}\partial f_2}{\color{#CC9900}\partial x_3}
+                    \end{bmatrix}
+                </div>
+</td>
+<td>
+<div style="position:relative;">
+<canvas height="300px" id="canvas_jacobian2d" width="300px"></canvas>
+<span class="ltx_Math" id="x0" style="position:absolute; left:9999px; bottom:0px;">\color{#CC0000}x_1</span>
+<span class="ltx_Math" id="x1" style="position:absolute; left:9999px; bottom:0px;">\color{#CC5500}x_2</span>
+<span class="ltx_Math" id="x2" style="position:absolute; left:9999px; bottom:0px;">\color{#CC9900}x_3</span>
+<span class="ltx_Math" id="f0" style="position:absolute; left:9999px; bottom:0px;">\color{#00AA00}f_1</span>
+<span class="ltx_Math" id="f1" style="position:absolute; left:9999px; bottom:0px;">\color{#0000CC}f_2</span>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="ltx_para" id="S5-para:p3">
 <p class="ltx_p">This Jacobian can be used to solve the <em class="ltx_emph ltx_font_italic">inverse kinematics</em> (IK) problem that consists of finding a robot pose to reach a target with the robot endeffector. The underlying optimization problem consists of minimizing a quadratic cost <span class="ltx_Math" id="p3.m1">c=\|\bm{f}-\bm{\mu}\|^{2}</span>, where <span class="ltx_Math" id="p3.m2">\bm{f}</span> is the position of the endeffector and <span class="ltx_Math" id="p3.m3">\bm{\mu}</span> is a target to reach with this endeffector. An optimization problem with a quadratic cost can be solved iteratively with a Gauss–Newton method, requiring to compute Jacobian pseudoinverses <span class="ltx_Math" id="p3.m4">\bm{J}^{\dagger}</span>, see Section <a class="ltx_ref" href="#S3-sec:SS1" title="3.1 Gauss–Newton algorithm ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">3.1</span></a> for details.</p>
-</div><div class="ltx_subsection" id="S5-sec:SS1">
+</div><canvas class="ltx_centering" height="400px" id="canvas_ik2d" width="400px"></canvas>
+<div class="ltx_subsection" id="S5-sec:SS1">
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">5.1</span> </span><span class="ltx_text">Numerical estimation of the Jacobian</span>
 </h2>
@@ -171,4 +223,20 @@ x_{k},&amp;\text{otherwise},\end{cases}</span></td>
 </tr></tbody>
 </table>
 </div>
-</div><ul class="pagination justify-content-center small_menu"><li class="page-item previous_file"><a class="page-link" href="#S4">Previous</a></li><li class="page-item next_file"><a class="page-link" href="#S6">Next</a></li></ul></div></div><div class="col-sm-3"><div id="img-col"></div></div></div>
+</div><ul class="pagination justify-content-center small_menu"><li class="page-item previous_file"><a class="page-link" href="#S4">Previous</a></li><li class="page-item next_file"><a class="page-link" href="#S6">Next</a></li></ul></div></div><div class="col-sm-3"><div id="img-col"></div></div></div><script id="page_code" type="python">
+    from rcfs import executePythonCodeAsModule, getScript, configure
+
+    executePythonCodeAsModule(getScript('online_course/demos/ik2d.py'), 'ik2d')
+    executePythonCodeAsModule(getScript('online_course/demos/jacobian2d.py'), 'jacobian2d')
+
+    import ik2d
+    import jacobian2d
+
+    async def loop(delta, time):
+        ik2d.loop(delta, time)
+        jacobian2d.loop(delta, time)
+
+    configure({
+        'loop': loop,
+    })
+</script>

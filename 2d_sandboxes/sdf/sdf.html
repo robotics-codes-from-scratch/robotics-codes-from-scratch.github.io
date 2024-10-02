@@ -96,9 +96,10 @@
 </script>
 
 
-<py-script>
+<script id="page_code" type="python">
     from js import document, GlslRenderer, getData
     from pyodide.ffi import to_js
+    from rcfs import configure
     import numpy as np
     import io
 
@@ -119,4 +120,6 @@
     );
 
     renderer.setMatrix('u_Mwb', to_js(Mwb.flatten()), Mwb.shape[0] * Mwb.shape[1], Mwb.shape[2], True)
-</py-script>
+
+    configure({})
+</script>

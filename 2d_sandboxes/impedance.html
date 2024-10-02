@@ -453,6 +453,32 @@
         ctx.fillStyle = color2 
         ctx.fill(obj)
 
+    def draw_arrow(x1, x2, color='black', sz=20., lw='4'):
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.1)
+        ctx.strokeStyle = color
+        ctx.fillStyle = color
+        ctx.lineWidth = lw
+
+        # Draw arrow tip
+        length = np.linalg.norm(x2-x1)
+        if length < sz*1.5:
+            sz = max(length / 2, 10)
+
+        if length > sz*1.5:
+            v = (x2-x1) * sz / length
+            ctx.beginPath()
+            ctx.moveTo(x2[0], x2[1])
+            ctx.lineTo(x2[0]-v[0]+v[1]*.5, x2[1]-v[1]-v[0]*.5)
+            ctx.lineTo(x2[0]-v[0]-v[1]*.5, x2[1]-v[1]+v[0]*.5)
+            ctx.fill()
+            x2 = x1 + v * (length-sz*.9) / sz
+
+        #Draw line
+        ctx.beginPath()
+        ctx.moveTo(x1[0], x1[1])
+        ctx.lineTo(x2[0], x2[1])
+        ctx.stroke()
+
 
     #########################################################################################
 
@@ -502,7 +528,7 @@
 
         if document.getElementById('impedance-tab').ariaSelected=='true':
             draw_robot(x_target[:param.nbVarX], '#FF3399')
-        if document.getElementById('taskimpedance2-tab').ariaSelected=='true':
+        elif document.getElementById('taskimpedance2-tab').ariaSelected=='true':
             draw_disc(f_target[:2], sdf_disc_radius, '#33FF99')
             draw_box(f_target[:2]+sdf_box_offset, sdf_box_size, '#33FF99')
 
@@ -514,9 +540,15 @@
         if document.getElementById('taskimpedance-tab').ariaSelected=='true':
             draw_selected_point(f_target, '#FF3399')
             draw_Gaussian(f_target, np.linalg.inv(KP[:2,:2]*5E1+np.eye(2)*1E-6), '#FF3399', '#DD1177') # Draw stiffness ellipsoid
-        if document.getElementById('taskimpedance2-tab').ariaSelected=='true':
+
+            f = fkin(x[:param.nbVarX], param)[:2]
+            if np.linalg.norm(f_target[:2] - f) > 1e-3:
+                draw_arrow(f[:2], f_target[:2], color='#3333FF')
+
+        elif document.getElementById('taskimpedance2-tab').ariaSelected=='true':
             f = fkin(x[:param.nbVarX], param)
             draw_Gaussian(f, np.linalg.inv(KP[:2,:2] * 1E2 + np.eye(2)*1E-2), '#FF3399', '#DD1177') # Draw stiffness ellipsoid
+            draw_arrow(f[:2], f_target[:2], color='#3333FF')
 
 
     async def setup():
