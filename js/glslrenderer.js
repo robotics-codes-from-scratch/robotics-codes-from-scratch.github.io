@@ -2,10 +2,11 @@
 
 class GlslRenderer
 {
-    constructor(canvas)
+    constructor(canvas, external_loop=false)
     {
         this.canvas = canvas;
         this.renderCallback = null;
+        this.external_loop = external_loop
 
         this.gl = canvas.getContext("webgl2");
         if (!this.gl) {
@@ -62,7 +63,9 @@ class GlslRenderer
         });
 
         this._createGeometry();
-        this._render(0.0);
+
+        if (!this.external_loop)
+            this.render(0.0);
     }
 
     createRenderTarget(height=-1, width=-1)
@@ -135,14 +138,15 @@ class GlslRenderer
         this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(positions), this.gl.STATIC_DRAW);
     }
 
-    _render(timestamp)
+    render(timestamp)
     {
         if (this.frameCounter == 0)
             this.startTimestamp = timestamp;
 
         timestamp -= this.startTimestamp;
 
-        requestAnimationFrame((timestamp) => this._render(timestamp));
+        if (!this.external_loop)
+            requestAnimationFrame((timestamp) => this.render(timestamp));
 
         ++this.framerate.frameCounter;
         if (this.framerate.frameCounter == 10)
@@ -341,7 +345,7 @@ class RenderTarget
             mainImage(fragColor, gl_FragCoord.xy);
         }`;
 
-        console.log(fragmentShaderSource);
+        // console.log(fragmentShaderSource);
 
         // Compile the shaders
         var vertexShader = _createShader(this.gl, this.gl.VERTEX_SHADER, vertexShaderSource);
