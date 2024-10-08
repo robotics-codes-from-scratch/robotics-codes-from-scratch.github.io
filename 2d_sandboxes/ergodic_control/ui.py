@@ -25,6 +25,9 @@ def onMouseMove(event):
         1.0 - (event.clientY - rect.top) / (rect.bottom - rect.top)
     ]
 
+    mouse_pos[0] = max(min(mouse_pos[0], 1.0), 0.0)
+    mouse_pos[1] = max(min(mouse_pos[1], 1.0), 0.0)
+
     if (manipulated_point is not None) and manipulated_point[2]:
         id, i, _ = manipulated_point
 
@@ -81,6 +84,7 @@ def onMouseDown(event):
     global manipulated_point
     if manipulated_point is not None:
         manipulated_point = (manipulated_point[0], manipulated_point[1], True)
+        event.preventDefault()
 
 
 def onMouseUp(event):
@@ -94,22 +98,28 @@ def register_listeners():
     global listeners
 
     entries = [
-        ('mousemove', onMouseMove),
-        ('mousedown', onMouseDown),
-        ('mouseup', onMouseUp),
+        ('mousemove', onMouseMove, True),
+        ('mousedown', onMouseDown, False),
+        ('mouseup', onMouseUp, False),
     ]
 
-    for event, listener in entries:
+    for event, listener, onDocument in entries:
         listener = create_proxy(listener)
-        canvas.addEventListener(event, listener)
-        listeners[event] = listener
+        if onDocument:
+            document.addEventListener(event, listener)
+        else:
+            canvas.addEventListener(event, listener)
+        listeners[event] = (listener, onDocument)
 
 
 def unregister_listeners():
     global listeners
 
-    for event, listener in listeners.items():
-        canvas.removeEventListener(event, listener)
+    for event, (listener, onDocument) in listeners.items():
+        if onDocument:
+            document.removeEventListener(event, listener)
+        else:
+            canvas.removeEventListener(event, listener)
 
     listeners = {}
 

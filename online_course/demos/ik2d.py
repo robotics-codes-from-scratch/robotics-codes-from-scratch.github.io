@@ -97,7 +97,7 @@ scaling_factor = 1 # General scaling factor for rendering
 # Mouse events
 mouse0 = np.zeros(2)
 mouse = np.zeros(2)
-mousedown = 0
+mousedown = False
 selected_obj = -1
 hover_obj = -1
 hover_joint = -1
@@ -127,15 +127,22 @@ def onTouchMove(event):
         hover0 = np.copy(mouse0)
 
 def onMouseDown(event):
-    global mousedown, move_joint, hover0
-    mousedown = 1
+    global mousedown, move_joint, hover0, selected_obj
+    mousedown = True
+
     if hover_joint >= 0:
         move_joint = hover_joint
         hover0 = np.copy(mouse0)
+    elif hover_obj >= 0:
+        selected_obj = hover_obj
+
+    if (hover_obj == 0) or (hover_joint >= 0):
+        event.preventDefault()
+
 
 def onMouseUp(event):
     global mousedown, selected_obj, move_joint
-    mousedown = 0
+    mousedown = False
     selected_obj = -1
     move_joint = -1
 
@@ -262,11 +269,12 @@ def draw_robot(xt, color1, color2, color3, color4, selectable):
 
 
 def draw_obj(param, color, colortxt):
-    global selected_obj, hover_obj
+    global hover_obj
     ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
 
     ctx.translate(param.Mu[0], param.Mu[1])
     ctx.rotate(param.Mu[2])
+
     # Draw object
     ctx.fillStyle = color
     obj = Path2D.new()
@@ -274,9 +282,7 @@ def draw_obj(param, color, colortxt):
     ctx.fill(obj)
     if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
         hover_obj = 0
-    if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
-        selected_obj = 0
-    #ctx.fillRect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
+
     if param.sz[0] > 39 and param.sz[1] > 19:
         ctx.textAlign = 'center'
         ctx.textBaseline = 'middle'
@@ -294,16 +300,24 @@ def controlCommand(x, param):
 
 #########################################################################################
 
-canvas.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-canvas.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
 
 canvas.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
 canvas.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
 
-canvas.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
-canvas.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
 
 canvas.addEventListener('wheel', onWheelProxy) #for standard mouse
+
+
+def cleanup():
+    document.removeEventListener('mousemove', onMouseMoveProxy)
+    document.removeEventListener('touchmove', onTouchMoveProxy)
+
+    document.removeEventListener('mouseup', onMouseUpProxy)
+    document.removeEventListener('touchend', onMouseUpProxy)
 
 
 #########################################################################################
@@ -334,6 +348,6 @@ def loop(delta, time):
     # Object selection
     if selected_obj==0:
         param.Mu[:2] = mouse
-        param.Mu[0] = max(min(param.Mu[0],225), -225)
+        param.Mu[0] = max(min(param.Mu[0],200), -200)
         param.Mu[1] = max(min(param.Mu[1],175), -175)
     param.Mu[2] = (float)(object_angle)

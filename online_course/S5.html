@@ -236,7 +236,11 @@ x_{k},&amp;\text{otherwise},\end{cases}</span></td>
         ik2d.loop(delta, time)
         jacobian2d.loop(delta, time)
 
+    async def cleanup():
+        ik2d.cleanup()
+
     configure({
         'loop': loop,
+        'cleanup': cleanup,
     })
 </script>

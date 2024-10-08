@@ -153,7 +153,7 @@
     # Mouse events
     mouse0 = np.zeros(2)
     mouse = np.zeros(2)
-    mousedown = 0
+    mousedown = False
     hover_joint = -1
     selected_obj = -1
     move_joint= -1
@@ -182,15 +182,23 @@
             hover0 = np.copy(mouse0)
 
     def onMouseDown(event):
-        global mousedown, move_joint, hover0
-        mousedown = 1
+        global mousedown, move_joint, hover0, selected_obj
+        mousedown = True
+
         if hover_joint >= 0:
             move_joint = hover_joint
             hover0 = np.copy(mouse0)
+        elif np.linalg.norm(param.Mu[:2] - mouse) < 22.0:
+            selected_obj = 0
+        elif np.linalg.norm(param.Mu[2:] - mouse) < 22.0:
+            selected_obj = 1
+
+        if (selected_obj >= 0) or (hover_joint >= 0):
+            event.preventDefault()
 
     def onMouseUp(event):
         global mousedown, selected_obj, move_joint
-        mousedown = 0
+        mousedown = False
         selected_obj = -1
         move_joint = -1
 
@@ -287,7 +295,6 @@
 
 
     def draw_object(xobj, id, color):
-        global selected_obj
         ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
         # Draw object
         obj = Path2D.new()
@@ -295,8 +302,6 @@
         ctx.translate(xobj[0], xobj[1])
         ctx.fillStyle = color
         ctx.fill(obj)
-        if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
-            selected_obj = id
 
 
     def defaultControlCommand(x, param):
@@ -308,16 +313,24 @@
 
     #########################################################################################
 
-    canvas.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-    canvas.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
 
     canvas.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
     canvas.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
 
-    canvas.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
-    canvas.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
 
     canvas.addEventListener('wheel', onWheelProxy) #for standard mouse
+
+
+    async def cleanup():
+        document.removeEventListener('mousemove', onMouseMoveProxy)
+        document.removeEventListener('touchmove', onTouchMoveProxy)
+
+        document.removeEventListener('mouseup', onMouseUpProxy)
+        document.removeEventListener('touchend', onMouseUpProxy)
 
 
     #########################################################################################
@@ -366,6 +379,7 @@
     configure({
         'loop': loop,
         'reset': reset,
+        'cleanup': cleanup,
         'output': 'output',
         'errors': 'errors',
     })

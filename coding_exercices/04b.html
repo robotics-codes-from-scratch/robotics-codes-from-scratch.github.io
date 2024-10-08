@@ -214,7 +214,7 @@
     # Mouse events
     mouse0 = np.zeros(2)
     mouse = np.zeros(2)
-    mousedown = 0
+    mousedown = False
     selected_obj = -1
     hover_obj = -1
     hover_joint = -1
@@ -236,12 +236,16 @@
         mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
 
     def onMouseDown(event):
-        global mousedown
-        mousedown = 1
+        global mousedown, selected_obj
+        mousedown = True
+
+        if hover_obj >= 0:
+            selected_obj = hover_obj
+            event.preventDefault()
 
     def onMouseUp(event):
         global mousedown, selected_obj
-        mousedown = 0
+        mousedown = False
         selected_obj = -1
 
     def onWheel(event):
@@ -369,6 +373,7 @@
 
         ctx.translate(param.Mu[0], param.Mu[1])
         ctx.rotate(param.Mu[2])
+
         # Draw object
         ctx.fillStyle = color
         obj = Path2D.new()
@@ -376,9 +381,7 @@
         ctx.fill(obj)
         if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
             hover_obj = 0
-        if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
-            selected_obj = 0
-        #ctx.fillRect(-param.sz[0]/2, -param.sz[1]/2, param.sz[0], param.sz[1])
+
         if param.sz[0] > 39 and param.sz[1] > 19:
             ctx.textAlign = 'center'
             ctx.textBaseline = 'middle'
@@ -397,16 +400,24 @@
 
     #########################################################################################
 
-    canvas.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-    canvas.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
 
     canvas.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
     canvas.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
 
-    canvas.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
-    canvas.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
 
     canvas.addEventListener('wheel', onWheelProxy) #for standard mouse
+
+
+    async def cleanup():
+        document.removeEventListener('mousemove', onMouseMoveProxy)
+        document.removeEventListener('touchmove', onTouchMoveProxy)
+
+        document.removeEventListener('mouseup', onMouseUpProxy)
+        document.removeEventListener('touchend', onMouseUpProxy)
 
 
     #########################################################################################
@@ -445,5 +456,6 @@
 
     configure({
         'loop': loop,
+        'cleanup': cleanup,
     })
 </script>

@@ -215,7 +215,8 @@
     # Mouse events
     mouse0 = np.zeros(2)
     mouse = np.zeros(2)
-    mousedown = 0
+    mousedown = False
+    hover_obj = -1
     selected_obj = -1
 
     def onMouseMove(event):
@@ -235,13 +236,17 @@
         mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
 
     def onMouseDown(event):
-        global mousedown, xs
-        mousedown = 1
+        global mousedown, xs, selected_obj
+        mousedown = True
         xs = solve_LQR(x, param)
+
+        if hover_obj >= 0:
+            selected_obj = hover_obj
+            event.preventDefault()
 
     def onMouseUp(event):
         global mousedown, selected_obj, xs
-        mousedown = 0
+        mousedown = False
         selected_obj = -1
         xs = solve_LQR(x, param)
 
@@ -263,7 +268,7 @@
 
 
     def draw_Gaussian(id, param, color, color2):
-        global selected_obj
+        global hover_obj
         ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
         ctx.translate(param.Mu[0,id], param.Mu[1,id])
         if id == 0:
@@ -288,8 +293,8 @@
         obj.arc(0, 0, 6.0, 0, 2.0*np.pi)
         ctx.fillStyle = color2 
         ctx.fill(obj)
-        if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and mousedown==1:
-            selected_obj = id
+        if ctx.isPointInPath(obj, mouse0[0], mouse0[1]):
+            hover_obj = id
 
 
     def draw_lqr_path(xs, param, color):
@@ -323,24 +328,22 @@
 
     #########################################################################################
 
-    def errorHandler(e):
-        msg = 'Error: ' + str(e)
-        console.error(msg)
-        el = document.getElementById('errors')
-        el.innerText = msg
-        #el.textContent = msg
-
-
-    #########################################################################################
-
-    canvas.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-    canvas.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
 
     canvas.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
     canvas.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
 
-    canvas.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
-    canvas.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+
+    async def cleanup():
+        document.removeEventListener('mousemove', onMouseMoveProxy)
+        document.removeEventListener('touchmove', onTouchMoveProxy)
+
+        document.removeEventListener('mouseup', onMouseUpProxy)
+        document.removeEventListener('touchend', onMouseUpProxy)
 
 
     #########################################################################################
@@ -353,7 +356,7 @@
     async def loop(delta, time):
         global param, xs
 
-        if mousedown == 1:
+        if mousedown:
             xs = solve_LQR(x, param)
 
         # Rendering
@@ -377,6 +380,7 @@
     configure({
         'loop': loop,
         'reset': reset,
+        'cleanup': cleanup,
         'output': 'output',
         'errors': 'errors',
     })

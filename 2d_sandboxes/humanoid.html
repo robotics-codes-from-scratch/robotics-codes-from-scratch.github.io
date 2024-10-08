@@ -173,7 +173,7 @@
     # Mouse events
     mouse0 = np.zeros(2)
     mouse = np.zeros(2)
-    mousedown = 0
+    mousedown = False
     hover_joint = -1
     move_joint= -1
 
@@ -195,16 +195,17 @@
 
     def onMouseDown(event):
         global mousedown, move_joint, param2
-        mousedown = 1
+        mousedown = True
         if hover_joint >= 0:
             f0 = fkin0(x, param)
             param2.l = np.append(param.l[:hover_joint], np.linalg.norm(f0[:,hover_joint] - mouse))
             param2.nbVarX = hover_joint+1
             move_joint = hover_joint
+            event.preventDefault()
 
     def onMouseUp(event):
         global mousedown, move_joint
-        mousedown = 0
+        mousedown = False
         move_joint = -1
 
     def onWheel(event):
@@ -389,16 +390,24 @@
 
     #########################################################################################
 
-    canvas.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-    canvas.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
 
     canvas.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
     canvas.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
 
-    canvas.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
-    canvas.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
 
     canvas.addEventListener('wheel', onWheelProxy) #for standard mouse
+
+
+    async def cleanup():
+        document.removeEventListener('mousemove', onMouseMoveProxy)
+        document.removeEventListener('touchmove', onTouchMoveProxy)
+
+        document.removeEventListener('mouseup', onMouseUpProxy)
+        document.removeEventListener('touchend', onMouseUpProxy)
 
 
     #########################################################################################
@@ -448,6 +457,7 @@
         'setup': setup,
         'loop': loop,
         'reset': reset,
+        'cleanup': cleanup,
         'output': 'output',
         'errors': 'errors',
     })

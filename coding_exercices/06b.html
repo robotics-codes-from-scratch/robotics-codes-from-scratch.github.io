@@ -248,41 +248,6 @@
     # GUI
     scaling_factor = 2 # General scaling factor for rendering
 
-    # Mouse events
-    mouse0 = np.zeros(2)
-    mouse = np.zeros(2)
-    mousedown = 0
-
-    def onMouseMove(event):
-        global mouse, mouse0
-        offset = canvas.getBoundingClientRect()
-        mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
-        mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
-        mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
-        mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
-
-    def onTouchMove(event):
-        global mouse, mouse0
-        offset = event.target.getBoundingClientRect()
-        mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
-        mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
-        mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
-        mouse[1] = (mouse0[1] - canvas.height * 0.5) / scaling_factor
-
-    def onMouseDown(event):
-        global mousedown
-        mousedown = 1
-
-    def onMouseUp(event):
-        global mousedown
-        mousedown = 0
-
-
-    onMouseMoveProxy = create_proxy(onMouseMove)
-    onTouchMoveProxy = create_proxy(onTouchMove)
-    onMouseDownProxy = create_proxy(onMouseDown)
-    onMouseUpProxy = create_proxy(onMouseUp)
-
 
     #########################################################################################
 
@@ -307,7 +272,7 @@
         ctx.stroke()
 
 
-    def draw_robot(xt, color1, color2, color3, color4, selectable, robot_id):
+    def draw_robot(xt, color1, color2, color3, color4, robot_id):
         ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.5) # Reset transformation
         # Draw base
         ctx.translate(0, 81)
@@ -324,10 +289,6 @@
         ctx.fill(seg11_svg)
         ctx.stroke(seg11_svg) # Outline
         ctx.fillStyle = color2
-        if selectable and ctx.isPointInPath(seg12_svg, mouse0[0], mouse0[1]):
-            ctx.fillStyle = '#3399FF'
-            hover_joint = 0
-            active_robot_id = robot_id
         ctx.fill(seg12_svg)
         ctx.stroke(seg12_svg)
         ctx.stroke(seg13_svg)
@@ -341,10 +302,6 @@
         ctx.fill(seg21_svg)
         ctx.stroke(seg21_svg) # Outline
         ctx.fillStyle = color2
-        if selectable and ctx.isPointInPath(seg22_svg, mouse0[0], mouse0[1]):
-            ctx.fillStyle = '#FF9933'
-            hover_joint = 1
-            active_robot_id = robot_id
         ctx.fill(seg22_svg)
         ctx.stroke(seg22_svg)
         ctx.stroke(seg23_svg)
@@ -390,18 +347,6 @@
 
     #########################################################################################
 
-    canvas.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-    canvas.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
-
-    canvas.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
-    canvas.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
-
-    canvas.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
-    canvas.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
-
-
-    #########################################################################################
-
     x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot state
     param.Mu[:,0] = x # 1st viapoint position
     param.Mu[:,1] = x # 2nd viapoint position
@@ -424,9 +369,9 @@
         # Rendering
         clear_screen()
         draw_ground()
-        draw_robot(param.Mu0[:,0], '#FF3399', '#FF3399', '#DD1177', '#DD1177', False, 0)
-        draw_robot(param.Mu0[:,1], '#33FF99', '#33FF99', '#11DD77', '#11DD77', False, 1)
-        draw_robot(xs[:,t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', False, -1)
+        draw_robot(param.Mu0[:,0], '#FF3399', '#FF3399', '#DD1177', '#DD1177', 0)
+        draw_robot(param.Mu0[:,1], '#33FF99', '#33FF99', '#11DD77', '#11DD77', 1)
+        draw_robot(xs[:,t], '#CCCCCC', '#AAAAAA', '#222222', '#000000', -1)
 
 
     async def reset(tab_id, editor):

@@ -138,38 +138,63 @@
 <script id="fragment-shader" type="shader">
     precision mediump float;
 
-    uniform sampler2D u_distances;
+    uniform vec2 canvas_size;
+    uniform vec2 canvas_offset;
 
-    float getMatrixValue(sampler2D matrix, int y, int x, ivec2 size, float scale) {
-        vec2 uv = vec2(
-            float(x) / (scale * float(size.x)),
-            float(y) / (scale * float(size.y))
-        );
+    uniform vec2 sdf_disc_pos;
+    uniform float sdf_disc_radius;
 
-        return texture(matrix, uv).r;
+    uniform vec2 sdf_box_offset;
+    uniform vec2 sdf_box_size;
+
+    uniform float sdf_smoothing_ratio;
+
+
+    float sdf_circle(vec2 pos, vec2 center, float radius)
+    {
+        return length(center - pos) - radius;
+    }
+
+    float sdf_box(vec2 pos, vec2 center, vec2 size)
+    {
+        vec2 dtmp = abs(pos - center) - size * 0.5;
+        float d = length(max(dtmp, vec2(0.0, 0.0))) + min(max(dtmp.x, dtmp.y), 0.0);
+        return d;
+    }
+
+    float smooth_union(float d1, float d2, float k)
+    {
+        // Smooth union (see https://www.shadertoy.com/view/lt3BW2)
+        // Note: will only be correct on the outside, see https://iquilezles.org/articles/interiordistance/
+        float h = max(k - abs(d1 - d2), 0.0);
+        float d = min(d1, d2) - pow(h, 2.0) * 0.25 / k;
+        return d;
+    }
+
+    float compute_distance(vec2 pos)
+    {
+        vec2 p1 = sdf_disc_pos;
+        vec2 p2 = sdf_disc_pos + sdf_box_offset;
+
+        float d1 = sdf_circle(pos, p1, sdf_disc_radius);
+        float d2 = sdf_box(pos, p2, sdf_box_size);
+        return smooth_union(d1, d2, sdf_smoothing_ratio); // Smoothing union with softmax composition of SDF shapes 
     }
 
     void mainImage(out vec4 fragColor, in vec2 fragCoord)
     {
-        vec3 color = vec3(1.0, 1.0, 1.0);
+        vec2 scale = canvas_size / iResolution;
 
-        ivec2 matrixSize = textureSize(u_distances, 0);
+        vec2 coord = vec2(gl_FragCoord.x, gl_FragCoord.y) * scale;
+        coord.x -= canvas_offset.x;
+        coord.y = coord.y - canvas_size.y + canvas_offset.y;
 
-        ivec2 coord = ivec2(gl_FragCoord.x, gl_FragCoord.y);
+        float distance = compute_distance(coord);
 
-        float scale = min(iResolution.x / float(matrixSize.x), iResolution.y / float(matrixSize.y));
-        int margin = int(scale / 2.0);
+        vec3 color = (distance > 0.0) ? vec3(0.9, 0.6, 0.3) : vec3(0.65, 0.85, 1.0);
+        color *= 1.0 - exp(-1.0 * abs(distance));
 
-        ivec2 scaledMatrixSize = ivec2(float(matrixSize.xy) * scale);
-
-        if ((coord.x > margin) && (coord.x < scaledMatrixSize.x - margin) && (coord.y > margin) && (coord.y < scaledMatrixSize.y - margin)) {
-            float dist = getMatrixValue(u_distances, coord.y, coord.x, matrixSize, scale);
-
-            color = (dist > 0.0) ? vec3(0.9, 0.6, 0.3) : vec3(0.65, 0.85, 1.0);
-            color *= 1.0 - exp(-500.0 * abs(dist));
-
-            color *= (dist > 0.0 ? 0.8 + 0.2 * cos(250.0 * dist - iTime * 10.0) : 1.0);
-        }
+        color *= (distance > 0.0 ? 0.8 + 0.2 * cos(0.25 * distance - iTime * 10.0) : 1.0);
 
         fragColor = vec4(color, 0.8);
     }
@@ -338,7 +363,7 @@
     # Mouse events
     mouse0 = np.zeros(2)
     mouse = np.zeros(2)
-    mousedown = 0
+    mousedown = False
     hover_joint = -1
     move_joint= -1
 
@@ -360,16 +385,17 @@
 
     def onMouseDown(event):
         global mousedown, move_joint
-        mousedown = 1
+        mousedown = True
         if hover_joint >= 0:
             f0 = fkin0(x[:param.nbVarX], param)
             param2.l = np.append(param.l[:hover_joint], np.linalg.norm(f0[:,hover_joint] - mouse))
             param2.nbVarX = hover_joint+1
             move_joint = hover_joint
+            event.preventDefault()
 
     def onMouseUp(event):
         global mousedown, move_joint
-        mousedown = 0
+        mousedown = False
         move_joint = -1
 
     def onWheel(event):
@@ -532,16 +558,24 @@
 
     #########################################################################################
 
-    canvas.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-    canvas.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
 
     canvas.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
     canvas.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
 
-    canvas.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
-    canvas.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
 
     canvas.addEventListener('wheel', onWheelProxy) #for standard mouse
+
+
+    async def cleanup():
+        document.removeEventListener('mousemove', onMouseMoveProxy)
+        document.removeEventListener('touchmove', onTouchMoveProxy)
+
+        document.removeEventListener('mouseup', onMouseUpProxy)
+        document.removeEventListener('touchend', onMouseUpProxy)
 
 
     #########################################################################################
@@ -610,6 +644,15 @@
 
         # Start the rendering
         renderer = GlslRenderer.new(document.getElementById('canvas-shader'), True)
+
+        renderer.setUniform('canvas_size', to_js([canvas.width, canvas.height]))
+        renderer.setUniform('canvas_offset', to_js(canvas_offset))
+        renderer.setUniform('sdf_disc_pos', to_js([f_target[0], f_target[1]]))
+        renderer.setUniform('sdf_disc_radius', sdf_disc_radius)
+        renderer.setUniform('sdf_box_offset', to_js([sdf_box_offset[0], sdf_box_offset[1]]))
+        renderer.setUniform('sdf_box_size', to_js([sdf_box_size[0], sdf_box_size[1]]))
+        renderer.setUniform('sdf_smoothing_ratio', sdf_smoothing_ratio)
+
         renderer.setup(document.querySelector("#fragment-shader").text);
 
         executePythonScript('user_code_impedance')
@@ -617,17 +660,13 @@
 
     async def run():
         if document.getElementById('taskimpedance2-tab').ariaSelected == 'true':
-            nbDim = 40
-
-            t1 = np.linspace(-canvas_offset[0], canvas_offset[0], nbDim)
-            t2 = np.linspace(-canvas.height + canvas_offset[1], canvas_offset[1], nbDim)
-
-            xv, yv = np.meshgrid(t1, t2)
-            x = np.array([xv.flatten(), yv.flatten()])
-
-            y = compute_distance(x) / canvas.width
-
-            renderer.setMatrix('u_distances', to_js(y.flatten()), nbDim, nbDim, False, True)
+            renderer.setUniform('canvas_size', to_js([canvas.width, canvas.height]))
+            renderer.setUniform('canvas_offset', to_js(canvas_offset))
+            renderer.setUniform('sdf_disc_pos', to_js([f_target[0], f_target[1]]))
+            renderer.setUniform('sdf_disc_radius', sdf_disc_radius)
+            renderer.setUniform('sdf_box_offset', to_js([sdf_box_offset[0], sdf_box_offset[1]]))
+            renderer.setUniform('sdf_box_size', to_js([sdf_box_size[0], sdf_box_size[1]]))
+            renderer.setUniform('sdf_smoothing_ratio', sdf_smoothing_ratio)
 
 
     async def onTabChanged(tab_id, editor):
@@ -640,6 +679,7 @@
         'loop': loop,
         'run': run,
         'reset': onTabChanged,
+        'cleanup': cleanup,
         'output': 'output',
         'errors': 'errors',
     })

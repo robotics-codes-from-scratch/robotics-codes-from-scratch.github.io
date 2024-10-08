@@ -198,7 +198,7 @@
     # Mouse events
     mouse0 = np.zeros(2)
     mouse = np.zeros(2)
-    mousedown = 0
+    mousedown = False
 
     def onMouseMove(event):
         global mouse, mouse0
@@ -217,12 +217,15 @@
         mouse[1] = (mouse0[1] - canvas.height * 0.9) / scaling_factor
 
     def onMouseDown(event):
-        global mousedown, hover0
-        mousedown = 1
+        global mousedown, hover0, selected_obj
+        mousedown = True
+        if hover_obj >= 0:
+            selected_obj = hover_obj
+            event.preventDefault()
 
     def onMouseUp(event):
         global mousedown, selected_obj
-        mousedown = 0
+        mousedown = False
         selected_obj = -1
         update_iLQR()
 
@@ -271,8 +274,8 @@
         ctx.stroke()
 
 
-    def draw_drone(x, color='#000000', selectable='False', id=0):
-        global selected_obj, hover_obj
+    def draw_drone(x, color='#000000', selectable=False, id=0):
+        global hover_obj
         ctx.setTransform(scaling_factor, 0, 0, scaling_factor, canvas.width*0.5, canvas.height*0.9) # Reset transformation
 
         ctx.translate(x[0]*scaling_coord, x[1]*scaling_coord)
@@ -280,25 +283,30 @@
 
         ctx.fillStyle = color
         ctx.fill(drone_svg)
-        if selectable=='True':
-            if ctx.isPointInPath(drone_svg, mouse0[0], mouse0[1]):
-                hover_obj = id
-            if ctx.isPointInPath(drone_svg, mouse0[0], mouse0[1]) and mousedown==1:
-                selected_obj = id
+        if selectable and ctx.isPointInPath(drone_svg, mouse0[0], mouse0[1]):
+            hover_obj = id
 
 
     #########################################################################################
 
-    canvas.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
-    canvas.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
 
     canvas.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
     canvas.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
 
-    canvas.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
-    canvas.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
 
     canvas.addEventListener('wheel', onWheelProxy) #for standard mouse
+
+
+    async def cleanup():
+        document.removeEventListener('mousemove', onMouseMoveProxy)
+        document.removeEventListener('touchmove', onTouchMoveProxy)
+
+        document.removeEventListener('mouseup', onMouseUpProxy)
+        document.removeEventListener('touchend', onMouseUpProxy)
 
 
     #########################################################################################
@@ -335,8 +343,8 @@
         # Rendering
         clear_screen()
         draw_drone(x0, '#CCCCCC')
-        draw_drone(param.Mu[:,0], '#FF3399', 'True', 0)
-        draw_drone(param.Mu[:,1], '#33FF99', 'True', 1)
+        draw_drone(param.Mu[:,0], '#FF3399', True, 0)
+        draw_drone(param.Mu[:,1], '#33FF99', True, 1)
         draw_drone(x[:,t])
 
         # Drone selection
@@ -348,6 +356,7 @@
 
     configure({
         'loop': loop,
+        'cleanup': cleanup,
         'output': 'output',
         'errors': 'errors',
     })
