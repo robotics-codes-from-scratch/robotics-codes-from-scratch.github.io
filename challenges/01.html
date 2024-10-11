@@ -1,0 +1,240 @@
+﻿<div class="row">
+    <div class="col-sm-1"></div>
+
+    <div class="col-sm-5">
+        <h3>Challenge: Move the cube</h3>
+
+        <editor id="editor" src="user_code"></editor>
+
+        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
+            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
+                Instructions
+            </button>
+        </div>
+
+        <div id="instructions" class="collapse instructions show">
+            <div class="card card-body">
+                <h5>Task</h5>
+                <p>Grab the red cube on the orange box and move it on top of the green one. The cube must stay
+                on the green box for 5 seconds to complete the challenge.</p>
+
+                <h5>API</h5>
+                <p>The following functions are available:</p>
+                <ul>
+                    <li><code>fkin(x)</code>: Forward kinematics</li>
+                    <li><code>Jkin(x)</code>: Jacobian computation</li>
+                    <li><code>openGripper()</code></li>
+                    <li><code>closeGripper()</code></li>
+                    <li><code>isGripperOpen()</code></li>
+                    <li><code>isGripperClosed()</code></li>
+                    <li><code>isGripperHoldingSomeObject()</code></li>
+                </ul>
+
+                <p>Additionally, some variables are available:</p>
+                <ul>
+                    <li><code>cube_start</code>: Position & orientation of the red cube at the beginning</li>
+                    <li><code>target</code>: Position & orientation of the top of the green box</li>
+                </ul>
+
+                <p>Both are of the form: <code>[px, py, pz, qx, qy, qz, qw]</code>.</p>
+
+                <h5>Control</h5>
+                <p>Click on the green run button to execute the code.</p>
+                <p>To rotate the camera, press the left mouse button and drag the mouse. The right mouse button let you translate the camera. The mouse wheel let you zoom in/out.</p>
+            </div>
+        </div>
+
+        <pre id="errors" class="py-error"></pre>
+        <pre id="output" class="py-output"></pre>
+    </div>
+
+    <div class="col-sm-6">
+        <div class="sticky-sm-top" style="padding-top: 2rem;">
+            <div id="viewer3d" style="width: 100%; height: 400px;"></div>
+            <div id="success" style="display:none; position: absolute; top: 6rem; text-align: center; width: 100%; color: limegreen; font-size: 100px; font-weight: bold;">
+                &#x2714;
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script id="user_code" type="python">
+    def controlCommand(x):
+        return np.zeros(x.shape)
+</script>
+
+
+<script id="page_code" type="python">
+    from viewer3d import Viewer3D, configs, logmap_S3, logmap, readFile, writeFile
+    from js import document, three
+    from rcfs import configure, displayError, setAspectRatio
+    import numpy as np
+    import math
+
+
+    def setCubeLocation(position, orientation):
+        content = readFile('/scenes/01.xml')
+
+        start = content.find('<body name="redcube"')
+        end = content.find('>', start)
+
+        content = content[:start] + f'<body name="redcube" pos="{position[0]} {-position[2]} {position[1]}" ' + \
+                  f'quat="{orientation[3]} {orientation[0]} {-orientation[2]} {orientation[1]}">' + content[end+1:]
+
+        writeFile('/scenes/01.xml', content)
+
+
+    # The function that will be called once per frame
+    robot = None
+    cube = None
+
+    cube_start0 = None
+    target0 = None
+
+    cube_start = None
+    target = None
+
+    targetReached = False
+    targetReachedStartTime = None
+
+    def callback(delta, time):
+        global cube_start, target, targetReached, targetReachedStartTime
+
+        cube_start = np.copy(cube_start0)
+        target = np.copy(target0)
+
+        try:
+            x = robot.control
+            u = controlCommand(x)
+            x += u * delta
+            robot.control = x
+        except Exception as e:
+            displayError(e)
+
+        pos = cube.position
+        reached = robot.isGripperOpen and \
+                  (pos[0] > target0[0] - 0.1) and (pos[0] < target0[0] + 0.1) and \
+                  (pos[2] > target0[2] - 0.1) and (pos[2] < target0[2] + 0.1) and \
+                  (pos[1] > target0[1] - 0.02) and (pos[1] < target0[1] + 0.02)
+
+        if reached:
+            if not targetReached:
+                targetReached = True
+                targetReachedStartTime = time
+            elif time - targetReachedStartTime > 5.0:
+                viewer3D.physicsSimulatorPaused = False
+                viewer3D.setRenderingCallback(None)
+                document.getElementById('success').style.display = 'block'
+        else:
+            targetReached = False
+            targetReachedStartTime = None
+
+
+    # Load the scene and retrieve the robot
+    def reset():
+        global robot, cube, cube_start0, target0, targetReached, targetReachedStartTime
+
+        targetReached = False
+        targetReachedStartTime = None
+
+        cube_start0 = np.array([0.4, 0.42, 0.4, -0.707, 0.0, 0.707, 0.0])
+        target0 = np.array([0.4, 0.42, -0.4, 0.707, 0.0, -0.707, 0.0])
+
+        offset = np.random.rand(2) * 0.16 - 0.08
+        cube_start0[0] = 0.4 + offset[0]
+        cube_start0[2] = 0.4 + offset[1]
+
+        quaternion1 = three.Quaternion.new(-0.707, 0.0, 0.707, 0.0)
+        quaternion2 = three.Quaternion.new()
+        quaternion2.setFromAxisAngle(three.Vector3.new(0, 1, 0), np.random.random() * 2 * math.pi - math.pi)
+        q = quaternion1.multiply(quaternion2)
+    
+        cube_start0[3] = q.x
+        cube_start0[4] = q.y
+        cube_start0[5] = q.z
+        cube_start0[6] = q.w
+
+        setCubeLocation(cube_start0[:3], cube_start0[3:])
+        viewer3D.loadScene('/scenes/01.xml')
+        viewer3D.translateCamera([0.0, 0.3, 0.0])
+        robot = viewer3D.createRobot('panda', configs.Panda.new())
+        cube = viewer3D.getPhysicalBody('redcube')
+        viewer3D.physicsSimulatorPaused = False
+        viewer3D.setRenderingCallback(callback)
+
+        document.getElementById('success').style.display = 'none'
+
+
+    # Resize the container of the Viewer3D to have a 1:1 aspect ratio
+    setAspectRatio('viewer3d', 1.0)
+
+    # Create the Viewer3D
+    viewer3D = Viewer3D(
+        document.getElementById('viewer3d'),
+        {
+            'external_loop': True,
+        }
+    )
+
+    viewer3D.controlsEnabled = False
+
+    reset()
+
+
+    # Placeholder for the function to implement
+    def controlCommand(x):
+        return np.zeros(x.shape)
+
+    # Forward kinematics function (allows to not care about 'robot' in the user code)
+    def fkin(x):
+        return robot.fkin(x)
+
+    # Jacobian function (allows to not care about 'robot' in the user code)
+    def Jkin(x):
+        return robot.Jkin(x)
+
+    # Function to open the gripper (allows to not care about 'robot' in the user code)
+    def openGripper():
+        robot.openGripper()
+
+    # Function to close the gripper (allows to not care about 'robot' in the user code)
+    def closeGripper():
+        robot.closeGripper()
+
+    # Function that indicates if the gripper is fully open (allows to not care about 'robot' in the user code)
+    def isGripperOpen():
+        return robot.isGripperOpen
+
+    # Function that indicates if the gripper is fully closed (allows to not care about 'robot' in the user code)
+    def isGripperClosed():
+        return robot.isGripperClosed
+
+    # Function that indicates if the gripper is holding an object (allows to not care about 'robot' in the user code)
+    def isGripperHoldingSomeObject():
+        return robot.isGripperHoldingSomeObject
+
+
+    async def run():
+        try:
+            reset()
+        except Exception as e:
+            displayError(e)
+
+
+    async def loop(delta, time):
+        viewer3D.render()
+
+
+    configure({
+        'loop': loop,
+        'run': run,
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

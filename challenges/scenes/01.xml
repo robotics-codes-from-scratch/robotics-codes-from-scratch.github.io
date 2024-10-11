@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<mujoco model="panda scene">
+    <include file="franka_emika_panda/panda.xml"/>
+
+    <statistic center="0.3 0 0.4" extent="1.5"/>
+
+    <default>
+        <default class="cube">
+            <geom size="0.02 0.02 0.02" type="box"/>
+        </default>
+    </default>
+
+    <visual>
+        <headlight diffuse="0.2 0.2 0.2" ambient="0.4 0.4 0.4"/>
+        <rgba fog="1.0 1.0 1.0 1.0"/>
+        <global azimuth="180" elevation="-20"/>
+    </visual>
+
+    <asset>
+        <material name="groundplane" rgba="1 1 1 1"/>
+    </asset>
+
+    <worldbody>
+        <light pos="0 0 3" mode="fixed" diffuse="0.3 0.3 0.3" castshadow="false"/>
+        <light pos="3 -4 3" dir="-3 4 -3" diffuse="0.3 0.3 0.3" directional="false"/>
+        <geom name="floor" size="5 5 0.1" type="plane" material="groundplane"/>
+
+        <body name="box1" pos="0.4 -0.4 0.2">
+            <freejoint/>
+            <geom type="box" size=".1 .1 .2" rgba=".98 .59 .17 1" mass="0.1"/>
+        </body>
+
+        <body name="box2" pos="0.4 0.4 0.2">
+            <freejoint/>
+            <geom type="box" size=".1 .1 .2" rgba=".59 .98 .17 1" mass="0.1"/>
+        </body>
+
+        <body name="redcube" pos="0.4 -0.4 0.42">
+            <freejoint/>
+            <geom class="cube" rgba="1 0 0 1"/>
+        </body>
+    </worldbody>
+</mujoco>
