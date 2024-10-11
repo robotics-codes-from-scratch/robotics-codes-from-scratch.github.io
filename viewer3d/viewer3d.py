@@ -12,6 +12,8 @@ from js import Shapes
 from js import configs
 from js import gaussians
 from js import RobotBuilder
+from js import readFile
+from js import writeFile
 from pyodide.ffi import create_proxy
 from pyodide.ffi import to_js
 import numpy as np
@@ -564,6 +566,14 @@ class Viewer3D:
         return Gaussian(self.viewer.getGaussian(name))
 
 
+    def getPhysicalBody(self, name):
+        body = self.viewer.getPhysicalBody(name)
+        if body is None:
+            return None
+
+        return PhysicalBody(body)
+
+
     def translateCamera(self, delta):
         if isinstance(delta, np.ndarray):
             delta = list(delta)
@@ -1064,6 +1074,26 @@ class Gaussian(Object3D):
             sigma = np.array(sigma)
 
         self.object.setSigma(three.Matrix3.new().set(*list(sigma.flatten())))
+
+
+class PhysicalBody:
+
+    def __init__(self, bodyjs):
+        """Constructor, for internal use only"""
+        self.body = bodyjs
+
+
+    @property
+    def name(self):
+        """Returns the name of the object"""
+        return self.body.name
+
+
+    @property
+    def position(self):
+        """Returns the position of the object (as a NumPy array)"""
+        pos = self.body.position()
+        return np.array([pos.x, pos.y, pos.z])
 
 
 

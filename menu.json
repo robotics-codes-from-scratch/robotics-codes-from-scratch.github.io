@@ -246,6 +246,28 @@
         ]
     },
     {
+        "id": "challenges",
+        "title": "Challenges",
+        "requirements": [
+            "pyscript"
+        ],
+        "entries": [
+            {
+                "title": "Move the cube",
+                "hash": "challenge01",
+                "page": "01.html",
+                "assets": {
+                    "robots": [
+                        "panda"
+                    ],
+                    "scenes": [
+                        "scenes/01.xml"
+                    ]
+                }
+            }
+        ]
+    },
+    {
         "id": "online_course",
         "title": "Online course",
         "entries": [

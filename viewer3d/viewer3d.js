@@ -1382,6 +1382,11 @@ function readFile(filename, binary=false) {
 }
 
 
+function writeFile(filename, content) {
+    mujoco.FS.writeFile(filename, content);
+}
+
+
 function mkdir(path) {
     const parts = path.split("/");
 
@@ -1703,6 +1708,25 @@ class PhysicsSimulator {
                 this.simulation.ctrl[a] = ctrl[i];
             }
         }
+    }
+
+
+    getBody(name) {
+        for (let b = 0; b < this.model.nbody; ++b) {
+            const bodyName = this.names[this.model.name_bodyadr[b]];
+
+            if (bodyName == name)
+                return b;
+        }
+
+        return null;
+    }
+
+
+    getBodyPosition(bodyId) {
+        const pos = new THREE.Vector3();
+        this._getPosition(this.simulation.xpos, bodyId, pos);
+        return pos;
     }
 
 
@@ -5230,6 +5254,23 @@ const InteractionStates = Object.freeze({
 
 
 
+class PhysicalBody {
+
+    constructor(name, bodyId, physicsSimulator) {
+        this.name = name;
+        this.bodyId = bodyId;
+        this.physicsSimulator = physicsSimulator;
+    }
+
+
+    position() {
+        return this.physicsSimulator.getBodyPosition(this.bodyId);
+    }
+
+}
+
+
+
 /* Entry point for the 'viewer3d.js' library, used to display and interact with a 3D
 representation of the Panda robotic arm.
 */
@@ -5963,6 +6004,15 @@ class Viewer3D {
     */
     getGaussian(name) {
         return this.gaussians.get(name);
+    }
+
+
+    getPhysicalBody(name) {
+        const bodyId = this.physicsSimulator.getBody(name);
+        if (bodyId == null)
+            return null;
+
+        return new PhysicalBody(name, bodyId, this.physicsSimulator);
     }
 
 
@@ -6718,9 +6768,12 @@ function initViewer3D() {
     // Add some modules to the global scope, so they can be accessed by PyScript
     globalThis.three = THREE;
     globalThis.katex = katex;
+    globalThis.mujoco = mujoco;
     globalThis.Viewer3Djs = Viewer3D;
     globalThis.Shapes = Shapes;
     globalThis.RobotBuilder = RobotBuilder;
+    globalThis.readFile = readFile;
+    globalThis.writeFile = writeFile;
 
     globalThis.configs = {
         RobotConfiguration: RobotConfiguration,
@@ -6774,4 +6827,4 @@ cssFiles.forEach(css => {
     document.getElementsByTagName('HEAD')[0].appendChild(link);
 });
 
-export { PandaConfiguration, PandaNoHandConfiguration, RobotBuilder, RobotConfiguration, Shapes, Viewer3D, downloadFiles, downloadPandaRobot, downloadScene, getURL, initPyScript, initViewer3D, matrixFromSigma, readFile, sigmaFromMatrix3, sigmaFromMatrix4, sigmaFromQuaternionAndScale };
+export { PandaConfiguration, PandaNoHandConfiguration, RobotBuilder, RobotConfiguration, Shapes, Viewer3D, downloadFiles, downloadPandaRobot, downloadScene, getURL, initPyScript, initViewer3D, matrixFromSigma, readFile, writeFile, sigmaFromMatrix3, sigmaFromMatrix4, sigmaFromQuaternionAndScale };
