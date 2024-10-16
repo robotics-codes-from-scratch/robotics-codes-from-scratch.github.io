@@ -1,0 +1,225 @@
+<div class='row'>
+    <div class='col-sm-1'></div>
+
+    <div class='col-sm-7'>
+        <h3>Jacobian</h3>
+        <br>
+
+        <div align="center" style="font-size: 150%;">
+            <div id='formula' class="ltx_Math"></div>
+        </div>
+
+        <br><br>
+
+        <div class="instructions">
+            <p>See <a href="#S5-sec:SS1">Numerical estimation of the Jacobian</a> for more information.</p>
+        </div>
+    </div>
+
+    <div class='col-sm-4'>
+        <div class='sticky-sm-top'>
+            <div id="viewer3d" style="width: 100%; height: 400px;"></div>
+        </div>
+    </div>
+</div>
+
+
+<script id="page_code" type="python">
+    from viewer3d import Viewer3D, configs, logmap_S3, logmap
+    from rcfs import configure, setAspectRatio
+    from js import document, katex
+    import numpy as np
+
+
+    joint_colors = ['#FF0000', '#FFC700', '#C71585', '#00FF00', '#0000FF', '#1E90FF', '#66CDAA']
+    f_colors = ['#AA0000', '#00AA00', '#0000AA']
+
+
+    # The function that will be called once per frame
+    x = None
+    duration = 0.0
+    currentJoint = 0
+    startPosition = 0
+
+    def update(delta, time):
+        global x
+        global duration
+        global currentJoint
+        global startPosition
+
+        duration += delta
+        if duration >= 4.0:
+            duration = 0.0
+            x[currentJoint] = startPosition
+            currentJoint = (currentJoint + 1) % 7
+            startPosition = x[currentJoint]
+            generateLatex(currentJoint)
+            generatePaths(currentJoint, x)
+
+        x[currentJoint] = startPosition + np.sin(np.pi * duration) * .2
+
+        robot.jointPositions = x
+
+        ee_pos = robot.fkin(x)
+
+        point_f1.position = [ee_pos[0], 0, 0]
+        point_f2.position = [0, ee_pos[1], 0]
+        point_f3.position = [0, 0, ee_pos[2]]
+        point_ee.position = ee_pos[:3]
+
+
+    # Function that update the Jacobian formula
+    def generateLatex(joint):
+        text = '\\bm{J}(\\bm{x})=\\begin{bmatrix}\n'
+
+        for i in range(1, 4):
+            for j in range(1, 8):
+                if j > 1:
+                    text += ' & '
+
+                if j == joint + 1:
+                    text += '\\frac{\\color{' + f_colors[i-1] + '}\\partial f_' + str(i) + '}{\\color{' + joint_colors[j-1] + '}\\partial x_' + str(j) + '}\n'
+                else:
+                    text += '{\\color{#CCCCCC}\\frac{\\partial f_' + str(i) + '}{\\partial x_' + str(j) + '}}\n'
+
+            if i < 3:
+                text += '\\\\[2mm]\n'
+
+        text += '\\end{bmatrix}'
+
+        katex.render(text, document.getElementById('formula'), {
+            'throwOnError': False
+        })
+
+
+    # Function that update the paths
+    def generatePaths(joint, positions):
+        N = 60
+
+        positions = np.repeat(positions.reshape(-1, 1), N, axis=1)
+        positions[joint,:] += [ np.sin(np.pi * (0.5 + i / N)) * .2 for i in range(N) ]
+
+        ee_pos = robot.fkin(positions)
+
+        viewer3D.removePath('ee')
+        viewer3D.removePath('f1')
+        viewer3D.removePath('f2')
+        viewer3D.removePath('f3')
+
+        f1 = np.zeros((N, 3))
+        f1[:,0] = ee_pos[0,:]
+
+        f2 = np.zeros((N, 3))
+        f2[:,1] = ee_pos[1,:]
+
+        f3 = np.zeros((N, 3))
+        f3[:,2] = ee_pos[2,:]
+
+        viewer3D.activateLayer(3)
+        viewer3D.addPath('ee', ee_pos[:3,:].T, radius=0.007, color='#000000', shading=True)
+        viewer3D.addPath('f1', f1, radius=0.007, color=f_colors[0], shading=True)
+        viewer3D.addPath('f2', f2, radius=0.007, color=f_colors[1], shading=True)
+        viewer3D.addPath('f3', f3, radius=0.007, color=f_colors[2], shading=True)
+
+
+    # Resize the container of the Viewer3D to have a 1:1 aspect ratio
+    setAspectRatio('viewer3d', 1.0)
+
+
+    # Create the Viewer3D
+    viewer3D = Viewer3D(
+        document.getElementById('viewer3d'),
+        parameters=dict(
+            show_joint_positions=True,
+            joint_position_colors=joint_colors,
+            joint_position_layer=2,
+            robot_use_light_toon_shader=True,
+            external_loop=True,
+        ),
+        composition=[
+            dict(
+                layer=1,
+                effect='outline',
+                effect_parameters=dict(
+                    thickness=0.001,
+                    color=[0.5, 0.5, 0.5, 0.0]
+                ),
+            ),
+            dict(
+                layer=3,
+                clear_depth=True,
+            )
+        ],
+    )
+
+    viewer3D.setRenderingCallback(update)
+
+    # Load the scene and retrieve the robot
+    viewer3D.loadScene('/scenes/panda.xml')
+    viewer3D.translateCamera([0, 0, 0.3])
+
+    viewer3D.activateLayer(1)
+    robot = viewer3D.createRobot('panda', configs.Panda.new())
+
+    # Disable the manipulation of the robot by the user
+    viewer3D.controlsEnabled = False
+    viewer3D.robotToolsEnabled = False
+
+
+    # Setup the scene (points, lines, ...)
+    x = robot.jointPositions
+    startPosition = x[currentJoint]
+
+    generateLatex(currentJoint)
+    generatePaths(currentJoint, x)
+
+    ee_pos = robot.fkin(x)
+
+    point_f1 = viewer3D.addPoint(
+        'f1',
+        [ee_pos[0], 0, 0],
+        radius=0.02,
+        color=f_colors[0],
+        label='f_1',
+        shading=True
+    )
+
+    point_f2 = viewer3D.addPoint(
+        'f2',
+        [0, ee_pos[1], 0],
+        radius=0.02,
+        color=f_colors[1],
+        label='f_2',
+        shading=True
+    )
+
+    point_f3 = viewer3D.addPoint(
+        'f3',
+        [0, 0, ee_pos[0]],
+        radius=0.02,
+        color=f_colors[2],
+        label='f_3',
+        shading=True
+    )
+
+    point_ee = viewer3D.addPoint(
+        'ee',
+        ee_pos[:3],
+        radius=0.02,
+        color='#000000',
+        shading=True
+    )
+
+    viewer3D.addPath('xaxis', [[0, 0, 0], [1, 0, 0]], radius=0.002, color='#333333')
+    viewer3D.addPath('yaxis', [[0, 0, 0], [0, 1, 0]], radius=0.002, color='#333333')
+    viewer3D.addPath('zaxis', [[0, 0, 0], [0, 0, 1]], radius=0.002, color='#333333')
+
+
+    async def loop(delta, time):
+        viewer3D.render()
+
+
+    configure({
+        'loop': loop,
+    })
+</script>

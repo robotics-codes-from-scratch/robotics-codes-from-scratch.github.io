@@ -28,6 +28,8 @@
                 <ul>
                     <li><code>fkin(x)</code>: Forward kinematics</li>
                     <li><code>Jkin(x)</code>: Jacobian computation</li>
+                    <li><code>logmap(f, f0)</code>: Logarithmic map for $\mathbb{R}^3 \times \mathcal{S}^3$ manifold (with $e$ in tangent space)</li>
+                    <li><code>logmap_S3(f, f0)</code>: Logarithmic map for $\mathcal{S}^3$ manifold (with $e$ in tangent space)</li>
                     <li><code>openGripper()</code></li>
                     <li><code>closeGripper()</code></li>
                     <li><code>isGripperOpen()</code></li>
@@ -65,7 +67,14 @@
 
 
 <script id="user_code" type="python">
+    task_step = 0 # variable to keep track of the current motion phase
+
     def controlCommand(x):
+        global task_step
+
+        if x[0] < 0:
+            task_step = 1 # switch to the next motion phase
+
         return np.zeros(x.shape)
 </script>
 
@@ -84,8 +93,8 @@
         start = content.find('<body name="redcube"')
         end = content.find('>', start)
 
-        content = content[:start] + f'<body name="redcube" pos="{position[0]} {-position[2]} {position[1]}" ' + \
-                  f'quat="{orientation[3]} {orientation[0]} {-orientation[2]} {orientation[1]}">' + content[end+1:]
+        content = content[:start] + f'<body name="redcube" pos="{position[0]} {position[1]} {position[2]}" ' + \
+                  f'quat="{orientation[3]} {orientation[0]} {orientation[1]} {orientation[2]}">' + content[end+1:]
 
         writeFile('/scenes/01.xml', content)
 
@@ -120,8 +129,8 @@
         pos = cube.position
         reached = robot.isGripperOpen and \
                   (pos[0] > target0[0] - 0.1) and (pos[0] < target0[0] + 0.1) and \
-                  (pos[2] > target0[2] - 0.1) and (pos[2] < target0[2] + 0.1) and \
-                  (pos[1] > target0[1] - 0.02) and (pos[1] < target0[1] + 0.02)
+                  (pos[1] > target0[1] - 0.1) and (pos[1] < target0[1] + 0.1) and \
+                  (pos[2] > target0[2] - 0.03) and (pos[2] < target0[2] + 0.02)
 
         if reached:
             if not targetReached:
@@ -143,16 +152,16 @@
         targetReached = False
         targetReachedStartTime = None
 
-        cube_start0 = np.array([0.4, 0.42, 0.4, -0.707, 0.0, 0.707, 0.0])
-        target0 = np.array([0.4, 0.42, -0.4, 0.707, 0.0, -0.707, 0.0])
+        cube_start0 = np.array([0.4, -0.4, 0.42, -0.707, -0.707, 0.0, 0.0])
+        target0 = np.array([0.4, 0.4, 0.42, 0.707, 0.707, 0.0, 0.0])
 
         offset = np.random.rand(2) * 0.16 - 0.08
         cube_start0[0] = 0.4 + offset[0]
-        cube_start0[2] = 0.4 + offset[1]
+        cube_start0[1] = -0.4 + offset[1]
 
-        quaternion1 = three.Quaternion.new(-0.707, 0.0, 0.707, 0.0)
+        quaternion1 = three.Quaternion.new(-0.707, -0.707, 0.0, 0.0)
         quaternion2 = three.Quaternion.new()
-        quaternion2.setFromAxisAngle(three.Vector3.new(0, 1, 0), np.random.random() * 2 * math.pi - math.pi)
+        quaternion2.setFromAxisAngle(three.Vector3.new(0, 0, 1), np.random.random() * math.pi - math.pi / 2)
         q = quaternion1.multiply(quaternion2)
     
         cube_start0[3] = q.x
@@ -162,7 +171,7 @@
 
         setCubeLocation(cube_start0[:3], cube_start0[3:])
         viewer3D.loadScene('/scenes/01.xml')
-        viewer3D.translateCamera([0.0, 0.3, 0.0])
+        viewer3D.translateCamera([0.0, 0.0, 0.3])
         robot = viewer3D.createRobot('panda', configs.Panda.new())
         cube = viewer3D.getPhysicalBody('redcube')
         viewer3D.physicsSimulatorPaused = False

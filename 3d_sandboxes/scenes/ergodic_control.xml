@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <mujoco model="panda scene">
-    <include file="franka_emika_panda/panda.xml" pos="0.5 -0.5 0"/>
+    <include file="franka_emika_panda/panda.xml" pos="0.5 0.5 0"/>
 
-    <statistic center="0.8 -0.5 0.4" extent="1.5"/>
+    <statistic center="0.8 0.5 0.4" extent="1.5"/>
 
     <visual>
         <headlight diffuse="0.2 0.2 0.2" ambient="0.4 0.4 0.4"/>
@@ -17,6 +17,6 @@
     <worldbody>
         <light pos="0 0 3" mode="fixed" diffuse="0.3 0.3 0.3" castshadow="false" directional="true"/>
         <light pos="3.8 -4.5 3" dir="-3 4 -3" diffuse="0.3 0.3 0.3" directional="false"/>
-        <geom name="floor" size="1.5 1.5 0.1" type="plane" material="groundplane"/>
+        <geom name="floor" pos="0.5 0.5 0" size="1.5 1.5 0.1" type="plane" material="groundplane"/>
     </worldbody>
 </mujoco>

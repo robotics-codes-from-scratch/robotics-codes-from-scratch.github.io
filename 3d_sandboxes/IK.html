@@ -144,7 +144,7 @@
 
     # Load the scene and retrieve the robot
     viewer3D.loadScene('/scenes/panda.xml')
-    viewer3D.translateCamera([0.0, 0.3, 0.0])
+    viewer3D.translateCamera([0.0, 0.0, 0.3])
 
     robot = viewer3D.createRobot('panda', configs.Panda.new())
 
@@ -153,7 +153,7 @@
     viewer3D.endEffectorManipulationEnabled = False
 
     # Add one target
-    target = viewer3D.addTarget('target', [0.0, 0.65, -0.6], [0.51, 0.46, -0.57, -0.44], '#F08967', shape=Shapes.Cone)
+    target = viewer3D.addTarget('target', [0.0, 0.6, 0.65], [0.51, 0.57, 0.46, -0.44], '#F08967', shape=Shapes.Cone)
 
     # Enable the logmap
     viewer3D.enableLogmap(robot, target, position='left', size=element.clientWidth * 0.15)

@@ -121,6 +121,7 @@ class JointPositionHelper extends THREE.Object3D {
         this.previousPosition = null;
 
         this.origin = new THREE.Object3D();
+        this.origin.rotateX(Math.PI / 2);
         this.origin.translateY(offset);
         this.add(this.origin);
 
@@ -1711,7 +1712,7 @@ class PhysicsSimulator {
     }
 
 
-    getBody(name) {
+    getBodyId(name) {
         for (let b = 0; b < this.model.nbody; ++b) {
             const bodyName = this.names[this.model.name_bodyadr[b]];
 
@@ -1905,7 +1906,7 @@ class PhysicsSimulator {
             } else if (type == mujoco.mjtGeom.mjGEOM_CYLINDER.value) {
                 geometry = new THREE.CylinderGeometry(size[0], size[0], size[1] * 2.0, 20);
             } else if (type == mujoco.mjtGeom.mjGEOM_BOX.value) {
-                geometry = new THREE.BoxGeometry(size[0] * 2.0, size[2] * 2.0, size[1] * 2.0);
+                geometry = new THREE.BoxGeometry(size[0] * 2.0, size[1] * 2.0, size[2] * 2.0);
             } else if (type == mujoco.mjtGeom.mjGEOM_MESH.value) {
                 let meshID = this.model.geom_dataid[g];
 
@@ -1918,23 +1919,11 @@ class PhysicsSimulator {
                         (this.model.mesh_vertadr[meshID] + this.model.mesh_vertnum[meshID]) * 3
                     );
 
-                    for (let v = 0; v < vertex_buffer.length; v += 3) {
-                        let temp = vertex_buffer[v + 1];
-                        vertex_buffer[v + 1] = vertex_buffer[v + 2];
-                        vertex_buffer[v + 2] = -temp;
-                    }
-
                     // Normals
                     let normal_buffer = this.model.mesh_normal.subarray(
                         this.model.mesh_vertadr[meshID] * 3,
                         (this.model.mesh_vertadr[meshID] + this.model.mesh_vertnum[meshID]) * 3
                     );
-
-                    for (let v = 0; v < normal_buffer.length; v += 3) {
-                        let temp = normal_buffer[v + 1];
-                        normal_buffer[v + 1] = normal_buffer[v + 2];
-                        normal_buffer[v + 2] = -temp;
-                    }
 
                     // UVs
                     let uv_buffer = this.model.mesh_texcoord.subarray(
@@ -2058,7 +2047,6 @@ class PhysicsSimulator {
                 const heightSegments = (infiniteY ? this.freeCameraSettings.zfar * 2 / spacing : height / spacing);
 
                 mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, height, widthSegments, heightSegments), material);
-                mesh.rotateX(-Math.PI / 2);
                 mesh.infiniteX = infiniteX;
                 mesh.infiniteY = infiniteY;
                 mesh.infinite = infiniteX && infiniteY;
@@ -2095,8 +2083,6 @@ class PhysicsSimulator {
             this._getQuaternion(this.model.geom_quat, g, mesh.quaternion);
 
             if (type == mujoco.mjtGeom.mjGEOM_PLANE.value) {
-                mesh.rotateX(-Math.PI / 2);
-
                 if (!mesh.infinite) {
                     const material2 = material.clone();
                     material2.side = THREE.BackSide;
@@ -2112,7 +2098,13 @@ class PhysicsSimulator {
 
             // Stretch the ellipsoids
             if (type == mujoco.mjtGeom.mjGEOM_ELLIPSOID.value)
-                mesh.scale.set(size[0], size[2], size[1]);
+                mesh.scale.set(size[0], size[1], size[2]);
+
+            // Change the orientation of some threejs mesh types
+            if ((type == mujoco.mjtGeom.mjGEOM_CYLINDER.value) ||
+                (type == mujoco.mjtGeom.mjGEOM_CAPSULE.value)) {
+                mesh.rotateX(-Math.PI / 2.0);
+            }
         }
 
         // Construct the hierarchy of bodies
@@ -2289,72 +2281,45 @@ class PhysicsSimulator {
     }
 
 
-    /** Access the vector at index, swizzle for three.js, and apply to the target THREE.Vector3
+    /** Access the vector at index and store it in the target THREE.Vector3
      * @param {Float32Array|Float64Array} buffer
      * @param {number} index
      * @param {THREE.Vector3} target */
-    _getPosition(buffer, index, target, swizzle = true) {
-        if (swizzle) {
-            return target.set(
-                buffer[(index * 3) + 0],
-                buffer[(index * 3) + 2],
-                -buffer[(index * 3) + 1]);
-        } else {
-            return target.set(
-                buffer[(index * 3) + 0],
-                buffer[(index * 3) + 1],
-                buffer[(index * 3) + 2]);
-        }
+    _getPosition(buffer, index, target) {
+        return target.set(
+            buffer[(index * 3) + 0],
+            buffer[(index * 3) + 1],
+            buffer[(index * 3) + 2]
+        );
     }
 
 
-    /** Access the quaternion at index, swizzle for three.js, and apply to the target THREE.Quaternion
+    /** Access the quaternion at index and store it in the target THREE.Quaternion
      * @param {Float32Array|Float64Array} buffer
      * @param {number} index
      * @param {THREE.Quaternion} target */
-    _getQuaternion(buffer, index, target, swizzle = true) {
-        if (swizzle) {
-            return target.set(
-                -buffer[(index * 4) + 1],
-                -buffer[(index * 4) + 3],
-                buffer[(index * 4) + 2],
-                -buffer[(index * 4) + 0]);
-        } else {
-            return target.set(
-                buffer[(index * 4) + 0],
-                buffer[(index * 4) + 1],
-                buffer[(index * 4) + 2],
-                buffer[(index * 4) + 3]);
-        }
+    _getQuaternion(buffer, index, target) {
+        return target.set(
+            buffer[(index * 4) + 1],
+            buffer[(index * 4) + 2],
+            buffer[(index * 4) + 3],
+            buffer[(index * 4) + 0]
+        );
     }
 
 
-    _getMatrix(buffer, index, target, swizzle = true) {
-        if (swizzle) {
-            return target.set(
-                buffer[(index * 9) + 0],
-                buffer[(index * 9) + 2],
-                -buffer[(index * 9) + 1],
-                buffer[(index * 9) + 6],
-                buffer[(index * 9) + 8],
-                -buffer[(index * 9) + 7],
-                -buffer[(index * 9) + 3],
-                -buffer[(index * 9) + 5],
-                buffer[(index * 9) + 4]
-            );
-        } else {
-            return target.set(
-                buffer[(index * 9) + 0],
-                buffer[(index * 9) + 1],
-                buffer[(index * 9) + 2],
-                buffer[(index * 9) + 3],
-                buffer[(index * 9) + 4],
-                buffer[(index * 9) + 5],
-                buffer[(index * 9) + 6],
-                buffer[(index * 9) + 7],
-                buffer[(index * 9) + 8]
-            );
-        }
+    _getMatrix(buffer, index, target) {
+        return target.set(
+            buffer[(index * 9) + 0],
+            buffer[(index * 9) + 1],
+            buffer[(index * 9) + 2],
+            buffer[(index * 9) + 3],
+            buffer[(index * 9) + 4],
+            buffer[(index * 9) + 5],
+            buffer[(index * 9) + 6],
+            buffer[(index * 9) + 7],
+            buffer[(index * 9) + 8]
+        );
     }
 
 
@@ -2424,9 +2389,6 @@ class PhysicsSimulator {
 
         // Compute center
         bbox.getCenter(this.statistics.center);
-        const tmp = this.statistics.center.z;
-        this.statistics.center.z = -this.statistics.center.y;
-        this.statistics.center.y = tmp;
 
         // compute bounding box size
         if (bbox.max.x > bbox.min.x) {
@@ -2588,7 +2550,7 @@ function getStatistics(xmlDoc) {
     value = xmlStatistic.getAttribute("center");
     if (value != null) {
         const v = value.split(" ");
-        statistics.center = new THREE.Vector3(Number(v[0]), Number(v[2]), -Number(v[1]));
+        statistics.center = new THREE.Vector3(Number(v[0]), Number(v[1]), Number(v[2]));
     }
 
     value = xmlStatistic.getAttribute("meansize");
@@ -2869,7 +2831,7 @@ function preprocessIncludedFile(filename, prefix, pos, quat, removeCommons=false
 
             for (let xmlChild of xmlWorldBody.children) {
                 const v = quat.split(" ");
-                const finalQuat = new THREE.Quaternion(Number(v[1]), Number(v[3]), -Number(v[2]), Number(v[0]));
+                const finalQuat = new THREE.Quaternion(Number(v[1]), Number(v[2]), Number(v[3]), Number(v[0]));
 
                 const origQuat = xmlChild.getAttribute("quat");
                 const origAxisAngle = xmlChild.getAttribute("axisangle");
@@ -2879,7 +2841,7 @@ function preprocessIncludedFile(filename, prefix, pos, quat, removeCommons=false
 
                 if (origQuat != null) {
                     const v = origQuat.split(" ");
-                    const quat = new THREE.Quaternion(Number(v[1]), Number(v[3]), -Number(v[2]), Number(v[0]));
+                    const quat = new THREE.Quaternion(Number(v[1]), Number(v[2]), Number(v[3]), Number(v[0]));
                     finalQuat.multiply(quat);
 
                 } else if (origAxisAngle != null) {
@@ -2894,7 +2856,7 @@ function preprocessIncludedFile(filename, prefix, pos, quat, removeCommons=false
 
                     if (a != 0.0) {
                         const s = Math.sin(a * 0.5);
-                        const quat = new THREE.Quaternion(x * s, z * s, -y * s, Math.cos(a * 0.5));
+                        const quat = new THREE.Quaternion(x * s, y * s, z * s, Math.cos(a * 0.5));
                         finalQuat.multiply(quat);
                     }
 
@@ -2906,7 +2868,7 @@ function preprocessIncludedFile(filename, prefix, pos, quat, removeCommons=false
                     const y = Number(v[1]);
                     const z = Number(v[2]);
 
-                    const euler = new THREE.Euler(x, z, -y, eulerSeq);
+                    const euler = new THREE.Euler(x, y, z, eulerSeq);
 
                     const quat = new THREE.Quaternion();
                     quat.setFromEuler(euler);
@@ -2932,7 +2894,7 @@ function preprocessIncludedFile(filename, prefix, pos, quat, removeCommons=false
                     const quat = new THREE.Quaternion();
                     quat.setFromRotationMatrix(matrix);
 
-                    quat.set(quat.x, quat.z, -quat.y, quat.w);
+                    quat.set(quat.x, quat.y, quat.z, quat.w);
 
                     finalQuat.multiply(quat);
 
@@ -2948,14 +2910,14 @@ function preprocessIncludedFile(filename, prefix, pos, quat, removeCommons=false
                     const quat = new THREE.Quaternion();
                     quat.setFromUnitVectors(from, to);
 
-                    quat.set(quat.x, quat.z, -quat.y, quat.w);
+                    quat.set(quat.x, quat.y, quat.z, quat.w);
 
                     finalQuat.multiply(quat);
 
                     xmlChild.removeAttribute("zaxis");
                 }
 
-                xmlChild.setAttribute("quat", "" + -finalQuat.w + " " + -finalQuat.x + " " + finalQuat.z + " " + -finalQuat.y);
+                xmlChild.setAttribute("quat", "" + -finalQuat.w + " " + -finalQuat.x + " " + -finalQuat.y + " " + finalQuat.z);
             }
         }
     }
@@ -3451,9 +3413,11 @@ class Logmap {
 
         // Cameras
         this.camera = new THREE.PerspectiveCamera(45, 1.0, 0.1, 2000);
+        this.camera.up.set(0, 0, 1);
 
         this.orthoCamera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, -10, 10);
         this.orthoCamera.position.z = 10;
+        this.orthoCamera.up.set(0, 0, 1);
 
         // Render target
         this.render_target = new THREE.WebGLRenderTarget(
@@ -3499,16 +3463,14 @@ class Logmap {
         });
 
         this.destPoint = new THREE.Mesh(pointGeometry, destPointMaterial);
-        this.destPoint.position.y = 1.0;
-        this.destPoint.rotateX(-Math.PI / 2.0);
+        this.destPoint.position.z = 1.0;
 
         this.destPointCtrl = new THREE.Object3D();
         this.destPointCtrl.add(this.destPoint);
         this.scene.add(this.destPointCtrl);
 
         this.srcPoint = new THREE.Mesh(pointGeometry, srcPointMaterial);
-        this.srcPoint.position.y = 1.0;
-        this.srcPoint.rotateX(-Math.PI / 2.0);
+        this.srcPoint.position.z = 1.0;
 
         this.srcPointCtrl = new THREE.Object3D();
         this.srcPointCtrl.add(this.srcPoint);
@@ -3548,7 +3510,7 @@ class Logmap {
         this.scene.add(light);
 
         const pointLight = new THREE.PointLight(0xffffff, 0.3);
-        pointLight.position.set(3, 3, 4);
+        pointLight.position.set(3, -4, 3);
         this.scene.add(pointLight);
 
         // Sprite in the final scene
@@ -3722,6 +3684,7 @@ class Target extends THREE.Object3D {
             })
         );
 
+        this.mesh.rotateX(Math.PI / 2);
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = false;
         this.mesh.layers = this.layers;
@@ -4714,6 +4677,33 @@ function enableLightToonShading(object, gradientMap=null) {
 }
 
 /*
+ * SPDX-FileCopyrightText: Copyright © 2024 Idiap Research Institute <contact@idiap.ch>
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
+
+
+/* Allows to retrieve informations about a specific body in the physics simulation.
+*/
+class PhysicalBody {
+
+    constructor(name, bodyId, physicsSimulator) {
+        this.name = name;
+        this.bodyId = bodyId;
+        this.physicsSimulator = physicsSimulator;
+    }
+
+
+    position() {
+        return this.physicsSimulator.getBodyPosition(this.bodyId);
+    }
+
+}
+
+/*
  * SPDX-FileCopyrightText: Copyright © 2023 Idiap Research Institute <contact@idiap.ch>
  *
  * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
@@ -5254,23 +5244,6 @@ const InteractionStates = Object.freeze({
 
 
 
-class PhysicalBody {
-
-    constructor(name, bodyId, physicsSimulator) {
-        this.name = name;
-        this.bodyId = bodyId;
-        this.physicsSimulator = physicsSimulator;
-    }
-
-
-    position() {
-        return this.physicsSimulator.getBodyPosition(this.bodyId);
-    }
-
-}
-
-
-
 /* Entry point for the 'viewer3d.js' library, used to display and interact with a 3D
 representation of the Panda robotic arm.
 */
@@ -5302,6 +5275,9 @@ class Viewer3D {
 
         show_joint_positions (bool):
             enable the display of an visual indicator around each joint (default: false)
+
+        show_axes (bool):
+            enable the display of the world coordinates axes (default: false)
 
         statistics (bool):
             enable the display of statistics about the rendering performance (default: false)
@@ -5647,8 +5623,8 @@ class Viewer3D {
 
         const dir = new THREE.Vector3(
             -Math.cos(camera.azimuth * Math.PI / 180.0),
+            -Math.sin(camera.azimuth * Math.PI / 180.0),
             Math.sin(-camera.elevation * Math.PI / 180.0),
-            Math.sin(camera.azimuth * Math.PI / 180.0)
         ).normalize().multiplyScalar(distance);
 
         this.camera.position.addVectors(this.cameraControl.target, dir);
@@ -6008,7 +5984,7 @@ class Viewer3D {
 
 
     getPhysicalBody(name) {
-        const bodyId = this.physicsSimulator.getBody(name);
+        const bodyId = this.physicsSimulator.getBodyId(name);
         if (bodyId == null)
             return null;
 
@@ -6075,6 +6051,7 @@ class Viewer3D {
             ['robot_use_light_toon_shader', false],
             ['shadows', true],
             ['show_joint_positions', false],
+            ['show_axes', false],
             ['statistics', false],
             ['external_loop', false],
         ]);
@@ -6133,11 +6110,53 @@ class Viewer3D {
             this.domElement.appendChild(this.stats.dom);
         }
 
+        THREE.Object3D.DefaultUp = new THREE.Vector3(0, 0, 1);
+
         // Camera
         this.camera = new THREE.PerspectiveCamera(45, this.domElement.clientWidth / this.domElement.clientHeight, 0.1, 50);
+        this.camera.up.set(0, 0, 1);
         this.camera.position.set(1, 1, -2);
 
         this.scene = new THREE.Scene();
+
+        if (this.parameters.get('show_axes'))
+        {
+            let material = new THREE.LineBasicMaterial({
+                color: 0xFF0000,
+            });
+
+            let points = [];
+            points.push( new THREE.Vector3(0, 0, 0) );
+            points.push( new THREE.Vector3(1, 0, 0) );
+
+            let geometry = new THREE.BufferGeometry().setFromPoints(points);
+            let line = new THREE.Line(geometry, material);
+            this.scene.add(line);
+
+            material = new THREE.LineBasicMaterial({
+                color: 0x00FF00,
+            });
+
+            points = [];
+            points.push( new THREE.Vector3(0, 0, 0) );
+            points.push( new THREE.Vector3(0, 1, 0) );
+
+            geometry = new THREE.BufferGeometry().setFromPoints(points);
+            line = new THREE.Line(geometry, material);
+            this.scene.add(line);
+
+            material = new THREE.LineBasicMaterial({
+                color: 0x0000FF,
+            });
+
+            points = [];
+            points.push( new THREE.Vector3(0, 0, 0) );
+            points.push( new THREE.Vector3(0, 0, 1) );
+
+            geometry = new THREE.BufferGeometry().setFromPoints(points);
+            line = new THREE.Line(geometry, material);
+            this.scene.add(line);
+        }
 
         // Renderer
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -6255,9 +6274,9 @@ class Viewer3D {
         }
 
         // Ensure that the camera isn't below the floor
-        this.cameraControl.target.y = Math.max(this.cameraControl.target.y, 0.0);
-        if (this.camera.position.y < 0.1) {
-            this.camera.position.y = 0.1;
+        this.cameraControl.target.z = Math.max(this.cameraControl.target.z, 0.0);
+        if (this.camera.position.z < 0.1) {
+            this.camera.position.z = 0.1;
             this.cameraControl.update();
         }
 
@@ -6768,7 +6787,6 @@ function initViewer3D() {
     // Add some modules to the global scope, so they can be accessed by PyScript
     globalThis.three = THREE;
     globalThis.katex = katex;
-    globalThis.mujoco = mujoco;
     globalThis.Viewer3Djs = Viewer3D;
     globalThis.Shapes = Shapes;
     globalThis.RobotBuilder = RobotBuilder;
@@ -6807,8 +6825,8 @@ function initPyScript() {
 
     // Add the PyScript script to the document
     const script = document.createElement('script');
-    script.src = 'https://pyscript.net/latest/pyscript.min.js';
-    script.type = 'text/javascript';
+    script.src = 'https://pyscript.net/releases/2024.8.2/core.js';
+    script.type = 'module';
     document.body.appendChild(script);
 }
 
@@ -6827,4 +6845,4 @@ cssFiles.forEach(css => {
     document.getElementsByTagName('HEAD')[0].appendChild(link);
 });
 
-export { PandaConfiguration, PandaNoHandConfiguration, RobotBuilder, RobotConfiguration, Shapes, Viewer3D, downloadFiles, downloadPandaRobot, downloadScene, getURL, initPyScript, initViewer3D, matrixFromSigma, readFile, writeFile, sigmaFromMatrix3, sigmaFromMatrix4, sigmaFromQuaternionAndScale };
+export { PandaConfiguration, PandaNoHandConfiguration, RobotBuilder, RobotConfiguration, Shapes, Viewer3D, downloadFiles, downloadPandaRobot, downloadScene, getURL, initPyScript, initViewer3D, matrixFromSigma, readFile, sigmaFromMatrix3, sigmaFromMatrix4, sigmaFromQuaternionAndScale, writeFile };

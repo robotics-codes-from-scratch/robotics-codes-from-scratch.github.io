@@ -567,6 +567,14 @@ class Viewer3D:
 
 
     def getPhysicalBody(self, name):
+        """Retrieve a body from the physics simulation.
+
+        Parameters:
+            name (str): Name of the body
+
+        Returns:
+            The body (PhysicalBody)
+        """
         body = self.viewer.getPhysicalBody(name)
         if body is None:
             return None
@@ -1085,13 +1093,13 @@ class PhysicalBody:
 
     @property
     def name(self):
-        """Returns the name of the object"""
+        """Returns the name of the body"""
         return self.body.name
 
 
     @property
     def position(self):
-        """Returns the position of the object (as a NumPy array)"""
+        """Returns the position of the body (as a NumPy array)"""
         pos = self.body.position()
         return np.array([pos.x, pos.y, pos.z])
 

@@ -84,7 +84,7 @@
         global robot, x
 
         viewer3D.loadScene('/scenes/physics.xml')
-        viewer3D.translateCamera([0.0, 0.3, 0.0])
+        viewer3D.translateCamera([0.0, 0.0, 0.3])
         robot = viewer3D.createRobot('panda', configs.Panda.new())
         viewer3D.physicsSimulatorPaused = False
 

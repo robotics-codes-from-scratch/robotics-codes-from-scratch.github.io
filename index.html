@@ -170,7 +170,7 @@
    </div>
   </div>
   <script type="module">
-   import { initViewer3D, downloadScene, downloadPandaRobot } from './viewer3d/viewer3d.js';
+   import { initViewer3D, initPyScript, downloadScene, downloadPandaRobot } from './viewer3d/viewer3d.js';
 
         // Retrieve the base URL of the page
         const url = window.location;
@@ -650,28 +650,6 @@
 
 
 
-
-
-        function initPyScript()
-        {
-            // Process the importmap to avoid errors from PyScript
-            const scripts = document.getElementsByTagName('script');
-            for (let script of scripts) {
-                if (script.type == 'importmap') {
-                    const importmap = JSON.parse(script.innerText);
-                    delete importmap['imports']['three/examples/jsm/'];
-                    delete importmap['imports']['mujoco'];
-                    script.innerText = JSON.stringify(importmap);
-                    break;
-                }
-            }
-
-            // Add the PyScript script to the document
-            const script = document.createElement('script');
-            script.src = 'https://pyscript.net/releases/2024.8.2/core.js';
-            script.type = 'module';
-            document.body.appendChild(script);
-        }
 
 
         function createEditors()

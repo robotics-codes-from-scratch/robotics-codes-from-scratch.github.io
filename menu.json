@@ -153,6 +153,19 @@
                 }
             },
             {
+                "title": "Jacobian",
+                "hash": "3d_jacobian",
+                "page": "jacobian.html",
+                "assets": {
+                    "robots": [
+                        "panda"
+                    ],
+                    "scenes": [
+                        "scenes/panda.xml"
+                    ]
+                }
+            },
+            {
                 "title": "Signed distance function",
                 "hash": "3d_sdf",
                 "page": "sdf/sdf.html",
