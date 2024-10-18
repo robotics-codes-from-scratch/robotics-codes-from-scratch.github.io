@@ -342,7 +342,10 @@
                         "demos/jacobian2d.py",
                         "demos/ik2d.py"
                     ]
-                }
+                },
+                "requirements": [
+                    "pyscript"
+                ]
             },
             {
                 "title": "6  Encoding with basis functions",
@@ -560,9 +563,6 @@
                 "hash": "A5",
                 "page": "A5.html"
             }
-        ],
-        "requirements": [
-            "pyscript"
         ]
     }
 ]
