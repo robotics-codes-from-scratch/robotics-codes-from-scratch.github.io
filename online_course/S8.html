@@ -420,7 +420,7 @@ Compute <span class="ltx_Math" id="algorithm4.m7">\bm{\hat{x}}</span> using <spa
 Compute <span class="ltx_Math" id="algorithm4.m11">\bm{A}_{t},\bm{B}_{t}</span> in (<a class="ltx_ref" href="#S8-eq:E80" title="In 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">80</span></a>) 
 </div>
 <div class="ltx_listingline">  <span class="ltx_rule"> </span>   
-Compute <span class="ltx_Math" id="algorithm4.m12">\bm{S}_{\bm{u}}</span> with (<a class="ltx_ref" href="#A1-eq:E182" title="In Appendix A System dynamics at trajectory level ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">182</span></a>) 
+Compute <span class="ltx_Math" id="algorithm4.m12">\bm{S}_{\bm{u}}</span> with (<a class="ltx_ref" href="#A1-eq:E187" title="In Appendix A System dynamics at trajectory level ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">187</span></a>) 
 </div>
 <div class="ltx_listingline">  <span class="ltx_rule"> </span>   
 Compute <span class="ltx_Math" id="algorithm4.m13">\bm{g}_{\bm{\cdot}}</span> and <span class="ltx_Math" id="algorithm4.m14">\bm{H}_{\bm{\cdot}}</span> in (<a class="ltx_ref" href="#S8-eq:E82" title="In 8.1 Batch formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">82</span></a>), using (<a class="ltx_ref" href="#S8-eq:E81" title="In 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">81</span></a>) 
@@ -974,10 +974,17 @@ Based on the above definitions, <span class="ltx_Math" id="SS5.SSS3.p1.m1">\bm{f
 </div>
 <div class="ltx_subsubsection" id="S8-sec:SS5.SSS9">
 <h3 class="ltx_title ltx_title_subsubsection">
-<span class="ltx_tag ltx_tag_subsubsection"><span class="ltx_text">8.5.9</span> </span><span class="ltx_text">Maintaining a desired distance to an object</span>
+<span class="ltx_tag ltx_tag_subsubsection"><span class="ltx_text">8.5.9</span> </span><span class="ltx_text">Distance to a target</span>
 </h3>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S8-fig:F25">
+<div class="ltx_block">
+<a href="online_course/images/iLQR_distMaintain01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F25.g1" src="online_course/images/small/iLQR_distMaintain01.png"/></a><a href="online_course/images/iLQR_distMaintain02.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F25.g2" src="online_course/images/small/iLQR_distMaintain02.png"/></a>
+</div>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 25</span>: </span><em class="ltx_emph ltx_font_italic">Left:</em><span class="ltx_text"> Optimal control problem to generate a motion by considering a point mass starting from an initial point (in black), with a cost asking to reach or maintain a desired distance to a target point (in red). <em class="ltx_emph ltx_font_italic">Right:</em> Similar problem for a contour to reach/maintain defined as a covariance matrix.
+</span></figcaption>
+</figure>
 <div class="ltx_para" id="S8-para:SS5.SSS9.p1">
-<p class="ltx_p">The obstacle example above can easily be extended to the problem of maintaining a desired distance to an object, which can also typically used with other objectives. We first define a function and a gradient</p>
+<p class="ltx_p">The obstacle example above can easily be extended to the problem of reaching/maintaining a desired distance to a target, which can also typically used with other objectives. We first define a function and a gradient</p>
 <table class="ltx_equation ltx_eqn_table" id="S8-eq:Ex89">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
@@ -1002,15 +1009,21 @@ Based on the above definitions, <span class="ltx_Math" id="SS5.SSS3.p1.m1">\bm{f
 </table>
 </div>
 <div class="ltx_para" id="S8-para:SS5.SSS9.p2">
-<p class="ltx_p">In the above, <span class="ltx_Math" id="SS5.SSS9.p2.m1">\bm{f}(\bm{x})</span> defines a continuous function that is <span class="ltx_Math" id="SS5.SSS9.p2.m2">0</span> on a sphere of radius <span class="ltx_Math" id="SS5.SSS9.p2.m3">r</span> centered on the object (defined by a center <span class="ltx_Math" id="SS5.SSS9.p2.m4">\bm{\mu}</span>), and increasing/decreasing when moving away from this surface in one direction or the other.</p>
+<p class="ltx_p">In the above, <span class="ltx_Math" id="SS5.SSS9.p2.m1">\bm{f}(\bm{x})</span> defines a continuous function that is <span class="ltx_Math" id="SS5.SSS9.p2.m2">0</span> on a sphere of radius <span class="ltx_Math" id="SS5.SSS9.p2.m3">r</span> centered on the target (defined by a center <span class="ltx_Math" id="SS5.SSS9.p2.m4">\bm{\mu}</span>), and increasing/decreasing when moving away from this surface in one direction or the other.</p>
+</div>
+<div class="ltx_para" id="S8-para:SS5.SSS9.p3">
+<p class="ltx_p">Similarly, the error can be weighted by a covariance matrix <span class="ltx_Math" id="SS5.SSS9.p3.m1">\bm{\Sigma}</span>, by using <span class="ltx_Math" id="SS5.SSS9.p3.m2">e(\bm{x}_{t})={(\bm{x}_{t}-\bm{\mu})}^{\scriptscriptstyle\top}\bm{\Sigma}^{-1}(\bm{x}_{t}-\bm{\mu})</span> and <span class="ltx_Math" id="SS5.SSS9.p3.m3">\bm{J}(\bm{x}_{t})=-2{(\bm{x}_{t}-\bm{\mu})}^{\scriptscriptstyle\top}\bm{\Sigma}^{-1}</span>, which corresponds to the problem of reaching/maintaining the contour of an ellipse.</p>
+</div>
+<div class="ltx_para" id="S8-para:SS5.SSS9.p4">
+<p class="ltx_p">Figure <a class="ltx_ref" href="#S8-fig:F25" title="Figure 25 ‣ 8.5.9 Distance to a target ‣ 8.5 iLQR with quadratic cost on 𝒇(𝒙_{𝒕}) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">25</span></a> presents examples with a point mass.</p>
 </div>
 </div>
 <div class="ltx_subsubsection" id="S8-sec:SS5.SSS10">
 <h3 class="ltx_title ltx_title_subsubsection">
 <span class="ltx_tag ltx_tag_subsubsection"><span class="ltx_text">8.5.10</span> </span><span class="ltx_text">Manipulability tracking</span>
 </h3>
-<figure class="ltx_figure figure_main" id="S8-fig:F25"><a href="online_course/images/iLQR_manipulability01.png" target="_blank"><img class="ltx_graphics ltx_img_landscape" id="F25.g1" src="online_course/images/small/iLQR_manipulability01.png"/></a>
-<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 25</span>: </span><span class="ltx_text">Example of iLQR optimization with a cost on manipulability, where the goal is to reach, at the end of the motion, a desired manipulability defined at the center of mass (CoM) of a bimanual planar robot. The initial pose of the bimanual robot is displayed in light gray and the final pose of the robot is displayed in dark gray. The desired manipulability is represented by the red ellipse. The achieved manipulability at the end of the motion is represented by the gray ellipse. Both manipulability ellipses are displayed at the CoM reached at the end of the motion, displayed as a semi-filled dark gray disc (the CoM at the beginning of the motion is displayed in lighter gray color). We can see that the posture adopted by the robot to approach the desired manipulability is to extend both arms, which is the pose allowing the robot to swiftly move its center of mass in case of unexpected perturbations.
+<figure class="ltx_figure figure_main" id="S8-fig:F26"><a href="online_course/images/iLQR_manipulability01.png" target="_blank"><img class="ltx_graphics ltx_img_landscape" id="F26.g1" src="online_course/images/small/iLQR_manipulability01.png"/></a>
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 26</span>: </span><span class="ltx_text">Example of iLQR optimization with a cost on manipulability, where the goal is to reach, at the end of the motion, a desired manipulability defined at the center of mass (CoM) of a bimanual planar robot. The initial pose of the bimanual robot is displayed in light gray and the final pose of the robot is displayed in dark gray. The desired manipulability is represented by the red ellipse. The achieved manipulability at the end of the motion is represented by the gray ellipse. Both manipulability ellipses are displayed at the CoM reached at the end of the motion, displayed as a semi-filled dark gray disc (the CoM at the beginning of the motion is displayed in lighter gray color). We can see that the posture adopted by the robot to approach the desired manipulability is to extend both arms, which is the pose allowing the robot to swiftly move its center of mass in case of unexpected perturbations.
 </span></figcaption>
 </figure>
 <div class="ltx_para" id="S8-para:SS5.SSS10.p1">
@@ -1048,7 +1061,7 @@ Based on the above definitions, <span class="ltx_Math" id="SS5.SSS3.p1.m1">\bm{f
 <p class="ltx_p">The derivatives of (<a class="ltx_ref" href="#S8-eq:E110" title="In 8.5.10 Manipulability tracking ‣ 8.5 iLQR with quadratic cost on 𝒇(𝒙_{𝒕}) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">110</span></a>) with respect to the state <span class="ltx_Math" id="SS5.SSS10.p6.m1">\bm{x}</span> and control commands <span class="ltx_Math" id="SS5.SSS10.p6.m2">\bm{u}</span> can be computed numerically (as in the provided example), analytically (by following an approach similar to the one presented in <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib13" title="Geometry-aware manipulability learning, tracking and transfer">7</a>]</cite>), or by automatic differentiation. The quadratic form of (<a class="ltx_ref" href="#S8-eq:E110" title="In 8.5.10 Manipulability tracking ‣ 8.5 iLQR with quadratic cost on 𝒇(𝒙_{𝒕}) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">110</span></a>) can be exploited to solve the problem with Gauss–Newton optimization, by using Jacobians (see description in Section <a class="ltx_ref" href="#S5-sec:SS1" title="5.1 Numerical estimation of the Jacobian ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">5.1</span></a> within the context of inverse kinematics). Marić <em class="ltx_emph ltx_font_italic">et al.</em> demonstrated the advantages of a geometric cost as in (<a class="ltx_ref" href="#S8-eq:E110" title="In 8.5.10 Manipulability tracking ‣ 8.5 iLQR with quadratic cost on 𝒇(𝒙_{𝒕}) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">110</span></a>) for planning problems, by comparing it to alternative widely used metrics such as the manipulability index and the dexterity index <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib16" title="A Riemannian metric for geometry-aware singularity avoidance by articulated robots">9</a>]</cite>.</p>
 </div>
 <div class="ltx_para" id="S8-para:SS5.SSS10.p7">
-<p class="ltx_p">Note here that manipulability can be defined at several points of interest, including endeffectors and centers of mass. Figure <a class="ltx_ref" href="#S8-fig:F25" title="Figure 25 ‣ 8.5.10 Manipulability tracking ‣ 8.5 iLQR with quadratic cost on 𝒇(𝒙_{𝒕}) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">25</span></a> presents a simple example with a bimanual robot. Manipulability ellipsoids can also be exploited as descriptors for object affordances, by defining manipulability at the level of specific points on objects or tools held by the robot. For example, we can consider a manipulability ellipsoid at the level of the head of a hammer. When the robot grasps the hammer, its endeffector is extended so that the head of the hammer becomes the extremity of the kinematic chain. In this situation, the different options that the robot has to grasp the hammer will have an impact on the resulting manipulability at the head of the hammer. Thus, grabbing the hammer at the extremity of the handle will improve the resulting manipulability. Such descriptors offer promises for learning and optimization in manufacturing environments, in order to let robots automatically determine the correct ways to employ tools, including grasping points and body postures.</p>
+<p class="ltx_p">Note here that manipulability can be defined at several points of interest, including endeffectors and centers of mass. Figure <a class="ltx_ref" href="#S8-fig:F26" title="Figure 26 ‣ 8.5.10 Manipulability tracking ‣ 8.5 iLQR with quadratic cost on 𝒇(𝒙_{𝒕}) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">26</span></a> presents a simple example with a bimanual robot. Manipulability ellipsoids can also be exploited as descriptors for object affordances, by defining manipulability at the level of specific points on objects or tools held by the robot. For example, we can consider a manipulability ellipsoid at the level of the head of a hammer. When the robot grasps the hammer, its endeffector is extended so that the head of the hammer becomes the extremity of the kinematic chain. In this situation, the different options that the robot has to grasp the hammer will have an impact on the resulting manipulability at the head of the hammer. Thus, grabbing the hammer at the extremity of the handle will improve the resulting manipulability. Such descriptors offer promises for learning and optimization in manufacturing environments, in order to let robots automatically determine the correct ways to employ tools, including grasping points and body postures.</p>
 </div>
 <div class="ltx_para" id="S8-para:SS5.SSS10.p8">
 <p class="ltx_p">The above iLQR approach, with a geodesic cost on SPD manifolds, has been presented for manipulability ellipsoids, but it can be extended to other descriptors represented as ellipsoids. In particular, stiffness, feedback gains, inertia, and centroidal momentum have similar structures. For the latter, the centroidal momentum ellipsoid quantifies the momentum generation ability of the robot <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib17" title="Centroidal momentum matrix of a humanoid robot: structure and properties">14</a>]</cite>, which is another useful descriptor for robotics skills. Similarly to manipulability ellipsoids, it is constructed from Jacobians, which are in this case the centroidal momentum matrices mapping the joint angle velocities to the centroidal momentum, which sums over the individual link momenta after projecting each to the robot’s center of mass.</p>
@@ -1061,8 +1074,8 @@ Based on the above definitions, <span class="ltx_Math" id="SS5.SSS3.p1.m1">\bm{f
 <h3 class="ltx_title ltx_title_subsubsection">
 <span class="ltx_tag ltx_tag_subsubsection"><span class="ltx_text">8.5.11</span> </span><span class="ltx_text">Decoupling of control commands</span>
 </h3>
-<figure class="ltx_figure ltx_align_floatright figure_main" id="S8-fig:F26"><a href="online_course/images/iLQR_decoupling01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F26.g1" src="online_course/images/small/iLQR_decoupling01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 26</span>: </span><span class="ltx_text">2D reaching task problem (initial point in black and target point in red), with an additional cost to favor the decoupling of the control commands.
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S8-fig:F27"><a href="online_course/images/iLQR_decoupling01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F27.g1" src="online_course/images/small/iLQR_decoupling01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 27</span>: </span><span class="ltx_text">2D reaching task problem (initial point in black and target point in red), with an additional cost to favor the decoupling of the control commands.
 </span></figcaption>
 </figure>
 <div class="ltx_para" id="S8-para:SS5.SSS11.p1">
@@ -1098,26 +1111,97 @@ Based on the above definitions, <span class="ltx_Math" id="SS5.SSS3.p1.m1">\bm{f
 <p class="ltx_p">where <span class="ltx_Math" id="SS5.SSS11.p3.m1">\alpha</span> is a line search parameter, <span class="ltx_Math" id="SS5.SSS11.p3.m2">\bm{r}</span> is a vector concatenating vertically all residuals <span class="ltx_Math" id="SS5.SSS11.p3.m3">r_{t}</span>, and <span class="ltx_Math" id="SS5.SSS11.p3.m4">\bm{J}</span> is a Jacobian matrix with <span class="ltx_Math" id="SS5.SSS11.p3.m5">\bm{J}_{t}</span> as block diagonal elements. With some linear algebra machinery, this can also be computed in batch form using <span class="ltx_Math" id="SS5.SSS11.p3.m6">\bm{r}=\bm{u}_{1}\odot\bm{u}_{2}</span>, and <span class="ltx_Math" id="SS5.SSS11.p3.m7">\bm{J}=(\bm{I}_{T-1}\otimes\bm{1}_{1\times 2})\;\text{diag}\Big(\big(\bm{I}_{T-1}\otimes(\bm{1}_{2\times 2}-\bm{I}_{2})\big)\bm{u}\Big)</span>, with <span class="ltx_Math" id="SS5.SSS11.p3.m8">\odot</span> and <span class="ltx_Math" id="SS5.SSS11.p3.m9">\otimes</span> the elementwise product and Kronecker product operators, respectively.</p>
 </div>
 <div class="ltx_para" id="S8-para:SS5.SSS11.p4">
-<p class="ltx_p">Figure <a class="ltx_ref" href="#S8-fig:F26" title="Figure 26 ‣ 8.5.11 Decoupling of control commands ‣ 8.5 iLQR with quadratic cost on 𝒇(𝒙_{𝒕}) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">26</span></a> presents a simple example within a 2D reaching problem with a point mass agent and velocity commands.</p>
+<p class="ltx_p">Figure <a class="ltx_ref" href="#S8-fig:F27" title="Figure 27 ‣ 8.5.11 Decoupling of control commands ‣ 8.5 iLQR with quadratic cost on 𝒇(𝒙_{𝒕}) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">27</span></a> presents a simple example within a 2D reaching problem with a point mass agent and velocity commands.</p>
+</div>
+</div>
+<div class="ltx_subsubsection" id="S8-sec:SS5.SSS12">
+<h3 class="ltx_title ltx_title_subsubsection">
+<span class="ltx_tag ltx_tag_subsubsection"><span class="ltx_text">8.5.12</span> </span><span class="ltx_text">Curvature</span>
+</h3>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S8-fig:F28"><a href="online_course/images/iLQR_curvature01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F28.g1" src="online_course/images/small/iLQR_curvature01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 28</span>: </span><span class="ltx_text">Optimal control problem to generate a motion by considering a point mass starting from an initial point (in black), with a cost asking to pass through a set of viapoints (in red), together with a cost on curvature (black path).
+</span></figcaption>
+</figure>
+<div class="ltx_para" id="S8-para:SS5.SSS12.p1">
+<p class="ltx_p">The curvature of a 2-dimensional curve is defined as</p>
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:E111">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E111.m1">\kappa=\frac{\dot{\text{x}}_{1}\ddot{\text{x}}_{2}-\dot{\text{x}}_{2}\ddot{\text{x}}_{1}}{(\dot{\text{x}}_{1}^{2}+\dot{\text{x}}_{2}^{2})^{\frac{3}{2}}}.</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(111)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div class="ltx_para" id="S8-para:SS5.SSS12.p2">
+<p class="ltx_p">We describe the system state in vector form as</p>
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:E112">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E112.m1">\bm{x}=\begin{bmatrix}\mathbf{x}\\
+\mathbf{\dot{x}}\\
+\mathbf{\ddot{x}}\end{bmatrix}.</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(112)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div class="ltx_para" id="S8-para:SS5.SSS12.p3">
+<p class="ltx_p">By defining a set of selection vectors <span class="ltx_Math" id="SS5.SSS12.p3.m1">\bm{s}_{i,j}</span> so that <span class="ltx_Math" id="SS5.SSS12.p3.m2">\dot{\text{x}}_{1}=\bm{s}_{1,1}^{\scriptscriptstyle\top}\bm{x},\;\dot{\text{x}}_{2}=\bm{s}_{1,2}^{\scriptscriptstyle\top}\bm{x},\;\ddot{\text{x}}_{1}=\bm{s}_{2,1}^{\scriptscriptstyle\top}\bm{x},\;\ddot{\text{x}}_{2}=\bm{s}_{2,2}^{\scriptscriptstyle\top}\bm{x}</span>, we can observe that</p>
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:E113">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E113.m1">\dot{\text{x}}_{1}\ddot{\text{x}}_{2}=(\bm{s}_{1,1}^{\scriptscriptstyle\top}\bm{x})(\bm{s}_{2,2}^{\scriptscriptstyle\top}\bm{x})=\bm{x}^{\scriptscriptstyle\top}(\bm{s}_{1,1}\bm{s}_{2,2}^{\scriptscriptstyle\top})\bm{x},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(113)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <span class="ltx_Math" id="SS5.SSS12.p3.m3">(\bm{s}_{1,1}\bm{s}_{2,2}^{\scriptscriptstyle\top})</span> is a selection matrix.</p>
+</div>
+<div class="ltx_para" id="S8-para:SS5.SSS12.p4">
+<p class="ltx_p">By leveraging this matrix formulation, the curvature in (<a class="ltx_ref" href="#S8-eq:E111" title="In 8.5.12 Curvature ‣ 8.5 iLQR with quadratic cost on 𝒇(𝒙_{𝒕}) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">111</span></a>) can be expressed as</p>
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:E114">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E114.m1">\kappa(\bm{x})=(\bm{x}^{\scriptscriptstyle\top}\bm{S}_{B}\bm{x})^{-\frac{3}{2}}\;\bm{x}^{\scriptscriptstyle\top}\bm{S}_{A}\bm{x},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(114)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">with selection matrices <span class="ltx_Math" id="SS5.SSS12.p4.m1">\bm{S}_{A}=\bm{s}_{1,1}\bm{s}_{2,2}^{\scriptscriptstyle\top}-\bm{s}_{1,2}\bm{s}_{2,1}^{\scriptscriptstyle\top}</span> and <span class="ltx_Math" id="SS5.SSS12.p4.m2">\bm{S}_{B}=\bm{s}_{1,1}\bm{s}_{1,1}^{\scriptscriptstyle\top}+\bm{s}_{1,2}\bm{s}_{1,2}^{\scriptscriptstyle\top}</span>.</p>
+</div>
+<div class="ltx_para" id="S8-para:SS5.SSS12.p5">
+<p class="ltx_p">With this formulation, by using the derivative property <span class="ltx_Math" id="SS5.SSS12.p5.m1">(fg)^{\prime}=f^{\prime}g+fg^{\prime}</span>, and by observing that <span class="ltx_Math" id="SS5.SSS12.p5.m2">\bm{S}_{B}</span> is a symmetric matrix and that <span class="ltx_Math" id="SS5.SSS12.p5.m3">\bm{S}_{A}</span> is an asymmetric matrix, the derivatives of (<a class="ltx_ref" href="#S8-eq:E111" title="In 8.5.12 Curvature ‣ 8.5 iLQR with quadratic cost on 𝒇(𝒙_{𝒕}) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">111</span></a>) w.r.t <span class="ltx_Math" id="SS5.SSS12.p5.m4">\bm{x}</span> form the Jacobian</p>
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:E115">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E115.m1">\bm{J}(\bm{x})=\frac{\partial\kappa(\bm{x})}{\partial\bm{x}}=(\bm{x}^{\scriptscriptstyle\top}\bm{S}_{B}\bm{x})^{-\frac{3}{2}}\;(\bm{S}_{A}+\bm{S}_{A}^{\scriptscriptstyle\top})\bm{x}-3\;(\bm{x}^{\scriptscriptstyle\top}\bm{S}_{A}\bm{x})\;(\bm{x}^{\scriptscriptstyle\top}\bm{S}_{B}\bm{x})^{-\frac{5}{2}}\;\bm{S}_{B}\bm{x}.</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(115)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div class="ltx_para" id="S8-para:SS5.SSS12.p6">
+<p class="ltx_p">Figure <a class="ltx_ref" href="#S8-fig:F28" title="Figure 28 ‣ 8.5.12 Curvature ‣ 8.5 iLQR with quadratic cost on 𝒇(𝒙_{𝒕}) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">28</span></a> presents an example with a point mass.</p>
 </div>
 </div>
 </div><div class="ltx_subsection" id="S8-sec:SS6">
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">8.6</span> </span><span class="ltx_text">iLQR with control primitives</span>
 </h2>
-<figure class="ltx_figure figure_main" id="S8-fig:F27"><a href="online_course/images/iLQR_humanoid_CP01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F27.g1" src="online_course/images/small/iLQR_humanoid_CP01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 27</span>: </span><span class="ltx_text">Reaching task with control primitives.
+<figure class="ltx_figure figure_main" id="S8-fig:F29"><a href="online_course/images/iLQR_humanoid_CP01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F29.g1" src="online_course/images/small/iLQR_humanoid_CP01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 29</span>: </span><span class="ltx_text">Reaching task with control primitives.
 </span></figcaption>
 </figure>
 <div class="ltx_para" id="S8-para:SS6.p1">
 <p class="ltx_p">The use of control primitives can be extended to iLQR, by considering <span class="ltx_Math" id="SS6.p1.m1">\Delta\bm{u}=\bm{\Psi}\Delta\bm{w}</span>.
 For problems with quadratic cost on <span class="ltx_Math" id="SS6.p1.m2">\bm{f}(\bm{x}_{t})</span> (see previous Section), the update of the weights vector is then given by</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:E111">
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:E116">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E111.m1">\Delta\bm{\hat{w}}\!=\!{\Big(\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{J}(\bm{x})^{\scriptscriptstyle\top}\bm{Q}\bm{J}(\bm{x})\bm{S}_{\bm{u}}\bm{\Psi}+\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{R}\,\bm{\Psi}\Big)}^{\!\!-1}\Big(-\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{J}(\bm{x})^{\scriptscriptstyle\top}\bm{Q}\bm{f}(\bm{x})-\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{R}\,\bm{u}\Big).</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E116.m1">\Delta\bm{\hat{w}}\!=\!{\Big(\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{J}(\bm{x})^{\scriptscriptstyle\top}\bm{Q}\bm{J}(\bm{x})\bm{S}_{\bm{u}}\bm{\Psi}+\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{R}\,\bm{\Psi}\Big)}^{\!\!-1}\Big(-\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{J}(\bm{x})^{\scriptscriptstyle\top}\bm{Q}\bm{f}(\bm{x})-\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{R}\,\bm{u}\Big).</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(111)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(116)</span></td>
 </tr></tbody>
 </table>
 </div>
@@ -1134,17 +1218,17 @@ For problems with quadratic cost on <span class="ltx_Math" id="SS6.p1.m2">\bm{f}
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
-<p class="ltx_p">the first three joints are coordinated such that the third link is always oriented in the same direction, while the last two joints can move independently. Figure <a class="ltx_ref" href="#S8-fig:F27" title="Figure 27 ‣ 8.6 iLQR with control primitives ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">27</span></a> shows an example for a reaching task, with the 5-link kinematic chain depicting a humanoid robot that needs to keep its torso upright.</p>
+<p class="ltx_p">the first three joints are coordinated such that the third link is always oriented in the same direction, while the last two joints can move independently. Figure <a class="ltx_ref" href="#S8-fig:F29" title="Figure 29 ‣ 8.6 iLQR with control primitives ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">29</span></a> shows an example for a reaching task, with the 5-link kinematic chain depicting a humanoid robot that needs to keep its torso upright.</p>
 </div>
 <div class="ltx_para" id="S8-para:SS6.p3">
-<p class="ltx_p">Note also that the iLQR updates in (<a class="ltx_ref" href="#S8-eq:E111" title="In 8.6 iLQR with control primitives ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">111</span></a>) can usually be computed faster than in the original formulation, since a matrix of much smaller dimension needs to be inverted.</p>
+<p class="ltx_p">Note also that the iLQR updates in (<a class="ltx_ref" href="#S8-eq:E116" title="In 8.6 iLQR with control primitives ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">116</span></a>) can usually be computed faster than in the original formulation, since a matrix of much smaller dimension needs to be inverted.</p>
 </div>
 </div><div class="ltx_subsection" id="S8-sec:SS7">
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">8.7</span> </span><span class="ltx_text">iLQR for spacetime optimization</span>
 </h2>
-<figure class="ltx_figure ltx_align_floatright figure_main" id="S8-fig:F28"><a href="online_course/images/iLQR_spacetime01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F28.g1" src="online_course/images/small/iLQR_spacetime01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 28</span>: </span><span class="ltx_text">Spacetime optimization with iLQR for a viapoints task, where the estimated durations between consecutive viapoints are shown in blue.
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S8-fig:F30"><a href="online_course/images/iLQR_spacetime01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F30.g1" src="online_course/images/small/iLQR_spacetime01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 30</span>: </span><span class="ltx_text">Spacetime optimization with iLQR for a viapoints task, where the estimated durations between consecutive viapoints are shown in blue.
 </span></figcaption>
 </figure>
 <div class="ltx_para" id="S8-para:SS7.p1">
@@ -1183,18 +1267,18 @@ With an augmented state <span class="ltx_Math" id="SS7.p1.m3">\bm{x}_{t}={[\math
 <p class="ltx_p">with Jacobian matrices <span class="ltx_Math" id="SS7.p2.m2">\bm{A}_{t}\!=\!\frac{\partial\bm{d}}{\partial\bm{x}_{t}}</span>, <span class="ltx_Math" id="SS7.p2.m3">\bm{B}_{t}\!=\!\frac{\partial\bm{d}}{\partial\bm{u}_{t}}</span>. Note that in the above equations, we used here the notation <span class="ltx_Math" id="SS7.p2.m4">\mathbf{x}_{t}</span> and <span class="ltx_Math" id="SS7.p2.m5">\bm{x}_{t}</span> to describe the standard state and augmented state, respectively. We similarly used <span class="ltx_Math" id="SS7.p2.m6">\{\mathbf{A}_{t},\mathbf{B}_{t}\}</span> and <span class="ltx_Math" id="SS7.p2.m7">\{\bm{A}_{t},\bm{B}_{t}\}</span> (with slanted font) for standard linear system and augmented linear system.</p>
 </div>
 <div class="ltx_para" id="S8-para:SS7.p3">
-<p class="ltx_p">Figure <a class="ltx_ref" href="#S8-fig:F28" title="Figure 28 ‣ 8.7 iLQR for spacetime optimization ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">28</span></a> shows a viapoints task example in which both path and duration are optimized (convergence after 10 iterations when starting from zero commands). The example uses a double integrator as linear system defined by constant <span class="ltx_Math" id="SS7.p3.m1">\mathbf{A}_{t}</span> and <span class="ltx_Math" id="SS7.p3.m2">\mathbf{B}_{t}</span> matrices.</p>
+<p class="ltx_p">Figure <a class="ltx_ref" href="#S8-fig:F30" title="Figure 30 ‣ 8.7 iLQR for spacetime optimization ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">30</span></a> shows a viapoints task example in which both path and duration are optimized (convergence after 10 iterations when starting from zero commands). The example uses a double integrator as linear system defined by constant <span class="ltx_Math" id="SS7.p3.m1">\mathbf{A}_{t}</span> and <span class="ltx_Math" id="SS7.p3.m2">\mathbf{B}_{t}</span> matrices.</p>
 </div>
 </div><div class="ltx_subsection" id="S8-sec:SS8">
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">8.8</span> </span><span class="ltx_text">iLQR with offdiagonal elements in the precision matrix</span>
 </h2>
-<figure class="ltx_figure figure_main" id="S8-fig:F29">
+<figure class="ltx_figure figure_main" id="S8-fig:F31">
 <div class="ltx_flex_figure">
-<div class="ltx_flex_cell ltx_flex_size_2"><a href="online_course/images/iLQR_objAffordances01.png" target="_blank"><img class="ltx_graphics ltx_figure_panel ltx_img_landscape" id="F29.g1" src="online_course/images/small/iLQR_objAffordances01.png"/></a></div>
-<div class="ltx_flex_cell ltx_flex_size_2"><a href="online_course/images/iLQR_objAffordances02.png" target="_blank"><img class="ltx_graphics ltx_figure_panel ltx_img_square" id="F29.g2" src="online_course/images/small/iLQR_objAffordances02.png"/></a></div>
+<div class="ltx_flex_cell ltx_flex_size_2"><a href="online_course/images/iLQR_objAffordances01.png" target="_blank"><img class="ltx_graphics ltx_figure_panel ltx_img_landscape" id="F31.g1" src="online_course/images/small/iLQR_objAffordances01.png"/></a></div>
+<div class="ltx_flex_cell ltx_flex_size_2"><a href="online_course/images/iLQR_objAffordances02.png" target="_blank"><img class="ltx_graphics ltx_figure_panel ltx_img_square" id="F31.g2" src="online_course/images/small/iLQR_objAffordances02.png"/></a></div>
 </div>
-<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 29</span>: </span><span class="ltx_text">Manipulation with object affordances cost. The depicted <em class="ltx_emph ltx_font_italic">pick-and-place</em> task requires the offset at the picking location to be the same as the offset at the placing location, which can be achieved by setting a precision matrix with nonzero offdiagonal entries, see main text for details. In this example, an additional cost is set for choosing the picking and placing points within the object boundaries, which was also used for the task depicted in Fig. <a class="ltx_ref" href="#S8-fig:F20" title="Figure 20 ‣ 8.5.3 Bounded task space ‣ 8.5 iLQR with quadratic cost on 𝒇(𝒙_{𝒕}) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">20</span></a>. We can see with the resulting motions that when picking the object, the robot anticipates what will be done later with this object, which can be viewed as a basic form of object affordance. In the two situations depicted in the figure, the robot efficiently chooses a grasping point close to one of the corners of the object, different in the two situations, so that the robot can bring the object at the desired location with less effort and without reaching joint angle limits.
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 31</span>: </span><span class="ltx_text">Manipulation with object affordances cost. The depicted <em class="ltx_emph ltx_font_italic">pick-and-place</em> task requires the offset at the picking location to be the same as the offset at the placing location, which can be achieved by setting a precision matrix with nonzero offdiagonal entries, see main text for details. In this example, an additional cost is set for choosing the picking and placing points within the object boundaries, which was also used for the task depicted in Fig. <a class="ltx_ref" href="#S8-fig:F20" title="Figure 20 ‣ 8.5.3 Bounded task space ‣ 8.5 iLQR with quadratic cost on 𝒇(𝒙_{𝒕}) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">20</span></a>. We can see with the resulting motions that when picking the object, the robot anticipates what will be done later with this object, which can be viewed as a basic form of object affordance. In the two situations depicted in the figure, the robot efficiently chooses a grasping point close to one of the corners of the object, different in the two situations, so that the robot can bring the object at the desired location with less effort and without reaching joint angle limits.
 </span></figcaption>
 </figure>
 <div class="ltx_para" id="S8-para:SS8.p1">
@@ -1205,19 +1289,19 @@ x_{j}\end{smallmatrix}\right]^{\scriptscriptstyle\top}\left[\begin{smallmatrix}1
 x_{j}\end{smallmatrix}\right]\!=\!(x_{i}-x_{j})^{2}</span> is minimized when <span class="ltx_Math" id="SS8.p1.m4">x_{i}\!=\!x_{j}</span>.</p>
 </div>
 <div class="ltx_para" id="S8-para:SS8.p2">
-<p class="ltx_p">Such cost can for example be used to define costs on object affordances, see Fig. <a class="ltx_ref" href="#S8-fig:F29" title="Figure 29 ‣ 8.8 iLQR with offdiagonal elements in the precision matrix ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">29</span></a> for an example.</p>
+<p class="ltx_p">Such cost can for example be used to define costs on object affordances, see Fig. <a class="ltx_ref" href="#S8-fig:F31" title="Figure 31 ‣ 8.8 iLQR with offdiagonal elements in the precision matrix ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">31</span></a> for an example.</p>
 </div>
 </div><div class="ltx_subsection" id="S8-sec:SS9">
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">8.9</span> </span><span class="ltx_text">Car steering</span>
 </h2>
-<figure class="ltx_figure figure_main" id="S8-fig:F30"><a href="online_course/images/car-bicopter01.jpg" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F30.g1" src="online_course/images/small/car-bicopter01.jpg"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 30</span>: </span><span class="ltx_text">iLQR for car and bicopter control/planning problems.
+<figure class="ltx_figure figure_main" id="S8-fig:F32"><a href="online_course/images/car-bicopter01.jpg" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F32.g1" src="online_course/images/small/car-bicopter01.jpg"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 32</span>: </span><span class="ltx_text">iLQR for car and bicopter control/planning problems.
 </span></figcaption>
 </figure>
 <div class="ltx_para ltx_noindent" id="S8-para:SS9.p1">
 <p class="ltx_p"><span class="ltx_text ltx_font_bold">Velocity Control Input</span>
-<br class="ltx_break"/>A car motion with position <span class="ltx_Math" id="SS9.p1.m1">(x_{1},x_{2})</span>, car orientation <span class="ltx_Math" id="SS9.p1.m2">\theta</span>, and front wheels orientation <span class="ltx_Math" id="SS9.p1.m3">\phi</span> (see Fig. <a class="ltx_ref" href="#S8-fig:F30" title="Figure 30 ‣ 8.9 Car steering ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">30</span></a>-<em class="ltx_emph ltx_font_italic">left</em>) is characterized by equations</p>
+<br class="ltx_break"/>A car motion with position <span class="ltx_Math" id="SS9.p1.m1">(x_{1},x_{2})</span>, car orientation <span class="ltx_Math" id="SS9.p1.m2">\theta</span>, and front wheels orientation <span class="ltx_Math" id="SS9.p1.m3">\phi</span> (see Fig. <a class="ltx_ref" href="#S8-fig:F32" title="Figure 32 ‣ 8.9 Car steering ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">32</span></a>-<em class="ltx_emph ltx_font_italic">left</em>) is characterized by equations</p>
 <table class="ltx_equation ltx_eqn_table" id="S8-eq:Ex100">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
@@ -1227,10 +1311,10 @@ x_{j}\end{smallmatrix}\right]\!=\!(x_{i}-x_{j})^{2}</span> is minimized when <sp
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="SS9.p1.m4">\ell</span> is the distance between the front and back axles, <span class="ltx_Math" id="SS9.p1.m5">u_{1}</span> is the back wheels velocity command and <span class="ltx_Math" id="SS9.p1.m6">u_{2}</span> is the front wheels steering velocity command.
 Its first order Taylor expansion around <span class="ltx_Math" id="SS9.p1.m7">(\hat{\theta},\hat{\phi},\hat{u}_{1})</span> is</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:E112">
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:E117">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E112.m1">\footnotesize\begin{bmatrix}\Delta\dot{x}_{1}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E117.m1">\footnotesize\begin{bmatrix}\Delta\dot{x}_{1}\\
 \Delta\dot{x}_{2}\\
 \Delta\dot{\theta}\\
 \Delta\dot{\phi}\end{bmatrix}=\begin{bmatrix}0&amp;0&amp;-\hat{u}_{1}\sin(\hat{\theta})&amp;0\\
@@ -1245,15 +1329,15 @@ Its first order Taylor expansion around <span class="ltx_Math" id="SS9.p1.m7">(\
 0&amp;1\end{bmatrix}\begin{bmatrix}\Delta u_{1}\\
 \Delta u_{2}\end{bmatrix},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(112)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(117)</span></td>
 </tr></tbody>
 </table>
-<p class="ltx_p">which can then be converted to a discrete form with (<a class="ltx_ref" href="#A3-eq:E186" title="In Appendix C Linear systems used in the bimanual tennis serve example ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">186</span></a>). 
+<p class="ltx_p">which can then be converted to a discrete form with (<a class="ltx_ref" href="#A3-eq:E191" title="In Appendix C Linear systems used in the bimanual tennis serve example ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">191</span></a>). 
 <br class="ltx_break"/></p>
 </div>
 <div class="ltx_para ltx_noindent" id="S8-para:SS9.p2">
 <p class="ltx_p"><span class="ltx_text ltx_font_bold">Acceleration Control Input
-<br class="ltx_break"/></span>A car motion with position <span class="ltx_Math" id="SS9.p2.m1">(x_{1},x_{2})</span>, car orientation <span class="ltx_Math" id="SS9.p2.m2">\theta</span>, and front wheels orientation <span class="ltx_Math" id="SS9.p2.m3">\phi</span> (see Fig. <a class="ltx_ref" href="#S8-fig:F30" title="Figure 30 ‣ 8.9 Car steering ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">30</span></a>-<em class="ltx_emph ltx_font_italic">left</em>) is characterized by equations</p>
+<br class="ltx_break"/></span>A car motion with position <span class="ltx_Math" id="SS9.p2.m1">(x_{1},x_{2})</span>, car orientation <span class="ltx_Math" id="SS9.p2.m2">\theta</span>, and front wheels orientation <span class="ltx_Math" id="SS9.p2.m3">\phi</span> (see Fig. <a class="ltx_ref" href="#S8-fig:F32" title="Figure 32 ‣ 8.9 Car steering ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">32</span></a>-<em class="ltx_emph ltx_font_italic">left</em>) is characterized by equations</p>
 <table class="ltx_equation ltx_eqn_table" id="S8-eq:Ex101">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
@@ -1263,10 +1347,10 @@ Its first order Taylor expansion around <span class="ltx_Math" id="SS9.p1.m7">(\
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="SS9.p2.m4">\ell</span> is the distance between the front and back axles, <span class="ltx_Math" id="SS9.p2.m5">u_{1}</span> is the back wheels acceleration command and <span class="ltx_Math" id="SS9.p2.m6">u_{2}</span> is the front wheels steering velocity command.
 Its first order Taylor expansion around <span class="ltx_Math" id="SS9.p2.m7">(\hat{\theta},\hat{\phi},\hat{v})</span> is</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:E113">
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:E118">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E113.m1">\footnotesize\begin{bmatrix}\Delta\dot{x}_{1}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E118.m1">\footnotesize\begin{bmatrix}\Delta\dot{x}_{1}\\
 \Delta\dot{x}_{2}\\
 \Delta\dot{\theta}\\
 \Delta\dot{v}\\
@@ -1285,17 +1369,17 @@ Its first order Taylor expansion around <span class="ltx_Math" id="SS9.p2.m7">(\
 0&amp;1\end{bmatrix}\begin{bmatrix}\Delta u_{1}\\
 \Delta u_{2}\end{bmatrix},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(113)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(118)</span></td>
 </tr></tbody>
 </table>
-<p class="ltx_p">which can then be converted to a discrete form with (<a class="ltx_ref" href="#A3-eq:E186" title="In Appendix C Linear systems used in the bimanual tennis serve example ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">186</span></a>).</p>
+<p class="ltx_p">which can then be converted to a discrete form with (<a class="ltx_ref" href="#A3-eq:E191" title="In Appendix C Linear systems used in the bimanual tennis serve example ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">191</span></a>).</p>
 </div>
 </div><div class="ltx_subsection" id="S8-sec:SS10">
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">8.10</span> </span><span class="ltx_text">Bicopter</span>
 </h2>
 <div class="ltx_para" id="S8-para:SS10.p1">
-<p class="ltx_p">A planar bicopter of mass <span class="ltx_Math" id="SS10.p1.m1">m</span> and inertia <span class="ltx_Math" id="SS10.p1.m2">I</span> actuated by two propellers at distance <span class="ltx_Math" id="SS10.p1.m3">\ell</span> (see Fig. <a class="ltx_ref" href="#S8-fig:F30" title="Figure 30 ‣ 8.9 Car steering ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">30</span></a>-<em class="ltx_emph ltx_font_italic">right</em>) is characterized by equations</p>
+<p class="ltx_p">A planar bicopter of mass <span class="ltx_Math" id="SS10.p1.m1">m</span> and inertia <span class="ltx_Math" id="SS10.p1.m2">I</span> actuated by two propellers at distance <span class="ltx_Math" id="SS10.p1.m3">\ell</span> (see Fig. <a class="ltx_ref" href="#S8-fig:F32" title="Figure 32 ‣ 8.9 Car steering ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">32</span></a>-<em class="ltx_emph ltx_font_italic">right</em>) is characterized by equations</p>
 <table class="ltx_equation ltx_eqn_table" id="S8-eq:Ex102">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
@@ -1304,10 +1388,10 @@ Its first order Taylor expansion around <span class="ltx_Math" id="SS9.p2.m7">(\
 </tr></tbody>
 </table>
 <p class="ltx_p">with acceleration <span class="ltx_Math" id="SS10.p1.m4">g\!=\!9.81</span> due to gravity. Its first order Taylor expansion around <span class="ltx_Math" id="SS10.p1.m5">(\hat{\theta},\hat{u}_{2},\hat{u}_{2})</span> is</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:E114">
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:E119">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E114.m1">\footnotesize\begin{bmatrix}\Delta\dot{x}_{1}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E119.m1">\footnotesize\begin{bmatrix}\Delta\dot{x}_{1}\\
 \Delta\dot{x}_{2}\\
 \Delta\dot{\theta}\\
 \Delta\ddot{x}_{1}\\
@@ -1330,9 +1414,9 @@ Its first order Taylor expansion around <span class="ltx_Math" id="SS9.p2.m7">(\
 \frac{\ell}{I}&amp;-\frac{\ell}{I}\end{bmatrix}\begin{bmatrix}\Delta u_{1}\\
 \Delta u_{2}\end{bmatrix},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(114)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(119)</span></td>
 </tr></tbody>
 </table>
-<p class="ltx_p">which can then be converted to a discrete form with (<a class="ltx_ref" href="#A3-eq:E186" title="In Appendix C Linear systems used in the bimanual tennis serve example ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">186</span></a>).</p>
+<p class="ltx_p">which can then be converted to a discrete form with (<a class="ltx_ref" href="#A3-eq:E191" title="In Appendix C Linear systems used in the bimanual tennis serve example ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">191</span></a>).</p>
 </div>
 </div><ul class="pagination justify-content-center small_menu"><li class="page-item previous_file"><a class="page-link" href="#S7">Previous</a></li><li class="page-item next_file"><a class="page-link" href="#S9">Next</a></li></ul></div></div><div class="col-sm-3"><div id="img-col"></div></div></div>
