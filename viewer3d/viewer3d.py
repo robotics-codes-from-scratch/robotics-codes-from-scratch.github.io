@@ -132,8 +132,8 @@ class Viewer3D:
         self.viewer.physicsSimulator.paused = paused;
 
 
-    def createRobot(self, name, configuration, prefix=None):
-        robotjs = self.viewer.createRobot(name, to_js(configuration), prefix)
+    def createRobot(self, name, configuration, prefix=None, parameters=None):
+        robotjs = self.viewer.createRobot(name, to_js(configuration), prefix, to_js(parameters))
         if robotjs is None:
             return None
 
@@ -677,6 +677,12 @@ class Robot:
             control = list(control)
 
         self.robot.setControl(to_js(control))
+
+
+    @property
+    def jointVelocities(self):
+        """Returns the velocities of the joints of the robot (as a NumPy array)"""
+        return np.array(self.robot.getJointVelocities().to_py())
 
 
     @property

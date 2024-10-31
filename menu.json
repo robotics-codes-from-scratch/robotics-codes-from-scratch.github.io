@@ -119,6 +119,19 @@
                 }
             },
             {
+                "title": "Impedance control",
+                "hash": "3d_impedance",
+                "page": "impedance.html",
+                "assets": {
+                    "robots": [
+                        "panda"
+                    ],
+                    "scenes": [
+                        "scenes/panda_ghost.xml"
+                    ]
+                }
+            },
+            {
                 "title": "Ergodic control",
                 "hash": "3d_ergodic_control",
                 "page": "ergodic_control/content.html",

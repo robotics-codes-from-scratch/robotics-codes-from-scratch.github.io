@@ -379,6 +379,7 @@ class Robot {
         this.name = name;
         this.configuration = configuration;
         this._physicsSimulator = physicsSimulator;
+        this.controlsEnabled = true;
 
         this.arm = {
             joints: [],
@@ -503,6 +504,11 @@ class Robot {
     }
 
 
+    getJointVelocities() {
+        return this._physicsSimulator.getJointVelocities(this.arm.joints);
+    }
+
+
     getDefaultPose() {
         const pose = new Float32Array(this.arm.joints.length);
         pose.fill(0.0);
@@ -575,7 +581,7 @@ class Robot {
 
 
     enableTool(enabled, toolbar=null) {
-        this.tool.enabled = enabled;
+        this.tool.enabled = enabled && this.controlsEnabled;
 
         if (this.tool.enabled) {
             this.tool.toolbar = toolbar;
@@ -1712,6 +1718,21 @@ class PhysicsSimulator {
     }
 
 
+    getJointVelocities(indices=null) {
+        if (indices == null)
+            return new Float64Array(this.simulation.qvel);
+
+        const qvel = new Float64Array(indices.length);
+
+        for (let i = 0; i < indices.length; ++i) {
+            const j = indices[i];
+            qvel[i] = this.simulation.qvel[this.model.jnt_qposadr[j]];
+        }
+
+        return qvel;
+    }
+
+
     getBodyId(name) {
         for (let b = 0; b < this.model.nbody; ++b) {
             const bodyName = this.names[this.model.name_bodyadr[b]];
@@ -2719,9 +2740,10 @@ function preprocessIncludedFiles(xmlDoc, filename, modified=false) {
         const prefix = xmlInclude.getAttribute("prefix");
         const pos = xmlInclude.getAttribute("pos");
         const quat = xmlInclude.getAttribute("quat");
+        const ghost = xmlInclude.getAttribute("ghost");
 
-        if ((prefix != null) || (pos != null) || (quat != null)) {
-            const xmlContent = preprocessIncludedFile(folder + includedFile, prefix, pos, quat, known);
+        if ((prefix != null) || (pos != null) || (quat != null) || (ghost != null)) {
+            const xmlContent = preprocessIncludedFile(folder + includedFile, prefix, pos, quat, ghost, known);
 
             const offset = includedFile.lastIndexOf('/');
             const path = subfolder + "/" + includedFile.substring(0, offset + 1);
@@ -2734,6 +2756,7 @@ function preprocessIncludedFiles(xmlDoc, filename, modified=false) {
             xmlInclude.removeAttribute("prefix");
             xmlInclude.removeAttribute("pos");
             xmlInclude.removeAttribute("quat");
+            xmlInclude.removeAttribute("ghost");
 
             modified = true;
         }
@@ -2753,7 +2776,7 @@ function getFirstElementByTagName(xmlParent, name) {
 }
 
 
-function preprocessIncludedFile(filename, prefix, pos, quat, removeCommons=false) {
+function preprocessIncludedFile(filename, prefix, pos, quat, ghost, removeCommons=false) {
     const xmlDoc = loadXmlFile(filename);
     if (xmlDoc == null) {
         console.error('Missing file: ' + filename);
@@ -2919,6 +2942,16 @@ function preprocessIncludedFile(filename, prefix, pos, quat, removeCommons=false
 
                 xmlChild.setAttribute("quat", "" + -finalQuat.w + " " + -finalQuat.x + " " + -finalQuat.y + " " + finalQuat.z);
             }
+        }
+    }
+
+    // Process all ghost-related changes
+    if ((xmlWorldBody != null) && (ghost == "true"))
+    {
+        const xmlGeoms = Array.from(xmlWorldBody.getElementsByTagName("geom"));
+        for (let xmlGeom of xmlGeoms) {
+            if (xmlGeom.getAttribute("class").search("collision") >= 0)
+                xmlGeom.parentElement.removeChild(xmlGeom);
         }
     }
 
@@ -4676,6 +4709,20 @@ function enableLightToonShading(object, gradientMap=null) {
     }
 }
 
+
+function modifyMaterialColor(object, color) {
+    if (object.isMesh) {
+        const hsl = {};
+        object.material.color.getHSL(hsl);
+
+        object.material.color.r = color[0] * hsl.l;
+        object.material.color.g = color[1] * hsl.l;
+        object.material.color.b = color[2] * hsl.l;
+    } else {
+        object.children.forEach(child => { modifyMaterialColor(child, color); });
+    }
+}
+
 /*
  * SPDX-FileCopyrightText: Copyright © 2024 Idiap Research Institute <contact@idiap.ch>
  *
@@ -5436,7 +5483,7 @@ class Viewer3D {
         if (enabled) {
             for (let name in self.robots) {
                 const robot = self.robots[name];
-                if (robot.tcpTarget == null)
+                if (robot.controlsEnabled && robot.tcpTarget == null)
                     robot._createTcpTarget();
             }
         }
@@ -5540,7 +5587,7 @@ class Viewer3D {
         this.toolsEnabled = enabled;
 
         for (const name in this.robots)
-            this.robots[name].enableTool(this.toolsEnabled && this.controlsEnabled);
+            this.robots[name].enableTool(this.toolsEnabled && this.controlsEnabled && robot.controlsEnabled);
     }
 
 
@@ -5666,7 +5713,7 @@ class Viewer3D {
     }
 
 
-    createRobot(name, configuration, prefix=null) {
+    createRobot(name, configuration, prefix=null, parameters=null) {
         if (this.physicsSimulator == null)
             return null;
 
@@ -5677,9 +5724,15 @@ class Viewer3D {
         if (robot == null)
             return;
 
-        const toolEnabled = this.toolsEnabled && this.controlsEnabled;
+        const robotParameters = this._checkRobotParameters(parameters);
 
-        if (toolEnabled && (Object.keys(this.robots).length == 1))
+        robot.controlsEnabled = robotParameters.get('controlsEnabled');
+
+        const toolEnabled = this.toolsEnabled && this.controlsEnabled && robot.controlsEnabled;
+
+        const robotsWithControlsEnabled = Object.values(this.robots).filter((r) => r.controlsEnabled);
+
+        if (toolEnabled && (robotsWithControlsEnabled.length == 1))
         {
             for (const name in this.robots) {
                 this.robots[name].enableTool(false);
@@ -5687,7 +5740,7 @@ class Viewer3D {
             }
         }
 
-        if (toolEnabled && (Object.keys(this.robots).length == 0) && (configuration.toolRoot != null))
+        if (toolEnabled && (robotsWithControlsEnabled.length == 0) && (configuration.toolRoot != null))
             robot.enableTool(toolEnabled, new GripperToolbarSection(this.toolbar, robot));
         else
             robot.enableTool(toolEnabled);
@@ -5714,15 +5767,21 @@ class Viewer3D {
             );
         }
 
-        if (this.parameters.get('robot_use_toon_shader')) {
+        if (robotParameters.get('color') != null) {
+            const color = robotParameters.get('color');
+            robot.arm.visual.meshes.forEach((mesh) => modifyMaterialColor(mesh, color));
+            robot.tool.visual.meshes.forEach((mesh) => modifyMaterialColor(mesh, color));
+        }
+
+        if (robotParameters.get('use_toon_shader')) {
             robot.arm.visual.meshes.forEach((mesh) => enableToonShading(mesh));
             robot.tool.visual.meshes.forEach((mesh) => enableToonShading(mesh));
-        } else if (this.parameters.get('robot_use_light_toon_shader')) {
+        } else if (robotParameters.get('use_light_toon_shader')) {
             robot.arm.visual.meshes.forEach((mesh) => enableLightToonShading(mesh));
             robot.tool.visual.meshes.forEach((mesh) => enableLightToonShading(mesh));
         }
 
-        if (this.endEffectorManipulationEnabled)
+        if (this.endEffectorManipulationEnabled && robot.controlsEnabled)
             robot._createTcpTarget();
 
         return robot;
@@ -6047,13 +6106,28 @@ class Viewer3D {
         const defaults = new Map([
             ['joint_position_colors', []],
             ['joint_position_layer', null],
-            ['robot_use_toon_shader', false],
-            ['robot_use_light_toon_shader', false],
             ['shadows', true],
             ['show_joint_positions', false],
             ['show_axes', false],
             ['statistics', false],
             ['external_loop', false],
+        ]);
+
+        return new Map([...defaults, ...parameters]);
+    }
+
+
+    _checkRobotParameters(parameters) {
+        if (parameters == null)
+            parameters = new Map();
+        else if (!(parameters instanceof Map))
+            parameters = new Map(Object.entries(parameters));
+
+        const defaults = new Map([
+            ['use_toon_shader', false],
+            ['use_light_toon_shader', false],
+            ['hue', null],
+            ['controlsEnabled', true],
         ]);
 
         return new Map([...defaults, ...parameters]);
@@ -6486,7 +6560,7 @@ class Viewer3D {
                 let listener = null;
 
                 if (object.tag == 'target-mesh') {
-                    if (!this.objectsManipulationEnabled)
+                    if (!this.objectsManipulationEnabled || !object.robot.controlsEnabled)
                         return;
 
                     object = object.parent;
@@ -6577,7 +6651,7 @@ class Viewer3D {
                 [hoveredRobot, hoveredGroup] = this._getHoveredRobotGroup(pointer);
             }
 
-            if (hoveredGroup != null)
+            if ((hoveredGroup != null) && hoveredRobot.controlsEnabled)
                 this._switchToInteractionState(InteractionStates.JointHovering, { robot: hoveredRobot, group: hoveredGroup });
             else
                 this._switchToInteractionState(InteractionStates.Default);
@@ -6697,7 +6771,8 @@ class Viewer3D {
     _getHoveredRobotGroup(pointer) {
         this.raycaster.setFromCamera(pointer, this.camera);
 
-        const meshes = Object.values(this.robots).map((r) => r.arm.visual.meshes).flat()
+        const meshes = Object.values(this.robots).filter((r) => r.controlsEnabled)
+                                                 .map((r) => r.arm.visual.meshes).flat()
                                                  .filter((mesh) => mesh.parent.jointId !== undefined);
 
         let intersects = this.raycaster.intersectObjects(meshes, false);

@@ -1,0 +1,162 @@
+﻿<div class="row">
+    <div class="col-sm-1"></div>
+
+    <div class="col-sm-5">
+        <h3>Impedance control</h3>
+
+        <editor id="editor" src="user_code"></editor>
+
+        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
+            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
+                Instructions
+            </button>
+        </div>
+
+        <div id="instructions" class="collapse instructions">
+            <div class="card card-body">
+                <h5>Control</h5>
+                <p>Click on the green run button to execute the code.</p>
+                <p>The robot can be perturbed using the mouse, either by dragging the links or rotating the joints using the mouse wheel.</p>
+                <p>To rotate the camera, press the left mouse button and drag the mouse. The right mouse button let you translate the camera. The mouse wheel let you zoom in/out.</p>
+                <h5>Information</h5>
+                <p>See <a href="#S10">Torque-controlled robots</a> for more information about impedance control.</p>
+            </div>
+        </div>
+
+        <pre id="errors" class="py-error"></pre>
+        <pre id="output" class="py-output"></pre>
+    </div>
+
+    <div class="col-sm-6">
+        <div class="sticky-sm-top" style="padding-top: 2rem;">
+            <div id="viewer3d" style="width: 100%; height: 400px;"></div>
+        </div>
+    </div>
+</div>
+
+
+<script id="user_code" type="python">
+    # Initial robot state
+    x = [
+        0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0,    # joint positions
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0       # joint velocities
+    ]
+
+    x_target = [-0.5, 0.3, 0.0, -1.8, 0.0, 1.5, 1.0] # Target in joint space
+
+    KP = np.diag([1E1, 1E1, 1E1, 1E1, 1E1, 1E1, 1E1]) # Joint space stiffness matrix
+    KV = np.diag([1E1, 1E1, 1E1, 1E1, 1E1, 1E1, 1E1]) # Joint space damping matrix
+
+    def controlCommand(x, mu):
+        u = KP @ (mu - x[:param.nbVarX]) - KV @ x[param.nbVarX:]
+        return u
+</script>
+
+
+<script id="page_code" type="python">
+    from viewer3d import Viewer3D, configs, logmap_S3, logmap, Shapes
+    from js import document
+    from rcfs import configure, displayError, setAspectRatio
+    import numpy as np
+
+    param = lambda: None # Lazy way to define an empty class in python
+    param.nbVarX = 7 # State space dimension
+
+
+    # The function that will be called once per frame
+    x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    x_target = [-0.5, 0.3, 0.0, -1.8, 0.0, 1.5, 1.0]
+
+    def update(delta, time):
+        global x_target
+
+        try:
+            x = np.append(robot.jointPositions, robot.jointVelocities)
+
+            if not isinstance(x_target, np.ndarray):
+                x_target = np.array(x_target)
+
+            u = controlCommand(x, x_target)
+
+            x += np.append(x[param.nbVarX:] + 0.5 * u * delta * 5, u) * delta * 5 # Update state
+
+            robot.control = x[:param.nbVarX]
+        except Exception as e:
+            displayError(e)
+
+
+    # Load the scene and retrieve the robot
+    def run():
+        robot.jointPositions = x[:param.nbVarX]
+        ghost.jointPositions = x_target[:param.nbVarX]
+
+
+    # Resize the container of the Viewer3D to have a 1:1 aspect ratio
+    setAspectRatio('viewer3d', 1.0)
+
+    # Create the Viewer3D
+    element = document.getElementById('viewer3d')
+
+    viewer3D = Viewer3D(
+        element,
+        {
+            'external_loop': True,
+        }
+    )
+
+    viewer3D.setRenderingCallback(update)
+
+    # Load the scene and retrieve the robot
+    viewer3D.loadScene('/scenes/panda_ghost.xml')
+    viewer3D.translateCamera([0.0, 0.0, 0.3])
+
+    viewer3D.activateLayer(1);
+    ghost = viewer3D.createRobot(
+        'ghost',
+        configs.Panda.new(),
+        'ghost_',
+        {
+            'use_light_toon_shader': True,
+            'color': [1.0, 0.2, 0.6],
+            'controlsEnabled': False,
+        }
+    )
+
+    ghost.jointPositions = x_target[:param.nbVarX]
+
+    viewer3D.activateLayer(2);
+    robot = viewer3D.createRobot('panda', configs.Panda.new(), 'panda_')
+
+    # Disable the manipulation of the end-effector
+    viewer3D.endEffectorManipulationEnabled = False
+
+
+    # Placeholder for the function to implement
+    def controlCommand(x, mu):
+        return np.zeros(param.nbVarX)
+
+    # Forward kinematics function (allows to not care about 'robot' in the user code)
+    def fkin(x):
+        return robot.fkin(x)
+
+    # Jacobian function (allows to not care about 'robot' in the user code)
+    def Jkin(x):
+        return robot.Jkin(x)
+
+
+    async def loop(delta, time):
+        viewer3D.render()
+
+
+    configure({
+        'loop': loop,
+        'run': run,
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

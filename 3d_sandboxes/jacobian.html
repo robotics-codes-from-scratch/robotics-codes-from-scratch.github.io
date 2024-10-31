@@ -159,7 +159,7 @@
     viewer3D.translateCamera([0, 0, 0.3])
 
     viewer3D.activateLayer(1)
-    robot = viewer3D.createRobot('panda', configs.Panda.new())
+    robot = viewer3D.createRobot('panda', configs.Panda.new(), parameters=dict(use_light_toon_shader=True))
 
     # Disable the manipulation of the robot by the user
     viewer3D.controlsEnabled = False
