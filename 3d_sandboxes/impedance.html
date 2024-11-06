@@ -49,8 +49,8 @@
 
     x_target = [-0.5, 0.3, 0.0, -1.8, 0.0, 1.5, 1.0] # Target in joint space
 
-    KP = np.diag([2000, 2000, 2000, 2000, 2000, 2000, 2000]) # Joint space stiffness matrix
-    KV = np.diag([300, 300, 300, 300, 300, 300, 300]) # Joint space damping matrix
+    KP = np.diag([20, 20, 20, 20, 20, 20, 20]) # Joint space stiffness matrix
+    KV = np.diag([3, 3, 3, 3, 3, 3, 3]) # Joint space damping matrix
 
     def controlCommand(x, mu):
         u = KP @ (mu - x[:param.nbVarX]) - KV @ x[param.nbVarX:]
@@ -76,14 +76,20 @@
         global x_target
 
         try:
-            x = np.append(robot.jointPositions, robot.jointVelocities)
+            x[:param.nbVarX] = robot.jointPositions
 
             if not isinstance(x_target, np.ndarray):
                 x_target = np.array(x_target)
 
             u = controlCommand(x, x_target)
 
-            x += np.append(x[param.nbVarX:] + 0.5 * u * delta * 5, u)# * delta * 5 # Update state
+            ddx = u
+            dx = np.copy(x[param.nbVarX:])
+
+            dx = dx + ddx * delta
+
+            x[:param.nbVarX] = x[:param.nbVarX] + dx * delta
+            x[param.nbVarX:] = dx
 
             robot.control = x[:param.nbVarX]
         except Exception as e:
@@ -94,7 +100,6 @@
     async def run():
         robot.jointPositions = x[:param.nbVarX]
         ghost.jointPositions = x_target[:param.nbVarX]
-        viewer3D.physicsSimulatorPaused = False
 
 
     # Resize the container of the Viewer3D to have a 1:1 aspect ratio
@@ -135,7 +140,6 @@
 
     # Disable the manipulation of the end-effector
     viewer3D.endEffectorManipulationEnabled = False
-    viewer3D.controlsEnabled = False
 
 
     # Placeholder for the function to implement
