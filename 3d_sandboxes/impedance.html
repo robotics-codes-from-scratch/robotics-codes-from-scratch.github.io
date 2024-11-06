@@ -75,6 +75,8 @@
     def update(delta, time):
         global x_target
 
+        dt = 0.01
+
         try:
             x[:param.nbVarX] = robot.jointPositions
 
@@ -86,9 +88,9 @@
             ddx = u
             dx = np.copy(x[param.nbVarX:])
 
-            dx = dx + ddx * delta
+            dx = dx + ddx * dt
 
-            x[:param.nbVarX] = x[:param.nbVarX] + dx * delta
+            x[:param.nbVarX] = x[:param.nbVarX] + dx * dt
             x[param.nbVarX:] = dx
 
             robot.control = x[:param.nbVarX]
