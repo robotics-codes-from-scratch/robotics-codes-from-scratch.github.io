@@ -6560,7 +6560,7 @@ class Viewer3D {
                 let listener = null;
 
                 if (object.tag == 'target-mesh') {
-                    if (!this.objectsManipulationEnabled || !object.robot.controlsEnabled)
+                    if (!this.objectsManipulationEnabled || ((object.robot != null) && !object.robot.controlsEnabled))
                         return;
 
                     object = object.parent;
