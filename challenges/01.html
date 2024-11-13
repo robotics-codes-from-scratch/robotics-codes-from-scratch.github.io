@@ -69,13 +69,13 @@
 <script id="user_code" type="python">
     task_step = 0 # variable to keep track of the current motion phase
 
-    def controlCommand(x):
+    def controlCommand(x, dt):
         global task_step
 
         if x[0] < 0:
             task_step = 1 # switch to the next motion phase
 
-        return np.zeros(x.shape)
+        return np.zeros(x.shape)  # Velocity in rad/s
 </script>
 
 
@@ -120,7 +120,7 @@
 
         try:
             x = robot.control
-            u = controlCommand(x)
+            u = controlCommand(x, delta)
             x += u * delta
             robot.control = x
         except Exception as e:
@@ -197,7 +197,7 @@
 
 
     # Placeholder for the function to implement
-    def controlCommand(x):
+    def controlCommand(x, dt):
         return np.zeros(x.shape)
 
     # Forward kinematics function (allows to not care about 'robot' in the user code)

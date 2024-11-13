@@ -22,6 +22,8 @@ param.agent_radius = 1  # changes the effect of the agent on the coverage
 # Timesteps for integrating diffusion (higher values lead to more global exploration, [1,25])
 param.nb_diffusion_timesteps = 25 
 
+param.dt = 1e-2      # Time step
+
 # Initial robot state
 param.x0 = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]
 
@@ -371,7 +373,7 @@ def update():
         u = np.zeros(param.x0.shape)
 
     # Apply the command to the robot
-    robot.control = robot.control + u * 0.1
+    robot.control = robot.control + u * param.dt
 
     # Update the list of points used to draw the trajectory
     ee = robot.fkin(robot.jointPositions)

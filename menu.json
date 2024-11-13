@@ -127,6 +127,7 @@
                         "panda"
                     ],
                     "scenes": [
+                        "scenes/panda.xml",
                         "scenes/panda_ghost.xml"
                     ]
                 }

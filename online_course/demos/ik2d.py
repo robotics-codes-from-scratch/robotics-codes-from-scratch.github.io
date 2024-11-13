@@ -82,7 +82,7 @@ def Jkin(xt, param):
 # ===============================
 
 param = lambda: None # Lazy way to define an empty class in python
-param.dt = 1e-1 # Time step length
+param.dt = 1e-2 # Time step length
 param.nbVarX = 3 # State space dimension (x1,x2,x3)
 param.nbVarF = 3 # Task space dimension (position and orientation)
 param.l = [79, 96, 55] # Robot links lengths
@@ -295,7 +295,7 @@ def controlCommand(x, param):
     f = fkin(x, param)
     J = Jkin(x, param)
     u = np.linalg.pinv(J) @ logmap(param.Mu, f) # Position &amp; orientation tracking
-    return u
+    return 0.1 * u / param.dt
 
 
 #########################################################################################
@@ -326,6 +326,9 @@ x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
 
 def loop(delta, time):
     global hover_joint, hover_obj, param, x
+
+    if delta > 1e-1:
+        param.dt = delta * 0.001
 
     try:
         u = controlCommand(x, param)

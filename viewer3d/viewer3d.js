@@ -666,7 +666,7 @@ class Robot {
     }
 
 
-    ik(mu, nbJoints=null, offset=null, limit=5, damping=false) {
+    ik(mu, nbJoints=null, offset=null, limit=5, dt=0.01, successDistance=1e-4, damping=false) {
         let x = math.matrix(Array.from(this.getControl()));
         const startx = math.matrix(x);
 
@@ -730,13 +730,13 @@ class Robot {
                 break;
             }
 
-            u = math.multiply(pinvJ, diff);
+            u = math.multiply(math.multiply(pinvJ, diff), 0.1 / dt);  // Velocity command, with a 0.1 gain to not overshoot the target
 
-            x.subset(jointIndices, math.add(x.subset(jointIndices), math.multiply(u, 0.1)).subset(jointIndices));
+            x.subset(jointIndices, math.add(x.subset(jointIndices), math.multiply(u, dt)).subset(jointIndices));
 
             i++;
 
-            if (math.norm(math.subtract(x, startx)) < 1e-5)
+            if (math.norm(math.subtract(x, startx)) < successDistance)
                 done = true;
         }
 
@@ -1540,7 +1540,7 @@ class PhysicsSimulator {
             let timestep = this.model.getOptions().timestep;
 
             if (time - this.time > 0.035)
-                this.time = time;
+                timestep *= 2;
 
             while (this.time < time) {
                 this.simulation.step();
@@ -4019,7 +4019,6 @@ class Arrow extends THREE.Object3D {
 
     Parameters:
         length (Number): Length of the arrow
-        color (int/str): Color of the arrow (by default: 0xffff00)
         headLength (Number): The length of the head of the arrow (default is 0.2 * length)
         headWidth (Number): The width of the head of the arrow (default is 0.2 * headLength)
         radius (Number): The radius of the line part of the arrow (default is 0.1 * headWidth)
@@ -5420,6 +5419,8 @@ class Viewer3D {
         this.logmap = null;
 
         this.renderingCallback = null;
+        this.renderingCallbackTime = null;
+        this.renderingCallbackTimestep = -1.0;
 
         this.controlsEnabled = true;
         this.endEffectorManipulationEnabled = true;
@@ -5447,8 +5448,10 @@ class Viewer3D {
     Note that only one function can be registered at a time. If 'callback' is 'null', no
     function is called anymore.
     */
-    setRenderingCallback(renderingCallback) {
+    setRenderingCallback(renderingCallback, timestep=-1.0) {
         this.renderingCallback = renderingCallback;
+        this.renderingCallbackTimestep = timestep;
+        this.renderingCallbackTime = null;
     }
 
 
@@ -5654,6 +5657,7 @@ class Viewer3D {
         }
 
         this.clock.start();
+        this.renderingCallbackTime = null;
 
         const paused = this.physicsSimulator.paused;
 
@@ -6305,6 +6309,7 @@ class Viewer3D {
             if (document.hidden) {
                 this.clock.stop();
                 this.clock.autoStart = true;
+                this.renderingCallbackTime = null;
             }
         });
 
@@ -6327,6 +6332,8 @@ class Viewer3D {
 
             if (this.physicsSimulator != null)
                 this.physicsSimulator.time = this.clock.elapsedTime;
+
+            this.renderingCallbackTime = null;
         }
 
         // Ensure that the pixel ratio is still correct (might change when the window is
@@ -6341,10 +6348,52 @@ class Viewer3D {
         // Update the tween variables
         TWEEN.update();
 
-        // Update the physics simulator
-        if (this.physicsSimulator != null) {
-            this.physicsSimulator.update(this.clock.elapsedTime);
-            this.physicsSimulator.synchronize();
+
+        if (this.renderingCallback != null)
+        {
+            if (this.renderingCallbackTime == null)
+                this.renderingCallbackTime = this.clock.elapsedTime;
+
+            if (this.renderingCallbackTimestep > 0.0)
+            {
+                const tmax = this.clock.elapsedTime;
+                while (this.renderingCallbackTime < tmax)
+                {
+                    // Update the physics simulator
+                    if (this.physicsSimulator != null) {
+                        this.physicsSimulator.update(this.renderingCallbackTime);
+                        this.physicsSimulator.synchronize();
+                    }
+
+                    this.renderingCallback(
+                        this.renderingCallbackTimestep,
+                        this.renderingCallbackTime + this.renderingCallbackTimestep
+                    );
+
+                    this.renderingCallbackTime += this.renderingCallbackTimestep;
+
+                    if (this.renderingCallback == null)
+                        break;
+                }
+            }
+            else
+            {
+                // Update the physics simulator
+                if (this.physicsSimulator != null) {
+                    this.physicsSimulator.update(this.clock.elapsedTime);
+                    this.physicsSimulator.synchronize();
+                }
+
+                this.renderingCallback(delta, this.clock.elapsedTime);
+            }
+        }
+        else
+        {
+            // Update the physics simulator
+            if (this.physicsSimulator != null) {
+                this.physicsSimulator.update(this.clock.elapsedTime);
+                this.physicsSimulator.synchronize();
+            }
         }
 
         // Ensure that the camera isn't below the floor
@@ -6477,10 +6526,6 @@ class Viewer3D {
             this.renderer.clearDepth();
             this.logmap.render(this.renderer, cameraOrientation);
         }
-
-        // Notify the listener (if necessary)
-        if (this.renderingCallback != null)
-            this.renderingCallback(delta, this.clock.elapsedTime);
 
         // Request another animation frame
         if (!this.parameters.get('external_loop'))
@@ -6677,7 +6722,8 @@ class Viewer3D {
                 this.hoveredRobot.ik(
                     this.hoveredRobot.getEndEffectorDesiredTransforms(),
                     this.hoveredRobot.arm.joints.length,
-                    null
+                    null,
+                    5
                 );
             }
             return;

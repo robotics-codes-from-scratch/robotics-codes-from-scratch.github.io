@@ -153,7 +153,7 @@ class Viewer3D:
         return Robot(robotjs, self.viewer)
 
 
-    def setRenderingCallback(self, callback):
+    def setRenderingCallback(self, callback, timestep=-1.0):
         """Register a function that should be called once per frame.
 
         This callback function can for example be used to update the positions of the joints.
@@ -164,7 +164,10 @@ class Viewer3D:
         Note that only one function can be registered at a time. If 'callback' is 'None', no
         function is called anymore.
         """
-        self.viewer.setRenderingCallback(create_proxy(callback) if callback is not None else None)
+        self.viewer.setRenderingCallback(
+            create_proxy(callback) if callback is not None else None,
+            timestep
+        )
 
 
     @property
@@ -398,7 +401,7 @@ class Viewer3D:
         Parameters:
             name (str): Name of the arrow
         """
-        self.viewer.removeTarget(name)
+        self.viewer.removeArrow(name)
 
 
     def getArrow(self, name):
@@ -775,7 +778,7 @@ class Robot:
         return np.array(self.robot.fkin(to_js(positions), offset).to_py())
 
 
-    def ik(self, mu, nbJoints=None, offset=None, limit=None, damping=False):
+    def ik(self, mu, nbJoints=None, offset=None, limit=None, dt=0.01, successDistance=1e-4, damping=False):
         x = self.control
         startx = x.copy()
 
@@ -813,13 +816,13 @@ class Robot:
             else:
                 pinvJ = np.linalg.pinv(J)
 
-            u = pinvJ @ diff
+            u = 0.1 * pinvJ @ diff / dt     # Velocity command, with a 0.1 gain to not overshoot the target
 
-            x[:nbJoints] += u * 0.1
+            x[:nbJoints] += u * dt
 
             i += 1
 
-            if np.linalg.norm(x - startx) < 1e-5:
+            if np.linalg.norm(x - startx) < successDistance:
                 done = True
 
         control = self.control
@@ -970,8 +973,8 @@ class Arrow(Object3D):
         self.object.setColor(color)
 
 
-    def setLength(self, length, headLength=None, headWidth=None, radius=None):
-        """Sets the orientation of the target
+    def setDimensions(self, length, headLength=None, headWidth=None, radius=None):
+        """Sets the dimensions of the arrow
 
         Parameters:
             length (float): The desired length
@@ -982,7 +985,7 @@ class Arrow(Object3D):
         headLength = headLength if headLength is not None else length * 0.2
         headWidth = headWidth if headWidth is not None else headLength * 0.2
         radius = radius if radius is not None else headWidth * 0.1
-        self.object.setLength(length, headLength, headWidth, radius)
+        self.object.setDimensions(length, headLength, headWidth, radius)
 
 
     @property

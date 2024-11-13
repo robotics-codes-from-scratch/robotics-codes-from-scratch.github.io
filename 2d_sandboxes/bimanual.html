@@ -64,11 +64,14 @@
     def controlCommand(x, param):
         f = fkin(x, param)
         J = Jkin(x, param)
-        #u = np.linalg.pinv(J) @ (param.Mu - f[:,0]) * 10 # Control commands
+
+        #u = np.linalg.pinv(J) @ (param.Mu - f) # Control commands
         #u = np.zeros(param.nbVarX) # Control commands
+
         pinvJ = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E4) @ J.T # Damped pseudoinverse
-        u = pinvJ @ (param.Mu - f[:,0]) * 10 # Control commands
-        return u
+        u = pinvJ @ (param.Mu - f) # Control commands
+
+        return 0.1 * u / param.dt   # Velocity in rad/s
 </script>
 
 
@@ -76,9 +79,10 @@
     def controlCommand(x, param):
         f = fkin(x, param)
         J = Jkin(x, param)
+
         # Prioritized control (left tracking as main objective)
-        dfl = (param.Mu[:2] - f[:2,0]) * 10 # Left hand correction
-        dfr = (param.Mu[2:] - f[2:,0]) * 10 # Right hand correction
+        dfl = (param.Mu[:2] - f[:2]) # Left hand correction
+        dfr = (param.Mu[2:] - f[2:]) # Right hand correction
         Jl = J[:2,:] # Jacobian for left hand
         Jr = J[2:,:] # Jacobian for right hand
         pinvJl = np.linalg.inv(Jl.T @ Jl + np.eye(param.nbVarX) * 1e1) @ Jl.T # Damped pseudoinverse
@@ -88,7 +92,8 @@
         pinvJrNl = JrNl.T @ np.linalg.inv(JrNl @ JrNl.T + np.eye(2) * 1e4) # Damped pseudoinverse
         ur = pinvJrNl @ (dfr - Jr @ ul) # Command for right hand tracking (with left hand tracking prioritized)
         u = ul + Nl @ ur # Control commands
-        return u
+
+        return 0.1 * u / param.dt   # Velocity in rad/s
 </script>
 
 
@@ -107,7 +112,7 @@
             param.l[[0,3,4]].T @ np.cos(L @ x[[0,3,4]]),
             param.l[[0,3,4]].T @ np.sin(L @ x[[0,3,4]])
         ])  # f1,f2,f3,f4
-        return f
+        return f.reshape((-1,))
 
     # Forward kinematics for end-effector (in robot coordinate system)
     def fkin0(x, param):
@@ -142,7 +147,7 @@
     # ===============================
 
     param = lambda: None # Lazy way to define an empty class in python
-    param.dt = 1e-1 # Time step length
+    param.dt = 1e-2 # Time step length
     param.nbVarX = 5 # State space dimension
     param.nbVarF = 4 # Task space dimension ([x1,x2] for left end-effector, [x3,x4] for right end-effector)
     param.l = np.array([200, 200, 150, 200, 150]) # Robot links lengths
@@ -305,8 +310,7 @@
 
 
     def defaultControlCommand(x, param):
-        u = np.zeros(param.nbVarX)
-        return u
+        return np.zeros(param.nbVarX)
 
     controlCommand = defaultControlCommand
 
@@ -374,11 +378,17 @@
         global controlCommand, x
         controlCommand = defaultControlCommand
         x = np.copy(x0)
-    
+
+
+    async def run():
+        global x
+        x = np.copy(x0)
+
 
     configure({
         'loop': loop,
         'reset': reset,
+        'run': run,
         'cleanup': cleanup,
         'output': 'output',
         'errors': 'errors',

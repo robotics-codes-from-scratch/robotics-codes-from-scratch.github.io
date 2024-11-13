@@ -21,7 +21,7 @@
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="IK-tab" class="tab-pane fade show active" id="IK-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-ik" src="user_code_damped_ik"></editor>
+                <editor id="editor-ik" src="user_code_ik"></editor>
             </div>
 
             <div aria-labelledby="dIK-tab" class="tab-pane fade" id="dIK-tab-pane" role="tabpanel" tabindex="0">
@@ -82,12 +82,14 @@
     def controlCommand(x, param):
         f = fkin(x, param)
         J = Jkin(x, param)
-        u = np.linalg.pinv(J) @ logmap(param.Mu, f) # Position &amp; orientation tracking
+
+        u = np.linalg.pinv(J) @ logmap(param.Mu, f) # Position & orientation tracking
         # u = np.linalg.pinv(J[:2,:]) @ (param.Mu[:2] - f[:2]) # Position tracking
         # u = np.linalg.pinv(J[2:,:]) @ (param.Mu[2:] - f[2:]) # Orientation tracking
         # u = J.T @ logmap(param.Mu, f) * 1E-4 # Gradient-based tracking
         # u = np.zeros(param.nbVarX) # Zero control commands
-        return u
+
+        return 0.1 * u / param.dt   # Velocity in rad/s
 </script>
 
 
@@ -97,9 +99,11 @@
     def controlCommand(x, param):
         f = fkin(x, param)
         J = Jkin(x, param)
-        pinvJ = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E2) @ J.T # Damped pseudoinverse
-        u = pinvJ @ logmap(param.Mu, f) # Position &amp; orientation tracking
-        return u
+
+        pinvJ = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E1) @ J.T # Damped pseudoinverse
+        u = pinvJ @ logmap(param.Mu, f) # Position & orientation tracking
+
+        return 0.1 * u / param.dt   # Velocity in rad/s
 </script>
 
 
@@ -113,14 +117,14 @@
         # Weights in task space
         Wf = np.diag([1, 1, 0])
         pinvWJ = np.linalg.inv(J.T @ Wf @ J + np.eye(param.nbVarX) * 1E-2) @ J.T @ Wf # Weighted pseudoinverse
-        u = pinvWJ @ logmap(param.Mu, f) # Position &amp; orientation tracking
+        u = pinvWJ @ logmap(param.Mu, f) # Position & orientation tracking
 
         # # Weights in configuration space
         # Wx = np.diag([0.01, 1, 1])
         # pinvWJ =  Wx @ J[:2,:].T @ np.linalg.inv(J[:2,:] @ Wx @ J[:2,:].T + np.eye(2) * 1E-2) # Weighted pseudoinverse
         # u = pinvWJ @ (param.Mu[:2] - f[:2]) # Position tracking
 
-        return u
+        return 0.1 * u / param.dt   # Velocity in rad/s
 </script>
 
 
@@ -155,7 +159,7 @@
         # uo = pinvJoNp @ (dfo - Jo @ up) # Command for orientation tracking (with position tracking prioritized)
         # u = up + Np @ uo # Control commands
 
-        return u
+        return 0.1 * u / param.dt   # Velocity in rad/s
 </script>
 
 
@@ -244,7 +248,7 @@
     # ===============================
 
     param = lambda: None # Lazy way to define an empty class in python
-    param.dt = 1e-1 # Time step length
+    param.dt = 1e-2 # Time step length
     param.nbVarX = 3 # State space dimension (x1,x2,x3)
     param.nbVarF = 3 # Task space dimension (position and orientation)
     param.l = [79, 96, 55] # Robot links lengths
@@ -451,8 +455,7 @@
 
 
     def defaultControlCommand(x, param):
-        u = np.zeros(param.nbVarX)
-        return u
+        return np.zeros(param.nbVarX)
 
     controlCommand = defaultControlCommand
 
@@ -486,6 +489,9 @@
 
     async def loop(delta, time):
         global hover_joint, hover_obj, param, x
+
+        if delta > 1e-1:
+            param.dt = delta * 0.001
 
         try:
             u = controlCommand(x, param)

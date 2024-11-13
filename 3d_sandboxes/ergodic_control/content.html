@@ -177,6 +177,7 @@
 
     async def run():
         try:
+            viewer3D.setRenderingCallback(None)
             reset()
         except Exception as e:
             displayError(e)

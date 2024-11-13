@@ -88,7 +88,7 @@ def update():
         u = np.zeros(param.x0.shape)
 
     # Apply the command to the robot
-    robot.control = robot.control + u * 0.2
+    robot.control = robot.control + u * param.dt
 
     # Update the list of points used to draw the trajectory
     ee = robot.fkin(robot.jointPositions)

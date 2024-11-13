@@ -191,10 +191,10 @@
 
         float distance = compute_distance(coord);
 
-        vec3 color = (distance > 0.0) ? vec3(0.9, 0.6, 0.3) : vec3(0.65, 0.85, 1.0);
+        vec3 color = (distance > 0.0) ? vec3(0.8, 0.8, 0.8) : vec3(0.65, 0.85, 1.0);
         color *= 1.0 - exp(-1.0 * abs(distance));
 
-        color *= (distance > 0.0 ? 0.8 + 0.2 * cos(0.25 * distance - iTime * 10.0) : 1.0);
+        color *= (distance > 0.0 ? 0.9 + 0.05 * cos(0.25 * distance) : 1.0);
 
         fragColor = vec4(color, 0.8);
     }
@@ -373,7 +373,7 @@
         mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
         mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
         mouse[0] = (mouse0[0] - canvas_offset[0])
-        mouse[1] = -(mouse0[1] - canvas.height * 0.1)
+        mouse[1] = -(mouse0[1] - canvas_offset[1])
 
     def onTouchMove(event):
         global mouse, mouse0
@@ -381,7 +381,7 @@
         mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
         mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
         mouse[0] = (mouse0[0] - canvas_offset[0])
-        mouse[1] = -(mouse0[1] - canvas.height * 0.1)
+        mouse[1] = -(mouse0[1] - canvas_offset[1])
 
     def onMouseDown(event):
         global mousedown, move_joint
@@ -624,8 +624,8 @@
             draw_selected_point(f_target, '#FF3399')
             draw_Gaussian(f_target, np.linalg.inv(KP[:2,:2]*5E1+np.eye(2)*1E-6), '#FF3399', '#DD1177') # Draw stiffness ellipsoid
 
-            f = fkin(x[:param.nbVarX], param)[:2]
-            if np.linalg.norm(f_target[:2] - f) > 1e-3:
+            f = fkin(x[:param.nbVarX], param)
+            if np.linalg.norm(f_target[:2] - f[:2]) > 1e-3:
                 draw_arrow(f[:2], f_target[:2], color='#3333FF')
 
         elif document.getElementById('taskimpedance2-tab').ariaSelected == 'true':

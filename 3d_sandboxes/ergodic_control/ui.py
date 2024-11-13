@@ -35,7 +35,7 @@ def reset_rendering(param):
         )
         gaussians.append(gaussian)
 
-    viewer3D.setRenderingCallback(update_rendering)
+    viewer3D.setRenderingCallback(update_rendering, param.dt)
     viewer3D.physicsSimulatorPaused = False
 
 

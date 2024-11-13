@@ -152,7 +152,7 @@
         ],
     )
 
-    viewer3D.setRenderingCallback(update)
+    viewer3D.setRenderingCallback(update, 0.01)
 
     # Load the scene and retrieve the robot
     viewer3D.loadScene('/scenes/panda.xml')

@@ -49,7 +49,7 @@
             print('DONE')
             stopControl()
 
-        return u
+        return u  # Velocity in rad/s
 </script>
 
 
@@ -114,7 +114,7 @@
     async def run():
         try:
             reset()
-            viewer3D.setRenderingCallback(update)
+            viewer3D.setRenderingCallback(update, 0.01)
         except Exception as e:
             displayError(e)
 
