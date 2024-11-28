@@ -1,66 +1,20 @@
 <div class="row"><div class="col-sm-7 offset-1"><div id="txt-col"><h1 class="ltx_title ltx_title_section">
 <span class="ltx_tag ltx_tag_section"><span class="ltx_text">5</span> </span><span class="ltx_text">Inverse kinematics (IK) for a planar robot manipulator</span>
-</h1><div class="ltx_para" id="S5-para:p1">
-<p class="ltx_p">By differentiating the forward kinematics function, a least norm inverse kinematics solution can be computed with</p>
-<table class="ltx_equation ltx_eqn_table" id="S5-eq:E19">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E19.m1">\bm{\dot{\bm{x}}}=\bm{J}^{\dagger}\!(\bm{x})\;\bm{\dot{f}},</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(19)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">where the Jacobian <span class="ltx_Math" id="p1.m1">\bm{J}(\bm{x})</span> corresponding to the endeffector forward kinematics function <span class="ltx_Math" id="p1.m2">\bm{f}(\bm{x})</span> can be computed as (with a simplification for the orientation part by ignoring the manifold aspect)</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S5-eq:A5.EGx11">
-<tbody id="S5-eq:Ex29"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex29.m1">\displaystyle\bm{J}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex29.m2">\displaystyle=\begin{bmatrix}-\sin(\bm{L}\bm{x})^{\scriptscriptstyle\top}\mathrm{diag}(\bm{\ell})\bm{L}\\
-\cos(\bm{L}\bm{x})^{\scriptscriptstyle\top}\mathrm{diag}(\bm{\ell})\bm{L}\\
-\bm{1}^{\scriptscriptstyle\top}\end{bmatrix}</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr></tbody>
-<tbody id="S5-eq:Ex30"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex30.m1">\displaystyle=\begin{bmatrix}J_{1,1}&amp;J_{1,2}&amp;J_{1,3}&amp;\ldots\\
-J_{2,1}&amp;J_{2,2}&amp;J_{2,3}&amp;\ldots\\
-J_{3,1}&amp;J_{3,2}&amp;J_{3,3}&amp;\ldots\\
-\end{bmatrix}\!\!,</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">with</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S5-eq:A5.EGx12">
-<tbody id="S5-eq:Ex31"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex31.m1">\displaystyle J_{1,1}=-\ell_{1}\!\sin(x_{1})\!-\!\ell_{2}\!\sin(x_{1}\!+\!x_{2})\!-\!\ell_{3}\!\sin(x_{1}\!+\!x_{2}\!+\!x_{3})\!-\!\ldots,\quad</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex31.m2">\displaystyle J_{1,2}=-\ell_{2}\!\sin(x_{1}\!+\!x_{2})\!-\!\ell_{3}\!\sin(x_{1}\!+\!x_{2}\!+\!x_{3})\!-\!\ldots,\quad</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex31.m3">\displaystyle J_{1,3}=-\ell_{3}\!\sin(x_{1}\!+\!x_{2}\!+\!x_{3})\!-\!\ldots,</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr></tbody>
-<tbody id="S5-eq:Ex32"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex32.m1">\displaystyle J_{2,1}=\ell_{1}\!\cos(x_{1})\!+\!\ell_{2}\!\cos(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3})\!+\!\ldots,</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex32.m2">\displaystyle J_{2,2}=\ell_{2}\!\cos(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3})\!+\!\ldots,</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex32.m3">\displaystyle J_{2,3}=\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3})\!+\!\ldots,\quad\ldots</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr></tbody>
-<tbody id="S5-eq:Ex33"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex33.m1">\displaystyle J_{3,1}=1,</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex33.m2">\displaystyle J_{3,2}=1,</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex33.m3">\displaystyle J_{3,3}=1,</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr></tbody>
-</table>
+</h1><figure class="ltx_figure figure_main" id="S5-fig:F10"><a href="online_course/images/transformations01.jpg" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F10.g1" src="online_course/images/small/transformations01.jpg"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 10</span>: </span><span class="ltx_text">Typical transformations involved in a manipulation task involving a robot, a vision system, a visual marker on the object, and a desired grasping location on the object.
+</span></figcaption>
+</figure><div class="ltx_para" id="S5-para:p1">
+<p class="ltx_p">We define a manipulation task involving a set of transformations as in Fig. <a class="ltx_ref" href="#S5-fig:F10" title="Figure 10 ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">10</span></a>. By relying on these transformation operators, we will describe all variables in the robot frame of reference (defined by <span class="ltx_Math" id="p1.m1">\bm{0}</span>, <span class="ltx_Math" id="p1.m2">\bm{e}_{1}</span> and <span class="ltx_Math" id="p1.m3">\bm{e}_{2}</span> in the figure).</p>
 </div><div class="ltx_para" id="S5-para:p2">
-<p class="ltx_p">In Python, this can be coded for the endeffector position part as</p>
-<div class="ltx_listing ltx_lst_language_Python ltx_lst_numbers_left ltx_lstlisting ltx_listing">
-<div class="ltx_listingline" id="lstnumberx6">
-<span class="ltx_tag ltx_tag_listingline">1</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">J</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_font_typewriter">=</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">np</span><span class="ltx_text ltx_font_typewriter">.</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">array</span><span class="ltx_text ltx_font_typewriter">([-</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">np</span><span class="ltx_text ltx_font_typewriter">.</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">sin</span><span class="ltx_text ltx_font_typewriter">(</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">L</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">x</span><span class="ltx_text ltx_font_typewriter">).</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">T</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">np</span><span class="ltx_text ltx_font_typewriter">.</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">diag</span><span class="ltx_text ltx_font_typewriter">(</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">l</span><span class="ltx_text ltx_font_typewriter">)</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">L</span><span class="ltx_text ltx_font_typewriter">,</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">np</span><span class="ltx_text ltx_font_typewriter">.</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">cos</span><span class="ltx_text ltx_font_typewriter">(</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">L</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">x</span><span class="ltx_text ltx_font_typewriter">).</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">T</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">np</span><span class="ltx_text ltx_font_typewriter">.</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">diag</span><span class="ltx_text ltx_font_typewriter">(</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">l</span><span class="ltx_text ltx_font_typewriter">)</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">L</span><span class="ltx_text ltx_font_typewriter">])</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_comment ltx_font_typewriter">#Jacobian<span class="ltx_text ltx_lst_space"> </span>(for<span class="ltx_text ltx_lst_space"> </span>endeffector)</span>
-</div>
-</div>
+<p class="ltx_p">We first define <span class="ltx_Math" id="p2.m1">\bm{f}(\bm{x})</span> as the residual vector between a target <span class="ltx_Math" id="p2.m2">\bm{\mu}</span> and the endeffector position <span class="ltx_Math" id="p2.m3">\bm{f}^{\text{\tiny ee}}(\bm{x})</span> computed by the forward kinematics function, namely</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S5-eq:A5.EGx13">
+<tbody id="S5-eq:Ex39"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex39.m1">\displaystyle\bm{f}(\bm{x})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex39.m2">\displaystyle=\bm{f}^{\text{\tiny ee}}(\bm{x})-\bm{\mu}.</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
 </div><table style="width: 100%;">
 <tbody>
 <tr>
@@ -113,26 +67,130 @@ J_{3,1}&amp;J_{3,2}&amp;J_{3,3}&amp;\ldots\\
 </tbody>
 </table>
 <div class="ltx_para" id="S5-para:p3">
-<p class="ltx_p">This Jacobian can be used to solve the <em class="ltx_emph ltx_font_italic">inverse kinematics</em> (IK) problem that consists of finding a robot pose to reach a target with the robot endeffector. The underlying optimization problem consists of minimizing a quadratic cost <span class="ltx_Math" id="p3.m1">c=\|\bm{f}-\bm{\mu}\|^{2}</span>, where <span class="ltx_Math" id="p3.m2">\bm{f}</span> is the position of the endeffector and <span class="ltx_Math" id="p3.m3">\bm{\mu}</span> is a target to reach with this endeffector. An optimization problem with a quadratic cost can be solved iteratively with a Gauss–Newton method, requiring to compute Jacobian pseudoinverses <span class="ltx_Math" id="p3.m4">\bm{J}^{\dagger}</span>, see Section <a class="ltx_ref" href="#S3-sec:SS1" title="3.1 Gauss–Newton algorithm ‣ 3 Newton’s method for minimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">3.1</span></a> for details.</p>
+<p class="ltx_p">The <em class="ltx_emph ltx_font_italic">inverse kinematics</em> (IK) problem consists of finding a robot pose to reach a target with the robot endeffector. The underlying optimization problem consists of minimizing a cost <span class="ltx_Math" id="p3.m1">c(\bm{x})=\|\bm{f}(\bm{x})\|^{2}=\bm{f}(\bm{x})^{\scriptscriptstyle\top}\bm{f}(\bm{x})</span>, which can be solved iteratively with a Gauss–Newton method.</p>
 </div><canvas class="ltx_centering" height="400px" id="canvas_ik2d" width="400px"></canvas>
-<div class="ltx_subsection" id="S5-sec:SS1">
+<div class="ltx_para" id="S5-para:p4">
+<p class="ltx_p">As seen in Section <a class="ltx_ref" href="#S3-sec:SS3" title="3.3 Gauss–Newton algorithm ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">3.3</span></a>, by differentiating <span class="ltx_Math" id="p4.m1">c(\bm{x})</span> with respect to <span class="ltx_Math" id="p4.m2">\bm{x}</span> and equating to 0, we get an update rule as in (<a class="ltx_ref" href="#S3-eq:E9" title="In Multidimensional case ‣ 3.2 Newton’s method ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">9</span></a>), namely</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S5-eq:A5.EGx14">
+<tbody id="S5-eq:Ex40"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex40.m1">\displaystyle\bm{x}_{k+1}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex40.m2">\displaystyle=\bm{x}_{k}-{\big(\bm{J}^{\scriptscriptstyle\top}(\bm{x}_{k})\bm{J}(\bm{x}_{k})\big)}^{-1}\,\bm{J}^{\scriptscriptstyle\top}(\bm{x}_{k})\,\bm{f}(\bm{x}_{k})</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="S5-eq:E19"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_eqn_cell"></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E19.m1">\displaystyle=\bm{x}_{k}-\bm{J}^{\dagger}(\bm{x}_{k})\,\big(\bm{f}^{\text{\tiny ee}}(\bm{x}_{k})-\bm{\mu}\big),</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(19)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <span class="ltx_Math" id="p4.m3">\bm{J}\in\mathbb{R}^{R\times D}</span> is the Jacobian matrix of <span class="ltx_Math" id="p4.m4">\bm{f}\in\mathbb{R}^{R}</span>, and <span class="ltx_Math" id="p4.m5">\bm{J}^{\dagger}</span> denotes the pseudoinverse of <span class="ltx_Math" id="p4.m6">\bm{J}</span>.</p>
+</div><div class="ltx_para" id="S5-para:p5">
+<p class="ltx_p">For the orientation part of the data (if considered), the residual vector <span class="ltx_Math" id="p5.m1">\bm{f}(\bm{x})=\bm{f}^{\text{\tiny ee}}(\bm{x})-\bm{\mu}</span> is replaced by a geodesic residual computed with the logarithmic map <span class="ltx_Math" id="p5.m2">\bm{f}(\bm{x})=\mathrm{Log}_{\bm{\mu}}\!\big(\bm{f}^{\text{\tiny ee}}(\bm{x})\big)</span>, see <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib11" title="Gaussians on Riemannian manifolds: applications for robot learning and adaptive control">3</a>]</cite> for details.</p>
+</div><div class="ltx_para" id="S5-para:p6">
+<p class="ltx_p">The approach can also be extended to target objects/landmarks with positions <span class="ltx_Math" id="p6.m1">\bm{\mu}</span> and rotation matrices <span class="ltx_Math" id="p6.m2">\bm{U}</span>, as depicted in Fig. <a class="ltx_ref" href="#S5-fig:F10" title="Figure 10 ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">10</span></a>. We can then define an error between the robot endeffector and an object/landmark expressed in the object/landmark coordinate system as</p>
+<table class="ltx_equationgroup ltx_eqn_table" id="S5-eq:E20">
+<tbody>
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline" id="E20X">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E20X.m2">\displaystyle\bm{f}(\bm{x})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E20X.m3">\displaystyle=\bm{U}^{\scriptscriptstyle\top}\big(\bm{f}^{\text{\tiny ee}}(\bm{x})-\bm{\mu}\big),</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="2"><span class="ltx_tag ltx_tag_equationgroup ltx_align_right">(20)</span></td>
+</tr>
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline" id="E20Xa">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E20Xa.m2">\displaystyle\bm{J}(\bm{x})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E20Xa.m3">\displaystyle=\bm{U}^{\scriptscriptstyle\top}\bm{J}^{\text{\tiny ee}}(\bm{x}).</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr>
+</tbody>
+</table>
+</div><div class="ltx_para" id="S5-para:p7">
+<p class="ltx_p">The inverse kinematics update in (<a class="ltx_ref" href="#S5-eq:E19" title="In 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">19</span></a>) can also be used to compute controllers.</p>
+</div><div class="ltx_para" id="S5-para:p8">
+<p class="ltx_p">For a manipulator controlled by joint angle velocity commands <span class="ltx_Math" id="p8.m1">\bm{u}=\bm{\dot{x}}\approx\frac{\bm{\Delta}\bm{x}}{\Delta t}</span>, we can for example define a controller</p>
+<table class="ltx_equation ltx_eqn_table" id="S5-eq:E21">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E21.m1">\bm{u}=\bm{J}^{\dagger}(\bm{x})\,(\bm{f}^{\text{\tiny ee}}(\bm{x})-\bm{\mu})\frac{\alpha}{\Delta t},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(21)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <span class="ltx_Math" id="p8.m2">\alpha</span> can typically be set as a small constant value, by taking into account the desired reactivity and the velocity capability of the robot.</p>
+</div><div class="ltx_para" id="S5-para:p9">
+<p class="ltx_p">For the planar robot manipulator example shown in Fig. <a class="ltx_ref" href="#S4-fig:F9" title="Figure 9 ‣ 4 Forward kinematics (FK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">9</span></a>, the Jacobian <span class="ltx_Math" id="p9.m1">\bm{J}(\bm{x})</span> of the endeffector forward kinematics function <span class="ltx_Math" id="p9.m2">\bm{f}^{\text{\tiny ee}}(\bm{x})</span> can be computed as</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S5-eq:A5.EGx15">
+<tbody id="S5-eq:Ex41"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex41.m1">\displaystyle\bm{J}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex41.m2">\displaystyle=\begin{bmatrix}-\sin(\bm{L}\bm{x})^{\scriptscriptstyle\top}\mathrm{diag}(\bm{\ell})\bm{L}\\
+\cos(\bm{L}\bm{x})^{\scriptscriptstyle\top}\mathrm{diag}(\bm{\ell})\bm{L}\\
+\bm{1}^{\scriptscriptstyle\top}\end{bmatrix}</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="S5-eq:Ex42"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_eqn_cell"></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex42.m1">\displaystyle=\begin{bmatrix}J_{1,1}&amp;J_{1,2}&amp;J_{1,3}&amp;\ldots\\
+J_{2,1}&amp;J_{2,2}&amp;J_{2,3}&amp;\ldots\\
+J_{3,1}&amp;J_{3,2}&amp;J_{3,3}&amp;\ldots\\
+\end{bmatrix}\!\!,</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">with</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S5-eq:A5.EGx16">
+<tbody id="S5-eq:Ex43"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex43.m1">\displaystyle J_{1,1}=-\ell_{1}\!\sin(x_{1})\!-\!\ell_{2}\!\sin(x_{1}\!+\!x_{2})\!-\!\ell_{3}\!\sin(x_{1}\!+\!x_{2}\!+\!x_{3})\!-\!\ldots,\quad</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex43.m2">\displaystyle J_{1,2}=-\ell_{2}\!\sin(x_{1}\!+\!x_{2})\!-\!\ell_{3}\!\sin(x_{1}\!+\!x_{2}\!+\!x_{3})\!-\!\ldots,\quad</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex43.m3">\displaystyle J_{1,3}=-\ell_{3}\!\sin(x_{1}\!+\!x_{2}\!+\!x_{3})\!-\!\ldots,</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="S5-eq:Ex44"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex44.m1">\displaystyle J_{2,1}=\ell_{1}\!\cos(x_{1})\!+\!\ell_{2}\!\cos(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3})\!+\!\ldots,</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex44.m2">\displaystyle J_{2,2}=\ell_{2}\!\cos(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3})\!+\!\ldots,</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex44.m3">\displaystyle J_{2,3}=\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3})\!+\!\ldots,\quad\ldots</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="S5-eq:Ex45"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex45.m1">\displaystyle J_{3,1}=1,</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex45.m2">\displaystyle J_{3,2}=1,</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex45.m3">\displaystyle J_{3,3}=1,</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+</div><div class="ltx_para" id="S5-para:p10">
+<p class="ltx_p">In Python, this can be coded for the endeffector position part as</p>
+<div class="ltx_listing ltx_lst_language_Python ltx_lst_numbers_left ltx_lstlisting ltx_listing">
+<div class="ltx_listingline" id="lstnumberx6">
+<span class="ltx_tag ltx_tag_listingline">1</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">J</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_font_typewriter">=</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">np</span><span class="ltx_text ltx_font_typewriter">.</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">array</span><span class="ltx_text ltx_font_typewriter">([-</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">np</span><span class="ltx_text ltx_font_typewriter">.</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">sin</span><span class="ltx_text ltx_font_typewriter">(</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">L</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">x</span><span class="ltx_text ltx_font_typewriter">).</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">T</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">np</span><span class="ltx_text ltx_font_typewriter">.</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">diag</span><span class="ltx_text ltx_font_typewriter">(</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">l</span><span class="ltx_text ltx_font_typewriter">)</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">L</span><span class="ltx_text ltx_font_typewriter">,</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">np</span><span class="ltx_text ltx_font_typewriter">.</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">cos</span><span class="ltx_text ltx_font_typewriter">(</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">L</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">x</span><span class="ltx_text ltx_font_typewriter">).</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">T</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">np</span><span class="ltx_text ltx_font_typewriter">.</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">diag</span><span class="ltx_text ltx_font_typewriter">(</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">l</span><span class="ltx_text ltx_font_typewriter">)</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">L</span><span class="ltx_text ltx_font_typewriter">])</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_comment ltx_font_typewriter">#Jacobian<span class="ltx_text ltx_lst_space"> </span>(for<span class="ltx_text ltx_lst_space"> </span>endeffector)</span>
+</div>
+</div>
+</div><div class="ltx_subsection" id="S5-sec:SS1">
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">5.1</span> </span><span class="ltx_text">Numerical estimation of the Jacobian</span>
 </h2>
 <div class="ltx_para" id="S5-para:SS1.p1">
 <p class="ltx_p">Section <span class="ltx_ref ltx_ref_self"><span class="ltx_text ltx_ref_tag">5</span></span> above presented an analytical solution for the Jacobian. A numerical solution can alternatively be estimated by computing</p>
-<table class="ltx_equation ltx_eqn_table" id="S5-eq:Ex34">
+<table class="ltx_equation ltx_eqn_table" id="S5-eq:Ex46">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex34.m1">J_{i,j}=\frac{\partial f_{i}(\bm{x})}{\partial x_{j}}\approx\frac{f_{i}(\bm{x}^{(j)})-f_{i}(\bm{x})}{\Delta}\quad\forall i,\forall j,</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex46.m1">J_{i,j}=\frac{\partial f_{i}(\bm{x})}{\partial x_{j}}\approx\frac{f_{i}(\bm{x}^{(j)})-f_{i}(\bm{x})}{\Delta}\quad\forall i,\forall j,</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">with <span class="ltx_Math" id="SS1.p1.m1">\bm{x}^{(j)}</span> a vector of the same size as <span class="ltx_Math" id="SS1.p1.m2">\bm{x}</span> with elements</p>
-<table class="ltx_equation ltx_eqn_table" id="S5-eq:Ex35">
+<table class="ltx_equation ltx_eqn_table" id="S5-eq:Ex47">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex35.m1">x^{(j)}_{k}=\begin{cases}x_{k}+\Delta,&amp;\text{if}\ k=j,\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex47.m1">x^{(j)}_{k}=\begin{cases}x_{k}+\Delta,&amp;\text{if}\ k=j,\\
 x_{k},&amp;\text{otherwise},\end{cases}</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
@@ -143,47 +201,47 @@ x_{k},&amp;\text{otherwise},\end{cases}</span></td>
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">5.2</span> </span><span class="ltx_text">Inverse kinematics (IK) with task prioritization</span>
 </h2>
-<figure class="ltx_figure figure_main" id="S5-fig:F8">
+<figure class="ltx_figure figure_main" id="S5-fig:F11">
 <div class="ltx_flex_figure">
 <div class="ltx_flex_cell ltx_flex_size_4">
-<figure class="ltx_figure ltx_figure_panel ltx_align_center" id="S5-fig:F8.sf1"><a href="online_course/images/IK_nullspace01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F8.sf1.g1" src="online_course/images/small/IK_nullspace01.png"/></a>
+<figure class="ltx_figure ltx_figure_panel ltx_align_center" id="S5-fig:F11.sf1"><a href="online_course/images/IK_nullspace01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F11.sf1.g1" src="online_course/images/small/IK_nullspace01.png"/></a>
 <figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">(a)</span> </span><span class="ltx_text">Moving the first joint as secondary task</span></figcaption>
 </figure>
 </div>
 <div class="ltx_flex_cell ltx_flex_size_4">
-<figure class="ltx_figure ltx_figure_panel ltx_align_center" id="S5-fig:F8.sf2"><a href="online_course/images/IK_nullspace02.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_square" id="F8.sf2.g1" src="online_course/images/small/IK_nullspace02.png"/></a>
+<figure class="ltx_figure ltx_figure_panel ltx_align_center" id="S5-fig:F11.sf2"><a href="online_course/images/IK_nullspace02.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_square" id="F11.sf2.g1" src="online_course/images/small/IK_nullspace02.png"/></a>
 <figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">(b)</span> </span><span class="ltx_text">Orientation tracking a as secondary task</span></figcaption>
 </figure>
 </div>
 <div class="ltx_flex_cell ltx_flex_size_4">
-<figure class="ltx_figure ltx_figure_panel ltx_align_center" id="S5-fig:F8.sf3"><a href="online_course/images/IK_nullspace03.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_portrait" id="F8.sf3.g1" src="online_course/images/small/IK_nullspace03.png"/></a>
+<figure class="ltx_figure ltx_figure_panel ltx_align_center" id="S5-fig:F11.sf3"><a href="online_course/images/IK_nullspace03.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_portrait" id="F11.sf3.g1" src="online_course/images/small/IK_nullspace03.png"/></a>
 <figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">(c)</span> </span><span class="ltx_text">Position tracking as secondary task</span></figcaption>
 </figure>
 </div>
 <div class="ltx_flex_cell ltx_flex_size_4">
-<figure class="ltx_figure ltx_figure_panel ltx_align_center" id="S5-fig:F8.sf4"><a href="online_course/images/IK_nullspace04.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F8.sf4.g1" src="online_course/images/small/IK_nullspace04.png"/></a>
+<figure class="ltx_figure ltx_figure_panel ltx_align_center" id="S5-fig:F11.sf4"><a href="online_course/images/IK_nullspace04.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F11.sf4.g1" src="online_course/images/small/IK_nullspace04.png"/></a>
 <figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">(d)</span> </span><span class="ltx_text">Tracking of a moving object with the right hand as secondary task</span></figcaption>
 </figure>
 </div>
 </div>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 8</span>: </span><span class="ltx_text">Examples of nullspace controllers. The red paths represent the trajectories of moving objects that need to be tracked by the robot endeffectors.
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 11</span>: </span><span class="ltx_text">Examples of nullspace controllers. The red paths represent the trajectories of moving objects that need to be tracked by the robot endeffectors.
 </span></figcaption>
 </figure>
 <div class="ltx_para" id="S5-para:SS2.p1">
 <p class="ltx_p">In (<a class="ltx_ref" href="#S5-eq:E19" title="In 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">19</span></a>), the pseudoinverse provides a single least norm solution. This result can be generalized to obtain all solutions of the linear system with</p>
-<table class="ltx_equation ltx_eqn_table" id="S5-eq:E20">
+<table class="ltx_equation ltx_eqn_table" id="S5-eq:E22">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E20.m1">\bm{\dot{\bm{x}}}=\bm{J}^{\dagger}\!(\bm{x})\;\bm{\dot{f}}+\bm{N}\!(\bm{x})\;\bm{g}(\bm{x}),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E22.m1">\bm{\dot{\bm{x}}}=\bm{J}^{\dagger}\!(\bm{x})\;\bm{\dot{f}}+\bm{N}\!(\bm{x})\;\bm{g}(\bm{x}),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(20)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(22)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="SS2.p1.m1">\bm{g}(\bm{x})</span> is any desired gradient function and <span class="ltx_Math" id="SS2.p1.m2">\bm{N}\!(\bm{x})</span> the <span class="ltx_text ltx_font_bold">nullspace projection operator</span></p>
-<table class="ltx_equation ltx_eqn_table" id="S5-eq:Ex36">
+<table class="ltx_equation ltx_eqn_table" id="S5-eq:Ex48">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex36.m1">\bm{N}\!(\bm{x})=\bm{I}-\bm{J}(\bm{x})^{\dagger}\bm{J}(\bm{x}).</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex48.m1">\bm{N}\!(\bm{x})=\bm{I}-\bm{J}(\bm{x})^{\dagger}\bm{J}(\bm{x}).</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
@@ -193,29 +251,29 @@ x_{k},&amp;\text{otherwise},\end{cases}</span></td>
 </div>
 <div class="ltx_para" id="S5-para:SS2.p3">
 <p class="ltx_p">An alternative way of computing the nullspace projection matrix, numerically more robust, is to exploit the singular value decomposition</p>
-<table class="ltx_equation ltx_eqn_table" id="S5-eq:Ex37">
+<table class="ltx_equation ltx_eqn_table" id="S5-eq:Ex49">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex37.m1">\bm{J}^{\dagger}\!=\!\bm{U}\bm{\Sigma}\bm{V}^{\scriptscriptstyle\top},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex49.m1">\bm{J}^{\dagger}\!=\!\bm{U}\bm{\Sigma}\bm{V}^{\scriptscriptstyle\top},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">to compute</p>
-<table class="ltx_equation ltx_eqn_table" id="S5-eq:Ex38">
+<table class="ltx_equation ltx_eqn_table" id="S5-eq:Ex50">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex38.m1">\bm{N}=\bm{\tilde{U}}\bm{\tilde{U}}^{\scriptscriptstyle\top},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex50.m1">\bm{N}=\bm{\tilde{U}}\bm{\tilde{U}}^{\scriptscriptstyle\top},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="SS2.p3.m1">\bm{\tilde{U}}</span> is a matrix formed by the columns of <span class="ltx_Math" id="SS2.p3.m2">\bm{U}</span> that span for the corresponding zero rows in <span class="ltx_Math" id="SS2.p3.m3">\bm{\Sigma}</span>.</p>
 </div>
 <div class="ltx_para" id="S5-para:SS2.p4">
-<p class="ltx_p">Figure <a class="ltx_ref" href="#S5-fig:F8" title="Figure 8 ‣ 5.2 Inverse kinematics (IK) with task prioritization ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">8</span></a> presents examples of nullspace controllers. Figure <a class="ltx_ref" href="#S5-fig:F8.sf1" title="In Figure 8 ‣ 5.2 Inverse kinematics (IK) with task prioritization ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">8(a)</span></a> shows a robot controller keeping its endeffector still as primary objective, while trying to move the first joint as secondary objective, which is achieved with the controller</p>
-<table class="ltx_equation ltx_eqn_table" id="S5-eq:Ex39">
+<p class="ltx_p">Figure <a class="ltx_ref" href="#S5-fig:F11" title="Figure 11 ‣ 5.2 Inverse kinematics (IK) with task prioritization ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">11</span></a> presents examples of nullspace controllers. Figure <a class="ltx_ref" href="#S5-fig:F11.sf1" title="In Figure 11 ‣ 5.2 Inverse kinematics (IK) with task prioritization ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">11(a)</span></a> shows a robot controller keeping its endeffector still as primary objective, while trying to move the first joint as secondary objective, which is achieved with the controller</p>
+<table class="ltx_equation ltx_eqn_table" id="S5-eq:Ex51">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex39.m1">\bm{\dot{\bm{x}}}=\bm{J}^{\dagger}\!(\bm{x})\!\begin{bmatrix}0\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex51.m1">\bm{\dot{\bm{x}}}=\bm{J}^{\dagger}\!(\bm{x})\!\begin{bmatrix}0\\
 0\end{bmatrix}+\bm{N}\!(\bm{x})\!\begin{bmatrix}1\\
 0\\
 0\end{bmatrix}.</span></td>

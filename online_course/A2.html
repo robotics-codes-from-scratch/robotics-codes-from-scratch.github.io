@@ -1,88 +1,88 @@
 <div class="row"><div class="col-sm-7 offset-1"><div id="txt-col"><h1 class="ltx_title ltx_title_appendix">
 <span class="ltx_tag ltx_tag_appendix">Appendix B </span>Derivation of motion equation for a planar robot</h1><div class="ltx_para" id="A2-para:p1">
-<p class="ltx_p">We derive each element in (<a class="ltx_ref" href="#A5-eq:E193" title="In Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">193</span></a>) individually for <span class="ltx_Math" id="p1.m1">j\geq z</span>, then combine them altogether to derive the dynamic equation of the system. In this regard, for the first element in (<a class="ltx_ref" href="#A5-eq:E193" title="In Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">193</span></a>), we can write</p>
-<table class="ltx_equation ltx_eqn_table" id="A2-eq:Ex115">
+<p class="ltx_p">We derive each element in (<a class="ltx_ref" href="#A5-eq:E194" title="In Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">194</span></a>) individually for <span class="ltx_Math" id="p1.m1">j\geq z</span>, then combine them altogether to derive the dynamic equation of the system. In this regard, for the first element in (<a class="ltx_ref" href="#A5-eq:E194" title="In Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">194</span></a>), we can write</p>
+<table class="ltx_equation ltx_eqn_table" id="A2-eq:Ex127">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex115.m1">\frac{\partial T_{j}}{\partial\dot{q}_{z}}=m_{j}\Big(\frac{\partial\dot{f}_{j,1}}{\partial\dot{q}_{z}}\dot{f}_{j,1}+\frac{\partial\dot{f}_{j,2}}{\partial\dot{q}_{z}}\dot{f}_{j,2}\Big)=m_{j}\Big(\Big(-l_{z}s_{z}\Big)\dot{f}_{j,1}+\Big(l_{z}c_{z}\Big)\dot{f}_{j,2}\Big),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex127.m1">\frac{\partial T_{j}}{\partial\dot{q}_{z}}=m_{j}\Big(\frac{\partial\dot{f}_{j,1}}{\partial\dot{q}_{z}}\dot{f}_{j,1}+\frac{\partial\dot{f}_{j,2}}{\partial\dot{q}_{z}}\dot{f}_{j,2}\Big)=m_{j}\Big(\Big(-l_{z}s_{z}\Big)\dot{f}_{j,1}+\Big(l_{z}c_{z}\Big)\dot{f}_{j,2}\Big),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">whose time derivative can be expressed as</p>
-<table class="ltx_equation ltx_eqn_table" id="A2-eq:Ex116">
+<table class="ltx_equation ltx_eqn_table" id="A2-eq:Ex128">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex116.m1">\frac{d}{dt}\frac{\partial T_{j}}{\partial\dot{q}_{z}}=m_{j}\Big(\Big(-l_{z}\dot{q}_{z}c_{z}\Big)\dot{f}_{j,1}-\Big(l_{z}s_{z}\Big)\ddot{f}_{j,1}-\Big(l_{z}\dot{q}_{z}s_{z}\Big)\dot{f}_{j,2}+\Big(l_{z}c_{z}\Big)\ddot{f}_{j,2}\Big),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex128.m1">\frac{d}{dt}\frac{\partial T_{j}}{\partial\dot{q}_{z}}=m_{j}\Big(\Big(-l_{z}\dot{q}_{z}c_{z}\Big)\dot{f}_{j,1}-\Big(l_{z}s_{z}\Big)\ddot{f}_{j,1}-\Big(l_{z}\dot{q}_{z}s_{z}\Big)\dot{f}_{j,2}+\Big(l_{z}c_{z}\Big)\ddot{f}_{j,2}\Big),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">where</p>
-<table class="ltx_equation ltx_eqn_table" id="A2-eq:Ex117">
+<table class="ltx_equation ltx_eqn_table" id="A2-eq:Ex129">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex117.m1">\ddot{f}_{j,1}=-\sum_{k=1}^{j}l_{k}\ddot{q}_{k}s_{k}-\sum_{k=1}^{j}l_{k}\dot{q}_{k}^{2}c_{k},\quad\ddot{f}_{j,2}=\sum_{k=1}^{j}l_{k}\ddot{q}_{k}c_{k}-\sum_{k=1}^{j}l_{k}\dot{q}_{k}^{2}s_{k}.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex129.m1">\ddot{f}_{j,1}=-\sum_{k=1}^{j}l_{k}\ddot{q}_{k}s_{k}-\sum_{k=1}^{j}l_{k}\dot{q}_{k}^{2}c_{k},\quad\ddot{f}_{j,2}=\sum_{k=1}^{j}l_{k}\ddot{q}_{k}c_{k}-\sum_{k=1}^{j}l_{k}\dot{q}_{k}^{2}s_{k}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 </div><div class="ltx_para" id="A2-para:p2">
-<p class="ltx_p">For the second term in (<a class="ltx_ref" href="#A5-eq:E193" title="In Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">193</span></a>), we can write</p>
-<table class="ltx_equation ltx_eqn_table" id="A2-eq:Ex118">
+<p class="ltx_p">For the second term in (<a class="ltx_ref" href="#A5-eq:E194" title="In Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">194</span></a>), we can write</p>
+<table class="ltx_equation ltx_eqn_table" id="A2-eq:Ex130">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex118.m1">\frac{\partial T_{j}}{\partial q_{z}}=m_{j}\Big(\frac{\partial\dot{f}_{j,1}}{\partial q_{z}}\dot{f}_{j,1}+\frac{\partial\dot{f}_{j,2}}{\partial q_{z}}\dot{f}_{j,2}\Big)=m_{j}\Bigg(\Big(-l_{z}\dot{q}_{z}c_{z}\Big)\dot{f}_{j,1}-\Big(l_{z}\dot{q}_{z}s_{z}\Big)\dot{f}_{j,2}\Bigg),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex130.m1">\frac{\partial T_{j}}{\partial q_{z}}=m_{j}\Big(\frac{\partial\dot{f}_{j,1}}{\partial q_{z}}\dot{f}_{j,1}+\frac{\partial\dot{f}_{j,2}}{\partial q_{z}}\dot{f}_{j,2}\Big)=m_{j}\Bigg(\Big(-l_{z}\dot{q}_{z}c_{z}\Big)\dot{f}_{j,1}-\Big(l_{z}\dot{q}_{z}s_{z}\Big)\dot{f}_{j,2}\Bigg),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">and finally, the potential energy term can be calculated as</p>
-<table class="ltx_equation ltx_eqn_table" id="A2-eq:Ex119">
+<table class="ltx_equation ltx_eqn_table" id="A2-eq:Ex131">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex119.m1">\frac{\partial U_{j}}{\partial q_{z}}=m_{j}gl_{z}c_{z}.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex131.m1">\frac{\partial U_{j}}{\partial q_{z}}=m_{j}gl_{z}c_{z}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 </div><div class="ltx_para" id="A2-para:p3">
-<p class="ltx_p">The z-<em class="ltx_emph ltx_font_italic">th</em> generalized force can be found by substituting the derived terms to (<a class="ltx_ref" href="#A5-eq:E193" title="In Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">193</span></a>) as</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A2-eq:A5.EGx50">
-<tbody id="A2-eq:Ex120"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<p class="ltx_p">The z-<em class="ltx_emph ltx_font_italic">th</em> generalized force can be found by substituting the derived terms to (<a class="ltx_ref" href="#A5-eq:E194" title="In Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">194</span></a>) as</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A2-eq:A5.EGx54">
+<tbody id="A2-eq:Ex132"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex120.m1">\displaystyle u_{z}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex120.m2">\displaystyle=\sum_{j=z}^{N}\Big(m_{j}\Big(\Big(-l_{z}\dot{q}_{z}c_{z}\Big)\dot{r}_{j,1}-\Big(l_{z}s_{k}\Big)\ddot{r}_{j,1}-\Big(l_{z}\dot{q}_{z}s_{z}\Big)\dot{r}_{j,2}+\Big(l_{z}c_{z}\Big)\ddot{r}_{j,2}\Big)-m_{j}\Big(\Big(-l_{z}\dot{q}_{z}c_{z}\Big)\dot{r}_{j,1}-\Big(l_{z}\dot{q}_{z}s_{z}\Big)\dot{r}_{j,2}\Big)+m_{j}gl_{z}c_{z}\Big)</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex132.m1">\displaystyle u_{z}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex132.m2">\displaystyle=\sum_{j=z}^{N}\Big(m_{j}\Big(\Big(-l_{z}\dot{q}_{z}c_{z}\Big)\dot{r}_{j,1}-\Big(l_{z}s_{k}\Big)\ddot{r}_{j,1}-\Big(l_{z}\dot{q}_{z}s_{z}\Big)\dot{r}_{j,2}+\Big(l_{z}c_{z}\Big)\ddot{r}_{j,2}\Big)-m_{j}\Big(\Big(-l_{z}\dot{q}_{z}c_{z}\Big)\dot{r}_{j,1}-\Big(l_{z}\dot{q}_{z}s_{z}\Big)\dot{r}_{j,2}\Big)+m_{j}gl_{z}c_{z}\Big)</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="A2-eq:Ex121"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="A2-eq:Ex133"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex121.m1">\displaystyle=\sum_{j=z}^{N}\Big(m_{j}\Big(\Big(-l_{z}s_{z}\Big)\ddot{r}_{j,1}+\Big(l_{z}c_{z}\Big)\ddot{r}_{j,2}\Big)+m_{j}gl_{z}c_{z}\Big)</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex133.m1">\displaystyle=\sum_{j=z}^{N}\Big(m_{j}\Big(\Big(-l_{z}s_{z}\Big)\ddot{r}_{j,1}+\Big(l_{z}c_{z}\Big)\ddot{r}_{j,2}\Big)+m_{j}gl_{z}c_{z}\Big)</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="A2-eq:Ex122"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="A2-eq:Ex134"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex122.m1">\displaystyle=\sum_{j=z}^{N}\Big(m_{j}\Big(\Big(-l_{z}s_{z}\Big)\Big(-\sum_{k=1}^{j}l_{k}\ddot{q}_{k}s_{k}-\sum_{k=1}^{j}l_{k}\dot{q}_{k}^{2}c_{k}\Big)+\Big(l_{z}c_{z}\Big)\Big(\sum_{k=1}^{j}l_{k}\ddot{q}_{k}c_{k}-\sum_{k=1}^{j}l_{k}\dot{q}_{k}^{2}s_{k}\Big)\Big)+m_{j}gl_{z}c_{z}\Big)</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex134.m1">\displaystyle=\sum_{j=z}^{N}\Big(m_{j}\Big(\Big(-l_{z}s_{z}\Big)\Big(-\sum_{k=1}^{j}l_{k}\ddot{q}_{k}s_{k}-\sum_{k=1}^{j}l_{k}\dot{q}_{k}^{2}c_{k}\Big)+\Big(l_{z}c_{z}\Big)\Big(\sum_{k=1}^{j}l_{k}\ddot{q}_{k}c_{k}-\sum_{k=1}^{j}l_{k}\dot{q}_{k}^{2}s_{k}\Big)\Big)+m_{j}gl_{z}c_{z}\Big)</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="A2-eq:Ex123"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="A2-eq:Ex135"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex123.m1">\displaystyle=\sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}c_{z-k}\ddot{q}_{k}+\sum_{k=1}^{j}l_{z}l_{k}s_{z-k}\dot{q}_{k}^{2}\Big)+\sum_{j=z}^{N}m_{j}gl_{z}c_{z},</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex135.m1">\displaystyle=\sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}c_{z-k}\ddot{q}_{k}+\sum_{k=1}^{j}l_{z}l_{k}s_{z-k}\dot{q}_{k}^{2}\Big)+\sum_{j=z}^{N}m_{j}gl_{z}c_{z},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">where</p>
-<table class="ltx_equation ltx_eqn_table" id="A2-eq:Ex124">
+<table class="ltx_equation ltx_eqn_table" id="A2-eq:Ex136">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex124.m1">c_{h-k}=c_{h}c_{k}-s_{h}s_{k},\ \ \ s_{h-k}=s_{h}c_{k}-c_{h}s_{k}.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex136.m1">c_{h-k}=c_{h}c_{k}-s_{h}s_{k},\ \ \ s_{h-k}=s_{h}c_{k}-c_{h}s_{k}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 </div><div class="ltx_para" id="A2-para:p4">
 <p class="ltx_p">By rearranging the order of elements, we can write</p>
-<table class="ltx_equation ltx_eqn_table" id="A2-eq:Ex125">
+<table class="ltx_equation ltx_eqn_table" id="A2-eq:Ex137">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex125.m1">\sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}c_{z-k}\ddot{q}_{k}\Big)=u_{z}-\sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}s_{z-k}\dot{q}_{k}^{2}\Big)-\sum_{j=z}^{N}m_{j}gl_{z}c_{z}.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex137.m1">\sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}c_{z-k}\ddot{q}_{k}\Big)=u_{z}-\sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}s_{z-k}\dot{q}_{k}^{2}\Big)-\sum_{j=z}^{N}m_{j}gl_{z}c_{z}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>

@@ -1,702 +1,820 @@
 <div class="row"><div class="col-sm-7 offset-1"><div id="txt-col"><h1 class="ltx_title ltx_title_section">
-<span class="ltx_tag ltx_tag_section"><span class="ltx_text">9</span> </span><span class="ltx_text">Ergodic control</span>
+<span class="ltx_tag ltx_tag_section"><span class="ltx_text">9</span> </span><span class="ltx_text">iLQR with quadratic cost on f(x)</span>
 </h1><div class="ltx_para" id="S9-para:p1">
-<p class="ltx_p">Ergodic theory studies the connection between the time-averaged and space-averaged behaviors of a dynamical system. By using it in a search and exploration context, it enables optimal exploration of an information distribution. Exploration problems can be formulated in various ways, see Figures <a class="ltx_ref" href="#S9-fig:F33" title="Figure 33 ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">33</span></a> and <a class="ltx_ref" href="#S9-fig:F34" title="Figure 34 ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">34</span></a>.</p>
+<p class="ltx_p">We consider a cost defined by</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:E102">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E102.m1">c(\bm{x}_{t},\bm{u}_{t})=\bm{f}(\bm{x}_{t})^{\!{\scriptscriptstyle\top}}\bm{Q}_{t}\bm{f}(\bm{x}_{t})+\bm{u}_{t}^{\scriptscriptstyle\top}\bm{R}_{t}\,\bm{u}_{t},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(102)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <span class="ltx_Math" id="p1.m1">\bm{Q}_{t}</span> and <span class="ltx_Math" id="p1.m2">\bm{R}_{t}</span> are weight matrices trading off task and control costs. Such cost is quadratic on <span class="ltx_Math" id="p1.m3">\bm{f}(\bm{x}_{t})</span> but non-quadratic on <span class="ltx_Math" id="p1.m4">\bm{x}_{t}</span>.</p>
 </div><div class="ltx_para" id="S9-para:p2">
-<p class="ltx_p">Research in ergodic control addresses fundamental challenges linking machine learning, optimal control, signal processing and information theory. A conventional tracking problem in robotics is characterized by a target to reach, requiring a controller to be computed to reach this target. In <em class="ltx_emph ltx_font_italic">ergodic control</em>, instead of providing a single target point, a probability distribution is given to the robot, which must cover the distribution in an efficient way. Ergodic control thus consists of moving within a spatial distribution by spending time in each part of the distribution in proportion to its density.
-The term ergodicity corresponds here to the difference between the time-averaged spatial statistics of the agent’s trajectory and the target distribution to search in. By minimizing this difference, the resulting controller generates natural exploration behaviors.</p>
+<p class="ltx_p">For the batch formulation of iLQR, the cost in (<a class="ltx_ref" href="#S8-eq:E83" title="In 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">83</span></a>) then becomes</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:E103">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E103.m1">\Delta c(\Delta\bm{x}_{t},\Delta\bm{u}_{t})\approx 2\Delta\bm{x}_{t}^{\scriptscriptstyle\top}\bm{J}(\bm{x}_{t})^{\scriptscriptstyle\top}\bm{Q}_{t}\bm{f}(\bm{x}_{t})+2\Delta\bm{u}_{t}^{\scriptscriptstyle\top}\bm{R}_{t}\,\bm{u}_{t}+\Delta\bm{x}_{t}^{\scriptscriptstyle\top}\bm{J}(\bm{x}_{t})^{\scriptscriptstyle\top}\bm{Q}_{t}\bm{J}(\bm{x}_{t})\Delta\bm{x}_{t}+\Delta\bm{u}_{t}^{\scriptscriptstyle\top}\bm{R}_{t}\Delta\bm{u}_{t},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(103)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">which used gradients</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:E104">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E104.m1">\bm{g}_{\bm{x},t}=2\bm{J}(\bm{x}_{t})^{\scriptscriptstyle\top}\bm{Q}_{t}\bm{f}(\bm{x}_{t}),\quad\bm{g}_{\bm{u},t}=2\bm{R}_{t}\bm{u}_{t},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(104)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">and Hessian matrices</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:E105">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E105.m1">\bm{H}_{\bm{x}\bm{x},t}\approx 2\bm{J}(\bm{x}_{t})^{\scriptscriptstyle\top}\bm{Q}_{t}\bm{J}(\bm{x}_{t}),\quad\bm{H}_{\bm{u}\bm{x},t}=\bm{0},\quad\bm{H}_{\bm{u}\bm{u},t}=2\bm{R}_{t}.</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(105)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">with <span class="ltx_Math" id="p2.m1">\bm{J}(\bm{x}_{t})=\frac{\partial\bm{f}(\bm{x}_{t})}{\partial\bm{x}_{t}}</span> a Jacobian matrix. The same results can be used in the recursive formulation in (<a class="ltx_ref" href="#S8-eq:E91" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">91</span></a>).</p>
 </div><div class="ltx_para" id="S9-para:p3">
-<p class="ltx_p">In robotics, ergodic control can be exploited in a wide range of problems requiring the automatic exploration of regions of interest, which can be used in a wide range of tasks, including active sensing, localization, surveillance, or insertion (see Figure <a class="ltx_ref" href="#S9-fig:F35" title="Figure 35 ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">35</span></a> for an example). This is particularly helpful when the available sensing information or robot actuators are not accurate enough to fulfill the task with a standard controller (limited vision, soft robotic manipulator, etc.), but where this information can still guide the robot towards promising areas. In a collaborative task, it can also be used when the operator’s input is not accurate enough to fully reproduce the task, which then requires the robot to explore around the requested input (e.g., a point of interest selected by the operator). For picking and insertion problems, ergodic control can be applied to move around the picking/insertion point, thereby facilitating the prehension/insertion. It can also be employed for active sensing and localization (either detected autonomously, or with help by the operator). Here, the robot can plan movements based on the current information density, and can recompute the commands when new measurements are available (i.e., updating the spatial distribution used as target).</p>
+<p class="ltx_p">At a trajectory level, the cost can be written as</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:E106">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E106.m1">c(\bm{x},\bm{u})=\bm{f}(\bm{x})^{\!{\scriptscriptstyle\top}}\bm{Q}\bm{f}(\bm{x})+\bm{u}^{\scriptscriptstyle\top}\bm{R}\,\bm{u},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(106)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where the tracking and control weights are represented by the diagonally concatenated matrices <span class="ltx_Math" id="p3.m1">\bm{Q}\!=\!\mathrm{blockdiag}(\bm{Q}_{1},\bm{Q}_{2},\ldots,\bm{Q}_{T})</span> and <span class="ltx_Math" id="p3.m2">\bm{R}\!=\!\mathrm{blockdiag}(\bm{R}_{1},\bm{R}_{2},\ldots,\bm{R}_{T-1})</span>, respectively. In the above, with a slight abuse of notation, we defined <span class="ltx_Math" id="p3.m3">\bm{f}(\bm{x})</span> as a vector concatenating the vectors <span class="ltx_Math" id="p3.m4">\bm{f}(\bm{x}_{t})</span>. Similarly, <span class="ltx_Math" id="p3.m5">\bm{J}(\bm{x})</span> will represent a block-diagonal concatenation of the Jacobian matrices <span class="ltx_Math" id="p3.m6">\bm{J}(\bm{x}_{t})</span>.</p>
 </div><div class="ltx_para" id="S9-para:p4">
-<p class="ltx_p">Ergodic control is originally formulated as a <em class="ltx_emph ltx_font_italic">spectral multiscale coverage</em> (SMC) objective <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib20" title="Spectral multiscale coverage: a uniform coverage algorithm for mobile sensor networks">10</a>]</cite>, which we will see next. Other ergodic control techniques have later been proposed, including the <em class="ltx_emph ltx_font_italic">heat equation driven area coverage</em> (HEDAC) <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib21" title="Ergodicity-based cooperative multiagent area coverage via a potential field">6</a>]</cite>, which we will also be introduced next.</p>
+<p class="ltx_p">With this notation, the minimization problem (<a class="ltx_ref" href="#S8-eq:E85" title="In 8.1 Batch formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">85</span></a>) then becomes</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:E107">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E107.m1">\min_{\Delta\bm{u}}\quad 2\Delta\bm{x}^{\!{\scriptscriptstyle\top}}\bm{J}(\bm{x})^{\scriptscriptstyle\top}\bm{Q}\bm{f}(\bm{x})+2\Delta\bm{u}^{\!{\scriptscriptstyle\top}}\bm{R}\,\bm{u}\;+\Delta\bm{x}^{\!{\scriptscriptstyle\top}}\bm{J}(\bm{x})^{\scriptscriptstyle\top}\bm{Q}\bm{J}(\bm{x})\Delta\bm{x}+\Delta\bm{u}^{\!{\scriptscriptstyle\top}}\bm{R}\Delta\bm{u},\quad\text{s.t.}\quad\Delta\bm{x}=\bm{S}_{\bm{u}}\Delta\bm{u},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(107)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">whose least squares solution is given by</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:E108">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E108.m1">\Delta\bm{\hat{u}}\!=\!{\Big(\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{J}(\bm{x})^{\scriptscriptstyle\top}\bm{Q}\bm{J}(\bm{x})\bm{S}_{\bm{u}}\!+\!\bm{R}\Big)}^{\!\!-1}\Big(-\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{J}(\bm{x})^{\scriptscriptstyle\top}\bm{Q}\bm{f}(\bm{x})-\bm{R}\,\bm{u}\Big),</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(108)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">which can be used to update the control commands estimates at each iteration step of the iLQR algorithm.</p>
+</div><div class="ltx_para" id="S9-para:p5">
+<p class="ltx_p">In the next sections, we show examples of functions <span class="ltx_Math" id="p5.m1">\bm{f}(\bm{x})</span> that can rely on this formulation.</p>
 </div><div class="ltx_subsection" id="S9-sec:SS1">
 <h2 class="ltx_title ltx_title_subsection">
-<span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">9.1</span> </span><span class="ltx_text">Spectral-based ergodic control (SMC)</span>
+<span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">9.1</span> </span><span class="ltx_text">Robot manipulator</span>
 </h2>
 <div class="ltx_para" id="S9-para:SS1.p1">
-<p class="ltx_p">The underlying objective of <em class="ltx_emph ltx_font_italic">spectral multiscale coverage</em> (SMC) takes a simple form, corresponding to a tracking problem in the spectral domain (matching of frequency components) <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib20" title="Spectral multiscale coverage: a uniform coverage algorithm for mobile sensor networks">10</a>]</cite>. The advantage of such a simple control formulation is that it can be easily combined with other control objectives and constraints.</p>
+<p class="ltx_p">For a manipulator controlled by joint angle velocity commands <span class="ltx_Math" id="SS1.p1.m1">\bm{u}=\bm{\dot{x}}</span>, the evolution of the system is described by <span class="ltx_Math" id="SS1.p1.m2">\bm{x}_{t+1}=\bm{x}_{t}+\bm{u}_{t}\Delta t</span>, with the Taylor expansion (<a class="ltx_ref" href="#S8-eq:E82" title="In 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">82</span></a>) simplifying to <span class="ltx_Math" id="SS1.p1.m3">\bm{A}_{t}=\frac{\partial\bm{g}}{\partial\bm{x}_{t}}=\bm{I}</span> and <span class="ltx_Math" id="SS1.p1.m4">\bm{B}_{t}=\frac{\partial\bm{g}}{\partial\bm{u}_{t}}=\bm{I}\Delta t</span>. Similarly, a double integrator can alternatively be considered, with acceleration commands <span class="ltx_Math" id="SS1.p1.m5">\bm{u}=\bm{\ddot{x}}</span> and states composed of both positions and velocities.</p>
 </div>
 <div class="ltx_para" id="S9-para:SS1.p2">
-<p class="ltx_p">It requires the spatial distribution to be decomposed as Fourier series, with a cost function comparing the spectral decomposition of the robot path with the spectral decomposition of the distribution, in the form of a weighted distance function with a decreasing weight from low frequency to high frequency components. The resulting controller allows the robot to explore the given spatial distribution in a natural manner, <span class="ltx_text ltx_font_bold">by starting from a crude exploration and by refining the search progressively</span> (i.e., matching the Fourier coefficients with an increasing importance from low to high frequency components).</p>
-</div>
-<figure class="ltx_figure figure_main" id="S9-fig:F33"><a href="online_course/images/ergodicVsPatternedSearch01.jpg" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F33.g1" src="online_course/images/small/ergodicVsPatternedSearch01.jpg"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 33</span>: </span><span class="ltx_text">Search and exploration problems can be formulated in various ways. Ergodic control can be used in a search problem in which we do not know the duration of the exploration (e.g., we would like to find a hidden target as soon as possible). In contrast to stochastic sampling of a distribution, ergodic control takes into account the cost to move the agent from one point to another. If the search optimization problem is formulated as a coverage problem with fixed duration, the optimal path typically reveals some regular coverage patterns (here, illustrated as spirals, but also called lawnmower strategy). Ergodic control instead generates a more natural search behavior to localize the object to search by starting with a crude coverage of the workspace and by then generating progressively more detailed paths to cover the distribution. This for example resembles the way we would search for keys in a house by starting with a distribution about the locations in the rooms in which we believe the keys could be, and by covering these distribution coarsely as a first pass, followed by progressive refinement about the search with more detailed coverage until the keys are found. Both stochastic samples or patterned search would be very inefficient here!
-
-</span></figcaption>
-</figure>
-<figure class="ltx_figure figure_main" id="S9-fig:F34">
-<table class="ltx_tabular ltx_guessed_headers ltx_align_middle">
-<thead class="ltx_thead">
-<tr class="ltx_tr">
-<th class="ltx_td ltx_align_center ltx_th ltx_th_column">Ergodic search</th>
-<th class="ltx_td ltx_align_center ltx_th ltx_th_column">Patterned search</th>
-</tr>
-</thead>
-<tbody class="ltx_tbody">
-<tr class="ltx_tr">
-<td class="ltx_td ltx_align_center"><a href="online_course/images/SMC-room002.jpg" target="_blank"><img class="ltx_graphics ltx_img_square" id="F34.g1" src="online_course/images/small/SMC-room002.jpg"/></a></td>
-<td class="ltx_td ltx_align_center"><a href="online_course/images/SMC-room001.jpg" target="_blank"><img class="ltx_graphics ltx_img_square" id="F34.g2" src="online_course/images/small/SMC-room001.jpg"/></a></td>
-</tr>
-<tr class="ltx_tr">
-<td class="ltx_td ltx_align_center"><a href="online_course/images/SMC-room002c.jpg" target="_blank"><img class="ltx_graphics ltx_img_square" id="F34.g3" src="online_course/images/small/SMC-room002c.jpg"/></a></td>
-<td class="ltx_td ltx_align_center"><a href="online_course/images/SMC-room001c.jpg" target="_blank"><img class="ltx_graphics ltx_img_square" id="F34.g4" src="online_course/images/small/SMC-room001c.jpg"/></a></td>
-</tr>
-</tbody>
+<p class="ltx_p">For a robot manipulator, <span class="ltx_Math" id="SS1.p2.m1">\bm{f}(\bm{x}_{t})</span> in (<a class="ltx_ref" href="#S9-eq:E108" title="In 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">108</span></a>) typically represents the error between a reference <span class="ltx_Math" id="SS1.p2.m2">\bm{\mu}_{t}</span> and the endeffector position computed by the forward kinematics function <span class="ltx_Math" id="SS1.p2.m3">\bm{f}^{\text{\tiny ee}}(\bm{x}_{t})</span>. We then have</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx28">
+<tbody id="S9-eq:Ex81"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex81.m1">\displaystyle\bm{f}(\bm{x}_{t})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex81.m2">\displaystyle=\bm{f}^{\text{\tiny ee}}(\bm{x}_{t})-\bm{\mu}_{t},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="S9-eq:Ex82"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex82.m1">\displaystyle\bm{J}(\bm{x}_{t})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex82.m2">\displaystyle=\bm{J}^{\text{\tiny ee}}(\bm{x}_{t}).</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
 </table>
-<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 34</span>: </span><span class="ltx_text">Example illustrating the search of a car key in a living room, where regions of interest are specified in the form of a distribution over the spatial domain. These regions of interest correspond here to the different tables in the room where it is more likely to find the key. The left and right columns respectively depict an ergodic search and patterned search processes. For a coverage problem in which the duration is given in advance, a patterned search can typically be better suited than an ergodic control search, because the agent will optimize the path to reduce the number of transitions from one area to the other. In contrast, an ergodic control search will typically result in multiple transitions between the different regions of interest. When searching for a key, since we are interested in finding the key as early as possible, we have a problem in which the total search duration cannot be specified in advance. In this problem setting, an ergodic search will be better suited than a patterned search, as it generates a natural way of exploring the environment by first proceeding with a crude search in the whole space and by then progressively fine-tuning the search with additional details until the key is finally found. The bottom row shows an example in which the key location is unknown, with the search process stopping when the key is found. Here, a patterned search would provide an inefficient and unnatural way of scanning the whole environment regularly by looking at all details regions by regions, instead of treating the problem at different scales (i.e., at different spatial frequencies), which is what ergodic exploration provides.
+</div>
+</div><div class="ltx_subsection" id="S9-sec:SS2">
+<h2 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">9.2</span> </span><span class="ltx_text">Bounded joint space</span>
+</h2>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S9-fig:F21"><a href="online_course/images/fcut01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F21.g1" src="online_course/images/small/fcut01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 21</span>: </span><span class="ltx_text">ReLU-like functions used in optimization costs. The derivatives of these functions are simple, providing Jacobians whose entries are either <span class="ltx_Math" id="F21.m3">0</span> or <span class="ltx_Math" id="F21.m4">\pm 1</span>.
 </span></figcaption>
 </figure>
-<figure class="ltx_figure figure_main" id="S9-fig:F35"><a href="online_course/images/ergodic01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F35.g1" src="online_course/images/small/ergodic01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 35</span>: </span><span class="ltx_text">Insertion tasks can be achieved robustly with ergodic control, by not only relying on accurate sensors, but instead using a control strategy to cope with limited or inaccurate sensing information, see <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib7" title="Ergodic exploration using tensor train: applications in insertion tasks">18</a>]</cite> for details.
-
+<div class="ltx_para" id="S9-para:SS2.p1">
+<p class="ltx_p">The iLQR solution in (<a class="ltx_ref" href="#S9-eq:E108" title="In 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">108</span></a>) can be used to keep the state within a boundary (e.g., joint angle limits). We denote <span class="ltx_Math" id="SS2.p1.m1">\bm{f}(\bm{x})=\bm{f}^{\text{\tiny cut}}(\bm{x})</span> as the vertical concatenation of <span class="ltx_Math" id="SS2.p1.m2">\bm{f}^{\text{\tiny cut}}(\bm{x}_{t})</span> and <span class="ltx_Math" id="SS2.p1.m3">\bm{J}(\bm{x})=\bm{J}^{\text{\tiny cut}}(\bm{x})</span> as a diagonal concatenation of diagonal Jacobian matrices <span class="ltx_Math" id="SS2.p1.m4">\bm{J}^{\text{\tiny cut}}(\bm{x}_{t})</span>. Each element <span class="ltx_Math" id="SS2.p1.m5">i</span> of <span class="ltx_Math" id="SS2.p1.m6">\bm{f}^{\text{\tiny cut}}(\bm{x}_{t})</span> and <span class="ltx_Math" id="SS2.p1.m7">\bm{J}^{\text{\tiny cut}}(\bm{x}_{t})</span> is defined as</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx29">
+<tbody id="S9-eq:Ex83"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex83.m1">\displaystyle f^{\text{\tiny cut}}_{i}(x_{t,i})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex83.m2">\displaystyle=\begin{cases}x_{t,i}-x_{i}^{\scriptscriptstyle\min},&amp;\text{if}\ x_{t,i}&lt;x_{i}^{\scriptscriptstyle\min}\\
+x_{t,i}-x_{i}^{\scriptscriptstyle\max},&amp;\text{if}\ x_{t,i}&gt;x_{i}^{\scriptscriptstyle\max}\\
+0,&amp;\text{otherwise}\end{cases},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="S9-eq:Ex84"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex84.m1">\displaystyle J^{\text{\tiny cut}}_{i,i}(x_{t,i})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex84.m2">\displaystyle=\begin{cases}1,\hskip 39.83385pt&amp;\text{if}\ x_{t,i}&lt;x_{i}^{\scriptscriptstyle\min}\\
+1,&amp;\text{if}\ x_{t,i}&gt;x_{i}^{\scriptscriptstyle\max}\\
+0,&amp;\text{otherwise}\end{cases},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <span class="ltx_Math" id="SS2.p1.m8">f^{\text{\tiny cut}}_{i}(x_{t,i})</span> describes continuous ReLU-like functions for each dimension. <span class="ltx_Math" id="SS2.p1.m9">f^{\text{\tiny cut}}_{i}(x_{t,i})</span> is <span class="ltx_Math" id="SS2.p1.m10">0</span> inside the bounded domain and takes the signed distance value outside the boundary, see Fig. <a class="ltx_ref" href="#S9-fig:F21" title="Figure 21 ‣ 9.2 Bounded joint space ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">21</span></a>-<em class="ltx_emph ltx_font_italic">left</em>.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS2.p2">
+<p class="ltx_p">We can see with (<a class="ltx_ref" href="#S9-eq:E104" title="In 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">104</span></a>) that for <span class="ltx_Math" id="SS2.p2.m1">\bm{Q}=\frac{1}{2}\bm{I}</span>, if <span class="ltx_Math" id="SS2.p2.m2">\bm{x}</span> is outside the domain during some time steps <span class="ltx_Math" id="SS2.p2.m3">t</span>, <span class="ltx_Math" id="SS2.p2.m4">\bm{g}_{\bm{x}}=\frac{\partial c}{\partial\bm{x}}=2{\bm{J}}^{\scriptscriptstyle\top}\bm{Q}\bm{f}</span> generates a vector bringing it back to the boundary of the domain.</p>
+</div>
+</div><div class="ltx_subsection" id="S9-sec:SS3">
+<h2 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">9.3</span> </span><span class="ltx_text">Bounded task space</span>
+</h2>
+<div class="ltx_para" id="S9-para:SS3.p1">
+<p class="ltx_p">The iLQR solution in (<a class="ltx_ref" href="#S9-eq:E108" title="In 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">108</span></a>) can be used to keep the endeffector within a boundary (e.g., endeffector position limits).
+Based on the above definitions, <span class="ltx_Math" id="SS3.p1.m1">\bm{f}(\bm{x})</span> and <span class="ltx_Math" id="SS3.p1.m2">\bm{J}(\bm{x})</span> are in this case defined as</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx30">
+<tbody id="S9-eq:Ex85"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex85.m1">\displaystyle\bm{f}(\bm{x}_{t})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex85.m2">\displaystyle=\bm{f}^{\text{\tiny cut}}\Big(\bm{e}(\bm{x}_{t})\Big),</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="S9-eq:Ex86"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex86.m1">\displaystyle\bm{J}(\bm{x}_{t})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex86.m2">\displaystyle=\bm{J}^{\text{\tiny cut}}\Big(\bm{e}(\bm{x}_{t})\Big)\;\bm{J}^{\text{\tiny ee}}(\bm{x}_{t}),</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="S9-eq:Ex87"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex87.m1">\displaystyle\text{with}\quad\bm{e}(\bm{x}_{t})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex87.m2">\displaystyle=\bm{f}^{\text{\tiny ee}}(\bm{x}_{t}).</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+</div>
+<figure class="ltx_figure figure_main" id="S9-fig:F22"><a href="online_course/images/iLQR_objectBoundaries01.jpg" target="_blank"><img class="ltx_graphics ltx_img_landscape" id="F22.g1" src="online_course/images/small/iLQR_objectBoundaries01.jpg"/></a>
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 22</span>: </span><span class="ltx_text">Example of a viapoints task in which a planar robot with 3 joints needs to sequentially reach 2 objects, with object boundaries defining the allowed reaching points on the objects surfaces. <em class="ltx_emph ltx_font_italic">Left:</em> Reaching task with two viapoints at <span class="ltx_Math" id="F22.m5">t=25</span> and <span class="ltx_Math" id="F22.m6">t=50</span>. <em class="ltx_emph ltx_font_italic">Right:</em> Corresponding values of the cost function for the endeffector space at <span class="ltx_Math" id="F22.m7">t=25</span> and <span class="ltx_Math" id="F22.m8">t=50</span>.
 </span></figcaption>
 </figure>
-<div class="ltx_subsubsection" id="S9-sec:SS1.SSS1">
+<div class="ltx_subsubsection" id="S9-sec:SS3.SSS1">
 <h3 class="ltx_title ltx_title_subsubsection">
-<span class="ltx_tag ltx_tag_subsubsection"><span class="ltx_text">9.1.1</span> </span><span class="ltx_text">Unidimensional SMC</span>
+<span class="ltx_tag ltx_tag_subsubsection"><span class="ltx_text">9.3.1</span> </span><span class="ltx_text">Reaching task with robot manipulator and prismatic object boundaries</span>
 </h3>
-<figure class="ltx_table" id="S9-tbl:T1">
-<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_table"><span class="ltx_text">Table 1</span>: </span><span class="ltx_text">Fourier series properties (1D case).</span></figcaption><div class="ltx_flex_figure">
-<div class="ltx_flex_cell ltx_flex_size_1">
-<p class="ltx_p ltx_figure_panel"><span class="ltx_text ltx_font_bold">Symmetry property:
-<br class="ltx_break"/></span>If <span class="ltx_Math" id="T1.m1">g(x)</span> is real and even, <span class="ltx_Math" id="T1.m2">\phi_{k}(x)</span> in (<a class="ltx_ref" href="#S9-eq:E121" title="In 9.1.1 Unidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">121</span></a>) is also real and even, simplifying to <span class="ltx_Math" id="T1.m3">\phi_{k}(x)=\frac{1}{L}\cos\!\left(\frac{2\pi kx}{L}\right)</span>, which then, in practice, only needs an evaluation on the range <span class="ltx_Math" id="T1.m4">k\!\in\![0,\ldots,K\!-\!1]</span>, as the basis functions are even. We then have <span class="ltx_Math" id="T1.m5">g(x)=w_{0}+\sum_{k=1}^{K\!-\!1}w_{k}\,2\cos\!\left(\frac{2\pi kx}{L}\right)</span>, by exploiting <span class="ltx_Math" id="T1.m6">\cos(0)\!=\!1</span>.
-<br class="ltx_break"/></p>
-</div>
-<div class="ltx_flex_break"></div>
-<div class="ltx_flex_cell ltx_flex_size_1">
-<p class="ltx_p ltx_figure_panel"><span class="ltx_text ltx_font_bold">Shift property:
-<br class="ltx_break"/></span>If <span class="ltx_Math" id="T1.m7">w_{k}</span> are the Fourier series coefficients of a function <span class="ltx_Math" id="T1.m8">g(x)</span>, <span class="ltx_Math" id="T1.m9">\exp(-i\frac{2\pi k\mu}{L})w_{k}</span> are the Fourier coefficients of <span class="ltx_Math" id="T1.m10">g(x-\mu)</span>.
-<br class="ltx_break"/></p>
-</div>
-<div class="ltx_flex_break"></div>
-<div class="ltx_flex_cell ltx_flex_size_1">
-<p class="ltx_p ltx_figure_panel"><span class="ltx_text ltx_font_bold">Combination property:
-<br class="ltx_break"/></span>If <span class="ltx_Math" id="T1.m11">w_{k,1}</span> (resp. <span class="ltx_Math" id="T1.m12">w_{k,2}</span>) are the Fourier series coefficients of a function <span class="ltx_Math" id="T1.m13">g_{1}(x)</span> (resp. <span class="ltx_Math" id="T1.m14">g_{2}(x)</span>), then <span class="ltx_Math" id="T1.m15">\alpha_{1}w_{k,1}+\alpha_{2}w_{k,2}</span> are the Fourier coefficients of <span class="ltx_Math" id="T1.m16">\alpha_{1}g_{1}(x)+\alpha_{2}g_{2}(x)</span>.
-<br class="ltx_break"/></p>
-</div>
-<div class="ltx_flex_break"></div>
-<div class="ltx_flex_cell ltx_flex_size_1">
-<p class="ltx_p ltx_figure_panel"><span class="ltx_text ltx_font_bold">Gaussian property:
-<br class="ltx_break"/></span>If <span class="ltx_Math" id="T1.m17">g_{0}(x)=\mathcal{N}(x\,|\,0,\sigma^{2})=(2\pi\sigma^{2})^{-\frac{1}{2}}\exp(-\frac{x^{2}}{2\sigma^{2}})</span>
-is mirrored to create a real and even periodic function <span class="ltx_Math" id="T1.m18">g(x)</span> of period <span class="ltx_Math" id="T1.m19">L\gg\sigma</span> (implementation details will follow), the corresponding Fourier series coefficients are of the form <span class="ltx_Math" id="T1.m20">w_{k}=\exp(-\frac{2\pi^{2}k^{2}\sigma^{2}}{L^{2}})</span>.
-<br class="ltx_break"/></p>
+<div class="ltx_para" id="S9-para:SS3.SSS1.p1">
+<p class="ltx_p">The definition of <span class="ltx_Math" id="SS3.SSS1.p1.m1">\bm{f}(\bm{x}_{t})</span> and <span class="ltx_Math" id="SS3.SSS1.p1.m2">\bm{J}(\bm{x}_{t})</span> in (<a class="ltx_ref" href="#S5-eq:E20" title="In 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">20</span></a>) can also be extended to objects/landmarks with boundaries by defining</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx31">
+<tbody id="S9-eq:Ex88"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex88.m1">\displaystyle\bm{f}(\bm{x}_{t})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex88.m2">\displaystyle=\bm{f}^{\text{\tiny cut}}\Big(\bm{e}(\bm{x}_{t})\Big),</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="S9-eq:Ex89"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex89.m1">\displaystyle\bm{J}(\bm{x}_{t})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex89.m2">\displaystyle=\bm{J}^{\text{\tiny cut}}\Big(\bm{e}(\bm{x}_{t})\Big)\;\bm{U}_{t}^{\scriptscriptstyle\top}\;\bm{J}^{\text{\tiny ee}}(\bm{x}_{t}),</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="S9-eq:Ex90"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex90.m1">\displaystyle\text{with}\quad\bm{e}(\bm{x}_{t})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex90.m2">\displaystyle=\bm{U}_{t}^{\scriptscriptstyle\top}\big(\bm{f}^{\text{\tiny ee}}(\bm{x}_{t})-\bm{\mu}_{t}\big),</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">see also Fig. <a class="ltx_ref" href="#S9-fig:F22" title="Figure 22 ‣ 9.3 Bounded task space ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">22</span></a>.</p>
 </div>
 </div>
+</div><div class="ltx_subsection" id="S9-sec:SS4">
+<h2 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">9.4</span> </span><span class="ltx_text">Initial state optimization</span>
+</h2>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S9-fig:F23"><a href="online_course/images/iLQR_initStateOptim01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_square" id="F23.g1" src="online_course/images/small/iLQR_initStateOptim01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 23</span>: </span><span class="ltx_text">Optimal robot base location for a viapoint task, by defining a kinematic chain with both revolute and prismatic joints, which is employed to encode the location of the robot base in the plane as two prismatic joint variables. In this example, the prismatic joints in green represent the initial states that we estimate, and the angular joints in blue represent the state variables that can be moved during the task. </span></figcaption>
 </figure>
-<div class="ltx_para" id="S9-para:SS1.SSS1.p1">
-<p class="ltx_p">We will adopt a notation to make links with the superposition of basis functions seen in Section <a class="ltx_ref" href="#S6" title="6 Encoding with basis functions ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">6</span></a>. By starting with the unidimensional case (system moving along a line segment), we will consider a signal <span class="ltx_Math" id="SS1.SSS1.p1.m1">g(x)</span> varying along a variable <span class="ltx_Math" id="SS1.SSS1.p1.m2">x</span>, where <span class="ltx_Math" id="SS1.SSS1.p1.m3">x</span> will be used as a generic variable that can for example be a time variable or the coordinates of a pixel in an image. The signal <span class="ltx_Math" id="SS1.SSS1.p1.m4">g(x)</span> can be approximated as a weighted superposition of basis functions with</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E120">
+<div class="ltx_para" id="S9-para:SS4.p1">
+<p class="ltx_p">Similarly as in Section <a class="ltx_ref" href="#S7-sec:SS1" title="7.1 LQT with initial state optimization ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">7.1</span></a>, iLQR can easily be extended to determine the optimal initial state <span class="ltx_Math" id="SS4.p1.m1">\bm{x}_{1}</span> together with the optimal control commands <span class="ltx_Math" id="SS4.p1.m2">\bm{u}</span>, by defining <span class="ltx_Math" id="SS4.p1.m3">\bm{\tilde{u}}={[\bm{x}_{1}^{\scriptscriptstyle\top},\bm{u}^{\scriptscriptstyle\top}]}^{\scriptscriptstyle\top}</span> as a vector concatenating <span class="ltx_Math" id="SS4.p1.m4">\bm{x}_{1}</span> and <span class="ltx_Math" id="SS4.p1.m5">\bm{u}</span>.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS4.p2">
+<p class="ltx_p">If the system evolution is linear, <span class="ltx_Math" id="SS4.p2.m1">\bm{x}=\bm{S}\bm{\tilde{u}}</span> with <span class="ltx_Math" id="SS4.p2.m2">\bm{S}=[\bm{S}_{\bm{x}},\bm{S}_{\bm{u}}]</span> can additionally be used, as in Section <a class="ltx_ref" href="#S7-sec:SS1" title="7.1 LQT with initial state optimization ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">7.1</span></a>.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS4.p3">
+<p class="ltx_p">By defining <span class="ltx_Math" id="SS4.p3.m1">\bm{\tilde{R}}=\begin{bmatrix}\bm{0}&amp;\bm{0}\\
+\bm{0}&amp;\bm{R}\end{bmatrix}</span> to remove any constraint on the initial state, the optimization problem to estimate both the initial state <span class="ltx_Math" id="SS4.p3.m2">\bm{x}_{1}</span> and the sequence of control commands <span class="ltx_Math" id="SS4.p3.m3">\bm{u}</span> then becomes</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx32">
+<tbody id="S9-eq:E109"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E109.m1">\displaystyle\min_{\bm{\tilde{u}}}\bm{f}(\bm{x})^{\!{\scriptscriptstyle\top}}\bm{Q}\bm{f}(\bm{x})+\bm{\tilde{u}}^{\scriptscriptstyle\top}\!\bm{\tilde{R}}\bm{\tilde{u}},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(109)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <span class="ltx_Math" id="SS4.p3.m4">\bm{f}(\bm{x})</span> denotes the concatenation of <span class="ltx_Math" id="SS4.p3.m5">\bm{f}(\bm{x}_{t})</span> for all time steps.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS4.p4">
+<p class="ltx_p">If only some parts of <span class="ltx_Math" id="SS4.p4.m1">\bm{x}_{1}</span> need to be estimated, the corresponding diagonal entries in <span class="ltx_Math" id="SS4.p4.m2">\bm{\tilde{R}}</span> can be set with arbitrary high values, by reformulating the minimization problem as</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx33">
+<tbody id="S9-eq:E110"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E110.m1">\displaystyle\min_{\bm{\tilde{u}}}\bm{f}(\bm{x})^{\!{\scriptscriptstyle\top}}\bm{Q}\bm{f}(\bm{x})+{(\bm{\tilde{u}}-\bm{\mu})}^{\scriptscriptstyle\top}\!\bm{\tilde{R}}(\bm{\tilde{u}}-\bm{\mu}),</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(110)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <span class="ltx_Math" id="SS4.p4.m3">\bm{\mu}</span> is a vector containing the initial elements in <span class="ltx_Math" id="SS4.p4.m4">\bm{x}_{1}</span> that do not need to be estimated, where the other elements are zero.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS4.p5">
+<p class="ltx_p">The above approach can for example be used to estimate the optimal placement of a robot manipulator. For a planar robot, this can for example be implemented by defining the kinematic chain starting with two prismatic joints along the two axes directions, providing a way to represent the location of a free floating platform as two additional prismatic joints in the kinematic chain. If we would like the base of the robot to remain static, we can request that these first two prismatic joints will stay still during the motion. By using the above formulation, this can be done by setting arbitrary large control weights for these corresponding joints, see Figure <a class="ltx_ref" href="#S9-fig:F23" title="Figure 23 ‣ 9.4 Initial state optimization ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">23</span></a> and the corresponding source code example.</p>
+</div>
+<div class="ltx_pagination ltx_role_newpage"></div>
+</div><div class="ltx_subsection" id="S9-sec:SS5">
+<h2 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">9.5</span> </span><span class="ltx_text">Center of mass</span>
+</h2>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S9-fig:F24"><a href="online_course/images/iLQR_CoM01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_portrait" id="F24.g1" src="online_course/images/small/iLQR_CoM01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 24</span>: </span><span class="ltx_text">Reaching task with a humanoid (side view) by keeping the center of mass in an area defined by the feet location.
+</span></figcaption>
+</figure>
+<div class="ltx_para" id="S9-para:SS5.p1">
+<p class="ltx_p">If we assume an equal mass for each link concentrated at the joint (i.e., assuming that the motors and gripper are heavier than the link structures), the forward kinematics function to determine the center of a mass of an articulated chain can simply be computed with</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:Ex91">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E120.m1">g(x)=\sum_{k=-K\!+\!1}^{K\!-\!1}w_{k}\,\phi_{k}(x).</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex91.m1">\bm{f}^{\text{\tiny CoM}}=\frac{1}{D}\begin{bmatrix}\bm{\ell}^{\scriptscriptstyle\top}\bm{L}\cos(\bm{L}\bm{x})\\
+\bm{\ell}^{\scriptscriptstyle\top}\bm{L}\sin(\bm{L}\bm{x})\end{bmatrix},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(120)</span></td>
 </tr></tbody>
 </table>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS1.p2">
-<p class="ltx_p">The use of Fourier basis functions provides useful connections between the spatial domain and the spectral domain, where <span class="ltx_Math" id="SS1.SSS1.p2.m1">w_{k}</span> and <span class="ltx_Math" id="SS1.SSS1.p2.m2">\phi_{k}(x)</span> denote the coefficients and basis functions of the Fourier series.</p>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS1.p3">
-<p class="ltx_p">For a spatial signal <span class="ltx_Math" id="SS1.SSS1.p3.m1">x</span> on the interval <span class="ltx_Math" id="SS1.SSS1.p3.m2">[-\frac{L}{2},\frac{L}{2}]</span> of period <span class="ltx_Math" id="SS1.SSS1.p3.m3">L</span>, the basis functions of the Fourier series with complex exponential functions will be defined as</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx35">
-<tbody id="S9-eq:Ex103"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex103.m1">\displaystyle\phi_{k}(x)</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex103.m2">\displaystyle=\frac{1}{2L}\exp\!\left(-i\frac{2\pi kx}{L}\right)</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr></tbody>
-<tbody id="S9-eq:E121"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E121.m1">\displaystyle=\frac{1}{2L}\Bigg(\!\cos\!\left(\frac{2\pi kx}{L}\right)-i\,\sin\!\left(\frac{2\pi kx}{L}\right)\!\Bigg),\;\forall k\!\in\![-K\!+\!1,\ldots,K\!-\!1],</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(121)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">with <span class="ltx_Math" id="SS1.SSS1.p3.m4">i</span> the imaginary unit of a complex number (<span class="ltx_Math" id="SS1.SSS1.p3.m5">i^{2}=-1</span>).</p>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS1.p4">
-<p class="ltx_p">As detailed in Table <a class="ltx_ref" href="#S9-tbl:T1" title="Table 1 ‣ 9.1.1 Unidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">1</span></a>, when <span class="ltx_Math" id="SS1.SSS1.p4.m1">g(x)</span> is real and even (our case of interest), <span class="ltx_Math" id="SS1.SSS1.p4.m2">\phi_{k}(x)</span> in (<a class="ltx_ref" href="#S9-eq:E121" title="In 9.1.1 Unidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">121</span></a>) is also real and even, simplifying to <span class="ltx_Math" id="SS1.SSS1.p4.m3">\phi_{k}(x)=\frac{1}{L}\cos\!\left(\frac{2\pi kx}{L}\right)</span>, which then, in practice, only needs an evaluation on the range <span class="ltx_Math" id="SS1.SSS1.p4.m4">k\!\in\![0,\ldots,K\!-\!1]</span>, using</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E122">
+<p class="ltx_p">which corresponds to the row average of <span class="ltx_Math" id="SS5.p1.m1">\tilde{f}</span> in (<a class="ltx_ref" href="#S4-eq:E18" title="In 4 Forward kinematics (FK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">18</span></a>) for the first two columns (position). The corresponding Jacobian matrix is
+</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:Ex92">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E122.m1">\phi_{k}(x)=\frac{1}{L}\cos\!\left(\frac{2\pi kx}{L}\right),\quad\forall k\!\in\![0,\ldots,K-1].</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex92.m1">\bm{J}^{\text{\tiny CoM}}=\frac{1}{D}\begin{bmatrix}-\sin(\bm{L}\bm{x})^{\scriptscriptstyle\top}\bm{L}\;\mathrm{diag}(\bm{\ell}^{\scriptscriptstyle\top}\bm{L})\\
+\cos(\bm{L}\bm{x})^{\scriptscriptstyle\top}\bm{L}\;\mathrm{diag}(\bm{\ell}^{\scriptscriptstyle\top}\bm{L})\end{bmatrix}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(122)</span></td>
 </tr></tbody>
 </table>
 </div>
-<div class="ltx_para" id="S9-para:SS1.SSS1.p5">
-<p class="ltx_p">The derivatives of (<a class="ltx_ref" href="#S9-eq:E122" title="In 9.1.1 Unidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">122</span></a>) with respect to <span class="ltx_Math" id="SS1.SSS1.p5.m1">x</span> are easy to compute, namely</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E123">
+<div class="ltx_para" id="S9-para:SS5.p2">
+<p class="ltx_p">The forward kinematics function <span class="ltx_Math" id="SS5.p2.m1">\bm{f}^{\text{\tiny CoM}}</span> can be used in tracking tasks similar to the ones considering the endeffector, as in Section <a class="ltx_ref" href="#S9-sec:SS3.SSS1" title="9.3.1 Reaching task with robot manipulator and prismatic object boundaries ‣ 9.3 Bounded task space ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">9.3.1</span></a>. Fig. <a class="ltx_ref" href="#S9-fig:F24" title="Figure 24 ‣ 9.5 Center of mass ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">24</span></a> shows an example in which the starting and ending poses are depicted in different grayscale levels. The corresponding center of mass is depicted by a darker semi-filled disc. The area allowed for the center of mass is depicted as a transparent red rectangle. The task consists of reaching the green object with the endeffector at the end of the movement, while always keeping the center of mass within the desired bounding box during the movement.</p>
+</div>
+</div><div class="ltx_subsection" id="S9-sec:SS6">
+<h2 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">9.6</span> </span><span class="ltx_text">Bimanual robot</span>
+</h2>
+<figure class="ltx_figure figure_main" id="S9-fig:F25">
+<div class="ltx_flex_figure">
+<div class="ltx_flex_cell ltx_flex_size_2"><a href="online_course/images/iLQR_bimanual02.png" target="_blank"><img class="ltx_graphics ltx_figure_panel ltx_img_landscape" id="F25.g1" src="online_course/images/small/iLQR_bimanual02.png"/></a></div>
+<div class="ltx_flex_cell ltx_flex_size_2"><a href="online_course/images/iLQR_bimanual01.png" target="_blank"><img class="ltx_graphics ltx_figure_panel ltx_img_landscape" id="F25.g2" src="online_course/images/small/iLQR_bimanual01.png"/></a></div>
+</div>
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 25</span>: </span><span class="ltx_text">Reaching tasks with a bimanual robot (frontal view). <em class="ltx_emph ltx_font_italic">Left:</em> with a target for each hand. <em class="ltx_emph ltx_font_italic">Right:</em> with a target for the hand on the left, while keeping the center of mass at the same location during the whole movement.
+</span></figcaption>
+</figure>
+<div class="ltx_para" id="S9-para:SS6.p1">
+<p class="ltx_p">We consider a 5-link planar bimanual robot with a torso link shared by the two arms, see Fig. <a class="ltx_ref" href="#S9-fig:F25" title="Figure 25 ‣ 9.6 Bimanual robot ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">25</span></a>. We define the forward kinematics function as</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:Ex93">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E123.m1">\nabla_{\!\!x}\phi_{k}(x)=-\frac{2\pi k}{L^{2}}\sin\!\left(\frac{2\pi kx}{L}\right).</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex93.m1">\bm{f}=\begin{bmatrix}\bm{\ell}_{\scriptscriptstyle{[1,2,3]}}^{\scriptscriptstyle\top}\cos(\bm{L}\bm{x}_{\scriptscriptstyle{[1,2,3]}})\\
+\bm{\ell}_{\scriptscriptstyle{[1,2,3]}}^{\scriptscriptstyle\top}\sin(\bm{L}\bm{x}_{\scriptscriptstyle{[1,2,3]}})\\
+\bm{\ell}_{\scriptscriptstyle{[1,4,5]}}^{\scriptscriptstyle\top}\cos(\bm{L}\bm{x}_{\scriptscriptstyle{[1,4,5]}})\\
+\bm{\ell}_{\scriptscriptstyle{[1,4,5]}}^{\scriptscriptstyle\top}\sin(\bm{L}\bm{x}_{\scriptscriptstyle{[1,4,5]}})\\
+\end{bmatrix}\!\!,</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(123)</span></td>
 </tr></tbody>
 </table>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS1.p6">
-<p class="ltx_p">Ergodic control aims to build a controller so that the Fourier series coefficients <span class="ltx_Math" id="SS1.SSS1.p6.m1">w_{k}</span> along a trajectory <span class="ltx_Math" id="SS1.SSS1.p6.m2">x(t)</span> of duration <span class="ltx_Math" id="SS1.SSS1.p6.m3">t</span>, defined as</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E124">
+<p class="ltx_p">where the first two and last two dimensions of <span class="ltx_Math" id="SS6.p1.m1">\bm{f}</span> correspond to the position of the left and right endeffectors, respectively. The corresponding Jacobian matrix <span class="ltx_Math" id="SS6.p1.m2">\bm{J}\in\mathbb{R}^{4\times 5}</span> has entries</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:Ex94">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E124.m1">w_{k}=\frac{1}{t}\int_{\tau=0}^{t}\phi_{k}\big(x(\tau)\big)\;d\tau,</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(124)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">will match the Fourier series coefficients <span class="ltx_Math" id="SS1.SSS1.p6.m4">\hat{w}_{k}</span> on the spatial domain <span class="ltx_Math" id="SS1.SSS1.p6.m5">\mathcal{X}</span>, defined as</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx36">
-<tbody id="S9-eq:E125"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E125.m1">\displaystyle\hat{w}_{k}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E125.m2">\displaystyle=\int_{x\in\mathcal{X}}\hat{g}(x)\;\phi_{k}(x)\;\text{d}x.</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(125)</span></td>
-</tr></tbody>
-</table>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS1.p7">
-<p class="ltx_p">The discretized version of (<a class="ltx_ref" href="#S9-eq:E124" title="In 9.1.1 Unidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">124</span></a>) for a discrete number of time steps <span class="ltx_Math" id="SS1.SSS1.p7.m1">T</span> is</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E126">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E126.m1">w_{k}=\frac{1}{T}\sum_{s=1}^{T}\phi_{k}(x_{s}),</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(126)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">which can be computed recursively by updating <span class="ltx_Math" id="SS1.SSS1.p7.m2">w_{k}</span> at each iteration step.</p>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS1.p8">
-<p class="ltx_p">Similarly, the discretized version of (<a class="ltx_ref" href="#S9-eq:E125" title="In 9.1.1 Unidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">125</span></a>) for a given spatial resolution can for example be computed on a domain <span class="ltx_Math" id="SS1.SSS1.p8.m1">\mathcal{X}</span> discretized in <span class="ltx_Math" id="SS1.SSS1.p8.m2">X</span> bins as</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx37">
-<tbody id="S9-eq:E127"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E127.m1">\displaystyle\hat{w}_{k}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E127.m2">\displaystyle=\sum_{s=1}^{X}\hat{g}(x_{s})\;\phi_{k}(x_{s}),</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(127)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">where <span class="ltx_Math" id="SS1.SSS1.p8.m3">x_{s}</span> splits the domain <span class="ltx_Math" id="SS1.SSS1.p8.m4">\mathcal{X}</span> into <span class="ltx_Math" id="SS1.SSS1.p8.m5">X</span> regular intervals.</p>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS1.p9">
-<p class="ltx_p">To compute these Fourier series coefficients efficiently, several Fourier series properties can be exploited, including general property such as symmetry, shift, and linear combination, as well as more specific property in the special case when the spatial distribution takes the form of a mixture of Gaussians. These properties are reported in Table <a class="ltx_ref" href="#S9-tbl:T1" title="Table 1 ‣ 9.1.1 Unidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">1</span></a> for the 1D case.</p>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS1.p10">
-<p class="ltx_p">Well-known applications of Fourier basis functions in the context of time series include speech processing and the analysis of periodic motions such as gaits.
-In ergodic control, the aim is instead to find a series of control commands <span class="ltx_Math" id="SS1.SSS1.p10.m1">u(t)</span> so that the retrieved trajectory <span class="ltx_Math" id="SS1.SSS1.p10.m2">x(t)</span> covers a bounded space <span class="ltx_Math" id="SS1.SSS1.p10.m3">\mathcal{X}</span> in proportion of a desired spatial distribution <span class="ltx_Math" id="SS1.SSS1.p10.m4">\hat{g}(x)</span>. This can be achieved by defining a metric in the spectral domain, by decomposing in Fourier series coefficients both the desired spatial distribution <span class="ltx_Math" id="SS1.SSS1.p10.m5">\hat{g}(x)</span> and the (partially) retrieved trajectory <span class="ltx_Math" id="SS1.SSS1.p10.m6">x(t)</span>, which can exploit the Fourier series properties presented in Table <a class="ltx_ref" href="#S9-tbl:T1" title="Table 1 ‣ 9.1.1 Unidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">1</span></a>, which can also be extended to more dimensions.</p>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS1.p11">
-<p class="ltx_p">The goal of ergodic control is to minimize</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E128">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E128.m1">\epsilon=\frac{1}{2}\sum_{k=0}^{K-1}\Lambda_{k}\Big(w_{k}-\hat{w}_{k}\Big)^{\!2}</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(128)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">where <span class="ltx_Math" id="SS1.SSS1.p11.m1">\Lambda_{k}</span> are weights, <span class="ltx_Math" id="SS1.SSS1.p11.m2">\hat{w}_{k}</span> are the Fourier series coefficients of <span class="ltx_Math" id="SS1.SSS1.p11.m3">\hat{g}(x)</span>, and <span class="ltx_Math" id="SS1.SSS1.p11.m4">w_{k}</span> are the Fourier series coefficients along the trajectory <span class="ltx_Math" id="SS1.SSS1.p11.m5">x(t)</span>. <span class="ltx_Math" id="SS1.SSS1.p11.m6">k\in[0,1,\ldots,K\!-\!1]</span> is a set of <span class="ltx_Math" id="SS1.SSS1.p11.m7">K</span> index vectors.
-In (<a class="ltx_ref" href="#S9-eq:E128" title="In 9.1.1 Unidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">128</span></a>), the weights</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E129">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E129.m1">\Lambda_{k}=\left(1+k^{2}\right)^{\!-1}</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(129)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">assign more importance on matching low frequency components (related to a metric for Sobolev spaces of negative order).</p>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS1.p12">
-<p class="ltx_p">Practically, the controller will mainly focus on the lowest frequency components at the beginning as these components have a large effect on the cost due to the large weights. When the errors become zero for these components, the controller can then try to progressively reduce higher frequency components.</p>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS1.p13">
-<p class="ltx_p">Ergodic control is then set as the constrained problem of computing a control command <span class="ltx_Math" id="SS1.SSS1.p13.m1">\hat{u}(t)</span> at each time step <span class="ltx_Math" id="SS1.SSS1.p13.m2">t</span> with</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E130">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E130.m1">\hat{u}(t)=\arg\min_{u(t)}\;\epsilon\big(x(t\!+\!\Delta t)\big),\quad\text{s.t.}\quad\dot{x}(t)=f\big(x(t),u(t)\big),\quad\|u(t)\|\leqslant u^{\max},</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(130)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">where the simple system <span class="ltx_Math" id="SS1.SSS1.p13.m3">u(t)=\dot{x}(t)</span> is considered (control with velocity commands), and where the error term is approximated with the Taylor series</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E131">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E131.m1">\epsilon\big(x(t\!+\!\Delta t)\big)\;\approx\;\epsilon\big(x(t)\big)\;+\;\dot{\epsilon}\big(x(t)\big)\Delta t\;+\;\frac{1}{2}\ddot{\epsilon}\big(x(t)\big){\Delta t}^{2}.</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(131)</span></td>
-</tr></tbody>
-</table>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS1.p14">
-<p class="ltx_p">By using (<a class="ltx_ref" href="#S9-eq:E128" title="In 9.1.1 Unidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">128</span></a>), (<a class="ltx_ref" href="#S9-eq:E124" title="In 9.1.1 Unidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">124</span></a>), (<a class="ltx_ref" href="#S9-eq:E122" title="In 9.1.1 Unidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">122</span></a>) and the chain rule <span class="ltx_Math" id="SS1.SSS1.p14.m1">\frac{\partial f}{\partial t}=\frac{\partial f}{\partial x}\frac{\partial x}{\partial t}</span>, the Taylor series is composed of the control term <span class="ltx_Math" id="SS1.SSS1.p14.m2">u(t)</span> and <span class="ltx_Math" id="SS1.SSS1.p14.m3">\nabla_{\!\!x}\phi_{k}\big(x(t)\big)\in\mathbb{R}</span>, the gradient of <span class="ltx_Math" id="SS1.SSS1.p14.m4">\phi_{k}\big(x(t)\big)</span> with respect to <span class="ltx_Math" id="SS1.SSS1.p14.m5">x(t)</span>.
-Solving the constrained objective in (<a class="ltx_ref" href="#S9-eq:E156" title="In 9.1.2 Multidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">156</span></a>) then results in the analytical solution (see <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib20" title="Spectral multiscale coverage: a uniform coverage algorithm for mobile sensor networks">10</a>]</cite> for the complete derivation)</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:Ex104">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex104.m1">u(t)=\tilde{u}(t)\frac{u^{\max}}{\|\tilde{u}(t)\|}=\text{sign}\big(u(t)\big)u^{\max},\quad\mathrm{with}\quad\tilde{u}(t)=-\sum_{k=0}^{K-1}\Lambda_{k}\big(w_{k}-\hat{w}_{k}\big)\nabla_{\!\!x}\phi_{k}\big(x(t)\big)\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex94.m1">\bm{J}_{\scriptscriptstyle{[1,2],[1,2,3]}}=\begin{bmatrix}-\sin(\bm{L}\bm{x}_{\scriptscriptstyle{[1,2,3]}})^{\scriptscriptstyle\top}\mathrm{diag}(\bm{\ell}_{\scriptscriptstyle{[1,2,3]}})\bm{L}\\
+\cos(\bm{L}\bm{x}_{\scriptscriptstyle{[1,2,3]}})^{\scriptscriptstyle\top}\mathrm{diag}(\bm{\ell}_{\scriptscriptstyle{[1,2,3]}})\bm{L}\end{bmatrix},\quad\bm{J}_{\scriptscriptstyle{[3,4],[1,4,5]}}=\begin{bmatrix}-\sin(\bm{L}\bm{x}_{\scriptscriptstyle{[1,4,5]}})^{\scriptscriptstyle\top}\mathrm{diag}(\bm{\ell}_{\scriptscriptstyle{[1,4,5]}})\bm{L}\\
+\cos(\bm{L}\bm{x}_{\scriptscriptstyle{[1,4,5]}})^{\scriptscriptstyle\top}\mathrm{diag}(\bm{\ell}_{\scriptscriptstyle{[1,4,5]}})\bm{L}\end{bmatrix},\\
 </span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
+<p class="ltx_p">where the remaining entries are zeros.</p>
 </div>
-<div class="ltx_para" id="S9-para:SS1.SSS1.p15">
-<p class="ltx_p">It is important to emphasize that the implementation of this controller does not rely on any random number generation: this search behavior is instead deterministic.
-
+<div class="ltx_para" id="S9-para:SS6.p2">
+<p class="ltx_p">If we assume a unit mass for each arm link concentrated at the joint and a mass of two units at the tip of the first link (i.e., assuming that the motors and gripper are heavier than the link structures, and that two motors are located at the tip of the first link to control the left and right arms), the forward kinematics function to determine the center of a mass of the bimanual articulated chain in Fig. <a class="ltx_ref" href="#S9-fig:F25" title="Figure 25 ‣ 9.6 Bimanual robot ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">25</span></a> can be computed with</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:Ex95">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex95.m1">\bm{f}^{\text{\tiny CoM}}=\frac{1}{6}\begin{bmatrix}\bm{\ell}_{\scriptscriptstyle{[1,2,3]}}^{\scriptscriptstyle\top}\bm{L}\cos(\bm{L}\bm{x}_{\scriptscriptstyle{[1,2,3]}})+\bm{\ell}_{\scriptscriptstyle{[1,4,5]}}^{\scriptscriptstyle\top}\bm{L}\cos(\bm{L}\bm{x}_{\scriptscriptstyle{[1,4,5]}})\\
+\bm{\ell}_{\scriptscriptstyle{[1,2,3]}}^{\scriptscriptstyle\top}\bm{L}\sin(\bm{L}\bm{x}_{\scriptscriptstyle{[1,2,3]}})+\bm{\ell}_{\scriptscriptstyle{[1,4,5]}}^{\scriptscriptstyle\top}\bm{L}\sin(\bm{L}\bm{x}_{\scriptscriptstyle{[1,4,5]}})\end{bmatrix},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">with the corresponding Jacobian matrix <span class="ltx_Math" id="SS6.p2.m1">\bm{J}^{\text{\tiny CoM}}\in\mathbb{R}^{2\times 5}</span> computed as</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:Ex96">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex96.m1">\bm{J}^{\text{\tiny CoM}}=\begin{bmatrix}\bm{J}^{\text{\tiny CoM-L}}_{[1,2],1}+\bm{J}^{\text{\tiny CoM-R}}_{[1,2],1},&amp;\bm{J}^{\text{\tiny CoM-L}}_{[1,2],[2,3]},&amp;\bm{J}^{\text{\tiny CoM-R}}_{[1,2],[2,3]}\end{bmatrix},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:Ex97">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex97.m1">\text{with}\quad\bm{J}^{\text{\tiny CoM-L}}=\frac{1}{6}\begin{bmatrix}-\sin(\bm{L}\bm{x}_{\scriptscriptstyle{[1,2,3]}})^{\scriptscriptstyle\top}\bm{L}\;\mathrm{diag}(\bm{\ell}_{\scriptscriptstyle{[1,2,3]}}^{\scriptscriptstyle\top}\bm{L})\\
+\cos(\bm{L}\bm{x}_{\scriptscriptstyle{[1,2,3]}})^{\scriptscriptstyle\top}\bm{L}\;\mathrm{diag}(\bm{\ell}_{\scriptscriptstyle{[1,2,3]}}^{\scriptscriptstyle\top}\bm{L})\end{bmatrix},\quad\bm{J}^{\text{\tiny CoM-R}}=\frac{1}{6}\begin{bmatrix}-\sin(\bm{L}\bm{x}_{\scriptscriptstyle{[1,4,5]}})^{\scriptscriptstyle\top}\bm{L}\;\mathrm{diag}(\bm{\ell}_{\scriptscriptstyle{[1,4,5]}}^{\scriptscriptstyle\top}\bm{L})\\
+\cos(\bm{L}\bm{x}_{\scriptscriptstyle{[1,4,5]}})^{\scriptscriptstyle\top}\bm{L}\;\mathrm{diag}(\bm{\ell}_{\scriptscriptstyle{[1,4,5]}}^{\scriptscriptstyle\top}\bm{L})\end{bmatrix}.</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+</div>
+</div><div class="ltx_subsection" id="S9-sec:SS7">
+<h2 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">9.7</span> </span><span class="ltx_text">Obstacle avoidance with ellipsoid shapes</span>
+</h2>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S9-fig:F26"><a href="online_course/images/iLQR_ellipsoidObstacle01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_square" id="F26.g1" src="online_course/images/small/iLQR_ellipsoidObstacle01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 26</span>: </span><span class="ltx_text">Reaching task with obstacle avoidance, by starting from <span class="ltx_Math" id="F26.m3">\bm{x}_{1}</span> and reaching <span class="ltx_Math" id="F26.m4">\bm{\mu}_{T}</span> while avoiding the two obstacles in red.
+</span></figcaption>
+</figure>
+<div class="ltx_para" id="S9-para:SS7.p1">
+<p class="ltx_p">By taking as example a point-mass system, iLQR can be used to solve an ellipsoidal obstacle avoidance problem with the cost (typically used with other costs, see Fig. <a class="ltx_ref" href="#S9-fig:F26" title="Figure 26 ‣ 9.7 Obstacle avoidance with ellipsoid shapes ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">26</span></a> for an example). We first define a ReLU-like function and its gradient as (see also Fig. <a class="ltx_ref" href="#S9-fig:F21" title="Figure 21 ‣ 9.2 Bounded joint space ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">21</span></a>-<em class="ltx_emph ltx_font_italic">right</em>)</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:Ex98">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex98.m1">f^{\text{\tiny avoid}}(d)=\begin{cases}0,&amp;\text{if}\ d&gt;1\\
+1-d,&amp;\text{otherwise}\end{cases},\quad\quad g^{\text{\tiny avoid}}(d)=\begin{cases}0,\hskip 17.07164pt&amp;\text{if}\ d&gt;1\\
+-1,&amp;\text{otherwise}\end{cases},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">that we exploit to define <span class="ltx_Math" id="SS7.p1.m1">\bm{f}(\bm{x}_{t})</span> and <span class="ltx_Math" id="SS7.p1.m2">\bm{J}(\bm{x}_{t})</span> in (<a class="ltx_ref" href="#S9-eq:E108" title="In 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">108</span></a>) as</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx34">
+<tbody id="S9-eq:Ex99"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex99.m1">\displaystyle\bm{f}(\bm{x}_{t})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex99.m2">\displaystyle=f^{\text{\tiny avoid}}\Big(e(\bm{x}_{t})\Big),\quad\quad\bm{J}(\bm{x}_{t})=2\;g^{\text{\tiny avoid}}\Big(e(\bm{x}_{t})\Big)\;{(\bm{x}_{t}-\bm{\mu})}^{\scriptscriptstyle\top}\;\bm{\Sigma}^{-1},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="S9-eq:Ex100"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex100.m1">\displaystyle\text{with}\quad e(\bm{x}_{t})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex100.m2">\displaystyle={(\bm{x}_{t}-\bm{\mu})}^{\scriptscriptstyle\top}\bm{\Sigma}^{-1}(\bm{x}_{t}-\bm{\mu}).</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+</div>
+<div class="ltx_para" id="S9-para:SS7.p2">
+<p class="ltx_p">In the above, <span class="ltx_Math" id="SS7.p2.m1">\bm{f}(\bm{x})</span> defines a continuous function that is <span class="ltx_Math" id="SS7.p2.m2">0</span> outside the obstacle boundaries and <span class="ltx_Math" id="SS7.p2.m3">1</span> at the center of the obstacle. The ellipsoid is defined by a center <span class="ltx_Math" id="SS7.p2.m4">\bm{\mu}</span> and a shape <span class="ltx_Math" id="SS7.p2.m5">\bm{\Sigma}=\bm{V}\bm{V}^{\scriptscriptstyle\top}</span>, where <span class="ltx_Math" id="SS7.p2.m6">\bm{V}</span> is a horizontal concatenation of vectors <span class="ltx_Math" id="SS7.p2.m7">\bm{V}_{i}</span> describing the principal axes of the ellipsoid, see Fig. <a class="ltx_ref" href="#S9-fig:F26" title="Figure 26 ‣ 9.7 Obstacle avoidance with ellipsoid shapes ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">26</span></a>.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS7.p3">
+<p class="ltx_p">A similar principle can be applied to robot manipulators by composing forward kinematics and obstacle avoidance functions.</p>
+</div>
+</div><div class="ltx_subsection" id="S9-sec:SS8">
+<h2 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">9.8</span> </span><span class="ltx_text">Distance to a target</span>
+</h2>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S9-fig:F27">
+<div class="ltx_flex_figure">
+<div class="ltx_flex_cell ltx_flex_size_2"><a href="online_course/images/iLQR_distMaintain01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_figure_panel ltx_img_landscape" id="F27.g1" src="online_course/images/small/iLQR_distMaintain01.png"/></a></div>
+<div class="ltx_flex_cell ltx_flex_size_2"><a href="online_course/images/iLQR_distMaintain02.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_figure_panel ltx_img_square" id="F27.g2" src="online_course/images/small/iLQR_distMaintain02.png"/></a></div>
+</div>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 27</span>: </span><em class="ltx_emph ltx_font_italic">Left:</em><span class="ltx_text"> Optimal control problem to generate a motion by considering a point mass starting from an initial point (in black), with a cost asking to reach or maintain a desired distance to a target point (in red). <em class="ltx_emph ltx_font_italic">Right:</em> Similar problem for a contour to reach/maintain defined as a covariance matrix.
+</span></figcaption>
+</figure>
+<div class="ltx_para" id="S9-para:SS8.p1">
+<p class="ltx_p">The obstacle example above can easily be extended to the problem of reaching/maintaining a desired distance to a target, which can also typically used with other objectives. We first define a function and a gradient</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:Ex101">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex101.m1">f^{\text{\tiny dist}}(d)=1-d,\quad\quad g^{\text{\tiny dist}}(d)=-1,</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">that we exploit to define <span class="ltx_Math" id="SS8.p1.m1">\bm{f}(\bm{x}_{t})</span> and <span class="ltx_Math" id="SS8.p1.m2">\bm{J}(\bm{x}_{t})</span> in (<a class="ltx_ref" href="#S9-eq:E108" title="In 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">108</span></a>) as</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx35">
+<tbody id="S9-eq:Ex102"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex102.m1">\displaystyle\bm{f}(\bm{x}_{t})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex102.m2">\displaystyle=f^{\text{\tiny dist}}\Big(e(\bm{x}_{t})\Big),\quad\quad\bm{J}(\bm{x}_{t})=-\frac{2}{r^{2}}{(\bm{x}_{t}-\bm{\mu})}^{\scriptscriptstyle\top},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="S9-eq:Ex103"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex103.m1">\displaystyle\text{with}\quad e(\bm{x}_{t})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex103.m2">\displaystyle=\frac{1}{r^{2}}{(\bm{x}_{t}-\bm{\mu})}^{\scriptscriptstyle\top}(\bm{x}_{t}-\bm{\mu}).</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+</div>
+<div class="ltx_para" id="S9-para:SS8.p2">
+<p class="ltx_p">In the above, <span class="ltx_Math" id="SS8.p2.m1">\bm{f}(\bm{x})</span> defines a continuous function that is <span class="ltx_Math" id="SS8.p2.m2">0</span> on a sphere of radius <span class="ltx_Math" id="SS8.p2.m3">r</span> centered on the target (defined by a center <span class="ltx_Math" id="SS8.p2.m4">\bm{\mu}</span>), and increasing/decreasing when moving away from this surface in one direction or the other.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS8.p3">
+<p class="ltx_p">Similarly, the error can be weighted by a covariance matrix <span class="ltx_Math" id="SS8.p3.m1">\bm{\Sigma}</span>, by using <span class="ltx_Math" id="SS8.p3.m2">e(\bm{x}_{t})={(\bm{x}_{t}-\bm{\mu})}^{\scriptscriptstyle\top}\bm{\Sigma}^{-1}(\bm{x}_{t}-\bm{\mu})</span> and <span class="ltx_Math" id="SS8.p3.m3">\bm{J}(\bm{x}_{t})=-2{(\bm{x}_{t}-\bm{\mu})}^{\scriptscriptstyle\top}\bm{\Sigma}^{-1}</span>, which corresponds to the problem of reaching/maintaining the contour of an ellipse.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS8.p4">
+<p class="ltx_p">Figure <a class="ltx_ref" href="#S9-fig:F27" title="Figure 27 ‣ 9.8 Distance to a target ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">27</span></a> presents examples with a point mass.</p>
+</div>
+</div><div class="ltx_subsection" id="S9-sec:SS9">
+<h2 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">9.9</span> </span><span class="ltx_text">Manipulability tracking</span>
+</h2>
+<figure class="ltx_figure figure_main" id="S9-fig:F28"><a href="online_course/images/iLQR_manipulability01.png" target="_blank"><img class="ltx_graphics ltx_img_landscape" id="F28.g1" src="online_course/images/small/iLQR_manipulability01.png"/></a>
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 28</span>: </span><span class="ltx_text">Example of iLQR optimization with a cost on manipulability, where the goal is to reach, at the end of the motion, a desired manipulability defined at the center of mass (CoM) of a bimanual planar robot. The initial pose of the bimanual robot is displayed in light gray and the final pose of the robot is displayed in dark gray. The desired manipulability is represented by the red ellipse. The achieved manipulability at the end of the motion is represented by the gray ellipse. Both manipulability ellipses are displayed at the CoM reached at the end of the motion, displayed as a semi-filled dark gray disc (the CoM at the beginning of the motion is displayed in lighter gray color). We can see that the posture adopted by the robot to approach the desired manipulability is to extend both arms, which is the pose allowing the robot to swiftly move its center of mass in case of unexpected perturbations.
+</span></figcaption>
+</figure>
+<div class="ltx_para" id="S9-para:SS9.p1">
+<p class="ltx_p">Skills transfer can exploit manipulability ellipsoids in the form of geometric descriptors representing the skills to be transferred to the robot. As these ellipsoids lie on symmetric positive definite (SPD) manifolds, Riemannian geometry can be used to learn and reproduce these descriptors in a probabilistic manner <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib11" title="Gaussians on Riemannian manifolds: applications for robot learning and adaptive control">3</a>]</cite>.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS9.p2">
+<p class="ltx_p">Manipulability ellipsoids come in different flavors. They can be defined for either positions or forces (including the orientation/rotational part). Manipulability can be described at either kinematic or dynamic levels, for either open or closed linkages (e.g., for bimanual manipulation or in-hand manipulation), and for either actuated or non-actuated joints <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib15" title="Manipulability of closed kinematic chains">16</a>]</cite>. This large set of manipulability ellipsoids provide rich descriptors to characterize robot skills for robots with legs and arms.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS9.p3">
+<p class="ltx_p">Manipulability ellipsoids are helpful descriptors to handle skill transfer problems involving dissimilar kinematic chains, such as transferring manipulation skills between humans and robots, or between two robots with different kinematic chains or capabilities. In such transfer problems, imitation at joint angles level is not possible due to the different structures, and imitation at endeffector(s) level is limited, because it does not encapsulate postural information, which is often an essential aspect of the skill that we would like to transfer. Manipulability ellipsoids provide intermediate descriptors that allows postural information to be transferred indirectly, with the advantage that it allows different embodiments and capabilities to be considered in the skill transfer process.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS9.p4">
+<p class="ltx_p">The manipulability ellipsoid <span class="ltx_Math" id="SS9.p4.m1">\bm{M}(\bm{x})=\bm{J}(\bm{x}){\bm{J}(\bm{x})}^{\scriptscriptstyle\top}</span> is a symmetric positive definite matrix representing the manipulability at a given point on the kinematic chain defined by a forward kinematics function <span class="ltx_Math" id="SS9.p4.m2">\bm{f}(\bm{x})</span>, given the joint angle posture <span class="ltx_Math" id="SS9.p4.m3">\bm{x}</span>, where <span class="ltx_Math" id="SS9.p4.m4">\bm{J}(\bm{x})</span> is the Jacobian of <span class="ltx_Math" id="SS9.p4.m5">\bm{f}(\bm{x})</span>. The determinant of <span class="ltx_Math" id="SS9.p4.m6">\bm{M}(\bm{x})</span> is often used as a scalar manipulability index indicating the volume of the ellipsoid <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib14" title="Dynamic manipulability of robot manipulators">19</a>]</cite>, with the drawback of ignoring the specific shape of this ellipsoid.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS9.p5">
+<p class="ltx_p">In <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib13" title="Geometry-aware manipulability learning, tracking and transfer">7</a>]</cite>, we showed that a geometric cost on manipulability can alternatively be defined with the geodesic distance</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx36">
+<tbody id="S9-eq:Ex104"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex104.m1">\displaystyle c</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex104.m2">\displaystyle=\|\bm{A}\|^{2}_{\text{F}},\quad\text{with}\quad\bm{A}=\log\!\big(\bm{S}^{-\frac{1}{2}}\bm{M}(\bm{x})\bm{S}^{-\frac{1}{2}}\big),</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="S9-eq:E111"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E111.m1">\displaystyle\iff\;c</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E111.m2">\displaystyle=\text{trace}(\bm{A}\bm{A}^{\scriptscriptstyle\top})=\sum_{i}\text{trace}(\bm{A}_{i}\bm{A}_{i}^{\scriptscriptstyle\top})=\sum_{i}\bm{A}_{i}^{\scriptscriptstyle\top}\bm{A}_{i}={\text{vec}(\bm{A})}^{\scriptscriptstyle\top}\text{vec}(\bm{A}),</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(111)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <span class="ltx_Math" id="SS9.p5.m1">\bm{S}</span> is the desired manipulability matrix to reach, <span class="ltx_Math" id="SS9.p5.m2">\log(\cdot)</span> is the logarithm matrix function, and <span class="ltx_Math" id="SS9.p5.m3">\|\cdot\|_{\text{F}}</span> is a Frobenius norm. By exploiting the trace properties, we can see that (<a class="ltx_ref" href="#S9-eq:E111" title="In 9.9 Manipulability tracking ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">111</span></a>) can be expressed in a quadratic form, where the vectorization operation <span class="ltx_Math" id="SS9.p5.m4">\text{vec}(\bm{A})</span> can be computed efficiently by exploiting the symmetry of the matrix <span class="ltx_Math" id="SS9.p5.m5">\bm{A}</span>. This is implemented by keeping only the lower half of the matrix, with the elements below the diagonal multiplied by a factor <span class="ltx_Math" id="SS9.p5.m6">\sqrt{2}</span>.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS9.p6">
+<p class="ltx_p">The derivatives of (<a class="ltx_ref" href="#S9-eq:E111" title="In 9.9 Manipulability tracking ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">111</span></a>) with respect to the state <span class="ltx_Math" id="SS9.p6.m1">\bm{x}</span> and control commands <span class="ltx_Math" id="SS9.p6.m2">\bm{u}</span> can be computed numerically (as in the provided example), analytically (by following an approach similar to the one presented in <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib13" title="Geometry-aware manipulability learning, tracking and transfer">7</a>]</cite>), or by automatic differentiation. The quadratic form of (<a class="ltx_ref" href="#S9-eq:E111" title="In 9.9 Manipulability tracking ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">111</span></a>) can be exploited to solve the problem with Gauss–Newton optimization, by using Jacobians (see description in Section <a class="ltx_ref" href="#S5-sec:SS1" title="5.1 Numerical estimation of the Jacobian ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">5.1</span></a> within the context of inverse kinematics). Marić <em class="ltx_emph ltx_font_italic">et al.</em> demonstrated the advantages of a geometric cost as in (<a class="ltx_ref" href="#S9-eq:E111" title="In 9.9 Manipulability tracking ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">111</span></a>) for planning problems, by comparing it to alternative widely used metrics such as the manipulability index and the dexterity index <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib16" title="A Riemannian metric for geometry-aware singularity avoidance by articulated robots">9</a>]</cite>.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS9.p7">
+<p class="ltx_p">Note here that manipulability can be defined at several points of interest, including endeffectors and centers of mass. Figure <a class="ltx_ref" href="#S9-fig:F28" title="Figure 28 ‣ 9.9 Manipulability tracking ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">28</span></a> presents a simple example with a bimanual robot. Manipulability ellipsoids can also be exploited as descriptors for object affordances, by defining manipulability at the level of specific points on objects or tools held by the robot. For example, we can consider a manipulability ellipsoid at the level of the head of a hammer. When the robot grasps the hammer, its endeffector is extended so that the head of the hammer becomes the extremity of the kinematic chain. In this situation, the different options that the robot has to grasp the hammer will have an impact on the resulting manipulability at the head of the hammer. Thus, grabbing the hammer at the extremity of the handle will improve the resulting manipulability. Such descriptors offer promises for learning and optimization in manufacturing environments, in order to let robots automatically determine the correct ways to employ tools, including grasping points and body postures.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS9.p8">
+<p class="ltx_p">The above iLQR approach, with a geodesic cost on SPD manifolds, has been presented for manipulability ellipsoids, but it can be extended to other descriptors represented as ellipsoids. In particular, stiffness, feedback gains, inertia, and centroidal momentum have similar structures. For the latter, the centroidal momentum ellipsoid quantifies the momentum generation ability of the robot <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib17" title="Centroidal momentum matrix of a humanoid robot: structure and properties">14</a>]</cite>, which is another useful descriptor for robotics skills. Similarly to manipulability ellipsoids, it is constructed from Jacobians, which are in this case the centroidal momentum matrices mapping the joint angle velocities to the centroidal momentum, which sums over the individual link momenta after projecting each to the robot’s center of mass.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS9.p9">
+<p class="ltx_p">The approach can also be extended to other forms of symmetric positive definite matrices, such as kernel matrices used in machine learning algorithms to compute similarities, or graph graph Laplacians (a matrix representation of a graph that can for example be used to construct a low dimensional embedding of a graph).</p>
+</div>
+</div><div class="ltx_subsection" id="S9-sec:SS10">
+<h2 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">9.10</span> </span><span class="ltx_text">Decoupling of control commands</span>
+</h2>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S9-fig:F29"><a href="online_course/images/iLQR_decoupling01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F29.g1" src="online_course/images/small/iLQR_decoupling01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 29</span>: </span><span class="ltx_text">2D reaching task problem (initial point in black and target point in red), with an additional cost to favor the decoupling of the control commands.
+</span></figcaption>
+</figure>
+<div class="ltx_para" id="S9-para:SS10.p1">
+<p class="ltx_p">In some situations, we would like to control a robot by avoiding that all degrees of freedom are controlled at the same time. For example, we might in some cases prefer that a mobile manipulator stops moving the arm while the platform is moving and vice versa.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS10.p2">
+<p class="ltx_p">For a 2 DOFs robot controlled at each time step <span class="ltx_Math" id="SS10.p2.m1">t</span> with two control command <span class="ltx_Math" id="SS10.p2.m2">u_{1,t}</span> and <span class="ltx_Math" id="SS10.p2.m3">u_{2,t}</span>, the corresponding cost to find the full sequence of control commands for a duration <span class="ltx_Math" id="SS10.p2.m4">T</span> (gathered in a concatenated vector <span class="ltx_Math" id="SS10.p2.m5">\bm{u}</span>) is</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:Ex105">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex105.m1">\min_{\bm{u}}\;\sum_{t=1}^{T}\,{(u_{1,t}\,u_{2,t})}^{2},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">with corresponding residuals and Jacobian given by</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:Ex106">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex106.m1">f_{t}=u_{1,t}\,u_{2,t},\quad\bm{J}_{t}=\big[u_{2,t},\,u_{1,t}\big],\quad\forall t\in\{1,\ldots,T\}.</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+</div>
+<div class="ltx_para" id="S9-para:SS10.p3">
+<p class="ltx_p">The Gauss–Newton update rule in concatenated vector form is given by</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:Ex107">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex107.m1">\bm{u}_{k+1}\;\leftarrow\;\bm{u}_{k}-\alpha\,{\big(\bm{J}^{\scriptscriptstyle\top}\bm{J}\big)}^{\!-1}\,\bm{J}^{\scriptscriptstyle\top}\,\bm{f},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <span class="ltx_Math" id="SS10.p3.m1">\alpha</span> is a line search parameter, <span class="ltx_Math" id="SS10.p3.m2">\bm{f}</span> is a vector concatenating vertically all residuals <span class="ltx_Math" id="SS10.p3.m3">f_{t}</span>, and <span class="ltx_Math" id="SS10.p3.m4">\bm{J}</span> is a Jacobian matrix with <span class="ltx_Math" id="SS10.p3.m5">\bm{J}_{t}</span> as block diagonal elements. With some linear algebra machinery, this can also be computed in batch form using <span class="ltx_Math" id="SS10.p3.m6">\bm{f}=\bm{u}_{1}\odot\bm{u}_{2}</span>, and <span class="ltx_Math" id="SS10.p3.m7">\bm{J}=(\bm{I}_{T-1}\otimes\bm{1}_{1\times 2})\;\text{diag}\Big(\big(\bm{I}_{T-1}\otimes(\bm{1}_{2\times 2}-\bm{I}_{2})\big)\bm{u}\Big)</span>, with <span class="ltx_Math" id="SS10.p3.m8">\odot</span> and <span class="ltx_Math" id="SS10.p3.m9">\otimes</span> the elementwise product and Kronecker product operators, respectively.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS10.p4">
+<p class="ltx_p">Figure <a class="ltx_ref" href="#S9-fig:F29" title="Figure 29 ‣ 9.10 Decoupling of control commands ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">29</span></a> presents a simple example within a 2D reaching problem with a point mass agent and velocity commands.</p>
+</div>
+</div><div class="ltx_subsection" id="S9-sec:SS11">
+<h2 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">9.11</span> </span><span class="ltx_text">Curvature</span>
+</h2>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S9-fig:F30"><a href="online_course/images/iLQR_curvature01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_square" id="F30.g1" src="online_course/images/small/iLQR_curvature01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 30</span>: </span><span class="ltx_text">Optimal control problem to generate a motion by considering a point mass starting from an initial point (in black), with a cost asking to pass through a set of viapoints (in red), together with a cost on curvature (black path).
+</span></figcaption>
+</figure>
+<div class="ltx_para" id="S9-para:SS11.p1">
+<p class="ltx_p">The curvature of a 2-dimensional curve is defined as</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:E112">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E112.m1">\kappa=\frac{\dot{\text{x}}_{1}\ddot{\text{x}}_{2}-\dot{\text{x}}_{2}\ddot{\text{x}}_{1}}{(\dot{\text{x}}_{1}^{2}+\dot{\text{x}}_{2}^{2})^{\frac{3}{2}}}.</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(112)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div class="ltx_para" id="S9-para:SS11.p2">
+<p class="ltx_p">We describe the system state in vector form as</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:E113">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E113.m1">\bm{x}=\begin{bmatrix}\mathbf{x}\\
+\mathbf{\dot{x}}\\
+\mathbf{\ddot{x}}\end{bmatrix}.</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(113)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div class="ltx_para" id="S9-para:SS11.p3">
+<p class="ltx_p">By defining a set of selection vectors <span class="ltx_Math" id="SS11.p3.m1">\bm{s}_{i,j}</span> so that <span class="ltx_Math" id="SS11.p3.m2">\dot{\text{x}}_{1}=\bm{s}_{1,1}^{\scriptscriptstyle\top}\bm{x},\;\dot{\text{x}}_{2}=\bm{s}_{1,2}^{\scriptscriptstyle\top}\bm{x},\;\ddot{\text{x}}_{1}=\bm{s}_{2,1}^{\scriptscriptstyle\top}\bm{x},\;\ddot{\text{x}}_{2}=\bm{s}_{2,2}^{\scriptscriptstyle\top}\bm{x}</span>, we can observe that</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:E114">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E114.m1">\dot{\text{x}}_{1}\ddot{\text{x}}_{2}=(\bm{s}_{1,1}^{\scriptscriptstyle\top}\bm{x})(\bm{s}_{2,2}^{\scriptscriptstyle\top}\bm{x})=\bm{x}^{\scriptscriptstyle\top}(\bm{s}_{1,1}\bm{s}_{2,2}^{\scriptscriptstyle\top})\bm{x},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(114)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <span class="ltx_Math" id="SS11.p3.m3">(\bm{s}_{1,1}\bm{s}_{2,2}^{\scriptscriptstyle\top})</span> is a selection matrix.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS11.p4">
+<p class="ltx_p">By leveraging this matrix formulation, the curvature in (<a class="ltx_ref" href="#S9-eq:E112" title="In 9.11 Curvature ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">112</span></a>) can be expressed as</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:E115">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E115.m1">\kappa(\bm{x})=(\bm{x}^{\scriptscriptstyle\top}\bm{S}_{B}\,\bm{x})^{-\frac{3}{2}}\;\bm{x}^{\scriptscriptstyle\top}\bm{S}_{A}\,\bm{x},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(115)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">with selection matrices <span class="ltx_Math" id="SS11.p4.m1">\bm{S}_{A}=\bm{s}_{1,1}\bm{s}_{2,2}^{\scriptscriptstyle\top}-\bm{s}_{1,2}\bm{s}_{2,1}^{\scriptscriptstyle\top}</span> and <span class="ltx_Math" id="SS11.p4.m2">\bm{S}_{B}=\bm{s}_{1,1}\bm{s}_{1,1}^{\scriptscriptstyle\top}+\bm{s}_{1,2}\bm{s}_{1,2}^{\scriptscriptstyle\top}</span>.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS11.p5">
+<p class="ltx_p">With this formulation, by using the derivative property <span class="ltx_Math" id="SS11.p5.m1">(fg)^{\prime}=f^{\prime}g+fg^{\prime}</span>, and by observing that <span class="ltx_Math" id="SS11.p5.m2">\bm{S}_{B}</span> is a symmetric matrix and that <span class="ltx_Math" id="SS11.p5.m3">\bm{S}_{A}</span> is an asymmetric matrix, the derivatives of (<a class="ltx_ref" href="#S9-eq:E112" title="In 9.11 Curvature ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">112</span></a>) w.r.t <span class="ltx_Math" id="SS11.p5.m4">\bm{x}</span> form the Jacobian</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:E116">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E116.m1">\bm{J}(\bm{x})=\frac{\partial\kappa(\bm{x})}{\partial\bm{x}}=(\bm{x}^{\scriptscriptstyle\top}\bm{S}_{B}\bm{x})^{-\frac{3}{2}}\;(\bm{S}_{A}+\bm{S}_{A}^{\scriptscriptstyle\top})\bm{x}-3\;(\bm{x}^{\scriptscriptstyle\top}\bm{S}_{A}\,\bm{x})\;(\bm{x}^{\scriptscriptstyle\top}\bm{S}_{B}\,\bm{x})^{-\frac{5}{2}}\;\bm{S}_{B}\bm{x}.</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(116)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div class="ltx_para" id="S9-para:SS11.p6">
+<p class="ltx_p">Figure <a class="ltx_ref" href="#S9-fig:F30" title="Figure 30 ‣ 9.11 Curvature ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">30</span></a> presents an example with a point mass.</p>
+</div>
+</div><div class="ltx_subsection" id="S9-sec:SS12">
+<h2 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">9.12</span> </span><span class="ltx_text">iLQR with control primitives</span>
+</h2>
+<figure class="ltx_figure figure_main" id="S9-fig:F31"><a href="online_course/images/iLQR_humanoid_CP01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F31.g1" src="online_course/images/small/iLQR_humanoid_CP01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 31</span>: </span><span class="ltx_text">Reaching task with control primitives.
+</span></figcaption>
+</figure>
+<div class="ltx_para" id="S9-para:SS12.p1">
+<p class="ltx_p">The use of control primitives can be extended to iLQR, by considering <span class="ltx_Math" id="SS12.p1.m1">\Delta\bm{u}=\bm{\Psi}\Delta\bm{w}</span>.
+For problems with quadratic cost on <span class="ltx_Math" id="SS12.p1.m2">\bm{f}(\bm{x}_{t})</span> (see previous Section), the update of the weights vector is then given by</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:E117">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E117.m1">\Delta\bm{\hat{w}}\!=\!{\Big(\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{J}(\bm{x})^{\scriptscriptstyle\top}\bm{Q}\bm{J}(\bm{x})\bm{S}_{\bm{u}}\bm{\Psi}+\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{R}\,\bm{\Psi}\Big)}^{\!\!-1}\Big(-\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{J}(\bm{x})^{\scriptscriptstyle\top}\bm{Q}\bm{f}(\bm{x})-\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{R}\,\bm{u}\Big).</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(117)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div class="ltx_para" id="S9-para:SS12.p2">
+<p class="ltx_p">For a 5-link kinematic chain, by setting the coordination matrix in (<a class="ltx_ref" href="#S7-eq:E66" title="In 7.3 LQT with control primitives ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">66</span></a>) as</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:Ex108">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex108.m1">\bm{C}=\begin{bmatrix}-1&amp;0&amp;0\\
+2&amp;0&amp;0\\
+-1&amp;0&amp;0\\
+0&amp;1&amp;0\\
+0&amp;0&amp;1\end{bmatrix},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">the first three joints are coordinated such that the third link is always oriented in the same direction, while the last two joints can move independently. Figure <a class="ltx_ref" href="#S9-fig:F31" title="Figure 31 ‣ 9.12 iLQR with control primitives ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">31</span></a> shows an example for a reaching task, with the 5-link kinematic chain depicting a humanoid robot that needs to keep its torso upright.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS12.p3">
+<p class="ltx_p">Note also that the iLQR updates in (<a class="ltx_ref" href="#S9-eq:E117" title="In 9.12 iLQR with control primitives ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">117</span></a>) can usually be computed faster than in the original formulation, since a matrix of much smaller dimension needs to be inverted.</p>
+</div>
+</div><div class="ltx_subsection" id="S9-sec:SS13">
+<h2 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">9.13</span> </span><span class="ltx_text">iLQR for spacetime optimization</span>
+</h2>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S9-fig:F32"><a href="online_course/images/iLQR_spacetime01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F32.g1" src="online_course/images/small/iLQR_spacetime01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 32</span>: </span><span class="ltx_text">Spacetime optimization with iLQR for a viapoints task, where the estimated durations between consecutive viapoints are shown in blue.
+</span></figcaption>
+</figure>
+<div class="ltx_para" id="S9-para:SS13.p1">
+<p class="ltx_p">We define a phase variable <span class="ltx_Math" id="SS13.p1.m1">s_{t}</span> starting from <span class="ltx_Math" id="SS13.p1.m2">s_{1}=0</span> at the beginning of the movement.
+With an augmented state <span class="ltx_Math" id="SS13.p1.m3">\bm{x}_{t}={[\mathbf{x}_{t}^{\scriptscriptstyle\top},s_{t}]}^{\scriptscriptstyle\top}</span> and control command <span class="ltx_Math" id="SS13.p1.m4">\bm{u}_{t}={[{\bm{u}^{\mathbf{x}}_{t}}^{\scriptscriptstyle\top},u^{s}_{t}]}^{\scriptscriptstyle\top}</span>, we define the evolution of the system <span class="ltx_Math" id="SS13.p1.m5">\bm{x}_{t+1}=\bm{d}(\bm{x}_{t},\bm{u}_{t})</span> as</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx37">
+<tbody id="S9-eq:Ex109"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex109.m1">\displaystyle\mathbf{x}_{t+1}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex109.m2">\displaystyle=\mathbf{A}_{t}\mathbf{x}_{t}+\mathbf{B}_{t}\bm{u}^{\mathbf{x}}_{t}\,u^{s}_{t},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="S9-eq:Ex110"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex110.m1">\displaystyle s_{t+1}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex110.m2">\displaystyle=s_{t}+u^{s}_{t}.</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+</div>
+<div class="ltx_para" id="S9-para:SS13.p2">
+<p class="ltx_p">Its first order Taylor expansion around <span class="ltx_Math" id="SS13.p2.m1">\bm{\hat{x}},\bm{\hat{u}}</span> provides the linear system</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx38">
+<tbody id="S9-eq:Ex111"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex111.m1">\displaystyle\underbrace{\begin{bmatrix}\Delta\mathbf{x}_{t+1}\\
+\Delta s_{t+1}\end{bmatrix}}_{\Delta\bm{x}_{t+1}}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex111.m2">\displaystyle=\underbrace{\begin{bmatrix}\mathbf{A}_{t}&amp;\bm{0}\\
+\bm{0}&amp;1\end{bmatrix}}_{\bm{A}_{t}}\underbrace{\begin{bmatrix}\Delta\mathbf{x}_{t}\\
+\Delta s_{t}\end{bmatrix}}_{\Delta\bm{x}_{t}}+\underbrace{\begin{bmatrix}\mathbf{B}_{t}u^{s}_{t}&amp;\mathbf{B}_{t}\bm{u}^{\mathbf{x}}_{t}\\
+\bm{0}&amp;1\end{bmatrix}}_{\bm{B}_{t}}\underbrace{\begin{bmatrix}\Delta\bm{u}^{\mathbf{x}}_{t}\\
+\Delta u^{s}_{t}\end{bmatrix}}_{\Delta\bm{u}_{t}},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">with Jacobian matrices <span class="ltx_Math" id="SS13.p2.m2">\bm{A}_{t}\!=\!\frac{\partial\bm{d}}{\partial\bm{x}_{t}}</span>, <span class="ltx_Math" id="SS13.p2.m3">\bm{B}_{t}\!=\!\frac{\partial\bm{d}}{\partial\bm{u}_{t}}</span>. Note that in the above equations, we used here the notation <span class="ltx_Math" id="SS13.p2.m4">\mathbf{x}_{t}</span> and <span class="ltx_Math" id="SS13.p2.m5">\bm{x}_{t}</span> to describe the standard state and augmented state, respectively. We similarly used <span class="ltx_Math" id="SS13.p2.m6">\{\mathbf{A}_{t},\mathbf{B}_{t}\}</span> and <span class="ltx_Math" id="SS13.p2.m7">\{\bm{A}_{t},\bm{B}_{t}\}</span> (with slanted font) for standard linear system and augmented linear system.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS13.p3">
+<p class="ltx_p">Figure <a class="ltx_ref" href="#S9-fig:F32" title="Figure 32 ‣ 9.13 iLQR for spacetime optimization ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">32</span></a> shows a viapoints task example in which both path and duration are optimized (convergence after 10 iterations when starting from zero commands). The example uses a double integrator as linear system defined by constant <span class="ltx_Math" id="SS13.p3.m1">\mathbf{A}_{t}</span> and <span class="ltx_Math" id="SS13.p3.m2">\mathbf{B}_{t}</span> matrices.</p>
+</div>
+</div><div class="ltx_subsection" id="S9-sec:SS14">
+<h2 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">9.14</span> </span><span class="ltx_text">iLQR with offdiagonal elements in the precision matrix</span>
+</h2>
+<figure class="ltx_figure figure_main" id="S9-fig:F33">
+<div class="ltx_flex_figure">
+<div class="ltx_flex_cell ltx_flex_size_2"><a href="online_course/images/iLQR_objAffordances01.png" target="_blank"><img class="ltx_graphics ltx_figure_panel ltx_img_landscape" id="F33.g1" src="online_course/images/small/iLQR_objAffordances01.png"/></a></div>
+<div class="ltx_flex_cell ltx_flex_size_2"><a href="online_course/images/iLQR_objAffordances02.png" target="_blank"><img class="ltx_graphics ltx_figure_panel ltx_img_square" id="F33.g2" src="online_course/images/small/iLQR_objAffordances02.png"/></a></div>
+</div>
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 33</span>: </span><span class="ltx_text">Manipulation with object affordances cost. The depicted <em class="ltx_emph ltx_font_italic">pick-and-place</em> task requires the offset at the picking location to be the same as the offset at the placing location, which can be achieved by setting a precision matrix with nonzero offdiagonal entries, see main text for details. In this example, an additional cost is set for choosing the picking and placing points within the object boundaries, which was also used for the task depicted in Fig. <a class="ltx_ref" href="#S9-fig:F22" title="Figure 22 ‣ 9.3 Bounded task space ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">22</span></a>. We can see with the resulting motions that when picking the object, the robot anticipates what will be done later with this object, which can be viewed as a basic form of object affordance. In the two situations depicted in the figure, the robot efficiently chooses a grasping point close to one of the corners of the object, different in the two situations, so that the robot can bring the object at the desired location with less effort and without reaching joint angle limits.
+</span></figcaption>
+</figure>
+<div class="ltx_para" id="S9-para:SS14.p1">
+<p class="ltx_p">Spatial and/or temporal constraints can be considered by setting <span class="ltx_Math" id="SS14.p1.m1">\left[\begin{smallmatrix}\bm{I}&amp;-\bm{I}\\
+-\bm{I}&amp;\bm{I}\end{smallmatrix}\right]</span> in the corresponding entries of the precision matrix <span class="ltx_Math" id="SS14.p1.m2">\bm{Q}</span>. With this formulation, we can constrain two positions to be the same without having to predetermine the position at which the two should meet. Indeed, we can see that a cost <span class="ltx_Math" id="SS14.p1.m3">c\!=\!\left[\begin{smallmatrix}x_{i}\\
+x_{j}\end{smallmatrix}\right]^{\scriptscriptstyle\top}\left[\begin{smallmatrix}1&amp;-1\\
+-1&amp;1\end{smallmatrix}\right]\left[\begin{smallmatrix}x_{i}\\
+x_{j}\end{smallmatrix}\right]\!=\!(x_{i}-x_{j})^{2}</span> is minimized when <span class="ltx_Math" id="SS14.p1.m4">x_{i}\!=\!x_{j}</span>.</p>
+</div>
+<div class="ltx_para" id="S9-para:SS14.p2">
+<p class="ltx_p">Such cost can for example be used to define costs on object affordances, see Fig. <a class="ltx_ref" href="#S9-fig:F33" title="Figure 33 ‣ 9.14 iLQR with offdiagonal elements in the precision matrix ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">33</span></a> for an example.</p>
+</div>
+</div><div class="ltx_subsection" id="S9-sec:SS15">
+<h2 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">9.15</span> </span><span class="ltx_text">Car steering</span>
+</h2>
+<figure class="ltx_figure figure_main" id="S9-fig:F34"><a href="online_course/images/car-bicopter01.jpg" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F34.g1" src="online_course/images/small/car-bicopter01.jpg"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 34</span>: </span><span class="ltx_text">iLQR for car and bicopter control/planning problems.
+</span></figcaption>
+</figure>
+<div class="ltx_para ltx_noindent" id="S9-para:SS15.p1">
+<p class="ltx_p"><span class="ltx_text ltx_font_bold">Velocity Control Input</span>
+<br class="ltx_break"/>A car motion with position <span class="ltx_Math" id="SS15.p1.m1">(x_{1},x_{2})</span>, car orientation <span class="ltx_Math" id="SS15.p1.m2">\theta</span>, and front wheels orientation <span class="ltx_Math" id="SS15.p1.m3">\phi</span> (see Fig. <a class="ltx_ref" href="#S9-fig:F34" title="Figure 34 ‣ 9.15 Car steering ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">34</span></a>-<em class="ltx_emph ltx_font_italic">left</em>) is characterized by equations</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:Ex112">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex112.m1">\dot{x}_{1}=u_{1}\cos(\theta),\quad\dot{x}_{2}=u_{1}\sin(\theta),\quad\dot{\theta}=\frac{u_{1}}{\ell}\tan(\phi),\quad\dot{\phi}=u_{2},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <span class="ltx_Math" id="SS15.p1.m4">\ell</span> is the distance between the front and back axles, <span class="ltx_Math" id="SS15.p1.m5">u_{1}</span> is the back wheels velocity command and <span class="ltx_Math" id="SS15.p1.m6">u_{2}</span> is the front wheels steering velocity command.
+Its first order Taylor expansion around <span class="ltx_Math" id="SS15.p1.m7">(\hat{\theta},\hat{\phi},\hat{u}_{1})</span> is</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:E118">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E118.m1">\footnotesize\begin{bmatrix}\Delta\dot{x}_{1}\\
+\Delta\dot{x}_{2}\\
+\Delta\dot{\theta}\\
+\Delta\dot{\phi}\end{bmatrix}=\begin{bmatrix}0&amp;0&amp;-\hat{u}_{1}\sin(\hat{\theta})&amp;0\\
+0&amp;0&amp;\hat{u}_{1}\cos(\hat{\theta})&amp;0\\
+0&amp;0&amp;0&amp;\frac{\hat{u}_{1}}{\ell}(\tan(\hat{\phi})^{2}\!+\!1)\\
+0&amp;0&amp;0&amp;0\end{bmatrix}\begin{bmatrix}\Delta x_{1}\\
+\Delta x_{2}\\
+\Delta\theta\\
+\Delta\phi\end{bmatrix}+\footnotesize\begin{bmatrix}\cos(\hat{\theta})&amp;0\\
+\sin(\hat{\theta})&amp;0\\
+\frac{1}{\ell}\tan(\hat{\phi})&amp;0\\
+0&amp;1\end{bmatrix}\begin{bmatrix}\Delta u_{1}\\
+\Delta u_{2}\end{bmatrix},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(118)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">which can then be converted to a discrete form with (<a class="ltx_ref" href="#A3-eq:E192" title="In Appendix C Linear systems used in the bimanual tennis serve example ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">192</span></a>). 
 <br class="ltx_break"/></p>
 </div>
-<div class="ltx_para ltx_noindent" id="S9-para:SS1.SSS1.p16">
-<p class="ltx_p"><span class="ltx_text ltx_font_bold">Computation in vector form</span></p>
-</div>
-<div class="ltx_para ltx_noindent" id="S9-para:SS1.SSS1.p17">
-<p class="ltx_p">The superposition of basis functions in (<a class="ltx_ref" href="#S9-eq:E120" title="In 9.1.1 Unidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">120</span></a>) can be rewritten as</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E132">
+<div class="ltx_para ltx_noindent" id="S9-para:SS15.p2">
+<p class="ltx_p"><span class="ltx_text ltx_font_bold">Acceleration Control Input
+<br class="ltx_break"/></span>A car motion with position <span class="ltx_Math" id="SS15.p2.m1">(x_{1},x_{2})</span>, car orientation <span class="ltx_Math" id="SS15.p2.m2">\theta</span>, and front wheels orientation <span class="ltx_Math" id="SS15.p2.m3">\phi</span> (see Fig. <a class="ltx_ref" href="#S9-fig:F34" title="Figure 34 ‣ 9.15 Car steering ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">34</span></a>-<em class="ltx_emph ltx_font_italic">left</em>) is characterized by equations</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:Ex113">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E132.m1">g(x)=\bm{w}^{\scriptscriptstyle\top}\bm{\phi}(x),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex113.m1">\dot{x}_{1}=v\cos(\theta),\quad\dot{x}_{2}=v\sin(\theta),\quad\dot{\theta}=\frac{v}{\ell}\tan(\phi),\quad\dot{v}=u_{1},\quad\dot{\phi}=u_{2},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(132)</span></td>
 </tr></tbody>
 </table>
-<p class="ltx_p">where <span class="ltx_Math" id="SS1.SSS1.p17.m1">\bm{w}</span> and <span class="ltx_Math" id="SS1.SSS1.p17.m2">\bm{\phi}(x)</span> are vectors formed with the <span class="ltx_Math" id="SS1.SSS1.p17.m3">K</span> elements of <span class="ltx_Math" id="SS1.SSS1.p17.m4">w_{k}</span> and <span class="ltx_Math" id="SS1.SSS1.p17.m5">\phi_{k}(x)</span>, respectively.</p>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS1.p18">
-<p class="ltx_p">The goal of ergodic control in (<a class="ltx_ref" href="#S9-eq:E128" title="In 9.1.1 Unidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">128</span></a>) is to minimize</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E133">
+<p class="ltx_p">where <span class="ltx_Math" id="SS15.p2.m4">\ell</span> is the distance between the front and back axles, <span class="ltx_Math" id="SS15.p2.m5">u_{1}</span> is the back wheels acceleration command and <span class="ltx_Math" id="SS15.p2.m6">u_{2}</span> is the front wheels steering velocity command.
+Its first order Taylor expansion around <span class="ltx_Math" id="SS15.p2.m7">(\hat{\theta},\hat{\phi},\hat{v})</span> is</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:E119">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E133.m1">\epsilon=\frac{1}{2}{\Big(\bm{w}-\bm{\hat{w}}\Big)}^{\!{\scriptscriptstyle\top}}\bm{\Lambda}\,\Big(\bm{w}-\bm{\hat{w}}\Big),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E119.m1">\footnotesize\begin{bmatrix}\Delta\dot{x}_{1}\\
+\Delta\dot{x}_{2}\\
+\Delta\dot{\theta}\\
+\Delta\dot{v}\\
+\Delta\dot{\phi}\end{bmatrix}=\begin{bmatrix}0&amp;0&amp;-\hat{v}\sin(\hat{\theta})&amp;\cos(\hat{\theta})&amp;0\\
+0&amp;0&amp;\hat{v}\cos(\hat{\theta})&amp;\sin(\hat{\theta})&amp;0\\
+0&amp;0&amp;0&amp;\frac{1}{\ell}\tan(\hat{\phi})&amp;\frac{\hat{v}}{\ell}(\tan(\hat{\phi})^{2}\!+\!1)\\
+0&amp;0&amp;0&amp;0&amp;0\\
+0&amp;0&amp;0&amp;0&amp;0\end{bmatrix}\begin{bmatrix}\Delta x_{1}\\
+\Delta x_{2}\\
+\Delta\theta\\
+\Delta v\\
+\Delta\phi\end{bmatrix}+\footnotesize\begin{bmatrix}0&amp;0\\
+0&amp;0\\
+0&amp;0\\
+1&amp;0\\
+0&amp;1\end{bmatrix}\begin{bmatrix}\Delta u_{1}\\
+\Delta u_{2}\end{bmatrix},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(133)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(119)</span></td>
 </tr></tbody>
 </table>
-<p class="ltx_p">where <span class="ltx_Math" id="SS1.SSS1.p18.m1">\bm{\hat{w}}</span> is a vector formed with the <span class="ltx_Math" id="SS1.SSS1.p18.m2">K</span> elements <span class="ltx_Math" id="SS1.SSS1.p18.m3">\hat{w}_{k}</span>, and <span class="ltx_Math" id="SS1.SSS1.p18.m4">\bm{\Lambda}</span> is a weighting matrix formed with the <span class="ltx_Math" id="SS1.SSS1.p18.m5">K</span> diagonal elements <span class="ltx_Math" id="SS1.SSS1.p18.m6">\Lambda_{k}</span>.</p>
+<p class="ltx_p">which can then be converted to a discrete form with (<a class="ltx_ref" href="#A3-eq:E192" title="In Appendix C Linear systems used in the bimanual tennis serve example ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">192</span></a>).</p>
 </div>
-<div class="ltx_para" id="S9-para:SS1.SSS1.p19">
-<p class="ltx_p">By defining <span class="ltx_Math" id="SS1.SSS1.p19.m1">\bm{\phi}(x_{s})</span> as the vector concatenating the <span class="ltx_Math" id="SS1.SSS1.p19.m2">K</span> elements <span class="ltx_Math" id="SS1.SSS1.p19.m3">\phi_{k}(x_{s})</span>, (<a class="ltx_ref" href="#S9-eq:E126" title="In 9.1.1 Unidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">126</span></a>) can be rewritten in a vector form as</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E134">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E134.m1">\bm{w}=\frac{1}{T}\sum_{s=1}^{T}\bm{\phi}(x_{s}).</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(134)</span></td>
-</tr></tbody>
-</table>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS1.p20">
-<p class="ltx_p">With some abuse of notation, by defining a vector <span class="ltx_Math" id="SS1.SSS1.p20.m1">\bm{\tilde{v}}={[0,\ldots,K\!-\!1]}^{\scriptscriptstyle\top}</span>, we can conveniently compute</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx38">
-<tbody id="S9-eq:E135"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E135.m1">\displaystyle\bm{\phi}(x)</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E135.m2">\displaystyle=\frac{1}{L}\cos(\bm{v}x),</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(135)</span></td>
-</tr></tbody>
-<tbody id="S9-eq:E136"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E136.m1">\displaystyle\nabla_{\!\!x}\bm{\phi}(x)</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E136.m2">\displaystyle=-\frac{\bm{v}}{L}\sin(\bm{v}x),\quad\text{with}\quad\bm{v}=\frac{2\pi\bm{\tilde{v}}}{L},</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(136)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">where <span class="ltx_Math" id="SS1.SSS1.p20.m2">\bm{\nabla}_{\!\!x}\bm{\phi}(x)</span> is a vector formed by the <span class="ltx_Math" id="SS1.SSS1.p20.m3">K</span> elements <span class="ltx_Math" id="SS1.SSS1.p20.m4">\nabla_{\!\!x}\phi_{k}(x)</span>, yielding the controller</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E137">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E137.m1">u(t)=-{\bm{\nabla}_{\!\!x}\bm{\phi}(x)}^{\scriptscriptstyle\top}\;\bm{\Lambda}\,\big(\bm{w}-\bm{\hat{w}}\big).</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(137)</span></td>
-</tr></tbody>
-</table>
-<br class="ltx_break"/>
-</div>
-<div class="ltx_para ltx_noindent" id="S9-para:SS1.SSS1.p21">
-<p class="ltx_p"><span class="ltx_text ltx_font_bold">Planning formulation of unidimensional SMC with iLQR</span></p>
-</div>
-<figure class="ltx_figure figure_main" id="S9-fig:F36"><a href="online_course/images/ergodicControl_DDP_1D01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F36.g1" src="online_course/images/small/ergodicControl_DDP_1D01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 36</span>: </span><span class="ltx_text">Unidimensional SMC problem computed with iLQR. A series of control commands is used as initial guess (see timeline plot in gray on the bottom-left), which is then iteratively refined by iLQR (see timeline plot in black on the bottom-left). The top plots shows the reference distribution (in red) and the reconstructed distributions (in gray for initial guess and black after iLQR), in both spatial domain (top-left) and spectral domain (top-right).
-
-</span></figcaption>
-</figure>
-<div class="ltx_para ltx_noindent" id="S9-para:SS1.SSS1.p22">
-<p class="ltx_p">By exploiting the results of Section <a class="ltx_ref" href="#S8-sec:SS5" title="8.5 iLQR with quadratic cost on 𝒇(𝒙_{𝒕}) ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">8.5</span></a>, the batch formulation of iLQR consists of minimizing the cost</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E138">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E138.m1">c(\bm{x},\bm{u})=\bm{f}(\bm{x})^{\!{\scriptscriptstyle\top}}\bm{Q}\bm{f}(\bm{x})+\bm{u}^{\scriptscriptstyle\top}\bm{R}\,\bm{u},</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(138)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">with <span class="ltx_Math" id="SS1.SSS1.p22.m1">\bm{Q}=\bm{\Lambda}</span> and <span class="ltx_Math" id="SS1.SSS1.p22.m2">\bm{f}(\bm{x})=\bm{w}(\bm{x})-\bm{\hat{w}}</span>, with</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E139">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E139.m1">\bm{w}(\bm{x})=\frac{1}{T}\sum_{s=1}^{T}\bm{\phi}(\bm{x}_{s}),</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(139)</span></td>
-</tr></tbody>
-</table>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS1.p23">
-<p class="ltx_p">By starting from an initial guess, the iterative updates of (<a class="ltx_ref" href="#S9-eq:E138" title="In 9.1.1 Unidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">138</span></a>) are given by</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E140">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E140.m1">\Delta\bm{\hat{u}}\!=\!{\Big(\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{J}(\bm{x})^{\scriptscriptstyle\top}\bm{Q}\bm{J}(\bm{x})\bm{S}_{\bm{u}}\!+\!\bm{R}\Big)}^{\!\!-1}\Big(-\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{J}(\bm{x})^{\scriptscriptstyle\top}\bm{Q}\bm{f}(\bm{x})-\bm{R}\,\bm{u}\Big),</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(140)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">with <span class="ltx_Math" id="SS1.SSS1.p23.m1">\bm{J}(\bm{x})=\frac{\partial\bm{f}(\bm{x})}{\partial\bm{x}}</span> a Jacobian matrix given by</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E141">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E141.m1">\bm{J}(\bm{x})=\frac{1}{T}\begin{bmatrix}\nabla_{\!\!x}\bm{\phi}(x_{1}),\nabla_{\!\!x}\bm{\phi}(x_{2}),\ldots\nabla_{\!\!x}\bm{\phi}(x_{T})\end{bmatrix}.</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(141)</span></td>
-</tr></tbody>
-</table>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS1.p24">
-<p class="ltx_p">Figure <a class="ltx_ref" href="#S9-fig:F36" title="Figure 36 ‣ 9.1.1 Unidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">36</span></a> presents the output of the accompanying source codes.</p>
-</div>
-</div>
-<div class="ltx_subsubsection" id="S9-sec:SS1.SSS2">
-<h3 class="ltx_title ltx_title_subsubsection">
-<span class="ltx_tag ltx_tag_subsubsection"><span class="ltx_text">9.1.2</span> </span><span class="ltx_text">Multidimensional SMC</span>
-</h3>
-<figure class="ltx_figure figure_main" id="S9-fig:F37"><a href="online_course/images/basisFcts2D01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F37.g1" src="online_course/images/small/basisFcts2D01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 37</span>: </span><span class="ltx_text">Decomposition of the spatial distribution using Fourier basis functions.
-
-</span></figcaption>
-</figure>
-<figure class="ltx_figure figure_main" id="S9-fig:F38"><a href="online_course/images/ergodicControl02.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_square" id="F38.g1" src="online_course/images/small/ergodicControl02.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 38</span>: </span><span class="ltx_text">2D ergodic control based on SMC used to generate search behaviors.
-<em class="ltx_emph ltx_font_italic">(a)</em> shows the spatial distribution <span class="ltx_Math" id="F38.m16">\hat{g}(\bm{x})</span> that the agent has to explore, encoded here as a mixture of two Gaussians (gray colormap in left graph). The right graphs show the corresponding Fourier series coefficients <span class="ltx_Math" id="F38.m17">\hat{w}_{\bm{k}}</span> in the frequency domain (<span class="ltx_Math" id="F38.m18">K=9</span> coefficients per dimension). <em class="ltx_emph ltx_font_italic">(b)</em> shows the evolution of the reconstructed spatial distribution <span class="ltx_Math" id="F38.m19">g(\bm{x})</span> (left graph) and the computation of the next control command <span class="ltx_Math" id="F38.m20">\bm{u}</span> (red arrow) after <span class="ltx_Math" id="F38.m21">T/10</span> iterations. The corresponding Fourier series coefficients <span class="ltx_Math" id="F38.m22">w_{\bm{k}}</span> are shown in the right graph. <em class="ltx_emph ltx_font_italic">(c)</em> shows that after <span class="ltx_Math" id="F38.m23">T</span> iterations, the agent covers the space in proportion to the desired spatial distribution, with a good match of coefficients in the frequency domain (we can see that <span class="ltx_Math" id="F38.m24">\hat{w}_{\bm{k}}</span> and <span class="ltx_Math" id="F38.m25">w_{\bm{k}}</span> are nearly the same). <em class="ltx_emph ltx_font_italic">(d)</em> shows how a periodic signal <span class="ltx_Math" id="F38.m26">\hat{g}(\bm{x})</span> (with range <span class="ltx_Math" id="F38.m27">[-L/2,L/2]</span> for each dimension) can be constructed from an initial mixture of two Gaussians <span class="ltx_Math" id="F38.m28">\hat{g}_{0}(\bm{x})</span> (red area). The constructed signal <span class="ltx_Math" id="F38.m29">\hat{g}(\bm{x})</span> is composed of eight Gaussians in this 2D example, by mirroring the Gaussians along horizontal and vertical axes to construct an even signal of period <span class="ltx_Math" id="F38.m30">L</span>. <em class="ltx_emph ltx_font_italic">(e)</em> depicts the first few basis functions of the Fourier series for the first four coefficients in each dimension, represented as a 2D colormap corresponding to periodic signals of different frequencies along two axes.
-
-</span></figcaption>
-</figure>
-<figure class="ltx_figure figure_main" id="S9-fig:F39"><a href="online_course/images/ergodicControl_DDP_2D01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F39.g1" src="online_course/images/small/ergodicControl_DDP_2D01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 39</span>: </span><span class="ltx_text">Bidimensional SMC problem computed with iLQR.
-
-</span></figcaption>
-</figure>
-<div class="ltx_para" id="S9-para:SS1.SSS2.p1">
-<p class="ltx_p">For the multidimensional case, we will define <span class="ltx_Math" id="SS1.SSS2.p1.m1">\mathcal{K}</span> as a set of index vectors covering a <span class="ltx_Math" id="SS1.SSS2.p1.m2">D</span>-dimensional array <span class="ltx_Math" id="SS1.SSS2.p1.m3">\bm{k}=\bm{r}\times\bm{r}\times\cdots\times\bm{r}</span>, with <span class="ltx_Math" id="SS1.SSS2.p1.m4">\bm{r}=[0,1,\ldots,K\!-\!1]</span> and <span class="ltx_Math" id="SS1.SSS2.p1.m5">K</span> the resolution of the array. For example, with <span class="ltx_Math" id="SS1.SSS2.p1.m6">D=2</span> and <span class="ltx_Math" id="SS1.SSS2.p1.m7">K=2</span>, we will have <span class="ltx_Math" id="SS1.SSS2.p1.m8">\mathcal{K}=\big\{\left[\begin{smallmatrix}0\\
-0\end{smallmatrix}\right],\left[\begin{smallmatrix}0\\
-1\end{smallmatrix}\right],\left[\begin{smallmatrix}1\\
-0\end{smallmatrix}\right],\left[\begin{smallmatrix}1\\
-1\end{smallmatrix}\right]\big\}</span>.</p>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS2.p2">
-<p class="ltx_p">Similarly as the unidimensional case, we will build a controller so that the Fourier series coefficients <span class="ltx_Math" id="SS1.SSS2.p2.m1">w_{\bm{k}}</span> along a trajectory <span class="ltx_Math" id="SS1.SSS2.p2.m2">\bm{x}(t)</span> of duration <span class="ltx_Math" id="SS1.SSS2.p2.m3">t</span>, defined as</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E142">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E142.m1">w_{\bm{k}}=\frac{1}{t}\int_{\tau=0}^{t}\phi_{\bm{k}}\big(\bm{x}(\tau)\big)\;d\tau,</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(142)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">will match the Fourier series coefficients <span class="ltx_Math" id="SS1.SSS2.p2.m4">\hat{w}_{\bm{k}}</span> on the spatial domain <span class="ltx_Math" id="SS1.SSS2.p2.m5">\mathcal{X}</span>, defined as</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx39">
-<tbody id="S9-eq:E143"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E143.m1">\displaystyle\hat{w}_{\bm{k}}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E143.m2">\displaystyle=\int_{\bm{x}\in\mathcal{X}}\hat{g}(\bm{x})\;\phi_{\bm{k}}(\bm{x})\;\text{d}\bm{x}.</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(143)</span></td>
-</tr></tbody>
-</table>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS2.p3">
-<p class="ltx_p">The discretized version of (<a class="ltx_ref" href="#S9-eq:E142" title="In 9.1.2 Multidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">142</span></a>) for a discrete number of time steps <span class="ltx_Math" id="SS1.SSS2.p3.m1">T</span> is</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E144">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E144.m1">w_{\bm{k}}=\frac{1}{T}\sum_{s=1}^{T}\phi_{\bm{k}}(\bm{x}_{s}),</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(144)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">or equivalently in vector form <span class="ltx_Math" id="SS1.SSS2.p3.m2">\bm{w}=\frac{1}{T}\sum_{s=1}^{T}\bm{\phi}(\bm{x}_{s})</span>, which can be computed recursively by updating <span class="ltx_Math" id="SS1.SSS2.p3.m3">\bm{w}</span> at each iteration step.</p>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS2.p4">
-<p class="ltx_p">Similarly, the discretized version of (<a class="ltx_ref" href="#S9-eq:E143" title="In 9.1.2 Multidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">143</span></a>) for a given spatial resolution can for example be computed on a domain <span class="ltx_Math" id="SS1.SSS2.p4.m1">[0,1]</span> discretized in <span class="ltx_Math" id="SS1.SSS2.p4.m2">X</span> bins for each dimension as</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx40">
-<tbody id="S9-eq:E145"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E145.m1">\displaystyle\hat{w}_{\bm{k}}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E145.m2">\displaystyle=\sum_{s_{1}=1}^{X}\sum_{s_{2}=1}^{X}\cdots\sum_{s_{d}=0}^{X}\hat{g}(\bm{x}_{\bm{s}})\;\phi_{\bm{k}}(\bm{x}_{\bm{s}}),</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(145)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">where each dimension <span class="ltx_Math" id="SS1.SSS2.p4.m3">i</span> of <span class="ltx_Math" id="SS1.SSS2.p4.m4">\bm{x}</span> is given by index <span class="ltx_Math" id="SS1.SSS2.p4.m5">s_{i}</span> splitting each domain dimension into <span class="ltx_Math" id="SS1.SSS2.p4.m6">X</span> equal bins.</p>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS2.p5">
-<p class="ltx_p">The goal of ergodic control is to minimize</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx41">
-<tbody id="S9-eq:E146"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E146.m1">\displaystyle\epsilon</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E146.m2">\displaystyle=\frac{1}{2}\sum_{{\bm{k}}\in\mathcal{K}}\Lambda_{\bm{k}}\Big(w_{\bm{k}}-\hat{w}_{\bm{k}}\Big)^{\!2}</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(146)</span></td>
-</tr></tbody>
-<tbody id="S9-eq:E147"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E147.m1">\displaystyle=\frac{1}{2}{\Big(\bm{w}-\bm{\hat{w}}\Big)}^{\!{\scriptscriptstyle\top}}\bm{\Lambda}\,\Big(\bm{w}-\bm{\hat{w}}\Big),</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(147)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">where <span class="ltx_Math" id="SS1.SSS2.p5.m1">\Lambda_{\bm{k}}</span> are weights, <span class="ltx_Math" id="SS1.SSS2.p5.m2">\hat{w}_{\bm{k}}</span> are the Fourier series coefficients of <span class="ltx_Math" id="SS1.SSS2.p5.m3">\hat{g}(\bm{x})</span>, and <span class="ltx_Math" id="SS1.SSS2.p5.m4">w_{\bm{k}}</span> are the Fourier series coefficients along the trajectory <span class="ltx_Math" id="SS1.SSS2.p5.m5">\bm{x}(t)</span>.
-<span class="ltx_Math" id="SS1.SSS2.p5.m6">\bm{w}\in\mathbb{R}^{K^{D}}</span> and <span class="ltx_Math" id="SS1.SSS2.p5.m7">\bm{\hat{w}}\in\mathbb{R}^{K^{D}}</span> are vectors composed of elements <span class="ltx_Math" id="SS1.SSS2.p5.m8">w_{\bm{k}}</span> and <span class="ltx_Math" id="SS1.SSS2.p5.m9">\hat{w}_{\bm{k}}</span>, respectively. <span class="ltx_Math" id="SS1.SSS2.p5.m10">\bm{\Lambda}\in\mathbb{R}^{K^{D}\times K^{D}}</span> is a diagonal weighting matrix with elements <span class="ltx_Math" id="SS1.SSS2.p5.m11">\Lambda_{\bm{k}}</span>.
-In (<a class="ltx_ref" href="#S9-eq:E146" title="In 9.1.2 Multidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">146</span></a>), the weights</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E148">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E148.m1">\Lambda_{\bm{k}}=\left(1+\|\bm{k}\|^{2}\right)^{\!-\frac{D+1}{2}}</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(148)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">assign more importance on matching low frequency components (related to a metric for Sobolev spaces of negative order).</p>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS2.p6">
-<p class="ltx_p">Practically, the controller will mainly focus on the lowest frequency components at the beginning as these components have a large effect on the cost due to the large weights. When the errors become zero for these components, the controller can then try to progressively reduce higher frequency components.</p>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS2.p7">
-<p class="ltx_p">For a spatial signal <span class="ltx_Math" id="SS1.SSS2.p7.m1">\bm{x}\in\mathbb{R}^{D}</span>, where <span class="ltx_Math" id="SS1.SSS2.p7.m2">x_{d}</span> is on the interval <span class="ltx_Math" id="SS1.SSS2.p7.m3">[-\frac{L}{2},\frac{L}{2}]</span> of period <span class="ltx_Math" id="SS1.SSS2.p7.m4">L</span>, <span class="ltx_Math" id="SS1.SSS2.p7.m5">\forall d\!\in\!\{1,\ldots,D\}</span>, the basis functions of the Fourier series with complex exponential functions are defined as (see Fig. <a class="ltx_ref" href="#S9-fig:F38" title="Figure 38 ‣ 9.1.2 Multidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">38</span></a>-<em class="ltx_emph ltx_font_italic">(e)</em>)</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E149">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E149.m1">\phi_{\bm{k}}(\bm{x})=\frac{1}{L^{D}}\prod_{d=1}^{D}\cos\!\left(\frac{2\pi k_{d}x_{d}}{L}\right),\quad\forall\bm{k}\!\in\!\mathcal{K}.</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(149)</span></td>
-</tr></tbody>
-</table>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS2.p8">
-<p class="ltx_p">By concatenating the <span class="ltx_Math" id="SS1.SSS2.p8.m1">K^{D}</span> index vectors <span class="ltx_Math" id="SS1.SSS2.p8.m2">\bm{k}\!\in\!\mathcal{K}</span> into a matrix <span class="ltx_Math" id="SS1.SSS2.p8.m3">\bm{\tilde{V}}\in\mathbb{R}^{D\times K^{D}}</span>, we can conveniently compute <span class="ltx_Math" id="SS1.SSS2.p8.m4">\bm{\phi}(\bm{x})</span> as the vector concatenating all <span class="ltx_Math" id="SS1.SSS2.p8.m5">K^{D}</span> elements <span class="ltx_Math" id="SS1.SSS2.p8.m6">\phi_{\bm{k}}(\bm{x}),\,\forall\bm{k}\!\in\!\mathcal{K}</span>, namely</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx42">
-<tbody id="S9-eq:E150"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E150.m1">\displaystyle\bm{\phi}(\bm{x})</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E150.m2">\displaystyle=\frac{1}{L^{D}}\bigodot_{d=1}^{D}\cos(\bm{V}_{d}x_{d})</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(150)</span></td>
-</tr></tbody>
-<tbody id="S9-eq:E151"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E151.m1">\displaystyle=\frac{1}{L^{D}}\cos(\bm{V}_{1}x_{1})\odot\cos(\bm{V}_{2}x_{2})\odot\cdots\odot\cos(\bm{V}_{D}x_{D}),\quad\text{with}\quad\bm{V}=\frac{2\pi\bm{\tilde{V}}}{L},</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(151)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">where <span class="ltx_Math" id="SS1.SSS2.p8.m7">\odot</span> the elementwise/Hadamard product operator.</p>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS2.p9">
-<p class="ltx_p">The derivatives of the vector <span class="ltx_Math" id="SS1.SSS2.p9.m1">\bm{\phi}(\bm{x})</span> with respect to <span class="ltx_Math" id="SS1.SSS2.p9.m2">\bm{x}</span> are given by the matrix <span class="ltx_Math" id="SS1.SSS2.p9.m3">\nabla_{\!\!\bm{x}}\bm{\phi}(\bm{x})</span> of size <span class="ltx_Math" id="SS1.SSS2.p9.m4">K^{D}\times D</span> by concatenating horizontally the <span class="ltx_Math" id="SS1.SSS2.p9.m5">D</span> vectors</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx43">
-<tbody id="S9-eq:E152"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E152.m1">\displaystyle\nabla_{\!\!\bm{x}}\bm{\phi}_{d}(\bm{x})</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E152.m2">\displaystyle=-\frac{1}{L^{D}}\,\bm{V}_{d}\odot\sin(\bm{V}_{d}x_{d})\bigodot_{i\neq d}\cos(\bm{V}_{i}x_{i})</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(152)</span></td>
-</tr></tbody>
-<tbody id="S9-eq:E153"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E153.m1">\displaystyle=-\frac{1}{L^{D}}\,\bm{V}_{d}\odot\cos(\bm{V}_{1}x_{1})\odot\cdots\odot\cos(\bm{V}_{d-1}x_{d-1})\odot\sin(\bm{V}_{d}x_{d})\odot\cos(\bm{V}_{d+1}x_{d+1})\odot\cdots\odot\cos(\bm{V}_{D}x_{D}).</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(153)</span></td>
-</tr></tbody>
-</table>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS2.p10">
-<p class="ltx_p">For the specific example of a 2D space, (<a class="ltx_ref" href="#S9-eq:E151" title="In 9.1.2 Multidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">151</span></a>) and (<a class="ltx_ref" href="#S9-eq:E153" title="In 9.1.2 Multidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">153</span></a>) yield</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S9-eq:A5.EGx44">
-<tbody id="S9-eq:E154"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E154.m1">\displaystyle\bm{\phi}(\bm{x})</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E154.m2">\displaystyle=\frac{1}{L^{2}}\cos(\bm{V}_{1}x_{1})\odot\cos(\bm{V}_{2}x_{2}),</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(154)</span></td>
-</tr></tbody>
-<tbody id="S9-eq:E155"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E155.m1">\displaystyle\nabla_{\!\!\bm{x}}\bm{\phi}(\bm{x})</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E155.m2">\displaystyle=\begin{bmatrix}-\frac{1}{L}\,\bm{V}_{1}\odot\sin(\bm{V}_{1}x_{1})\odot\cos(\bm{V}_{2}x_{2})&amp;-\frac{1}{L}\,\bm{V}_{2}\odot\cos(\bm{V}_{1}x_{1})\odot\sin(\bm{V}_{2}x_{2})\end{bmatrix}.</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(155)</span></td>
-</tr></tbody>
-</table>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS2.p11">
-<p class="ltx_p">Ergodic control is set as the constrained problem of computing a control command <span class="ltx_Math" id="SS1.SSS2.p11.m1">\bm{\hat{u}}(t)</span> at each time step <span class="ltx_Math" id="SS1.SSS2.p11.m2">t</span> with</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E156">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E156.m1">\bm{\hat{u}}(t)=\arg\min_{\bm{u}(t)}\;\epsilon\big(\bm{x}(t\!+\!\Delta t)\big),\quad\text{s.t.}\quad\bm{\dot{x}}(t)=f\big(\bm{x}(t),\bm{u}(t)\big),\quad\|\bm{u}(t)\|\leqslant u^{\max},</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(156)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">where the simple system <span class="ltx_Math" id="SS1.SSS2.p11.m3">\bm{u}(t)=\bm{\dot{x}}(t)</span> is considered (control with velocity commands), and where the error term is approximated with the Taylor series</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E157">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E157.m1">\epsilon\big(\bm{x}(t\!+\!\Delta t)\big)\;\approx\;\epsilon\big(\bm{x}(t)\big)\;+\;\dot{\epsilon}\big(\bm{x}(t)\big)\Delta t\;+\;\frac{1}{2}\ddot{\epsilon}\big(\bm{x}(t)\big){\Delta t}^{2}.</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(157)</span></td>
-</tr></tbody>
-</table>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS2.p12">
-<p class="ltx_p">By using (<a class="ltx_ref" href="#S9-eq:E146" title="In 9.1.2 Multidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">146</span></a>), (<a class="ltx_ref" href="#S9-eq:E142" title="In 9.1.2 Multidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">142</span></a>), (<a class="ltx_ref" href="#S9-eq:E149" title="In 9.1.2 Multidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">149</span></a>) and the chain rule <span class="ltx_Math" id="SS1.SSS2.p12.m1">\frac{\partial f}{\partial t}=\frac{\partial f}{\partial\bm{x}}\frac{\partial\bm{x}}{\partial t}</span>, the Taylor series
-is composed of the control term <span class="ltx_Math" id="SS1.SSS2.p12.m2">\bm{u}(t)</span> and <span class="ltx_Math" id="SS1.SSS2.p12.m3">\nabla_{\!\!\bm{x}}\phi_{\bm{k}}\big(\bm{x}(t)\big)\in\mathbb{R}^{1\times D}</span>, the gradient of <span class="ltx_Math" id="SS1.SSS2.p12.m4">\phi_{\bm{k}}\big(\bm{x}(t)\big)</span> with respect to <span class="ltx_Math" id="SS1.SSS2.p12.m5">\bm{x}(t)</span>.
-Solving the constrained objective in (<a class="ltx_ref" href="#S9-eq:E156" title="In 9.1.2 Multidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">156</span></a>) then results in the analytical solution (see <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib20" title="Spectral multiscale coverage: a uniform coverage algorithm for mobile sensor networks">10</a>]</cite> for the complete derivation)</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E158">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E158.m1">\bm{u}(t)=\bm{\tilde{u}}(t)\frac{u^{\max}}{\|\bm{\tilde{u}}(t)\|},\quad\mathrm{with}\quad\bm{\tilde{u}}(t)=-{\nabla_{\!\!\bm{x}}\bm{\phi}(\bm{x})}^{\scriptscriptstyle\top}\,\bm{\Lambda}\,\big(\bm{w}-\bm{\hat{w}}\big).</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(158)</span></td>
-</tr></tbody>
-</table>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS2.p13">
-<p class="ltx_p">Figures <a class="ltx_ref" href="#S9-fig:F37" title="Figure 37 ‣ 9.1.2 Multidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">37</span></a> and <a class="ltx_ref" href="#S9-fig:F38" title="Figure 38 ‣ 9.1.2 Multidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">38</span></a> show a 2D example of ergodic control to create a motion approximating the distribution given by a mixture of two Gaussians. A remarkable characteristic of such approach is that the controller produces natural exploration behaviors without relying on stochastic noise in the formulation, see Fig. <a class="ltx_ref" href="#S9-fig:F38" title="Figure 38 ‣ 9.1.2 Multidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">38</span></a>-<em class="ltx_emph ltx_font_italic">(c)</em>. In the limit case, if the distribution <span class="ltx_Math" id="SS1.SSS2.p13.m1">g(\bm{x})</span> is a single Gaussian with a very small isotropic covariance, the controller results in a conventional target reaching behavior.</p>
-</div>
-<div class="ltx_para" id="S9-para:SS1.SSS2.p14">
-<p class="ltx_p">Figure <a class="ltx_ref" href="#S9-fig:F39" title="Figure 39 ‣ 9.1.2 Multidimensional SMC ‣ 9.1 Spectral-based ergodic control (SMC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">39</span></a> presents the output of the accompanying source codes, where the initial guess is computed by standard SMC (myopic), whose resulting control command trajectory is then refined with iLQR (SMC as a planning problem).</p>
-</div>
-</div>
-</div><div class="ltx_subsection" id="S9-sec:SS2">
+</div><div class="ltx_subsection" id="S9-sec:SS16">
 <h2 class="ltx_title ltx_title_subsection">
-<span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">9.2</span> </span><span class="ltx_text">Diffusion-based ergodic control (HEDAC)</span>
+<span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">9.16</span> </span><span class="ltx_text">Bicopter</span>
 </h2>
-<div class="ltx_para" id="S9-para:SS2.p1">
-<p class="ltx_p">Heat equation driven area coverage (HEDAC) is another area coverage method that relies on diffusion processes instead of spectral analysis <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib21" title="Ergodicity-based cooperative multiagent area coverage via a potential field">6</a>]</cite>.</p>
-</div>
-<div class="ltx_para" id="S9-para:SS2.p2">
-<p class="ltx_p">The coverage density currently covered by the agent(s) is defined as the convolution of an instantaneous action and the trajectory, which results in a field occupying the space around the path of the agent. A radial basis function can for example be used as the instantaneous action.</p>
-</div>
-<div class="ltx_para" id="S9-para:SS2.p3">
-<p class="ltx_p">The algorithm designs a potential field based on the heat equation by using a source term constructed as the difference between the given goal density and the current coverage density. The movements of the agent(s) are directed by the gradient of this potential field, leading them to the area of interest and producing paths to achieve the desired coverage density. The diffusion of the heat allows the agent(s) to get access to this gradient, bringing them to the regions of the target coverage density that have not been explored yet.</p>
-</div>
-<div class="ltx_para" id="S9-para:SS2.p4">
-<p class="ltx_p">HEDAC considers a target distribution <span class="ltx_Math" id="SS2.p4.m1">p(\bm{x})</span> to be covered, and the time-dependent coverage <span class="ltx_Math" id="SS2.p4.m2">c(\bm{x},t)</span> that one or multiple moving agents have already covered. The coverage residual <span class="ltx_Math" id="SS2.p4.m3">e(\bm{x},t)</span> is defined as the scalar field</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E159">
+<div class="ltx_para" id="S9-para:SS16.p1">
+<p class="ltx_p">A planar bicopter of mass <span class="ltx_Math" id="SS16.p1.m1">m</span> and inertia <span class="ltx_Math" id="SS16.p1.m2">I</span> actuated by two propellers at distance <span class="ltx_Math" id="SS16.p1.m3">\ell</span> (see Fig. <a class="ltx_ref" href="#S9-fig:F34" title="Figure 34 ‣ 9.15 Car steering ‣ 9 iLQR with quadratic cost on f(x) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">34</span></a>-<em class="ltx_emph ltx_font_italic">right</em>) is characterized by equations</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:Ex114">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E159.m1">e(\bm{x},t)=p(\bm{x})-c(\bm{x},t),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex114.m1">\ddot{x}_{1}=-\frac{1}{m}(u_{1}+u_{2})\sin(\theta),\quad\ddot{x}_{2}=\frac{1}{m}(u_{1}+u_{2})\cos(\theta)-g,\quad\ddot{\theta}=\frac{\ell}{I}(u_{1}-u_{2}),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(159)</span></td>
 </tr></tbody>
 </table>
-<p class="ltx_p">which is used to build a virtual heat source with nonnegative values</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E160">
+<p class="ltx_p">with acceleration <span class="ltx_Math" id="SS16.p1.m4">g\!=\!9.81</span> due to gravity. Its first order Taylor expansion around <span class="ltx_Math" id="SS16.p1.m5">(\hat{\theta},\hat{u}_{2},\hat{u}_{2})</span> is</p>
+<table class="ltx_equation ltx_eqn_table" id="S9-eq:E120">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E160.m1">\tilde{s}(\bm{x},t)=\max\left(e(\bm{x},t),0\right)^{2}.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E120.m1">\footnotesize\begin{bmatrix}\Delta\dot{x}_{1}\\
+\Delta\dot{x}_{2}\\
+\Delta\dot{\theta}\\
+\Delta\ddot{x}_{1}\\
+\Delta\ddot{x}_{2}\\
+\Delta\ddot{\theta}\end{bmatrix}=\begin{bmatrix}0&amp;0&amp;0&amp;1&amp;0&amp;0\\
+0&amp;0&amp;0&amp;0&amp;1&amp;0\\
+0&amp;0&amp;0&amp;0&amp;0&amp;1\\
+0&amp;0&amp;-\frac{1}{m}(\hat{u}_{1}+\hat{u}_{2})\cos(\hat{\theta})&amp;0&amp;0&amp;0\\
+0&amp;0&amp;-\frac{1}{m}(\hat{u}_{1}+\hat{u}_{2})\sin(\hat{\theta})&amp;0&amp;0&amp;0\\
+0&amp;0&amp;0&amp;0&amp;0&amp;0\end{bmatrix}\begin{bmatrix}\Delta x_{1}\\
+\Delta x_{2}\\
+\Delta\theta\\
+\Delta\dot{x}_{1}\\
+\Delta\dot{x}_{2}\\
+\Delta\dot{\theta}\end{bmatrix}+\footnotesize\begin{bmatrix}0&amp;0\\
+0&amp;0\\
+0&amp;0\\
+-\frac{1}{m}\sin(\hat{\theta})&amp;-\frac{1}{m}\sin(\hat{\theta})\\
+\frac{1}{m}\cos(\hat{\theta})&amp;\frac{1}{m}\cos(\hat{\theta})\\
+\frac{\ell}{I}&amp;-\frac{\ell}{I}\end{bmatrix}\begin{bmatrix}\Delta u_{1}\\
+\Delta u_{2}\end{bmatrix},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(160)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(120)</span></td>
 </tr></tbody>
 </table>
+<p class="ltx_p">which can then be converted to a discrete form with (<a class="ltx_ref" href="#A3-eq:E192" title="In Appendix C Linear systems used in the bimanual tennis serve example ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">192</span></a>).</p>
 </div>
-<div class="ltx_para" id="S9-para:SS2.p5">
-<p class="ltx_p">For proper scaling, the heat source is further normalized over the domain using</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E161">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E161.m1">s(\bm{x},t)=\frac{\tilde{s}(\bm{x},t)}{\int_{\Omega}\tilde{s}(\bm{x},t)dx}.</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(161)</span></td>
-</tr></tbody>
-</table>
-</div>
-<div class="ltx_para" id="S9-para:SS2.p6">
-<p class="ltx_p">The heat source is then diffused over the domain to propagate the information about the unexplored regions to the agent(s). For that purpose, we use the heat equation: a second-order partial differential equation (PDE) that models heat conduction by relating spatial and time derivatives of a scalar field with</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E162">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E162.m1">\frac{\partial u(\bm{x},t)}{\partial t}=\alpha\Delta u(\bm{x},t)+s(\bm{x},t),</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(162)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">where <span class="ltx_Math" id="SS2.p6.m1">u(\bm{x},t)</span> corresponds to the temperature field, <span class="ltx_Math" id="SS2.p6.m2">\alpha</span> is a thermal diffusivity parameter, and <span class="ltx_Math" id="SS2.p6.m3">\Delta u=\frac{\partial^{2}u}{\partial x_{1}^{2}}+\frac{\partial^{2}u}{\partial x_{2}^{2}}+\ldots</span> is the Laplacian of the function <span class="ltx_Math" id="SS2.p6.m4">u</span>.</p>
-</div>
-<div class="ltx_para" id="S9-para:SS2.p7">
-<p class="ltx_p">In order to control the agents, the potential field exerts a fictitious force on each of the <span class="ltx_Math" id="SS2.p7.m1">i</span>-th agent, based on the gradient of the temperature field</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E163">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E163.m1">\bm{f}_{i}=\bm{\nabla}u(\bm{x}_{i},t).</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(163)</span></td>
-</tr></tbody>
-</table>
-</div>
-<div class="ltx_para" id="S9-para:SS2.p8">
-<p class="ltx_p">Neumann boundary conditions can be imposed (corresponding to thermal insulation), which means that information propagation stays within the domain boundary with</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E164">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E164.m1">\frac{\partial u}{\partial\textbf{n}}=0,\quad\text{on}\quad\partial\Omega,</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(164)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">where <span class="ltx_Math" id="SS2.p8.m1">\Omega</span> is a <span class="ltx_Math" id="SS2.p8.m2">n</span>-dimensional domain with Lipschitz continuous boundary.</p>
-</div>
-<div class="ltx_para" id="S9-para:SS2.p9">
-<p class="ltx_p">At each iteration step of the algorithm, we compute the coverage of the agent(s), which cool the temperature field and mark the regions they cover by updating the coverage distribution <span class="ltx_Math" id="SS2.p9.m1">c_{i}(\bm{x},t)</span>. For the <span class="ltx_Math" id="SS2.p9.m2">i</span>-th agent, the coverage is computed by the relation</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E165">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E165.m1">c_{i}(\bm{x},t)=\int_{0}^{t}\phi(\bm{x}-\bm{x}_{i}(\tau))d\tau,</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(165)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">where <span class="ltx_Math" id="SS2.p9.m3">\phi(\bm{x}_{i})</span> is the footprint or shape of the virtual agent (arbitrary shape). For example, a Gaussian radial basis functions (RBF) with adjustable shape parameter <span class="ltx_Math" id="SS2.p9.m4">\epsilon</span> can be used, given by</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E166">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E166.m1">\phi(\bm{x})=e^{-\left(\epsilon\bm{x}\right)^{2}}.</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(166)</span></td>
-</tr></tbody>
-</table>
-</div>
-<div class="ltx_para" id="S9-para:SS2.p10">
-<p class="ltx_p">The total coverage containing the exploration effort of all the agents is then computed with</p>
-<table class="ltx_equation ltx_eqn_table" id="S9-eq:E167">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E167.m1">\tilde{c}(\bm{x},t)=\frac{1}{Nt}\sum_{i=1}^{N}c_{i}(\bm{x},t),</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(167)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">that is further normalized over the domain using (<a class="ltx_ref" href="#S9-eq:E161" title="In 9.2 Diffusion-based ergodic control (HEDAC) ‣ 9 Ergodic control ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">161</span></a>) to provide <span class="ltx_Math" id="SS2.p10.m1">c(\bm{x},t)</span>.</p>
-</div>
+<div class="ltx_pagination ltx_role_newpage"></div>
 </div><ul class="pagination justify-content-center small_menu"><li class="page-item previous_file"><a class="page-link" href="#S8">Previous</a></li><li class="page-item next_file"><a class="page-link" href="#S10">Next</a></li></ul></div></div><div class="col-sm-3"><div id="img-col"></div></div></div>

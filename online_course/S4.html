@@ -1,72 +1,72 @@
 <div class="row"><div class="col-sm-7 offset-1"><div id="txt-col"><h1 class="ltx_title ltx_title_section">
 <span class="ltx_tag ltx_tag_section"><span class="ltx_text">4</span> </span><span class="ltx_text">Forward kinematics (FK) for a planar robot manipulator</span>
-</h1><figure class="ltx_figure ltx_align_floatright figure_main" id="S4-fig:F7"><a href="online_course/images/f_ee01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_square" id="F7.g1" src="online_course/images/small/f_ee01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 7</span>: </span><span class="ltx_text">Forward kinematics for a planar robot with two links.
+</h1><figure class="ltx_figure ltx_align_floatright figure_main" id="S4-fig:F9"><a href="online_course/images/f_ee01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_square" id="F9.g1" src="online_course/images/small/f_ee01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 9</span>: </span><span class="ltx_text">Forward kinematics for a planar robot with two links.
 </span></figcaption>
 </figure><div class="ltx_para" id="S4-para:p1">
 <p class="ltx_p">The <em class="ltx_emph ltx_font_italic">forward kinematics</em> (FK) function of a planar robot manipulator is defined as</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S4-eq:A5.EGx8">
-<tbody id="S4-eq:Ex23"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S4-eq:A5.EGx10">
+<tbody id="S4-eq:Ex33"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex23.m1">\displaystyle\bm{f}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex23.m2">\displaystyle=\begin{bmatrix}\bm{\ell}^{\scriptscriptstyle\top}\cos(\bm{L}\bm{x})\\
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex33.m1">\displaystyle\bm{f}^{\text{\tiny ee}}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex33.m2">\displaystyle=\begin{bmatrix}\bm{\ell}^{\scriptscriptstyle\top}\cos(\bm{L}\bm{x})\\
 \bm{\ell}^{\scriptscriptstyle\top}\sin(\bm{L}\bm{x})\\
 \bm{1}^{\scriptscriptstyle\top}\bm{x}\end{bmatrix}</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="S4-eq:Ex24"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S4-eq:Ex34"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex24.m1">\displaystyle=\begin{bmatrix}\ell_{1}\!\cos(x_{1})\!+\!\ell_{2}\!\cos(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3})\!+\!\ldots\\
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex34.m1">\displaystyle=\begin{bmatrix}\ell_{1}\!\cos(x_{1})\!+\!\ell_{2}\!\cos(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3})\!+\!\ldots\\
 \ell_{1}\sin(x_{1})\!+\!\ell_{2}\!\sin(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\sin(x_{1}\!+\!x_{2}\!+\!x_{3})\!+\!\ldots\\
 x_{1}+x_{2}+x_{3}+\ldots\end{bmatrix}\!\!,</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
-<p class="ltx_p">with <span class="ltx_Math" id="p1.m1">\bm{x}</span> the state of the robot (joint angles), <span class="ltx_Math" id="p1.m2">\bm{f}</span> the position of the robot endeffector, <span class="ltx_Math" id="p1.m3">\bm{\ell}\,</span> a vector of robot links lengths, <span class="ltx_Math" id="p1.m4">\bm{L}</span> a lower triangular matrix with unit elements, and <span class="ltx_Math" id="p1.m5">\bm{1}</span> a vector of unit elements, see Fig. <a class="ltx_ref" href="#S4-fig:F7" title="Figure 7 ‣ 4 Forward kinematics (FK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">7</span></a>.</p>
+<p class="ltx_p">with <span class="ltx_Math" id="p1.m1">\bm{x}</span> the state of the robot (joint angles), <span class="ltx_Math" id="p1.m2">\bm{f}^{\text{\tiny ee}}</span> the position of the robot endeffector, <span class="ltx_Math" id="p1.m3">\bm{\ell}\,</span> a vector of robot links lengths, <span class="ltx_Math" id="p1.m4">\bm{L}</span> a lower triangular matrix with unit elements, and <span class="ltx_Math" id="p1.m5">\bm{1}</span> a vector of unit elements, see Fig. <a class="ltx_ref" href="#S4-fig:F9" title="Figure 9 ‣ 4 Forward kinematics (FK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">9</span></a>.</p>
 </div><div class="ltx_para" id="S4-para:p2">
 <p class="ltx_p">The position and orientation of all articulations can similarly be computed with the forward kinematics function</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S4-eq:A5.EGx9">
-<tbody id="S4-eq:Ex25"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S4-eq:A5.EGx11">
+<tbody id="S4-eq:Ex35"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex25.m1">\displaystyle\bm{\tilde{f}}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex25.m2">\displaystyle={\Big[\bm{L}\;\mathrm{diag}(\bm{\ell})\cos(\bm{L}\bm{x}),\quad\bm{L}\;\mathrm{diag}(\bm{\ell})\sin(\bm{L}\bm{x}),\quad\bm{L}\bm{x}\Big]}^{\scriptscriptstyle\top}</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex35.m1">\displaystyle\bm{\tilde{f}}^{\text{\tiny ee}}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex35.m2">\displaystyle={\Big[\bm{L}\;\mathrm{diag}(\bm{\ell})\cos(\bm{L}\bm{x}),\quad\bm{L}\;\mathrm{diag}(\bm{\ell})\sin(\bm{L}\bm{x}),\quad\bm{L}\bm{x}\Big]}^{\scriptscriptstyle\top}</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 <tbody id="S4-eq:E18"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E18.m1">\displaystyle=\begin{bmatrix}\tilde{f}_{1,1}&amp;\tilde{f}_{1,2}&amp;\tilde{f}_{1,3}&amp;\ldots\\
-\tilde{f}_{2,1}&amp;\tilde{f}_{2,2}&amp;\tilde{f}_{2,3}&amp;\ldots\\
-\tilde{f}_{3,1}&amp;\tilde{f}_{3,2}&amp;\tilde{f}_{3,3}&amp;\ldots\\
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E18.m1">\displaystyle=\begin{bmatrix}\tilde{f}^{\text{\tiny ee}}_{1,1}&amp;\tilde{f}^{\text{\tiny ee}}_{1,2}&amp;\tilde{f}^{\text{\tiny ee}}_{1,3}&amp;\ldots\\
+\tilde{f}^{\text{\tiny ee}}_{2,1}&amp;\tilde{f}^{\text{\tiny ee}}_{2,2}&amp;\tilde{f}^{\text{\tiny ee}}_{2,3}&amp;\ldots\\
+\tilde{f}^{\text{\tiny ee}}_{3,1}&amp;\tilde{f}^{\text{\tiny ee}}_{3,2}&amp;\tilde{f}^{\text{\tiny ee}}_{3,3}&amp;\ldots\\
 \end{bmatrix}\!\!,</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(18)</span></td>
 </tr></tbody>
 </table>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S4-eq:A5.EGx10">
-<tbody id="S4-eq:Ex26"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S4-eq:A5.EGx12">
+<tbody id="S4-eq:Ex36"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex26.m1">\displaystyle\tilde{f}_{1,1}=\ell_{1}\!\cos(x_{1}),\quad</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex26.m2">\displaystyle\tilde{f}_{1,2}=\ell_{1}\!\cos(x_{1})\!+\!\ell_{2}\!\cos(x_{1}\!+\!x_{2}),\quad</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex26.m3">\displaystyle\tilde{f}_{1,3}=\ell_{1}\!\cos(x_{1})\!+\!\ell_{2}\!\cos(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3}),</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex36.m1">\displaystyle\tilde{f}^{\text{\tiny ee}}_{1,1}=\ell_{1}\!\cos(x_{1}),\quad</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex36.m2">\displaystyle\tilde{f}^{\text{\tiny ee}}_{1,2}=\ell_{1}\!\cos(x_{1})\!+\!\ell_{2}\!\cos(x_{1}\!+\!x_{2}),\quad</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex36.m3">\displaystyle\tilde{f}^{\text{\tiny ee}}_{1,3}=\ell_{1}\!\cos(x_{1})\!+\!\ell_{2}\!\cos(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\cos(x_{1}\!+\!x_{2}\!+\!x_{3}),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="S4-eq:Ex27"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S4-eq:Ex37"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_text ltx_markedasmath">with</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex27.m2">\displaystyle\tilde{f}_{2,1}=\ell_{1}\sin(x_{1}),</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex27.m3">\displaystyle\tilde{f}_{2,2}=\ell_{1}\sin(x_{1})\!+\!\ell_{2}\!\sin(x_{1}\!+\!x_{2}),</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex27.m4">\displaystyle\tilde{f}_{2,3}=\ell_{1}\sin(x_{1})\!+\!\ell_{2}\!\sin(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\sin(x_{1}\!+\!x_{2}\!+\!x_{3}),\quad\ldots</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex37.m2">\displaystyle\tilde{f}^{\text{\tiny ee}}_{2,1}=\ell_{1}\sin(x_{1}),</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex37.m3">\displaystyle\tilde{f}^{\text{\tiny ee}}_{2,2}=\ell_{1}\sin(x_{1})\!+\!\ell_{2}\!\sin(x_{1}\!+\!x_{2}),</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex37.m4">\displaystyle\tilde{f}^{\text{\tiny ee}}_{2,3}=\ell_{1}\sin(x_{1})\!+\!\ell_{2}\!\sin(x_{1}\!+\!x_{2})\!+\!\ell_{3}\!\sin(x_{1}\!+\!x_{2}\!+\!x_{3}),\quad\ldots</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="S4-eq:Ex28"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S4-eq:Ex38"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex28.m1">\displaystyle\tilde{f}_{3,1}=x_{1},</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex28.m2">\displaystyle\tilde{f}_{3,2}=x_{1}+x_{2},</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex28.m3">\displaystyle\tilde{f}_{3,3}=x_{1}+x_{2}+x_{3}.</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex38.m1">\displaystyle\tilde{f}^{\text{\tiny ee}}_{3,1}=x_{1},</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex38.m2">\displaystyle\tilde{f}^{\text{\tiny ee}}_{3,2}=x_{1}+x_{2},</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex38.m3">\displaystyle\tilde{f}^{\text{\tiny ee}}_{3,3}=x_{1}+x_{2}+x_{3}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
