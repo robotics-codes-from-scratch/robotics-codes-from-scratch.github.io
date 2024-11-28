@@ -1,10 +1,10 @@
 <div class="row"><div class="col-sm-7 offset-1"><div id="txt-col"><h1 class="ltx_title ltx_title_section">
 <span class="ltx_tag ltx_tag_section"><span class="ltx_text">5</span> </span><span class="ltx_text">Inverse kinematics (IK) for a planar robot manipulator</span>
-</h1><figure class="ltx_figure figure_main" id="S5-fig:F10"><a href="online_course/images/transformations01.jpg" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F10.g1" src="online_course/images/small/transformations01.jpg"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 10</span>: </span><span class="ltx_text">Typical transformations involved in a manipulation task involving a robot, a vision system, a visual marker on the object, and a desired grasping location on the object.
+</h1><figure class="ltx_figure figure_main" id="S5-fig:F11"><a href="online_course/images/transformations01.jpg" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F11.g1" src="online_course/images/small/transformations01.jpg"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 11</span>: </span><span class="ltx_text">Typical transformations involved in a manipulation task involving a robot, a vision system, a visual marker on the object, and a desired grasping location on the object.
 </span></figcaption>
 </figure><div class="ltx_para" id="S5-para:p1">
-<p class="ltx_p">We define a manipulation task involving a set of transformations as in Fig. <a class="ltx_ref" href="#S5-fig:F10" title="Figure 10 ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">10</span></a>. By relying on these transformation operators, we will describe all variables in the robot frame of reference (defined by <span class="ltx_Math" id="p1.m1">\bm{0}</span>, <span class="ltx_Math" id="p1.m2">\bm{e}_{1}</span> and <span class="ltx_Math" id="p1.m3">\bm{e}_{2}</span> in the figure).</p>
+<p class="ltx_p">We define a manipulation task involving a set of transformations as in Fig. <a class="ltx_ref" href="#S5-fig:F11" title="Figure 11 ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">11</span></a>. By relying on these transformation operators, we will describe all variables in the robot frame of reference (defined by <span class="ltx_Math" id="p1.m1">\bm{0}</span>, <span class="ltx_Math" id="p1.m2">\bm{e}_{1}</span> and <span class="ltx_Math" id="p1.m3">\bm{e}_{2}</span> in the figure).</p>
 </div><div class="ltx_para" id="S5-para:p2">
 <p class="ltx_p">We first define <span class="ltx_Math" id="p2.m1">\bm{f}(\bm{x})</span> as the residual vector between a target <span class="ltx_Math" id="p2.m2">\bm{\mu}</span> and the endeffector position <span class="ltx_Math" id="p2.m3">\bm{f}^{\text{\tiny ee}}(\bm{x})</span> computed by the forward kinematics function, namely</p>
 <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S5-eq:A5.EGx13">
@@ -90,7 +90,7 @@
 </div><div class="ltx_para" id="S5-para:p5">
 <p class="ltx_p">For the orientation part of the data (if considered), the residual vector <span class="ltx_Math" id="p5.m1">\bm{f}(\bm{x})=\bm{f}^{\text{\tiny ee}}(\bm{x})-\bm{\mu}</span> is replaced by a geodesic residual computed with the logarithmic map <span class="ltx_Math" id="p5.m2">\bm{f}(\bm{x})=\mathrm{Log}_{\bm{\mu}}\!\big(\bm{f}^{\text{\tiny ee}}(\bm{x})\big)</span>, see <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib11" title="Gaussians on Riemannian manifolds: applications for robot learning and adaptive control">3</a>]</cite> for details.</p>
 </div><div class="ltx_para" id="S5-para:p6">
-<p class="ltx_p">The approach can also be extended to target objects/landmarks with positions <span class="ltx_Math" id="p6.m1">\bm{\mu}</span> and rotation matrices <span class="ltx_Math" id="p6.m2">\bm{U}</span>, as depicted in Fig. <a class="ltx_ref" href="#S5-fig:F10" title="Figure 10 ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">10</span></a>. We can then define an error between the robot endeffector and an object/landmark expressed in the object/landmark coordinate system as</p>
+<p class="ltx_p">The approach can also be extended to target objects/landmarks with positions <span class="ltx_Math" id="p6.m1">\bm{\mu}</span> and rotation matrices <span class="ltx_Math" id="p6.m2">\bm{U}</span>, as depicted in Fig. <a class="ltx_ref" href="#S5-fig:F11" title="Figure 11 ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">11</span></a>. We can then define an error between the robot endeffector and an object/landmark expressed in the object/landmark coordinate system as</p>
 <table class="ltx_equationgroup ltx_eqn_table" id="S5-eq:E20">
 <tbody>
 <tr class="ltx_equation ltx_eqn_row ltx_align_baseline" id="E20X">
@@ -122,7 +122,7 @@
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="p8.m2">\alpha</span> can typically be set as a small constant value, by taking into account the desired reactivity and the velocity capability of the robot.</p>
 </div><div class="ltx_para" id="S5-para:p9">
-<p class="ltx_p">For the planar robot manipulator example shown in Fig. <a class="ltx_ref" href="#S4-fig:F9" title="Figure 9 ‣ 4 Forward kinematics (FK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">9</span></a>, the Jacobian <span class="ltx_Math" id="p9.m1">\bm{J}(\bm{x})</span> of the endeffector forward kinematics function <span class="ltx_Math" id="p9.m2">\bm{f}^{\text{\tiny ee}}(\bm{x})</span> can be computed as</p>
+<p class="ltx_p">For the planar robot manipulator example shown in Fig. <a class="ltx_ref" href="#S4-fig:F10" title="Figure 10 ‣ 4 Forward kinematics (FK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">10</span></a>, the Jacobian <span class="ltx_Math" id="p9.m1">\bm{J}(\bm{x})</span> of the endeffector forward kinematics function <span class="ltx_Math" id="p9.m2">\bm{f}^{\text{\tiny ee}}(\bm{x})</span> can be computed as</p>
 <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S5-eq:A5.EGx15">
 <tbody id="S5-eq:Ex41"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
@@ -201,30 +201,30 @@ x_{k},&amp;\text{otherwise},\end{cases}</span></td>
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">5.2</span> </span><span class="ltx_text">Inverse kinematics (IK) with task prioritization</span>
 </h2>
-<figure class="ltx_figure figure_main" id="S5-fig:F11">
+<figure class="ltx_figure figure_main" id="S5-fig:F12">
 <div class="ltx_flex_figure">
 <div class="ltx_flex_cell ltx_flex_size_4">
-<figure class="ltx_figure ltx_figure_panel ltx_align_center" id="S5-fig:F11.sf1"><a href="online_course/images/IK_nullspace01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F11.sf1.g1" src="online_course/images/small/IK_nullspace01.png"/></a>
+<figure class="ltx_figure ltx_figure_panel ltx_align_center" id="S5-fig:F12.sf1"><a href="online_course/images/IK_nullspace01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F12.sf1.g1" src="online_course/images/small/IK_nullspace01.png"/></a>
 <figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">(a)</span> </span><span class="ltx_text">Moving the first joint as secondary task</span></figcaption>
 </figure>
 </div>
 <div class="ltx_flex_cell ltx_flex_size_4">
-<figure class="ltx_figure ltx_figure_panel ltx_align_center" id="S5-fig:F11.sf2"><a href="online_course/images/IK_nullspace02.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_square" id="F11.sf2.g1" src="online_course/images/small/IK_nullspace02.png"/></a>
+<figure class="ltx_figure ltx_figure_panel ltx_align_center" id="S5-fig:F12.sf2"><a href="online_course/images/IK_nullspace02.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_square" id="F12.sf2.g1" src="online_course/images/small/IK_nullspace02.png"/></a>
 <figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">(b)</span> </span><span class="ltx_text">Orientation tracking a as secondary task</span></figcaption>
 </figure>
 </div>
 <div class="ltx_flex_cell ltx_flex_size_4">
-<figure class="ltx_figure ltx_figure_panel ltx_align_center" id="S5-fig:F11.sf3"><a href="online_course/images/IK_nullspace03.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_portrait" id="F11.sf3.g1" src="online_course/images/small/IK_nullspace03.png"/></a>
+<figure class="ltx_figure ltx_figure_panel ltx_align_center" id="S5-fig:F12.sf3"><a href="online_course/images/IK_nullspace03.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_portrait" id="F12.sf3.g1" src="online_course/images/small/IK_nullspace03.png"/></a>
 <figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">(c)</span> </span><span class="ltx_text">Position tracking as secondary task</span></figcaption>
 </figure>
 </div>
 <div class="ltx_flex_cell ltx_flex_size_4">
-<figure class="ltx_figure ltx_figure_panel ltx_align_center" id="S5-fig:F11.sf4"><a href="online_course/images/IK_nullspace04.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F11.sf4.g1" src="online_course/images/small/IK_nullspace04.png"/></a>
+<figure class="ltx_figure ltx_figure_panel ltx_align_center" id="S5-fig:F12.sf4"><a href="online_course/images/IK_nullspace04.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F12.sf4.g1" src="online_course/images/small/IK_nullspace04.png"/></a>
 <figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">(d)</span> </span><span class="ltx_text">Tracking of a moving object with the right hand as secondary task</span></figcaption>
 </figure>
 </div>
 </div>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 11</span>: </span><span class="ltx_text">Examples of nullspace controllers. The red paths represent the trajectories of moving objects that need to be tracked by the robot endeffectors.
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 12</span>: </span><span class="ltx_text">Examples of nullspace controllers. The red paths represent the trajectories of moving objects that need to be tracked by the robot endeffectors.
 </span></figcaption>
 </figure>
 <div class="ltx_para" id="S5-para:SS2.p1">
@@ -269,7 +269,7 @@ x_{k},&amp;\text{otherwise},\end{cases}</span></td>
 <p class="ltx_p">where <span class="ltx_Math" id="SS2.p3.m1">\bm{\tilde{U}}</span> is a matrix formed by the columns of <span class="ltx_Math" id="SS2.p3.m2">\bm{U}</span> that span for the corresponding zero rows in <span class="ltx_Math" id="SS2.p3.m3">\bm{\Sigma}</span>.</p>
 </div>
 <div class="ltx_para" id="S5-para:SS2.p4">
-<p class="ltx_p">Figure <a class="ltx_ref" href="#S5-fig:F11" title="Figure 11 ‣ 5.2 Inverse kinematics (IK) with task prioritization ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">11</span></a> presents examples of nullspace controllers. Figure <a class="ltx_ref" href="#S5-fig:F11.sf1" title="In Figure 11 ‣ 5.2 Inverse kinematics (IK) with task prioritization ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">11(a)</span></a> shows a robot controller keeping its endeffector still as primary objective, while trying to move the first joint as secondary objective, which is achieved with the controller</p>
+<p class="ltx_p">Figure <a class="ltx_ref" href="#S5-fig:F12" title="Figure 12 ‣ 5.2 Inverse kinematics (IK) with task prioritization ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">12</span></a> presents examples of nullspace controllers. Figure <a class="ltx_ref" href="#S5-fig:F12.sf1" title="In Figure 12 ‣ 5.2 Inverse kinematics (IK) with task prioritization ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">12(a)</span></a> shows a robot controller keeping its endeffector still as primary objective, while trying to move the first joint as secondary objective, which is achieved with the controller</p>
 <table class="ltx_equation ltx_eqn_table" id="S5-eq:Ex51">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>

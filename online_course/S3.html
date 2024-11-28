@@ -14,6 +14,10 @@
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">3.1</span> </span><span class="ltx_text">Gradient descent</span>
 </h2>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:F3"><a href="online_course/images/gradientDescent1D01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_square" id="F3.g1" src="online_course/images/small/gradientDescent1D01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 3</span>: </span><span class="ltx_text">Gradient descent for minimization, starting from an initial estimate <span class="ltx_Math" id="F3.m2">x_{1}</span> and converging to a local minimum (red point) after 8 iterations.
+</span></figcaption>
+</figure>
 <figure class="ltx_float ltx_algorithm" id="S3-alg:algorithm1">
 <div class="ltx_listing ltx_lst_numbers_left ltx_listing">
 <div class="ltx_listingline">
@@ -46,10 +50,6 @@
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="SS1.p2.m2">c^{\prime}(x_{k})</span> is the derivative of <span class="ltx_Math" id="SS1.p2.m3">c(x_{k})</span> at point <span class="ltx_Math" id="SS1.p2.m4">x_{k}</span>.</p>
 </div>
-<figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:F3"><a href="online_course/images/gradientDescent1D01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_square" id="F3.g1" src="online_course/images/small/gradientDescent1D01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 3</span>: </span><span class="ltx_text">Gradient descent for minimization, starting from an initial estimate <span class="ltx_Math" id="F3.m2">x_{1}</span> and converging to a local minimum (red point) after 8 iterations.
-</span></figcaption>
-</figure>
 <div class="ltx_para" id="S3-para:SS1.p3">
 <p class="ltx_p">By starting from a point <span class="ltx_Math" id="SS1.p3.m1">x_{k}</span> at each step <span class="ltx_Math" id="SS1.p3.m2">k</span>, we are interested in applying a correction <span class="ltx_Math" id="SS1.p3.m3">\Delta x_{k}</span> that would decrease the cost <span class="ltx_Math" id="SS1.p3.m4">c(x_{k})</span>.
 If the cost function follows a linear trend at point <span class="ltx_Math" id="SS1.p3.m5">x_{k}</span> with a slope defined by its gradient <span class="ltx_Math" id="SS1.p3.m6">c^{\prime}(x_{k})</span>, one direction would increase the cost while the other would decrease it. Thus, by applying a correction <span class="ltx_Math" id="SS1.p3.m7">\Delta x_{k}=-\alpha c^{\prime}(x_{k})</span>, where <span class="ltx_Math" id="SS1.p3.m8">\alpha</span> is a positive scaling factor, we go down the slope estimated at <span class="ltx_Math" id="SS1.p3.m9">x_{k}</span>.</p>
@@ -58,10 +58,15 @@ If the cost function follows a linear trend at point <span class="ltx_Math" id="
 <p class="ltx_p">The scaling factor <span class="ltx_Math" id="SS1.p4.m1">\alpha</span> can be either constant or variable. If <span class="ltx_Math" id="SS1.p4.m2">\alpha</span> is too large, there is the risk that our local linear approximation is not valid anymore when we move far away from <span class="ltx_Math" id="SS1.p4.m3">x_{k}</span>. If it is too small, the iterative algorithm will require many iteration steps to converge to a local minimum of the cost function.</p>
 </div>
 <div class="ltx_para" id="S3-para:SS1.p5">
-<p class="ltx_p">In practice, a simple backtracking line search procedure can be considered with Algorithm <a class="ltx_ref" href="#S3-alg:algorithm1" title="In 3.1 Gradient descent ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">1</span></a>, by considering a small value for <span class="ltx_Math" id="SS1.p5.m1">\alpha_{\min}</span>. For more elaborated methods, see Ch. 3 of <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib19" title="Numerical optimization">13</a>]</cite>.</p>
+<p class="ltx_p">In practice, a simple backtracking line search procedure can be considered with Algorithm <a class="ltx_ref" href="#S3-alg:algorithm1" title="In 3.1 Gradient descent ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">1</span></a>, by considering a small value for <span class="ltx_Math" id="SS1.p5.m1">\alpha_{\min}</span>, see Figure <a class="ltx_ref" href="#S3-fig:F4" title="Figure 4 ‣ Multidimensional case ‣ 3.1 Gradient descent ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">4</span></a>. For more elaborated methods, see Ch. 3 of <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib19" title="Numerical optimization">13</a>]</cite>.</p>
 </div>
+<div class="ltx_pagination ltx_role_newpage"></div>
 <div class="ltx_subsubsection" id="S3-sec:SS1.SSSx1">
 <h3 class="ltx_title ltx_title_subsubsection">Multidimensional case</h3>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:F4"><a href="online_course/images/linesearch01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_square" id="F4.g1" src="online_course/images/small/linesearch01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 4</span>: </span><span class="ltx_text">backtracking line search to scale the update vector <span class="ltx_Math" id="F4.m5">\Delta x_{k}</span> until the update decreases the cost. In this example, by starting with <span class="ltx_Math" id="F4.m6">\alpha=1</span> and by iteratively dividing <span class="ltx_Math" id="F4.m7">\alpha</span> by two, the procedure provides a scaling factor <span class="ltx_Math" id="F4.m8">\alpha=0.25</span>.
+</span></figcaption>
+</figure>
 <div class="ltx_para" id="S3-para:SS1.SSSx1.p1">
 <p class="ltx_p">For functions that depend on multiple variables stored as multidimensional vectors <span class="ltx_Math" id="SS1.SSSx1.p1.m1">\bm{x}</span>, the cost function <span class="ltx_Math" id="SS1.SSSx1.p1.m2">c(\bm{x})</span> can similarly be approximated by a first-order Taylor expansion around the point <span class="ltx_Math" id="SS1.SSSx1.p1.m3">\bm{x}_{k}</span> with</p>
 <table class="ltx_equation ltx_eqn_table" id="S3-eq:Ex9">
@@ -95,12 +100,12 @@ If the cost function follows a linear trend at point <span class="ltx_Math" id="
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">3.2</span> </span><span class="ltx_text">Newton’s method</span>
 </h2>
-<figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:F4"><a href="online_course/images/NewtonMethod1D01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F4.g1" src="online_course/images/small/NewtonMethod1D01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 4</span>: </span><span class="ltx_text">Newton’s method for minimization, starting from an initial estimate <span class="ltx_Math" id="F4.m2">x_{1}</span> and converging to a local minimum (red point) after 5 iterations.
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:F5"><a href="online_course/images/NewtonMethod1D01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F5.g1" src="online_course/images/small/NewtonMethod1D01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 5</span>: </span><span class="ltx_text">Newton’s method for minimization, starting from an initial estimate <span class="ltx_Math" id="F5.m2">x_{1}</span> and converging to a local minimum (red point) after 5 iterations.
 </span></figcaption>
 </figure>
 <div class="ltx_para" id="S3-para:SS2.p1">
-<p class="ltx_p">Figure <a class="ltx_ref" href="#S3-fig:F4" title="Figure 4 ‣ 3.2 Newton’s method ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">4</span></a> shows how consecutive <span class="ltx_text ltx_font_bold">second-order Taylor approximations</span> of <span class="ltx_Math" id="SS2.p1.m1">c(x)</span> around the iterates allow to solve a minimization problem.</p>
+<p class="ltx_p">Figure <a class="ltx_ref" href="#S3-fig:F5" title="Figure 5 ‣ 3.2 Newton’s method ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">5</span></a> shows how consecutive <span class="ltx_text ltx_font_bold">second-order Taylor approximations</span> of <span class="ltx_Math" id="SS2.p1.m1">c(x)</span> around the iterates allow to solve a minimization problem.</p>
 </div>
 <div class="ltx_para" id="S3-para:SS2.p2">
 <p class="ltx_p">The second-order Taylor expansion around the point <span class="ltx_Math" id="SS2.p2.m1">x_{k}</span> can be expressed as</p>
@@ -118,7 +123,7 @@ If the cost function follows a linear trend at point <span class="ltx_Math" id="
 <p class="ltx_p">We are interested in solving minimization problems with this approximation. If the second derivative <span class="ltx_Math" id="SS2.p3.m1">c^{\prime\prime}(x_{k})</span> is positive, the quadratic approximation is a convex function of <span class="ltx_Math" id="SS2.p3.m2">\Delta x_{k}</span>, and its minimum can be found by setting the derivative to zero.</p>
 </div>
 <div class="ltx_para" id="S3-para:SS2.p4">
-<p class="ltx_p">Indeed, to find the local optima of a function, we can localize the points whose derivatives are zero (horizontal slopes), see Figure <a class="ltx_ref" href="#S3-fig:F5" title="Figure 5 ‣ 3.2 Newton’s method ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">5</span></a> for an illustration.</p>
+<p class="ltx_p">Indeed, to find the local optima of a function, we can localize the points whose derivatives are zero (horizontal slopes), see Figure <a class="ltx_ref" href="#S3-fig:F6" title="Figure 6 ‣ 3.2 Newton’s method ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">6</span></a> for an illustration.</p>
 </div>
 <div class="ltx_para" id="S3-para:SS2.p5">
 <p class="ltx_p">By differentiating (<a class="ltx_ref" href="#S3-eq:E4" title="In 3.2 Newton’s method ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">4</span></a>) w.r.t. <span class="ltx_Math" id="SS2.p5.m1">\Delta x_{k}</span> and equating to zero, we then obtain</p>
@@ -139,8 +144,8 @@ If the cost function follows a linear trend at point <span class="ltx_Math" id="
 </table>
 <p class="ltx_p">which corresponds to the offset to apply to <span class="ltx_Math" id="SS2.p5.m2">x_{k}</span> to minimize the second-order polynomial approximation of the cost at this point.</p>
 </div>
-<figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:F5"><a href="online_course/images/optim_principle01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F5.g1" src="online_course/images/small/optim_principle01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 5</span>: </span><span class="ltx_text">Finding local optima.
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:F6"><a href="online_course/images/optim_principle01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F6.g1" src="online_course/images/small/optim_principle01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 6</span>: </span><span class="ltx_text">Finding local optima.
 </span></figcaption>
 </figure>
 <div class="ltx_para" id="S3-para:SS2.p6">
@@ -154,12 +159,12 @@ If the cost function follows a linear trend at point <span class="ltx_Math" id="
 </tr></tbody>
 </table>
 </div>
-<figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:F6"><a href="online_course/images/NewtonMethod_negativeHessian01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_square" id="F6.g1" src="online_course/images/small/NewtonMethod_negativeHessian01.png"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 6</span>: </span><span class="ltx_text">Newton update that would be achieved when the second derivative is negative.
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:F7"><a href="online_course/images/NewtonMethod_negativeHessian01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_square" id="F7.g1" src="online_course/images/small/NewtonMethod_negativeHessian01.png"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 7</span>: </span><span class="ltx_text">Newton update that would be achieved when the second derivative is negative.
 </span></figcaption>
 </figure>
 <div class="ltx_para" id="S3-para:SS2.p7">
-<p class="ltx_p">It is important that at each iteration, <span class="ltx_Math" id="SS2.p7.m1">c^{\prime\prime}(x_{k})</span> is positive, as we want to find local minima, see Figure <a class="ltx_ref" href="#S3-fig:F6" title="Figure 6 ‣ 3.2 Newton’s method ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">6</span></a> for an illustration. If <span class="ltx_Math" id="SS2.p7.m2">c^{\prime\prime}(x_{k})</span> is negative or too close to 0, it is in practice replaced by as small positive value in (<a class="ltx_ref" href="#S3-eq:E5" title="In 3.2 Newton’s method ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">5</span></a>).</p>
+<p class="ltx_p">It is important that at each iteration, <span class="ltx_Math" id="SS2.p7.m1">c^{\prime\prime}(x_{k})</span> is positive, as we want to find local minima, see Figure <a class="ltx_ref" href="#S3-fig:F7" title="Figure 7 ‣ 3.2 Newton’s method ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">7</span></a> for an illustration. If <span class="ltx_Math" id="SS2.p7.m2">c^{\prime\prime}(x_{k})</span> is negative or too close to 0, it is in practice replaced by as small positive value in (<a class="ltx_ref" href="#S3-eq:E5" title="In 3.2 Newton’s method ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">5</span></a>).</p>
 </div>
 <div class="ltx_para" id="S3-para:SS2.p8">
 <p class="ltx_p">The geometric interpretation of Newton’s method is that at each iteration, it amounts to the fitting of a paraboloid to the surface of <span class="ltx_Math" id="SS2.p8.m1">c(x)</span> at <span class="ltx_Math" id="SS2.p8.m2">x_{k}</span>, having the same slopes and curvature as the surface at that point, and then proceeding to the maximum or minimum of that paraboloid. Note that if <span class="ltx_Math" id="SS2.p8.m3">c(x)</span> is a quadratic function, then the exact extremum is found in one step, which corresponds to the resolution of a least-squares problem.</p>
@@ -169,8 +174,8 @@ If the cost function follows a linear trend at point <span class="ltx_Math" id="
 </div>
 <div class="ltx_subsubsection" id="S3-sec:SS2.SSSx1">
 <h3 class="ltx_title ltx_title_subsubsection">Multidimensional case</h3>
-<figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:F7"><a href="online_course/images/NewtonMethod2D01.jpg" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F7.g1" src="online_course/images/small/NewtonMethod2D01.jpg"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 7</span>: </span><span class="ltx_text">Newton’s method for minimization with 2D decision variables.
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S3-fig:F8"><a href="online_course/images/NewtonMethod2D01.jpg" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F8.g1" src="online_course/images/small/NewtonMethod2D01.jpg"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 8</span>: </span><span class="ltx_text">Newton’s method for minimization with 2D decision variables.
 </span></figcaption>
 </figure>
 <div class="ltx_para" id="S3-para:SS2.SSSx1.p1">
@@ -214,7 +219,7 @@ If the cost function follows a linear trend at point <span class="ltx_Math" id="
 </table>
 </div>
 <div class="ltx_para" id="S3-para:SS2.SSSx1.p2">
-<p class="ltx_p">We are interested in solving minimization problems with this approximation. If the Hessian matrix <span class="ltx_Math" id="SS2.SSSx1.p2.m1">\bm{H}(\bm{x}_{k})</span> is positive definite, the quadratic approximation is a convex function of <span class="ltx_Math" id="SS2.SSSx1.p2.m2">\Delta\bm{x}_{k}</span>, and its minimum can be found by setting the derivatives to zero, see Figure <a class="ltx_ref" href="#S3-fig:F7" title="Figure 7 ‣ Multidimensional case ‣ 3.2 Newton’s method ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">7</span></a>.</p>
+<p class="ltx_p">We are interested in solving minimization problems with this approximation. If the Hessian matrix <span class="ltx_Math" id="SS2.SSSx1.p2.m1">\bm{H}(\bm{x}_{k})</span> is positive definite, the quadratic approximation is a convex function of <span class="ltx_Math" id="SS2.SSSx1.p2.m2">\Delta\bm{x}_{k}</span>, and its minimum can be found by setting the derivatives to zero, see Figure <a class="ltx_ref" href="#S3-fig:F8" title="Figure 8 ‣ Multidimensional case ‣ 3.2 Newton’s method ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">8</span></a>.</p>
 </div>
 <div class="ltx_para" id="S3-para:SS2.SSSx1.p3">
 <p class="ltx_p">By differentiating (<a class="ltx_ref" href="#S3-eq:E6" title="In Multidimensional case ‣ 3.2 Newton’s method ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">6</span></a>) w.r.t. <span class="ltx_Math" id="SS2.SSSx1.p3.m1">\Delta\bm{x}_{k}</span> and equation to zero, we obtain that</p>
@@ -241,12 +246,12 @@ If the cost function follows a linear trend at point <span class="ltx_Math" id="
 <div class="ltx_para" id="S3-para:SS2.SSSx1.p5">
 <p class="ltx_p">In practice, we need to verify if the Hessian matrix <span class="ltx_Math" id="SS2.SSSx1.p5.m1">\bm{H}(\bm{x}_{k})</span> is positive definite at each iteration step.</p>
 </div>
-<figure class="ltx_figure figure_main" id="S3-fig:F8"><a href="online_course/images/gradientDescent_vs_NewtonMethod01.jpg" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_square" id="F8.g1" src="online_course/images/small/gradientDescent_vs_NewtonMethod01.jpg"/></a>
-<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 8</span>: </span><span class="ltx_text">Convergence of gradient descent and Newton’s method to solve minimization problems.
+<figure class="ltx_figure figure_main" id="S3-fig:F9"><a href="online_course/images/gradientDescent_vs_NewtonMethod01.jpg" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_square" id="F9.g1" src="online_course/images/small/gradientDescent_vs_NewtonMethod01.jpg"/></a>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 9</span>: </span><span class="ltx_text">Convergence of gradient descent and Newton’s method to solve minimization problems.
 </span></figcaption>
 </figure>
 <div class="ltx_para" id="S3-para:SS2.SSSx1.p6">
-<p class="ltx_p">Figure <a class="ltx_ref" href="#S3-fig:F8" title="Figure 8 ‣ Multidimensional case ‣ 3.2 Newton’s method ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">8</span></a> shows the iteration steps taken by gradient descent and Newton’s method to solve two minimization problems. The minimization problem in the first row is a quadratic cost function, where Newton’s method converges in one iteration, while gradient descent requires multiple oscillatory steps to reach the minimum.</p>
+<p class="ltx_p">Figure <a class="ltx_ref" href="#S3-fig:F9" title="Figure 9 ‣ Multidimensional case ‣ 3.2 Newton’s method ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">9</span></a> shows the iteration steps taken by gradient descent and Newton’s method to solve two minimization problems. The minimization problem in the first row is a quadratic cost function, where Newton’s method converges in one iteration, while gradient descent requires multiple oscillatory steps to reach the minimum.</p>
 </div>
 </div>
 </div><div class="ltx_subsection" id="S3-sec:SS3">
