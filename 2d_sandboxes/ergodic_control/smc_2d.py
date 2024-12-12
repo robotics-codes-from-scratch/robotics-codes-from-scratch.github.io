@@ -77,7 +77,7 @@ def update():
     x_prev = x.copy()
 
     # Retrieve the command
-    u, wt = controlCommand(x, t, wt, param)
+    u, wt = control(x, t, wt, param)
 
     # Update of the position
     x += u * param.dt

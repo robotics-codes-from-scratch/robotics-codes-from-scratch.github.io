@@ -3,7 +3,85 @@
 
     <div class="col-sm-7">
         <h3>Impedance control</h3>
+        <div class="card block" id="instructionBlock">
 
+            <div class="card-header">
+                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
+                    Instructions
+                </button>
+                <div class="commands">
+                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/impedance_control.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">Download standalone example</a>
+                </div>
+            </div>
+
+            <div id="instructions" class="collapse card-body instructions">
+                <h5>General information</h5>
+
+                <p>
+                    Impedance control in (i) joint space, (ii) task space, and (iii) task space with a target specified by a SDF.
+                </p>
+
+                
+                <p>See <a href="#S11">Torque-controlled robots</a> for more information about impedance control.</p>
+
+                <h5>Coding information</h5>
+
+                <div>
+                    
+                    <p class="text-center">
+                        <img style="width:80%;" src="static_images/code_schema.png"/>
+                    </p>
+
+                    <p>
+                        As described by the figure above, the <code class="inline_code">control</code> function in the cell below is called repeatedly at a fixed frequency.
+                    </p>
+
+                    <p>
+                        In the cell below, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
+                        You can also download the standalone Python example to test it on your machine.
+                    </p>
+
+                    <p>
+                        The example is a smaller part of a larger Python script that is hidden from you. To properly interact with the script, we list below the functions and variables you can use in the interactive cell.
+                    </p>
+
+
+                    <h6>Available functions</h6>
+                    <ul>
+                        <li>
+                            <code class="inline_code">fkin(x)</code>: this function performs the forward kinematics from a given joint configuration
+                            (i.e. the input parameter, a list of floats). It returns a list of float containing the end-effector position and orientation
+                            (<code class="inline_code">[ee_position_x, ee_position_y, ee_orientation]</code>).
+                        </li>
+                        <li>
+                            <code class="inline_code">Jkin(x)</code>: this function computes the robot's jacobian matrix for a given joint configuration
+                            (i.e. the input parameter, a list of floats). It returns the jacobian matrix.
+                        </li>
+                    </ul>
+                    <h6>Global variables</h6>
+                    <ul>
+                        <li><code class="inline_code">x</code>: the current joint configuration of the robot as a list of floats.</li>
+                        <li><code class="inline_code">param</code>: a struct containing the example configuration. We recommend to only read this struct 
+                            without modifying it. The most useful struct members are:
+                            <ul>
+                                <li><code class="inline_code">param.nbVarX</code>: the joint space dimension.</li>
+                                <li><code class="inline_code">param.nbVarF</code>: the task space dimension.</li>
+                                <li><code class="inline_code">param.Mu</code>: the target positions.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+
+                <h5>Control</h5>
+
+                <ul>
+                    <li>Click on the green run button to execute the code.</li>
+                    <li>The robot can be perturbed using the mouse, either by dragging the links or rotating the joints using the mouse wheel.</li>
+                </ul>
+            </div>
+
+        </div>
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
                 <button aria-controls="impedance-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#impedance-tab-pane" data-bs-toggle="tab" id="impedance-tab" role="tab" type="button">Impedance in joint space</button>
@@ -35,22 +113,6 @@
             <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
         </div>
 
-        <div style="margin-bottom: 10px;">
-            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
-                Instructions
-            </button>
-        </div>
-
-        <div id="instructions" class="collapse instructions">
-            <div class="card card-body">
-                <h5>Control</h5>
-                <p>Click on the green run button to execute the code.</p>
-                <p>The robot can be perturbed using the mouse, either by dragging the links or rotating the joints using the mouse wheel.</p>
-                <h5>Information</h5>
-                <p>See <a href="#S10">Torque-controlled robots</a> for more information about impedance control.</p>
-            </div>
-        </div>
-
         <pre id="errors" class="py-error"></pre>
         <pre id="output" class="py-output"></pre>
     </div>
@@ -67,6 +129,7 @@
 
 
 <script id="user_code_impedance" type="python">
+    # Initialization
     #x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
     x_target = np.array([-np.pi/4, -np.pi/2, np.pi/4]) # Target in joint space
 
@@ -78,7 +141,8 @@
     KP = np.diag([4E2, 4E2, 4E2]) # Joint space stiffness matrix
     KV = np.diag([1E1, 1E1, 1E1]) # Joint space damping matrix
 
-    def controlCommand(x, param):
+    # Control loop definition
+    def control(x, param):
         # Torques for gravity compensation
         #ug = inverse_dynamics(np.append(x[:param.nbVarX], np.zeros(param.nbVarX)), np.zeros(param.nbVarX), param) 
         ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
@@ -89,13 +153,15 @@
 
 
 <script id="user_code_taskimpedance" type="python">
+    # Initialization
     x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
     f_target = fkin(np.array([-np.pi/4, -np.pi/2, np.pi/4]), param) # Target in task space
 
     KP = np.diag([4E-2, 4E-2, 4E2]) # Task space stiffness (position and orientation)
     KV = np.diag([1E-3, 1E-3, 1E1]) # Task space damping (position and orientation)
 
-    def controlCommand(x, param):
+    # Control loop definition
+    def control(x, param):
         ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
         f = fkin(x[:param.nbVarX], param) # Forward kinematics
         J = Jkin(x[:param.nbVarX], param) # Corresponding Jacobian matrix
@@ -120,7 +186,7 @@
     KP0 = np.copy(KP)
     KV = np.diag([1E-3, 1E-3, 1E1]) # Task space damping (position and orientation)
 
-    def controlCommand(x, param):
+    def control(x, param):
         global KP
         ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
         f = fkin(x[:param.nbVarX], param) # Forward kinematics
@@ -329,7 +395,7 @@
         ddx = np.linalg.inv(M) @ (u + G + C @ (L @ x[param.nbVarX:])**2 - x[param.nbVarX:] * param.damping)
         return ddx
 
-    def controlCommand(x, param):
+    def control(x, param):
         u = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
     #   u = np.zeros(param.nbVarX)
         return u
@@ -600,7 +666,7 @@
         global hover_joint, x
 
         try:
-            u = controlCommand(x, param) + externalPerturbation(x, param) # Torque commands
+            u = control(x, param) + externalPerturbation(x, param) # Torque commands
             ddx = fdyn(x, u, param) # Compute accelerations
             x += np.append(x[param.nbVarX:] + 0.5 * ddx * param.dt, ddx) * param.dt # Update state
         except Exception as e:

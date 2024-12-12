@@ -1,8 +1,10 @@
+# Initialization
 # Number of gaussians
 param.nbGaussian = 2
 
 
-def controlCommand(x, t, wt, param):
+# Control loop definition
+def control(x, t, wt, param):
     # Depends on the current position only here, outputs: dphi, phix, phiy
     ang = x[:, np.newaxis] * param.rg * param.omega
     phi1 = np.cos(ang)

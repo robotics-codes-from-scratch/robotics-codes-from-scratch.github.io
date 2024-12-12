@@ -25,10 +25,11 @@
 
 
 <script id="page_code" type="python">
-    from viewer3d import Viewer3D, configs, logmap_S3, logmap
+    from viewer3d import Viewer3D, configs, logmap_S3, logmap, Layers, Passes, OutlinePass
     from rcfs import configure, setAspectRatio
-    from js import document, katex
+    from js import document, katex, three
     import numpy as np
+    from pyodide.ffi import to_js
 
 
     joint_colors = ['#FF0000', '#FFC700', '#C71585', '#00FF00', '#0000FF', '#1E90FF', '#66CDAA']
@@ -115,7 +116,7 @@
         f3 = np.zeros((N, 3))
         f3[:,2] = ee_pos[2,:]
 
-        viewer3D.activateLayer(3)
+        viewer3D.activateLayer(Layers.Top)
         viewer3D.addPath('ee', ee_pos[:3,:].T, radius=0.007, color='#000000', shading=True)
         viewer3D.addPath('f1', f1, radius=0.007, color=f_colors[0], shading=True)
         viewer3D.addPath('f2', f2, radius=0.007, color=f_colors[1], shading=True)
@@ -135,21 +136,7 @@
             joint_position_layer=2,
             robot_use_light_toon_shader=True,
             external_loop=True,
-        ),
-        composition=[
-            dict(
-                layer=1,
-                effect='outline',
-                effect_parameters=dict(
-                    thickness=0.001,
-                    color=[0.5, 0.5, 0.5, 0.0]
-                ),
-            ),
-            dict(
-                layer=3,
-                clear_depth=True,
-            )
-        ],
+        )
     )
 
     viewer3D.setRenderingCallback(update, 0.01)
@@ -158,7 +145,7 @@
     viewer3D.loadScene('/scenes/panda.xml')
     viewer3D.translateCamera([0, 0, 0.3])
 
-    viewer3D.activateLayer(1)
+    viewer3D.activateLayer(Layers.NoShadows)
     robot = viewer3D.createRobot('panda', configs.Panda.new(), parameters=dict(use_light_toon_shader=True))
 
     # Disable the manipulation of the robot by the user
@@ -213,6 +200,18 @@
     viewer3D.addPath('xaxis', [[0, 0, 0], [1, 0, 0]], radius=0.002, color='#333333')
     viewer3D.addPath('yaxis', [[0, 0, 0], [0, 1, 0]], radius=0.002, color='#333333')
     viewer3D.addPath('zaxis', [[0, 0, 0], [0, 0, 1]], radius=0.002, color='#333333')
+
+
+    # Add an Outline pass
+    size = three.Vector2.new()
+    viewer3D.renderer.getSize(size)
+
+    outlinePass = OutlinePass.new(size, viewer3D.scene, viewer3D.camera, viewer3D.transformControls, to_js(robot.meshes))
+    outlinePass.visibleEdgeColor = three.Color.new(0.5, 0.5, 0.5)
+    outlinePass.hiddenEdgeColor = three.Color.new(0.5, 0.5, 0.5)
+    outlinePass.edgeStrength = 5.0
+    outlinePass.edgeThickness = 1.0
+    viewer3D.addPassBefore(outlinePass, Passes.TopRenderPass)
 
 
     async def loop(delta, time):

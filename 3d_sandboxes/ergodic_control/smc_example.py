@@ -31,7 +31,7 @@ def ergodicControl(x, t, wt, param):
     return x, wt
 
 
-def controlCommand(x, t, wt, param):
+def control(x, t, wt, param):
     J = Jkin(x)
     f = fkin(x)
 

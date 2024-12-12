@@ -3,28 +3,63 @@
 
     <div class="col-sm-5">
         <h3>Physics</h3>
+        <div class="card block" id="instructionBlock">
 
+            <div class="card-header">
+                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
+                    Instructions
+                </button>
+            </div>
+
+            <div id="instructions" class="collapse card-body instructions">
+                <h5>General information</h5>
+                <p>
+                    Physics integration in online example.
+                </p>
+
+                <h5>Coding information</h5>
+
+                <div>
+                    
+                    <p class="text-center">
+                        <img style="width:80%;" src="static_images/code_schema.png"/>
+                    </p>
+
+                    <p>
+                        As described by the figure above, the <code class="inline_code">control</code> function in the cell below is called repeatedly at a fixed frequency.
+                    </p>
+
+                    <p>
+                        In the cell below, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
+                        You can also download the standalone Python example to test it on your machine.
+                    </p>
+
+                    <p>
+                        The example is a smaller part of a larger Python script that is hidden from you. To properly interact with the script, we list below the functions and variables you can use in the interactive cell.
+                    </p>
+
+                    <h6>Global variables</h6>
+                    <ul>
+                        <li><code class="inline_code">x</code>: the current joint configuration of the robot as a list of floats.</li>
+                    </ul>
+                </div>
+
+                <h5>Control</h5>
+
+                <ul>
+                    <li>Click on the green run button to execute the code.</li>
+                    <li>Clicking on the end-effector makes a translation/rotation widget appears. The behavior of this widget can be changed using the buttons at the top.</li>
+                    <li>Individual links can be controlled (using inverse kinematics) by dragging them with the mouse. The mouse wheel allows to rotate the corresponding joint while hovering a link.</li>
+                    <li>To rotate the camera, press the left mouse button and drag the mouse. The right mouse button let you translate the camera. The mouse wheel let you zoom in/out.</li>
+                </ul>
+            </div>
+
+        </div>
         <editor id="editor" src="user_code"></editor>
 
         <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
             <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
             <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
-        </div>
-
-        <div style="margin-bottom: 10px;">
-            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
-                Instructions
-            </button>
-        </div>
-
-        <div id="instructions" class="collapse instructions">
-            <div class="card card-body">
-                <h5>Control</h5>
-                <p>Click on the green run button to execute the code.</p>
-                <p>Clicking on the end-effector makes a translation/rotation widget appears. The behavior of this widget can be changed using the buttons at the top.</p>
-                <p>Individual links can be controlled (using inverse kinematics) by dragging them with the mouse. The mouse wheel allows to rotate the corresponding joint while hovering a link.</p>
-                <p>To rotate the camera, press the left mouse button and drag the mouse. The right mouse button let you translate the camera. The mouse wheel let you zoom in/out.</p>
-            </div>
         </div>
 
         <pre id="errors" class="py-error"></pre>
@@ -40,7 +75,8 @@
 
 
 <script id="user_code" type="python">
-    def controlCommand(x):
+    # Control loop definition
+    def control(x):
         u = np.zeros(x.shape)
         u[0] = 1.0
 
@@ -72,7 +108,7 @@
             elif not isinstance(x, np.ndarray):
                 x = np.array(x)
 
-            u = controlCommand(x)
+            u = control(x)
 
             x += u * delta
             robot.jointPositions = x
@@ -104,7 +140,7 @@
     reset()
 
     # Placeholder for the function to implement
-    def controlCommand(x):
+    def control(x):
         return np.zeros(x.shape)
 
     def stopControl():

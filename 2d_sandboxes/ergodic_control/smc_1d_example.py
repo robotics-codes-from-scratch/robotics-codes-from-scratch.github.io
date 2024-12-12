@@ -1,3 +1,4 @@
+# Initialization
 def initialState():
     """The initial state, customize it to your liking"""
 
@@ -17,7 +18,8 @@ def initialState():
     return (x0, Mu, Sigma)
 
 
-def controlCommand(x, t, wt, param):
+# Control loop definition
+def control(x, t, wt, param):
     # Fourier basis functions and derivatives for each dimension
     # (only cosine part on [0,L/2] is computed since the signal
     # is even and real by construction)

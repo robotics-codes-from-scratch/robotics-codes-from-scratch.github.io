@@ -15,6 +15,49 @@
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
+</div><div class="ltx_para" id="S5-para:p3">
+<p class="ltx_p">The <em class="ltx_emph ltx_font_italic">inverse kinematics</em> (IK) problem consists of finding a robot pose to reach a target with the robot endeffector. The underlying optimization problem consists of minimizing a cost <span class="ltx_Math" id="p3.m1">c(\bm{x})=\|\bm{f}(\bm{x})\|^{2}=\bm{f}(\bm{x})^{\scriptscriptstyle\top}\bm{f}(\bm{x})</span>, which can be solved iteratively with a Gauss–Newton method.</p>
+</div><div class="ltx_para" id="S5-para:p4">
+<p class="ltx_p">As seen in Section <a class="ltx_ref" href="#S3-sec:SS3" title="3.3 Gauss–Newton algorithm ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">3.3</span></a>, by differentiating <span class="ltx_Math" id="p4.m1">c(\bm{x})</span> with respect to <span class="ltx_Math" id="p4.m2">\bm{x}</span> and equating to 0, we get an update rule as in (<a class="ltx_ref" href="#S3-eq:E9" title="In Multidimensional case ‣ 3.2 Newton’s method ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">9</span></a>), namely</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S5-eq:A5.EGx14">
+<tbody id="S5-eq:Ex40"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex40.m1">\displaystyle\bm{x}_{k+1}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex40.m2">\displaystyle=\bm{x}_{k}-{\big(\bm{J}^{\scriptscriptstyle\top}(\bm{x}_{k})\bm{J}(\bm{x}_{k})\big)}^{-1}\,\bm{J}^{\scriptscriptstyle\top}(\bm{x}_{k})\,\bm{f}(\bm{x}_{k})</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="S5-eq:E19"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_eqn_cell"></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E19.m1">\displaystyle=\bm{x}_{k}-\bm{J}^{\dagger}(\bm{x}_{k})\,\big(\bm{f}^{\text{\tiny ee}}(\bm{x}_{k})-\bm{\mu}\big),</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(19)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <span class="ltx_Math" id="p4.m3">\bm{J}\in\mathbb{R}^{R\times D}</span> is the Jacobian matrix of <span class="ltx_Math" id="p4.m4">\bm{f}\in\mathbb{R}^{R}</span>, and <span class="ltx_Math" id="p4.m5">\bm{J}^{\dagger}</span> denotes the pseudoinverse of <span class="ltx_Math" id="p4.m6">\bm{J}</span>.</p>
+</div><div class="ltx_para" id="S5-para:p5">
+<p class="ltx_p">For the orientation part of the data (if considered), the residual vector <span class="ltx_Math" id="p5.m1">\bm{f}(\bm{x})=\bm{f}^{\text{\tiny ee}}(\bm{x})-\bm{\mu}</span> is replaced by a geodesic residual computed with the logarithmic map <span class="ltx_Math" id="p5.m2">\bm{f}(\bm{x})=\mathrm{Log}_{\bm{\mu}}\!\big(\bm{f}^{\text{\tiny ee}}(\bm{x})\big)</span>, see <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib11" title="Gaussians on Riemannian manifolds: applications for robot learning and adaptive control">3</a>]</cite> for details.</p>
+</div><div class="ltx_para" id="S5-para:p6">
+<p class="ltx_p">The approach can also be extended to target objects/landmarks with positions <span class="ltx_Math" id="p6.m1">\bm{\mu}</span> and rotation matrices <span class="ltx_Math" id="p6.m2">\bm{U}</span>, as depicted in Fig. <a class="ltx_ref" href="#S5-fig:F11" title="Figure 11 ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">11</span></a>. We can then define an error between the robot endeffector and an object/landmark expressed in the object/landmark coordinate system as</p>
+<table class="ltx_equationgroup ltx_eqn_table" id="S5-eq:E20">
+<tbody>
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline" id="E20X">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E20X.m2">\displaystyle\bm{f}(\bm{x})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E20X.m3">\displaystyle=\bm{U}^{\scriptscriptstyle\top}\big(\bm{f}^{\text{\tiny ee}}(\bm{x})-\bm{\mu}\big),</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="2"><span class="ltx_tag ltx_tag_equationgroup ltx_align_right">(20)</span></td>
+</tr>
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline" id="E20Xa">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E20Xa.m2">\displaystyle\bm{J}(\bm{x})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E20Xa.m3">\displaystyle=\bm{U}^{\scriptscriptstyle\top}\bm{J}^{\text{\tiny ee}}(\bm{x}).</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr>
+</tbody>
+</table>
+</div><div class="ltx_para" id="S5-para:p7">
+<p class="ltx_p">The inverse kinematics update in (<a class="ltx_ref" href="#S5-eq:E19" title="In 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">19</span></a>) can also be used to compute controllers.</p>
 </div><table style="width: 100%;">
 <tbody>
 <tr>
@@ -66,51 +109,7 @@
 </tr>
 </tbody>
 </table>
-<div class="ltx_para" id="S5-para:p3">
-<p class="ltx_p">The <em class="ltx_emph ltx_font_italic">inverse kinematics</em> (IK) problem consists of finding a robot pose to reach a target with the robot endeffector. The underlying optimization problem consists of minimizing a cost <span class="ltx_Math" id="p3.m1">c(\bm{x})=\|\bm{f}(\bm{x})\|^{2}=\bm{f}(\bm{x})^{\scriptscriptstyle\top}\bm{f}(\bm{x})</span>, which can be solved iteratively with a Gauss–Newton method.</p>
-</div><canvas class="ltx_centering" height="400px" id="canvas_ik2d" width="400px"></canvas>
-<div class="ltx_para" id="S5-para:p4">
-<p class="ltx_p">As seen in Section <a class="ltx_ref" href="#S3-sec:SS3" title="3.3 Gauss–Newton algorithm ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">3.3</span></a>, by differentiating <span class="ltx_Math" id="p4.m1">c(\bm{x})</span> with respect to <span class="ltx_Math" id="p4.m2">\bm{x}</span> and equating to 0, we get an update rule as in (<a class="ltx_ref" href="#S3-eq:E9" title="In Multidimensional case ‣ 3.2 Newton’s method ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">9</span></a>), namely</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S5-eq:A5.EGx14">
-<tbody id="S5-eq:Ex40"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex40.m1">\displaystyle\bm{x}_{k+1}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex40.m2">\displaystyle=\bm{x}_{k}-{\big(\bm{J}^{\scriptscriptstyle\top}(\bm{x}_{k})\bm{J}(\bm{x}_{k})\big)}^{-1}\,\bm{J}^{\scriptscriptstyle\top}(\bm{x}_{k})\,\bm{f}(\bm{x}_{k})</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr></tbody>
-<tbody id="S5-eq:E19"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E19.m1">\displaystyle=\bm{x}_{k}-\bm{J}^{\dagger}(\bm{x}_{k})\,\big(\bm{f}^{\text{\tiny ee}}(\bm{x}_{k})-\bm{\mu}\big),</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(19)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">where <span class="ltx_Math" id="p4.m3">\bm{J}\in\mathbb{R}^{R\times D}</span> is the Jacobian matrix of <span class="ltx_Math" id="p4.m4">\bm{f}\in\mathbb{R}^{R}</span>, and <span class="ltx_Math" id="p4.m5">\bm{J}^{\dagger}</span> denotes the pseudoinverse of <span class="ltx_Math" id="p4.m6">\bm{J}</span>.</p>
-</div><div class="ltx_para" id="S5-para:p5">
-<p class="ltx_p">For the orientation part of the data (if considered), the residual vector <span class="ltx_Math" id="p5.m1">\bm{f}(\bm{x})=\bm{f}^{\text{\tiny ee}}(\bm{x})-\bm{\mu}</span> is replaced by a geodesic residual computed with the logarithmic map <span class="ltx_Math" id="p5.m2">\bm{f}(\bm{x})=\mathrm{Log}_{\bm{\mu}}\!\big(\bm{f}^{\text{\tiny ee}}(\bm{x})\big)</span>, see <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib11" title="Gaussians on Riemannian manifolds: applications for robot learning and adaptive control">3</a>]</cite> for details.</p>
-</div><div class="ltx_para" id="S5-para:p6">
-<p class="ltx_p">The approach can also be extended to target objects/landmarks with positions <span class="ltx_Math" id="p6.m1">\bm{\mu}</span> and rotation matrices <span class="ltx_Math" id="p6.m2">\bm{U}</span>, as depicted in Fig. <a class="ltx_ref" href="#S5-fig:F11" title="Figure 11 ‣ 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">11</span></a>. We can then define an error between the robot endeffector and an object/landmark expressed in the object/landmark coordinate system as</p>
-<table class="ltx_equationgroup ltx_eqn_table" id="S5-eq:E20">
-<tbody>
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline" id="E20X">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E20X.m2">\displaystyle\bm{f}(\bm{x})</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E20X.m3">\displaystyle=\bm{U}^{\scriptscriptstyle\top}\big(\bm{f}^{\text{\tiny ee}}(\bm{x})-\bm{\mu}\big),</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="2"><span class="ltx_tag ltx_tag_equationgroup ltx_align_right">(20)</span></td>
-</tr>
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline" id="E20Xa">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E20Xa.m2">\displaystyle\bm{J}(\bm{x})</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E20Xa.m3">\displaystyle=\bm{U}^{\scriptscriptstyle\top}\bm{J}^{\text{\tiny ee}}(\bm{x}).</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr>
-</tbody>
-</table>
-</div><div class="ltx_para" id="S5-para:p7">
-<p class="ltx_p">The inverse kinematics update in (<a class="ltx_ref" href="#S5-eq:E19" title="In 5 Inverse kinematics (IK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">19</span></a>) can also be used to compute controllers.</p>
-</div><div class="ltx_para" id="S5-para:p8">
+<div class="ltx_para" id="S5-para:p8">
 <p class="ltx_p">For a manipulator controlled by joint angle velocity commands <span class="ltx_Math" id="p8.m1">\bm{u}=\bm{\dot{x}}\approx\frac{\bm{\Delta}\bm{x}}{\Delta t}</span>, we can for example define a controller</p>
 <table class="ltx_equation ltx_eqn_table" id="S5-eq:E21">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
@@ -173,7 +172,8 @@ J_{3,1}&amp;J_{3,2}&amp;J_{3,3}&amp;\ldots\\
 <span class="ltx_tag ltx_tag_listingline">1</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">J</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_font_typewriter">=</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">np</span><span class="ltx_text ltx_font_typewriter">.</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">array</span><span class="ltx_text ltx_font_typewriter">([-</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">np</span><span class="ltx_text ltx_font_typewriter">.</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">sin</span><span class="ltx_text ltx_font_typewriter">(</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">L</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">x</span><span class="ltx_text ltx_font_typewriter">).</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">T</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">np</span><span class="ltx_text ltx_font_typewriter">.</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">diag</span><span class="ltx_text ltx_font_typewriter">(</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">l</span><span class="ltx_text ltx_font_typewriter">)</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">L</span><span class="ltx_text ltx_font_typewriter">,</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">np</span><span class="ltx_text ltx_font_typewriter">.</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">cos</span><span class="ltx_text ltx_font_typewriter">(</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">L</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">x</span><span class="ltx_text ltx_font_typewriter">).</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">T</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">np</span><span class="ltx_text ltx_font_typewriter">.</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">diag</span><span class="ltx_text ltx_font_typewriter">(</span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">l</span><span class="ltx_text ltx_font_typewriter">)</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">@</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_identifier ltx_font_typewriter">L</span><span class="ltx_text ltx_font_typewriter">])</span><span class="ltx_text ltx_lst_space ltx_font_typewriter"> </span><span class="ltx_text ltx_lst_comment ltx_font_typewriter">#Jacobian<span class="ltx_text ltx_lst_space"> </span>(for<span class="ltx_text ltx_lst_space"> </span>endeffector)</span>
 </div>
 </div>
-</div><div class="ltx_subsection" id="S5-sec:SS1">
+</div><canvas class="ltx_centering" height="400px" id="canvas_ik2d" width="400px"></canvas>
+<div class="ltx_subsection" id="S5-sec:SS1">
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">5.1</span> </span><span class="ltx_text">Numerical estimation of the Jacobian</span>
 </h2>

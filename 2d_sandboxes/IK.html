@@ -3,6 +3,101 @@
 
     <div class="col-sm-7">
         <h3>Inverse kinematics (IK)</h3>
+        <div class="card block" id="instructionBlock">
+
+            <div class="card-header">
+                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
+                    Instructions
+                </button>
+                <div class="commands">
+                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/IK_manipulator.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">Download standalone example</a>
+                </div>
+            </div>
+
+            <div id="instructions" class="collapse card-body instructions">
+                <h5>General information</h5>
+                <p>
+                    Modify the code in the cell below and study how inverse kinematics (IK) works. When performing IK we are interested 
+                    in finding a joint angle configuration that satisfies the desired task space configuration (position and/or orientation).
+                    As this can be performed in multiple ways, you will find four different tabs showcasing different IK implementations:
+                </p>
+                <ul>
+                    <li>
+                        Standard IK: the Moore-Penrose pseudo-inverse of the jacobian matrix is used.
+                    </li>
+                    <li>
+                        Damped IK: the damped pseudo-inverse of the jacobian matrix is used.
+                    </li>
+                    <li>
+                        Weighted IK: The weighted pseudo-inverse of the Jacobian matrix is used. This can be useful for softly prioritizing a state space element over another (e.g., softly prioritizing position accuracy instead of orientation accuracy).
+                    </li>
+                    <li>
+                        Prioritized IK: the nullspace projection of the jacobian matrix is used to 
+                        perform a secondary task that does not interfere with the primary one.
+                    </li>
+                </ul>
+                <p>
+                    See <a href="#S5">Inverse kinematics (IK) for a planar robot manipulator</a> for more information about inverse kinematics.
+                </p>
+
+                <h5>Coding information</h5>
+
+                <div>
+                    
+                    <p class="text-center">
+                        <img style="width:80%;" src="static_images/code_schema.png"/>
+                    </p>
+
+                    <p>
+                        As described by the figure above, the <code class="inline_code">control</code> function in the cell below is called repeatedly at a fixed frequency.
+                    </p>
+
+                    <p>
+                        In the cell below, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
+                        You can also download the standalone Python example to test it on your machine.
+                    </p>
+
+                    <p>
+                        The example is a smaller part of a larger Python script that is hidden from you. To properly interact with the script, we list below the functions and variables you can use in the interactive cell.
+                    </p>
+
+
+                    <h6>Available functions</h6>
+                    <ul>
+                        <li>
+                            <code class="inline_code">fkin(x)</code>: this function performs the forward kinematics from a given joint configuration
+                            (i.e. the input parameter, a list of floats). It returns a list of float containing the end-effector position and orientation
+                            stacked together (<code class="inline_code">[position_x, position_y, orientation]</code>).
+                        </li>
+                        <li>
+                            <code class="inline_code">Jkin(x)</code>: this function computes the robot's jacobian matrix for a given joint configuration
+                            (i.e. the input parameter, a list of floats). It returns the jacobian matrix.
+                        </li>
+                    </ul>
+                    <h6>Global variables</h6>
+                    <ul>
+                        <li><code class="inline_code">x</code>: the current joint configuration of the robot as a list of floats.</li>
+                        <li><code class="inline_code">param</code>: a struct containing the example configuration. We recommend to only read this struct 
+                            without modifying it. The most useful struct members are:
+                            <ul>
+                                <li><code class="inline_code">param.nbVarX</code>: the joint space dimension.</li>
+                                <li><code class="inline_code">param.nbVarF</code>: the task space dimension.</li>
+                                <li><code class="inline_code">param.Mu</code>: the target position and orientation.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <h5>Control</h5>
+
+                <ul>
+                    <li>Click on the green run button to execute the code.</li>
+                    <li>Joints can be moved by dragging them with the mouse, or by using the mouse wheel while hovering them.</li>
+                    <li>The target objects can be moved by dragging them with the mouse.</li>
+                </ul>
+            </div>
+
+        </div>
 
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
@@ -42,23 +137,6 @@
             <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
         </div>
 
-        <div style="margin-bottom: 10px;">
-            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
-                Instructions
-            </button>
-        </div>
-
-        <div id="instructions" class="collapse instructions">
-            <div class="card card-body">
-                <h5>Control</h5>
-                <p>Click on the green run button to execute the code.</p>
-                <p>Joints can be moved by dragging them with the mouse, or by using the mouse wheel while hovering them.</p>
-                <p>The target object can be moved by dragging it with the mouse. It can also be rotated using either the slider below or the mouse wheel while hovering it.</p>
-                <h5>Information</h5>
-                <p>See <a href="#S5">Inverse kinematics (IK) for a planar robot manipulator</a> for more information about inverse kinematics.</p>
-            </div>
-        </div>
-
         <div style="margin-bottom: 20px;">
             <input class="w-72" id="object_angle" max="3.14159" min="-3.14159" step="0.0001" style="vertical-align:middle;" type="range" value="0"/>
             <label>Object orientation</label>
@@ -77,9 +155,11 @@
 
 
 <script id="user_code_ik" type="python">
+    # Initialization
     x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
 
-    def controlCommand(x, param):
+    # Control loop definition
+    def control(x, param):
         f = fkin(x, param)
         J = Jkin(x, param)
 
@@ -94,9 +174,11 @@
 
 
 <script id="user_code_damped_ik" type="python">
+    # Initialization
     x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
 
-    def controlCommand(x, param):
+    # Control loop definition
+    def control(x, param):
         f = fkin(x, param)
         J = Jkin(x, param)
 
@@ -108,9 +190,11 @@
 
 
 <script id="user_code_weighted_ik" type="python">
+    # Initialization
     x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
 
-    def controlCommand(x, param):
+    # Control loop definition
+    def control(x, param):
         f = fkin(x, param)
         J = Jkin(x, param)
 
@@ -129,10 +213,12 @@
 
 
 <script id="user_code_prioritized_ik" type="python">
+    # Initialization
     x = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Initial robot pose
     xh = np.array([-np.pi/4, np.pi/2, np.pi/4]) # Preferred robot pose
 
-    def controlCommand(x, param):
+    # Control loop definition
+    def control(x, param):
         f = fkin(x, param)
         J = Jkin(x, param)
 
@@ -454,10 +540,10 @@
             ctx.fillText('Move me!', 0, 0)
 
 
-    def defaultControlCommand(x, param):
+    def defaultcontrol(x, param):
         return np.zeros(param.nbVarX)
 
-    controlCommand = defaultControlCommand
+    control = defaultcontrol
 
 
     #########################################################################################
@@ -494,7 +580,7 @@
             param.dt = delta * 0.001
 
         try:
-            u = controlCommand(x, param)
+            u = control(x, param)
         except Exception as e:
             displayError(e)
             u = np.zeros(param.nbVarX)
@@ -520,8 +606,8 @@
 
 
     async def reset(tab_id, editor):
-        global controlCommand, x
-        controlCommand = defaultControlCommand
+        global control, x
+        control = defaultcontrol
         x = np.copy(x0)
 
 

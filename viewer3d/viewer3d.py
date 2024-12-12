@@ -9,6 +9,10 @@
 from js import Viewer3Djs
 from js import three
 from js import Shapes
+from js import Layers
+from js import Passes
+from js import OutlinePass
+from js import LayerRenderPass
 from js import configs
 from js import gaussians
 from js import RobotBuilder
@@ -104,6 +108,30 @@ class Viewer3D:
     def domElement(self):
         """Returns the DOM element containing the 3D viewer"""
         return self.viewer.domElement
+
+
+    @property
+    def renderer(self):
+        """Returns the renderer"""
+        return self.viewer.renderer
+
+
+    @property
+    def scene(self):
+        """Returns the scene"""
+        return self.viewer.scene
+
+
+    @property
+    def camera(self):
+        """Returns the camera"""
+        return self.viewer.camera
+
+
+    @property
+    def transformControls(self):
+        """Returns the transform controls manager"""
+        return self.viewer.transformControls
 
 
     def loadScene(self, filename, robotBuilders=None):
@@ -289,13 +317,17 @@ class Viewer3D:
     def activateLayer(self, layer):
         """Change the layer on which new objects are created.
 
-        Each layer is drawn on top of the previous one, after clearing the depth buffer.
-        The default layer (the one were the robot is) is layer 0.
-
         Parameters:
             layer (int): Index of the layer
         """
         self.viewer.activateLayer(layer)
+
+    def addPassBefore(self, newPass, standardPassId):
+        self.viewer.addPassBefore(newPass, standardPassId)
+
+
+    def addPassAfter(self, newPass, standardPassId):
+        self.viewer.addPassAfter(newPass, standardPassId)
 
 
     def addTarget(self, name, position, orientation, color=None, shape=Shapes.Cube, listener=None, parameters=None):
@@ -310,7 +342,7 @@ class Viewer3D:
             color (int/str): Color of the target (by default: 0x0000aa)
             shape (Shapes): Shape of the target (by default: Shapes.Cube)
             listener (function): Function to call when the target is moved/rotated using the mouse
-            parameters (dict): Additional shape-dependent parameters (radius, width, height, ...)
+            parameters (dict): Additional shape-dependent parameters (radius, width, height, ...) and opacity
         """
         def _listener(targetjs, dragging):
             listener(Target(targetjs), dragging)
@@ -642,6 +674,12 @@ class Robot:
     def name(self):
         """Returns the name of the object"""
         return self.robot.name
+
+
+    @property
+    def meshes(self):
+        """Returns all the meshes of the robot"""
+        return self.robot.getMeshes().to_py()
 
 
     @property
@@ -1140,18 +1178,53 @@ def acoslog(x):
         y = y - np.pi
     return y
 
+def q2R(q):
+    """Unit quaternion to rotation matrix conversion (for quaternions as [x,y,z,w])
+    """
+    # Code below is for quat as wxyz
+    q = [q[3],q[0],q[1],q[2]] 
+
+    return np.array([
+        [1.0 - 2.0 * q[2]**2 - 2.0 * q[3]**2, 2.0 * q[1] * q[2] - 2.0 * q[3] * q[0], 2.0 * q[1] * q[3] + 2.0 * q[2] * q[0]],
+        [2.0 * q[1] * q[2] + 2.0 * q[3] * q[0], 1.0 - 2.0 * q[1]**2 - 2.0 * q[3]**2, 2.0 * q[2] * q[3] - 2.0 * q[1] * q[0]],
+        [2.0 * q[1] * q[3] - 2.0 * q[2] * q[0], 2.0 * q[2] * q[3] + 2.0 * q[1] * q[0], 1.0 - 2.0 * q[1]**2 - 2.0 * q[2]**2],
+    ])
 
 
-def logmap_S3(x, x0):
+def logmap_S3(x,x0):
     """Logarithmic map for S^3 manifold (with e in tangent space)
     """
-    R = QuatMatrix(x0)
-    x = R.T @ x
-    sc = acoslog(x[3]) / np.sqrt(1.0 - x[3]**2)
-    if math.isnan(sc):
-        sc = 1.0
-    return x[:3] * sc
 
+    def _dQuatToDxJac(q):
+        """Jacobian from quaternion velocities to angular velocities.
+        
+        q is wxyz!
+        """
+        return np.array([
+            [-q[1], q[0], -q[3], q[2]],
+            [-q[2], q[3], q[0], -q[1]],
+            [-q[3], -q[2], q[1], q[0]],
+        ])
+    
+    # Code below is for quat as wxyz so need to transform it!
+    x = np.array([x[3],x[0],x[1],x[2]])
+    x0 = np.array([x0[3],x0[0],x0[1],x0[2]])
+
+    x0 = x0.reshape((4, 1))
+    x = x.reshape((4, 1))
+
+    th = acoslog(x0.T @ x)
+
+    u = x - (x0.T @ x) * x0
+
+    # Avoid numerical issue with small numbers
+    if np.linalg.norm(u) < 1e-7:
+        return np.zeros(3)
+    
+    u = np.multiply(th, u) / np.linalg.norm(u)
+
+    H = _dQuatToDxJac(x0)
+    return (2 * H.squeeze() @ u).squeeze()
 
 
 def logmap(f, f0):

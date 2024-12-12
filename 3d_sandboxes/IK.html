@@ -3,6 +3,96 @@
 
     <div class="col-sm-5">
         <h3>Inverse kinematics (IK)</h3>
+        
+        <div class="card block" id="instructionBlock">
+
+            <div class="card-header">
+                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
+                    Instructions
+                </button>
+                <div class="commands">
+                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/IK_manipulator3D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">Download standalone example</a>
+                </div>
+            </div>
+
+            <div id="instructions" class="collapse card-body instructions">
+                <h5>General information</h5>
+                <p>
+                    Modify the code in the cell below and study how inverse kinematics (IK) works. When performing IK we are interested 
+                    in finding a joint angle configuration that satisfies the desired task space configuration (position and/or orientation).
+                    You will find three tabs, each of them tracking specific task space components: (i) position and orientation, (ii) position only, and (iii) orientation only.
+                </p>
+                <p>
+                    The upper-left corner shows a representation of the logarithmic map, with the distance between the (projected) end-effector orientation (in yellow) and the one of the target (in red).
+                    See <a href="#S12">Orientation representations and Riemannian manifolds</a>,
+                     and <a href="#S5">Inverse kinematics (IK) for a planar robot manipulator (2D)</a> for more information.
+                </p>
+
+                <h5>Coding information</h5>
+
+                <div>
+                    
+                    <p class="text-center">
+                        <img style="width:80%;" src="static_images/code_schema.png"/>
+                    </p>
+
+                    <p>
+                        As described by the figure above, the <code class="inline_code">control</code> function in the cell below is called repeatedly at a fixed frequency.
+                    </p>
+
+                    <p>
+                        In the cell below, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
+                        You can also download the standalone Python example to test it on your machine.
+                    </p>
+
+                    <p>
+                        The example is a smaller part of a larger Python script that is hidden from you. To properly interact with the script, we list below the functions and variables you can use in the interactive cell.
+                    </p>
+
+
+                    <h6>Available functions</h6>
+                    <ul>
+                        <li>
+                            <code class="inline_code">fkin(x)</code>: this function performs the forward kinematics from a given joint configuration
+                            (i.e. the input parameter, a list of floats). It returns a list of float containing the end-effector position and orientation
+                            stacked together (<code class="inline_code">[position, orientation]</code>).
+                        </li>
+                        <li>
+                            <code class="inline_code">Jkin(x)</code>: this function computes the robot's jacobian matrix for a given joint configuration
+                            (i.e. the input parameter, a list of floats). It returns the jacobian matrix.
+                        </li>
+                        <li>
+                            <code class="inline_code">logmap(mu,f)</code>: this function computes the residual between the actual and the desired end-effector states.
+                            Residual is a 1D array of size 6, with the three first components being the position residual and the last three being the orientation residual.
+                        </li>
+                        <li>
+                            <code class="inline_code">logmap_S3(mu,f)</code>: same as  <code class="inline_code">logmap(mu,f)</code>, but it only computes the orientation residual.
+                        </li>
+                    </ul>
+                    <h6>Global variables</h6>
+                    <ul>
+                        <li><code class="inline_code">x</code>: the current joint configuration of the robot as a list of floats.</li>
+                        <li><code class="inline_code">param</code>: a struct containing the example configuration. We recommend to only read this struct 
+                            without modifying it. The most useful struct members are:
+                            <ul>
+                                <li><code class="inline_code">param.nbVarX</code>: the joint space dimension.</li>
+                                <li><code class="inline_code">param.nbVarF</code>: the task space dimension.</li>
+                                <li><code class="inline_code">param.Mu</code>: the target position and orientation.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <h5>Control</h5>
+
+                <ul>
+                    <li>Click on the green run button to execute the code.</li>
+                    <li>The target object can be controlled by clicking on it, which makes a translation/rotation widget appears. The behavior of this widget can be changed using the buttons at the top.</li>
+                    <li>To rotate the camera, press the left mouse button and drag the mouse. The right mouse button let you translate the camera. The mouse wheel let you zoom in/out.</li>
+                </ul>
+            </div>
+
+        </div>
 
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
@@ -35,27 +125,6 @@
             <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
         </div>
 
-        <div style="margin-bottom: 10px;">
-            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
-                Instructions
-            </button>
-        </div>
-
-        <div id="instructions" class="collapse instructions">
-            <div class="card card-body">
-                <h5>Control</h5>
-                <p>Click on the green run button to execute the code.</p>
-                <p>The target object can be controlled by clicking on it, which makes a translation/rotation widget appears. The behavior of this widget can be changed using the buttons at the top.</p>
-                <p>To rotate the camera, press the left mouse button and drag the mouse. The right mouse button let you translate the camera. The mouse wheel let you zoom in/out.</p>
-                <h5>Information</h5>
-                <p>
-                    The upper-left corner shows a representation of the logarithmic map, with the distance between the (projected) end-effector orientation (in yellow) and the one of the target (in red).
-                    See <a href="#S11">Orientation representations and Riemannian manifolds</a> for more information.
-                </p>
-                <p>See <a href="#S5">Inverse kinematics (IK) for a planar robot manipulator</a> for more information about inverse kinematics (in 2D).</p>
-            </div>
-        </div>
-
         <pre id="errors" class="py-error"></pre>
         <pre id="output" class="py-output"></pre>
     </div>
@@ -69,9 +138,11 @@
 
 
 <script id="user_code_posorient" type="python">
+    # Initialization
     x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
 
-    def controlCommand(x, mu, dt):
+    # Control loop definition
+    def control(x, mu, dt):
         J = Jkin(x)
         f = fkin(x)
         u = np.linalg.pinv(J) @ logmap(mu, f)  # Position & orientation tracking
@@ -80,9 +151,11 @@
 
 
 <script id="user_code_pos" type="python">
+    # Initialization
     x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
 
-    def controlCommand(x, mu, dt):
+    # Control loop definition
+    def control(x, mu, dt):
         J = Jkin(x)
         f = fkin(x)
         u = np.linalg.pinv(J[0:3,:]) @ (mu[0:3] - f[0:3])  # Position tracking
@@ -91,18 +164,31 @@
 
 
 <script id="user_code_orient" type="python">
+    # Initialization
     x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
-
-    def controlCommand(x, mu, dt):
+    
+    # Control loop definition
+    def control(x, mu, dt):
         J = Jkin(x)
         f = fkin(x)
         u = np.linalg.pinv(J[3:,:]) @ logmap_S3(mu[3:], f[3:])  # Orientation tracking
+    
+        # Discard orientation around z axis (global)
+        # Q = np.diag([1,1,0])
+        # u = np.linalg.pinv(J[3:,:]) @ Q @ logmap_S3(mu[3:], f[3:])  # Orientation tracking
+    
+        # Discard orientation around z axis (relative to EE)
+        # R = q2R(mu[3:])
+        # Q = np.diag([1,1,0])
+        # Qr = R @ Q @ R.T
+        # u = np.linalg.pinv(J[3:,:]) @ Qr @ logmap_S3(mu[3:],f[3:])  # Orientation tracking
+    
         return 0.1 * u / dt  # Velocity in rad/s
 </script>
 
 
 <script id="page_code" type="python">
-    from viewer3d import Viewer3D, configs, logmap_S3, logmap, Shapes
+    from viewer3d import Viewer3D, configs, logmap_S3, logmap, q2R, Shapes
     from js import document
     from rcfs import configure, displayError, setAspectRatio
     import numpy as np
@@ -119,7 +205,7 @@
             elif not isinstance(x, np.ndarray):
                 x = np.array(x)
 
-            u = controlCommand(x, target.transforms, delta)
+            u = control(x, target.transforms, delta)
 
             x += u * delta
             robot.jointPositions = x
@@ -160,7 +246,7 @@
 
 
     # Placeholder for the function to implement
-    def controlCommand(x, mu, dt):
+    def control(x, mu, dt):
         return np.zeros(x.shape)
 
     # Forward kinematics function (allows to not care about 'robot' in the user code)

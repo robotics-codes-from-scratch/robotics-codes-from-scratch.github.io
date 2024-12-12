@@ -3,6 +3,98 @@
 
     <div class="col-sm-7">
         <h3>Bimanual robot</h3>
+        
+        <div class="card block" id="instructionBlock">
+
+            <div class="card-header">
+                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
+                    Instructions
+                </button>
+                <div class="commands">
+                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/IK_bimanual.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">Download standalone example</a>
+                </div>
+            </div>
+
+            <div id="instructions" class="collapse card-body instructions">
+                <h5>General information</h5>
+
+                <p>
+                    Modify the code in the cell below and study how inverse kinematics (IK) works for bimanual robots. 
+                    You will find two different tabs showcasing different IK implementation:
+                </p>
+                
+                <ul>
+                    <li>
+                        IK: where the two arms reach their target with the same priority.
+                    </li>
+                    <li>
+                        Prioritized IK: where the tasks are prioritized, and left arm tracking is the main objective.
+                    </li>
+                </ul>
+
+                <p>
+                    See <a href="#S5">Inverse kinematics (IK) for a planar robot manipulator</a> for more information about inverse kinematics,
+                    and <a href="#S9-sec:SS6">Bimanual robot</a> for details about a bimanual robot.
+                </p>
+
+                <h5>Coding information</h5>
+
+                <div>
+                    
+                    <p class="text-center">
+                        <img style="width:80%;" src="static_images/code_schema.png"/>
+                    </p>
+
+                    <p>
+                        As described by the figure above, the <code class="inline_code">control</code> function in the cell below is called repeatedly at a fixed frequency.
+                    </p>
+
+                    <p>
+                        In the cell below, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
+                        You can also download the standalone Python example to test it on your machine.
+                    </p>
+
+                    <p>
+                        The example is a smaller part of a larger Python script that is hidden from you. To properly interact with the script, we list below the functions and variables you can use in the interactive cell.
+                    </p>
+
+
+                    <h6>Available functions</h6>
+                    <ul>
+                        <li>
+                            <code class="inline_code">fkin(x)</code>: this function performs the forward kinematics from a given joint configuration
+                            (i.e. the input parameter, a list of floats). It returns a list of float containing the end-effector positions
+                            stacked together (<code class="inline_code">[ee1_position_x, ee1_position_y,ee2_position_x, ee2_position_y]</code>).
+                        </li>
+                        <li>
+                            <code class="inline_code">Jkin(x)</code>: this function computes the robot's jacobian matrix for a given joint configuration
+                            (i.e. the input parameter, a list of floats). It returns the jacobian matrix.
+                        </li>
+                    </ul>
+                    <h6>Global variables</h6>
+                    <ul>
+                        <li><code class="inline_code">x</code>: the current joint configuration of the robot as a list of floats.</li>
+                        <li><code class="inline_code">param</code>: a struct containing the example configuration. We recommend to only read this struct 
+                            without modifying it. The most useful struct members are:
+                            <ul>
+                                <li><code class="inline_code">param.nbVarX</code>: the joint space dimension.</li>
+                                <li><code class="inline_code">param.nbVarF</code>: the task space dimension.</li>
+                                <li><code class="inline_code">param.Mu</code>: the target positions.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <h5>Control</h5>
+
+                <ul>
+                    <li>Click on the green run button to execute the code.</li>
+                    <li>Joints can be moved by dragging them with the mouse, or by using the mouse wheel while hovering them.</li>
+                    <li>The target objects can be moved by dragging them with the mouse.</li>
+                </ul>
+            </div>
+
+        </div>
 
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
@@ -28,26 +120,6 @@
             <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
         </div>
 
-        <div style="margin-bottom: 10px;">
-            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
-                Instructions
-            </button>
-        </div>
-
-        <div id="instructions" class="collapse instructions">
-            <div class="card card-body">
-                <h5>Control</h5>
-                <p>Click on the green run button to execute the code.</p>
-                <p>Joints can be moved by dragging them with the mouse, or by using the mouse wheel while hovering them.</p>
-                <p>The target objects can be moved by dragging them with the mouse.</p>
-                <h5>Information</h5>
-                <p>
-                    See <a href="#S5">Inverse kinematics (IK) for a planar robot manipulator</a> for more information about inverse kinematics,
-                    and <a href="#S8-sec:SS5.SSS7">Bimanual robot</a> for details about a bimanual robot.
-                </p>
-            </div>
-        </div>
-
         <pre id="errors" class="py-error"></pre>
         <pre id="output" class="py-output"></pre>
     </div>
@@ -61,7 +133,11 @@
 
 
 <script id="user_code_ik" type="python">
-    def controlCommand(x, param):
+    # Initialization
+    x0 = np.array([np.pi/2, np.pi/2, np.pi/4, -np.pi/2, -np.pi/4]) # Initial robot state
+
+    # Control loop definition
+    def control(x, param):
         f = fkin(x, param)
         J = Jkin(x, param)
 
@@ -76,7 +152,11 @@
 
 
 <script id="user_code_prioritized_ik" type="python">
-    def controlCommand(x, param):
+    # Initialization
+    x0 = np.array([np.pi/2, np.pi/2, np.pi/4, -np.pi/2, -np.pi/4]) # Initial robot state
+
+    # Control loop definition
+    def control(x, param):
         f = fkin(x, param)
         J = Jkin(x, param)
 
@@ -95,7 +175,6 @@
 
         return 0.1 * u / param.dt   # Velocity in rad/s
 </script>
-
 
 <script id="page_code" type="python">
     from pyodide.ffi import create_proxy
@@ -309,10 +388,10 @@
         ctx.fill(obj)
 
 
-    def defaultControlCommand(x, param):
+    def defaultcontrol(x, param):
         return np.zeros(param.nbVarX)
 
-    controlCommand = defaultControlCommand
+    control = defaultcontrol
 
 
     #########################################################################################
@@ -346,7 +425,7 @@
         global hover_joint, x
 
         try:
-            u = controlCommand(x, param)
+            u = control(x, param)
         except Exception as e:
             displayError(e)
             u = np.zeros(param.nbVarX)
@@ -375,8 +454,8 @@
 
 
     async def reset(tab_id, editor):
-        global controlCommand, x
-        controlCommand = defaultControlCommand
+        global control, x
+        control = defaultcontrol
         x = np.copy(x0)
 
 

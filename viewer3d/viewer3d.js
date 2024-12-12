@@ -1,13 +1,17 @@
 import * as THREE from 'three';
+import { Vector2, Color, WebGLRenderTarget, MeshDepthMaterial, DoubleSide, RGBADepthPacking, NoBlending, HalfFloatType, UniformsUtils, ShaderMaterial, Matrix4, Vector3, NormalBlending } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import Stats from 'three/examples/jsm/libs/stats.module.js';
-import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js';
+import * as TWEEN from 'three/examples/jsm/libs/tween.module.js';
 import { CSS2DObject, CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
-import { OutlineEffect } from 'three/examples/jsm/effects/OutlineEffect.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import katex from 'katex';
 import load_mujoco from 'mujoco';
 import * as math from 'mathjs';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
+import { Pass, FullScreenQuad } from 'three/examples/jsm/postprocessing/Pass.js';
+import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js';
 
 /*
  * SPDX-FileCopyrightText: Copyright © 2023 Idiap Research Institute <contact@idiap.ch>
@@ -147,7 +151,7 @@ class JointPositionHelper extends THREE.Object3D {
 
         const circleMaterial = new THREE.MeshBasicMaterial({
             color: color,
-            opacity: 0.25,
+            opacity: 0.4,
             transparent: true,
             side: THREE.DoubleSide
         });
@@ -461,6 +465,11 @@ class Robot {
 
         for (const mesh of this.tool.visual.meshes)
             mesh.layers = new THREE.Layers();
+    }
+
+
+    getMeshes() {
+        return [].concat(this.arm.visual.meshes).concat(this.tool.visual.meshes);
     }
 
 
@@ -1423,10 +1432,16 @@ function loadScene(filename, robotBuilders=null) {
     if (xmlDoc == null)
         return null;
 
+    filename += ".processed";
+
+    const serializer = new XMLSerializer();
+    mujoco.FS.writeFile(filename, serializer.serializeToString(xmlDoc));
+
     const freeCameraSettings = getFreeCameraSettings(xmlDoc);
     const statistics = getStatistics(xmlDoc);
     const fogSettings = getFogSettings(xmlDoc);
-    const headlightSettings = getHeadlightSettings(xmlDoc);
+    const headlightSettings = getHeadlightSettings(xmlDoc, filename);
+    const lightIntensities = getLightIntensities(xmlDoc, filename);
 
     // Add the robot if a builder was provided
     if ((robotBuilders != null) && (robotBuilders.length > 0)) {
@@ -1435,13 +1450,15 @@ function loadScene(filename, robotBuilders=null) {
     }
 
     // Preprocess the included files if necessary
-    preprocessIncludedFiles(xmlDoc, filename, (robotBuilders != null) && (robotBuilders.length > 0));
+    let includedLightIntensities = preprocessIncludedFiles(xmlDoc, filename, (robotBuilders != null) && (robotBuilders.length > 0));
+
+    includedLightIntensities = includedLightIntensities.concat(lightIntensities);
 
     // Load in the state from XML
     let model = new mujoco.Model(filename);
 
     return new PhysicsSimulator(
-        model, freeCameraSettings, statistics, fogSettings, headlightSettings
+        model, freeCameraSettings, statistics, fogSettings, headlightSettings, includedLightIntensities
     );
 }
 
@@ -1449,7 +1466,7 @@ function loadScene(filename, robotBuilders=null) {
 
 class PhysicsSimulator {
 
-    constructor(model, freeCameraSettings, statistics, fogSettings, headlightSettings) {
+    constructor(model, freeCameraSettings, statistics, fogSettings, headlightSettings, lightIntensities) {
         this.model = model;
         this.state = new mujoco.State(model);
         this.simulation = new mujoco.Simulation(model, this.state);
@@ -1498,7 +1515,7 @@ class PhysicsSimulator {
 
         // Process the elements
         this._processGeometries();
-        this._processLights();
+        this._processLights(lightIntensities);
         this._processSites();
 
         // Ensure each body controlled by a joint knows the joint ID
@@ -2011,13 +2028,13 @@ class PhysicsSimulator {
                     }
 
                     material = new THREE.MeshPhongMaterial({
-                        color: new THREE.Color(color[0], color[1], color[2]),
+                        color: new THREE.Color().setRGB(color[0], color[1], color[2], THREE.SRGBColorSpace),
                         transparent: color[3] < 1.0,
                         opacity: color[3],
-                        specular: new THREE.Color(this.model.mat_specular[matId], this.model.mat_specular[matId], this.model.mat_specular[matId]),
+                        specular: new THREE.Color().setRGB(this.model.mat_specular[matId], this.model.mat_specular[matId], this.model.mat_specular[matId], THREE.SRGBColorSpace),
                         shininess: this.model.mat_shininess[matId],
                         reflectivity: this.model.mat_reflectance[matId],
-                        emissive: new THREE.Color(color[0], color[1], color[2]).multiplyScalar(this.model.mat_emission[matId]),
+                        emissive: new THREE.Color().setRGB(color[0], color[1], color[2], THREE.SRGBColorSpace).multiplyScalar(this.model.mat_emission[matId]),
                         map: texture
                     });
 
@@ -2027,13 +2044,13 @@ class PhysicsSimulator {
                            material.opacity != color[3]) {
 
                     material = new THREE.MeshPhongMaterial({
-                        color: new THREE.Color(color[0], color[1], color[2]),
+                        color: new THREE.Color().setRGB(color[0], color[1], color[2], THREE.SRGBColorSpace),
                         transparent: color[3] < 1.0,
                         opacity: color[3],
-                        specular: new THREE.Color(this.model.mat_specular[matId], this.model.mat_specular[matId], this.model.mat_specular[matId]),
+                        specular: new THREE.Color().setRGB(this.model.mat_specular[matId], this.model.mat_specular[matId], this.model.mat_specular[matId], THREE.SRGBColorSpace),
                         shininess: this.model.mat_shininess[matId],
                         reflectivity: this.model.mat_reflectance[matId],
-                        emissive: new THREE.Color(color[0], color[1], color[2]).multiplyScalar(this.model.mat_emission[matId]),
+                        emissive: new THREE.Color().setRGB(color[0], color[1], color[2]).multiplyScalar(this.model.mat_emission[matId], THREE.SRGBColorSpace),
                     });
                 }
 
@@ -2043,7 +2060,7 @@ class PhysicsSimulator {
                        material.opacity != color[3]) {
 
                 material = new THREE.MeshPhongMaterial({
-                    color: new THREE.Color(color[0], color[1], color[2]),
+                    color: new THREE.Color().setRGB(color[0], color[1], color[2], THREE.SRGBColorSpace),
                     transparent: color[3] < 1.0,
                     opacity: color[3],
                 });
@@ -2149,12 +2166,12 @@ class PhysicsSimulator {
     }
 
 
-    _processLights() {
+    _processLights(lightIntensities) {
         const sim = this;
 
-        function _createOrUpdateAmbientLight(color) {
+        function _createOrUpdateAmbientLight(color, intensity=1.0) {
             if (sim.ambientLight == null) {
-                sim.ambientLight = new THREE.AmbientLight(sim.headlightSettings.ambient);
+                sim.ambientLight = new THREE.AmbientLight(sim.headlightSettings.ambient, intensity);
                 sim.ambientLight.layers.enableAll();
                 sim.root.add(sim.ambientLight);
             } else {
@@ -2165,12 +2182,12 @@ class PhysicsSimulator {
         if (this.headlightSettings.active) {
             if ((this.headlightSettings.ambient.r > 0.0) || (this.headlightSettings.ambient.g > 0.0) ||
                 (this.headlightSettings.ambient.b > 0.0)) {
-                _createOrUpdateAmbientLight(this.headlightSettings.ambient);
+                _createOrUpdateAmbientLight(this.headlightSettings.ambient, this.headlightSettings.ambientIntensity);
             }
 
             if ((this.headlightSettings.diffuse.r > 0.0) || (this.headlightSettings.diffuse.g > 0.0) ||
                 (this.headlightSettings.diffuse.b > 0.0)) {
-                this.headlight = new THREE.DirectionalLight(this.headlightSettings.diffuse);
+                this.headlight = new THREE.DirectionalLight(this.headlightSettings.diffuse, this.headlightSettings.intensity);
                 this.headlight.layers.enableAll();
                 this.root.add(this.headlight);
             }
@@ -2181,10 +2198,12 @@ class PhysicsSimulator {
         for (let l = 0; l < this.model.nlight; ++l) {
             let light = null;
 
+            const intensity = lightIntensities[l];
+
             if (this.model.light_directional[l])
-                light = new THREE.DirectionalLight();
+                light = new THREE.DirectionalLight(0xffffff, intensity != null ? intensity : 3);
             else
-                light = new THREE.SpotLight();
+                light = new THREE.SpotLight(0xffffff, intensity != null ? intensity : 8);
 
             light.quaternion.set(0, 0, 0, 1);
 
@@ -2195,19 +2214,25 @@ class PhysicsSimulator {
 
             light.target.position.copy(dir);
 
-            light.color.r = this.model.light_diffuse[l * 3];
-            light.color.g = this.model.light_diffuse[l * 3 + 1];
-            light.color.b = this.model.light_diffuse[l * 3 + 2];
+            light.color.setRGB(
+                this.model.light_diffuse[l * 3],
+                this.model.light_diffuse[l * 3 + 1],
+                this.model.light_diffuse[l * 3 + 2],
+                THREE.SRGBColorSpace
+            );
 
             if (!this.model.light_directional[l]) {
-                light.distance = this.model.light_attenuation[l * 3 + 1];
+                // light.distance = this.model.light_attenuation[l * 3 + 1];
+                // light.decay = this.model.light_attenuation[l * 3 + 1];
                 light.penumbra = 0.5;
                 light.angle = this.model.light_cutoff[l] * Math.PI / 180.0;
-                light.castShadow = this.model.light_castshadow[l];
+            }
 
+            light.castShadow = this.model.light_castshadow[l];
+            if (light.castShadow)
+            {
                 light.shadow.camera.near = 0.1;
                 light.shadow.camera.far = 50;
-                // light.shadow.bias = 0.0001;
                 light.shadow.mapSize.width = 2048;
                 light.shadow.mapSize.height = 2048;
             }
@@ -2227,10 +2252,11 @@ class PhysicsSimulator {
             if ((this.model.light_ambient[l * 3] > 0.0) || (this.model.light_ambient[l * 3 + 1] > 0.0) ||
                 (this.model.light_ambient[l * 3 + 2] > 0.0)) {
                 _createOrUpdateAmbientLight(
-                    new THREE.Color(
+                    new THREE.Color().setRGB(
                         this.model.light_ambient[l * 3],
                         this.model.light_ambient[l * 3 + 1],
-                        this.model.light_ambient[l * 3 + 2])
+                        this.model.light_ambient[l * 3 + 2]),
+                        THREE.SRGBColorSpace
                 );
             }
         }
@@ -2281,7 +2307,7 @@ class PhysicsSimulator {
                     THREE.UnsignedByteType
                 );
 
-                texture.colorSpace = THREE.LinearSRGBColorSpace;
+                texture.colorSpace = THREE.SRGBColorSpace;
                 texture.flipY = true;
                 texture.needsUpdate = true;
                 textures.push(texture);
@@ -2295,6 +2321,7 @@ class PhysicsSimulator {
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
             texture.needsUpdate = true;
+            texture.colorSpace = THREE.SRGBColorSpace;
 
             this.textures[texId] = texture;
             return texture;
@@ -2611,14 +2638,14 @@ function getFogSettings(xmlDoc) {
         let value = xmlRgba.getAttribute("fog");
         if (value != null) {
             const v = value.split(" ");
-            settings.fog.setRGB(Number(v[0]), Number(v[1]), Number(v[2]));
+            settings.fog.setRGB(Number(v[0]), Number(v[1]), Number(v[2]), THREE.SRGBColorSpace);
             settings.fogEnabled = true;
         }
 
         value = xmlRgba.getAttribute("haze");
         if (value != null) {
             const v = value.split(" ");
-            settings.haze.setRGB(Number(v[0]), Number(v[1]), Number(v[2]), Number(v[3]));
+            settings.haze.setRGB(Number(v[0]), Number(v[1]), Number(v[2]), THREE.SRGBColorSpace);
             settings.hazeEnabled = true;
         }
     }
@@ -2648,10 +2675,12 @@ function getFogSettings(xmlDoc) {
 }
 
 
-function getHeadlightSettings(xmlDoc) {
+function getHeadlightSettings(xmlDoc, filename) {
     const settings = {
-        ambient: new THREE.Color(0.1, 0.1, 0.1),
-        diffuse: new THREE.Color(0.4, 0.4, 0.4),
+        ambient: new THREE.Color().setRGB(0.1, 0.1, 0.1, THREE.SRGBColorSpace),
+        diffuse: new THREE.Color().setRGB(0.4, 0.4, 0.4, THREE.SRGBColorSpace),
+        intensity: 3,
+        ambientIntensity : 1,
         active: true,
     };
 
@@ -2659,26 +2688,82 @@ function getHeadlightSettings(xmlDoc) {
     if (xmlVisual == null)
         return settings;
 
+    let modified = false;
+
     const xmlHeadlight = getFirstElementByTagName(xmlVisual, "headlight");
     if (xmlHeadlight != null) {
         let value = xmlHeadlight.getAttribute("ambient");
         if (value != null) {
             const v = value.split(" ");
-            settings.ambient.setRGB(Number(v[0]), Number(v[1]), Number(v[2]));
+            settings.ambient.setRGB(Number(v[0]), Number(v[1]), Number(v[2]), THREE.SRGBColorSpace);
         }
 
         value = xmlHeadlight.getAttribute("diffuse");
         if (value != null) {
             const v = value.split(" ");
-            settings.diffuse.setRGB(Number(v[0]), Number(v[1]), Number(v[2]), Number(v[3]));
+            settings.diffuse.setRGB(Number(v[0]), Number(v[1]), Number(v[2]), THREE.SRGBColorSpace);
         }
 
         value = xmlHeadlight.getAttribute("active");
         if (value != null)
             settings.active = (value == "1");
+
+        value = xmlHeadlight.getAttribute("intensity");
+        if (value != null) {
+            settings.intensity = Number(value);
+            xmlHeadlight.removeAttribute("intensity");
+            modified = true;
+        }
+
+        value = xmlHeadlight.getAttribute("ambientIntensity");
+        if (value != null) {
+            settings.ambientIntensity = Number(value);
+            xmlHeadlight.removeAttribute("ambientIntensity");
+            modified = true;
+        }
+    }
+
+    if (modified) {
+        const serializer = new XMLSerializer();
+        mujoco.FS.writeFile(filename, serializer.serializeToString(xmlDoc));
     }
 
     return settings;
+}
+
+
+function getLightIntensities(xmlDoc, filename=null) {
+    const intensities = [];
+
+    const xmlWorldBody = getFirstElementByTagName(xmlDoc, "worldbody");
+    if (xmlWorldBody == null)
+        return intensities;
+
+    const xmlLights = xmlWorldBody.getElementsByTagName("light");
+    if (xmlLights.length == 0)
+        return intensities;
+
+    let modified = false;
+
+    for (let i = 0; i < xmlLights.length; ++i) {
+        const xmlLight = xmlLights[i];
+
+        let value = xmlLight.getAttribute("intensity");
+        if (value != null) {
+            intensities.push(Number(value));
+            xmlLight.removeAttribute("intensity");
+            modified = true;
+        } else {
+            intensities.push(null);
+        }
+    }
+
+    if (modified && (filename != null)) {
+        const serializer = new XMLSerializer();
+        mujoco.FS.writeFile(filename, serializer.serializeToString(xmlDoc));
+    }
+
+    return intensities;
 }
 
 
@@ -2728,6 +2813,8 @@ function preprocessIncludedFiles(xmlDoc, filename, modified=false) {
 
     const knownFiles = [];
 
+    let intensities = [];
+
     // Search for include directives with a prefix
     const xmlIncludes = xmlDoc.getElementsByTagName("include");
     for (let xmlInclude of xmlIncludes) {
@@ -2742,9 +2829,12 @@ function preprocessIncludedFiles(xmlDoc, filename, modified=false) {
         const quat = xmlInclude.getAttribute("quat");
         const ghost = xmlInclude.getAttribute("ghost");
 
-        if ((prefix != null) || (pos != null) || (quat != null) || (ghost != null)) {
-            const xmlContent = preprocessIncludedFile(folder + includedFile, prefix, pos, quat, ghost, known);
+        const [xmlContent, intensities2] = preprocessIncludedFile(folder + includedFile, prefix, pos, quat, ghost, known);
 
+        if (intensities2.length > 0)
+            intensities = intensities.concat(intensities2);
+
+        if ((prefix != null) || (pos != null) || (quat != null) || (ghost != null) || (intensities2.length > 0)) {
             const offset = includedFile.lastIndexOf('/');
             const path = subfolder + "/" + includedFile.substring(0, offset + 1);
             includedFile = path + (prefix != null ? prefix : "") + includedFile.substring(offset + 1);
@@ -2764,6 +2854,8 @@ function preprocessIncludedFiles(xmlDoc, filename, modified=false) {
 
     if (modified)
         mujoco.FS.writeFile(filename, serializer.serializeToString(xmlDoc));
+
+    return intensities;
 }
 
 
@@ -2955,7 +3047,9 @@ function preprocessIncludedFile(filename, prefix, pos, quat, ghost, removeCommon
         }
     }
 
-    return xmlDoc;
+    const intensities = getLightIntensities(xmlDoc);
+
+    return [xmlDoc, intensities];
 }
 
 
@@ -3049,7 +3143,21 @@ class TransformControlsManager {
         this.transformControls = new TransformControls(camera, rendererElement);
         this.transformControls.manager = this;
 
-        scene.add(this.transformControls);
+        // function _changeLayer(obj) {
+        //     if (obj.type == "Mesh") {
+        //         obj.layers.disableAll();
+        //         obj.layers.enable(2);
+        //     };
+        //
+        //     for (const child of obj.children)
+        //         _changeLayer(child);
+        // }
+        //
+        // _changeLayer(this.transformControls.getHelper());
+        //
+        // console.log(this.transformControls.getHelper());
+
+        scene.add(this.transformControls.getHelper());
 
         this.btnTranslation = null;
         this.btnRotation = null;
@@ -3542,7 +3650,7 @@ class Logmap {
         const light = new THREE.HemisphereLight(0xffeeee, 0x111122);
         this.scene.add(light);
 
-        const pointLight = new THREE.PointLight(0xffffff, 0.3);
+        const pointLight = new THREE.PointLight(0xffffff, 60);
         pointLight.position.set(3, -4, 3);
         this.scene.add(pointLight);
 
@@ -3669,7 +3777,7 @@ class Target extends THREE.Object3D {
         color (int/str): Color of the target (by default: 0x0000aa)
         shape (Shapes): Shape of the target (by default: Shapes.Cube)
         listener (function): Function to call when the target is moved/rotated using the mouse
-        parameters (dict): Additional shape-dependent parameters (radius, width, height, ...)
+        parameters (dict): Additional shape-dependent parameters (radius, width, height, ...) and opacity
     */
     constructor(name, position, orientation, color=0x0000aa, shape=Shapes.Cube, listener=null, parameters=null) {
         super();
@@ -3712,7 +3820,7 @@ class Target extends THREE.Object3D {
             geometry,
             new THREE.MeshBasicMaterial({
                 color: color,
-                opacity: 0.5,
+                opacity: parameters.get('opacity') || 0.75,
                 transparent: true
             })
         );
@@ -4451,7 +4559,7 @@ class Gaussian extends THREE.Object3D {
                         position = position + dir_step;
                     }
 
-                    gl_FragColor = vec4(color, maxAlpha);
+                    gl_FragColor = vec4(color, pow(maxAlpha, 1.0 / 2.2));
                 }
             `,
         });
@@ -4694,13 +4802,13 @@ function enableLightToonShading(object, gradientMap=null) {
         gradientMap = buildGradientMap(3, 128);
 
     if (object.isMesh) {
-        object.material.color.r = object.material.color.r * 0.6;
-        object.material.color.g = object.material.color.g * 0.6;
-        object.material.color.b = object.material.color.b * 0.6;
+        object.material.color.r = object.material.color.r * 0.7;
+        object.material.color.g = object.material.color.g * 0.7;
+        object.material.color.b = object.material.color.b * 0.7;
 
         object.material = new THREE.MeshToonMaterial({
             color: object.material.color,
-            emissive: 0x888888,
+            emissive: 0xaaaaaa,
             gradientMap: gradientMap,
         });
     } else {
@@ -4714,9 +4822,9 @@ function modifyMaterialColor(object, color) {
         const hsl = {};
         object.material.color.getHSL(hsl);
 
-        object.material.color.r = color[0] * hsl.l;
-        object.material.color.g = color[1] * hsl.l;
-        object.material.color.b = color[2] * hsl.l;
+        object.material.color.r = color.r * hsl.l;
+        object.material.color.g = color.g * hsl.l;
+        object.material.color.b = color.b * hsl.l;
     } else {
         object.children.forEach(child => { modifyMaterialColor(child, color); });
     }
@@ -5270,6 +5378,758 @@ class RobotBuilder {
 }
 
 /*
+ * SPDX-FileCopyrightText: Copyright © 2010-2024 three.js authors
+ *
+ * SPDX-FileContributor: three.js authors
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
+
+
+
+/* Customized version of the 'OutlinePass' class of three.js
+
+Modifications includes using normal blending instead of additive (to have a solid color for the outline
+instead of a transparent-like one) and a fix for transform controls (which are otherwise always displayed
+with an outline with the 'hiddenEdgeColor').
+*/
+class OutlinePass extends Pass {
+
+    constructor( resolution, scene, camera, transformControls, selectedObjects ) {
+
+        super();
+
+        this.renderScene = scene;
+        this.renderCamera = camera;
+        this.transformControls = transformControls;
+        this.selectedObjects = selectedObjects !== undefined ? selectedObjects : [];
+        this.visibleEdgeColor = new Color( 1, 1, 1 );
+        this.hiddenEdgeColor = new Color( 0.1, 0.04, 0.02 );
+        this.edgeGlow = 0.0;
+        this.usePatternTexture = false;
+        this.edgeThickness = 1.0;
+        this.edgeStrength = 3.0;
+        this.downSampleRatio = 2;
+        this.pulsePeriod = 0;
+
+        this._visibilityCache = new Map();
+        this._selectionCache = new Set();
+
+        this.resolution = ( resolution !== undefined ) ? new Vector2( resolution.x, resolution.y ) : new Vector2( 256, 256 );
+
+        const resx = Math.round( this.resolution.x / this.downSampleRatio );
+        const resy = Math.round( this.resolution.y / this.downSampleRatio );
+
+        this.renderTargetMaskBuffer = new WebGLRenderTarget( this.resolution.x, this.resolution.y );
+        this.renderTargetMaskBuffer.texture.name = 'OutlinePass.mask';
+        this.renderTargetMaskBuffer.texture.generateMipmaps = false;
+
+        this.depthMaterial = new MeshDepthMaterial();
+        this.depthMaterial.side = DoubleSide;
+        this.depthMaterial.depthPacking = RGBADepthPacking;
+        this.depthMaterial.blending = NoBlending;
+
+        this.prepareMaskMaterial = this.getPrepareMaskMaterial();
+        this.prepareMaskMaterial.side = DoubleSide;
+        this.prepareMaskMaterial.fragmentShader = replaceDepthToViewZ( this.prepareMaskMaterial.fragmentShader, this.renderCamera );
+
+        this.renderTargetDepthBuffer = new WebGLRenderTarget( this.resolution.x, this.resolution.y, { type: HalfFloatType } );
+        this.renderTargetDepthBuffer.texture.name = 'OutlinePass.depth';
+        this.renderTargetDepthBuffer.texture.generateMipmaps = false;
+
+        this.renderTargetMaskDownSampleBuffer = new WebGLRenderTarget( resx, resy, { type: HalfFloatType } );
+        this.renderTargetMaskDownSampleBuffer.texture.name = 'OutlinePass.depthDownSample';
+        this.renderTargetMaskDownSampleBuffer.texture.generateMipmaps = false;
+
+        this.renderTargetBlurBuffer1 = new WebGLRenderTarget( resx, resy, { type: HalfFloatType } );
+        this.renderTargetBlurBuffer1.texture.name = 'OutlinePass.blur1';
+        this.renderTargetBlurBuffer1.texture.generateMipmaps = false;
+        this.renderTargetBlurBuffer2 = new WebGLRenderTarget( Math.round( resx / 2 ), Math.round( resy / 2 ), { type: HalfFloatType } );
+        this.renderTargetBlurBuffer2.texture.name = 'OutlinePass.blur2';
+        this.renderTargetBlurBuffer2.texture.generateMipmaps = false;
+
+        this.edgeDetectionMaterial = this.getEdgeDetectionMaterial();
+        this.renderTargetEdgeBuffer1 = new WebGLRenderTarget( resx, resy, { type: HalfFloatType } );
+        this.renderTargetEdgeBuffer1.texture.name = 'OutlinePass.edge1';
+        this.renderTargetEdgeBuffer1.texture.generateMipmaps = false;
+        this.renderTargetEdgeBuffer2 = new WebGLRenderTarget( Math.round( resx / 2 ), Math.round( resy / 2 ), { type: HalfFloatType } );
+        this.renderTargetEdgeBuffer2.texture.name = 'OutlinePass.edge2';
+        this.renderTargetEdgeBuffer2.texture.generateMipmaps = false;
+
+        const MAX_EDGE_THICKNESS = 4;
+        const MAX_EDGE_GLOW = 4;
+
+        this.separableBlurMaterial1 = this.getSeperableBlurMaterial( MAX_EDGE_THICKNESS );
+        this.separableBlurMaterial1.uniforms[ 'texSize' ].value.set( resx, resy );
+        this.separableBlurMaterial1.uniforms[ 'kernelRadius' ].value = 1;
+        this.separableBlurMaterial2 = this.getSeperableBlurMaterial( MAX_EDGE_GLOW );
+        this.separableBlurMaterial2.uniforms[ 'texSize' ].value.set( Math.round( resx / 2 ), Math.round( resy / 2 ) );
+        this.separableBlurMaterial2.uniforms[ 'kernelRadius' ].value = MAX_EDGE_GLOW;
+
+        // Overlay material
+        this.overlayMaterial = this.getOverlayMaterial();
+
+        // copy material
+
+        const copyShader = CopyShader;
+
+        this.copyUniforms = UniformsUtils.clone( copyShader.uniforms );
+
+        this.materialCopy = new ShaderMaterial( {
+            uniforms: this.copyUniforms,
+            vertexShader: copyShader.vertexShader,
+            fragmentShader: copyShader.fragmentShader,
+            blending: NoBlending,
+            depthTest: false,
+            depthWrite: false
+        } );
+
+        this.enabled = true;
+        this.needsSwap = false;
+
+        this._oldClearColor = new Color();
+        this.oldClearAlpha = 1;
+
+        this.fsQuad = new FullScreenQuad( null );
+
+        this.tempPulseColor1 = new Color();
+        this.tempPulseColor2 = new Color();
+        this.textureMatrix = new Matrix4();
+
+        function replaceDepthToViewZ( string, camera ) {
+
+            const type = camera.isPerspectiveCamera ? 'perspective' : 'orthographic';
+
+            return string.replace( /DEPTH_TO_VIEW_Z/g, type + 'DepthToViewZ' );
+
+        }
+
+    }
+
+    dispose() {
+
+        this.renderTargetMaskBuffer.dispose();
+        this.renderTargetDepthBuffer.dispose();
+        this.renderTargetMaskDownSampleBuffer.dispose();
+        this.renderTargetBlurBuffer1.dispose();
+        this.renderTargetBlurBuffer2.dispose();
+        this.renderTargetEdgeBuffer1.dispose();
+        this.renderTargetEdgeBuffer2.dispose();
+
+        this.depthMaterial.dispose();
+        this.prepareMaskMaterial.dispose();
+        this.edgeDetectionMaterial.dispose();
+        this.separableBlurMaterial1.dispose();
+        this.separableBlurMaterial2.dispose();
+        this.overlayMaterial.dispose();
+        this.materialCopy.dispose();
+
+        this.fsQuad.dispose();
+
+    }
+
+    setSize( width, height ) {
+
+        this.renderTargetMaskBuffer.setSize( width, height );
+        this.renderTargetDepthBuffer.setSize( width, height );
+
+        let resx = Math.round( width / this.downSampleRatio );
+        let resy = Math.round( height / this.downSampleRatio );
+        this.renderTargetMaskDownSampleBuffer.setSize( resx, resy );
+        this.renderTargetBlurBuffer1.setSize( resx, resy );
+        this.renderTargetEdgeBuffer1.setSize( resx, resy );
+        this.separableBlurMaterial1.uniforms[ 'texSize' ].value.set( resx, resy );
+
+        resx = Math.round( resx / 2 );
+        resy = Math.round( resy / 2 );
+
+        this.renderTargetBlurBuffer2.setSize( resx, resy );
+        this.renderTargetEdgeBuffer2.setSize( resx, resy );
+
+        this.separableBlurMaterial2.uniforms[ 'texSize' ].value.set( resx, resy );
+
+    }
+
+    updateSelectionCache() {
+
+        const cache = this._selectionCache;
+
+        function gatherSelectedMeshesCallBack( object ) {
+
+            if ( object.isMesh ) cache.add( object );
+
+        }
+
+        cache.clear();
+
+        for ( let i = 0; i < this.selectedObjects.length; i ++ ) {
+
+            const selectedObject = this.selectedObjects[ i ];
+            selectedObject.traverse( gatherSelectedMeshesCallBack );
+
+        }
+
+    }
+
+    changeVisibilityOfSelectedObjects( bVisible ) {
+
+        const cache = this._visibilityCache;
+
+        for ( const mesh of this._selectionCache ) {
+
+            if ( bVisible === true ) {
+
+                mesh.visible = cache.get( mesh );
+
+            } else {
+
+                cache.set( mesh, mesh.visible );
+                mesh.visible = bVisible;
+
+            }
+
+        }
+
+    }
+
+    changeVisibilityOfNonSelectedObjects( bVisible ) {
+
+        const visibilityCache = this._visibilityCache;
+        const selectionCache = this._selectionCache;
+
+        function VisibilityChangeCallBack( object ) {
+
+            if ( object.isMesh || object.isSprite ) {
+
+                // only meshes and sprites are supported by OutlinePass
+
+                if ( ! selectionCache.has( object ) ) {
+
+                    const visibility = object.visible;
+
+                    if ( bVisible === false || visibilityCache.get( object ) === true ) {
+
+                        object.visible = bVisible;
+
+                    }
+
+                    visibilityCache.set( object, visibility );
+
+                }
+
+            } else if ( object.isPoints || object.isLine ) {
+
+                // the visibilty of points and lines is always set to false in order to
+                // not affect the outline computation
+
+                if ( bVisible === true ) {
+
+                    object.visible = visibilityCache.get( object ); // restore
+
+                } else {
+
+                    visibilityCache.set( object, object.visible );
+                    object.visible = bVisible;
+
+                }
+
+            }
+
+        }
+
+        this.renderScene.traverse( VisibilityChangeCallBack );
+
+    }
+
+    updateTextureMatrix() {
+
+        this.textureMatrix.set( 0.5, 0.0, 0.0, 0.5,
+            0.0, 0.5, 0.0, 0.5,
+            0.0, 0.0, 0.5, 0.5,
+            0.0, 0.0, 0.0, 1.0 );
+        this.textureMatrix.multiply( this.renderCamera.projectionMatrix );
+        this.textureMatrix.multiply( this.renderCamera.matrixWorldInverse );
+
+    }
+
+    render( renderer, writeBuffer, readBuffer, deltaTime, maskActive ) {
+
+        if ( this.selectedObjects.length > 0 ) {
+            this.renderCamera.layers.enableAll();
+
+            renderer.getClearColor( this._oldClearColor );
+            this.oldClearAlpha = renderer.getClearAlpha();
+            const oldAutoClear = renderer.autoClear;
+
+            renderer.autoClear = false;
+
+            if ( maskActive ) renderer.state.buffers.stencil.setTest( false );
+
+            renderer.setClearColor( 0xffffff, 1 );
+
+            this.updateSelectionCache();
+
+            // Make selected objects invisible
+            this.changeVisibilityOfSelectedObjects( false );
+
+            const currentBackground = this.renderScene.background;
+            this.renderScene.background = null;
+
+            // 1. Draw Non Selected objects in the depth buffer
+            this.renderScene.overrideMaterial = this.depthMaterial;
+            renderer.setRenderTarget( this.renderTargetDepthBuffer );
+            renderer.clear();
+            renderer.render( this.renderScene, this.renderCamera );
+
+            // Make selected objects visible
+            this.changeVisibilityOfSelectedObjects( true );
+            this._visibilityCache.clear();
+
+            // Update Texture Matrix for Depth compare
+            this.updateTextureMatrix();
+
+            // Make non selected objects invisible, and draw only the selected objects, by comparing the depth buffer of non selected objects
+            const selectionCache = new Map();
+
+            function VisibilityChangeCallBack( object ) {
+                selectionCache.set(object, object.visible);
+                object.visible = false;
+            }
+
+            this.transformControls.transformControls.getHelper().traverse( VisibilityChangeCallBack );
+
+            this.changeVisibilityOfNonSelectedObjects( false );
+            this.renderScene.overrideMaterial = this.prepareMaskMaterial;
+            this.prepareMaskMaterial.uniforms[ 'cameraNearFar' ].value.set( this.renderCamera.near, this.renderCamera.far );
+            this.prepareMaskMaterial.uniforms[ 'depthTexture' ].value = this.renderTargetDepthBuffer.texture;
+            this.prepareMaskMaterial.uniforms[ 'textureMatrix' ].value = this.textureMatrix;
+            renderer.setRenderTarget( this.renderTargetMaskBuffer );
+            renderer.clear();
+            renderer.render( this.renderScene, this.renderCamera );
+            this.renderScene.overrideMaterial = null;
+            this.changeVisibilityOfNonSelectedObjects( true );
+            this._visibilityCache.clear();
+            this._selectionCache.clear();
+
+            function VisibilityChangeCallBack2( object ) {
+                object.visible = selectionCache.get(object);
+            }
+
+            this.transformControls.transformControls._root.traverse( VisibilityChangeCallBack2 );
+
+
+            this.renderScene.background = currentBackground;
+
+            // 2. Downsample to Half resolution
+            this.fsQuad.material = this.materialCopy;
+            this.copyUniforms[ 'tDiffuse' ].value = this.renderTargetMaskBuffer.texture;
+            renderer.setRenderTarget( this.renderTargetMaskDownSampleBuffer );
+            renderer.clear();
+            this.fsQuad.render( renderer );
+
+            this.tempPulseColor1.copy( this.visibleEdgeColor );
+            this.tempPulseColor2.copy( this.hiddenEdgeColor );
+
+            if ( this.pulsePeriod > 0 ) {
+
+                const scalar = ( 1 + 0.25 ) / 2 + Math.cos( performance.now() * 0.01 / this.pulsePeriod ) * ( 1.0 - 0.25 ) / 2;
+                this.tempPulseColor1.multiplyScalar( scalar );
+                this.tempPulseColor2.multiplyScalar( scalar );
+
+            }
+
+            // 3. Apply Edge Detection Pass
+            this.fsQuad.material = this.edgeDetectionMaterial;
+            this.edgeDetectionMaterial.uniforms[ 'maskTexture' ].value = this.renderTargetMaskDownSampleBuffer.texture;
+            this.edgeDetectionMaterial.uniforms[ 'texSize' ].value.set( this.renderTargetMaskDownSampleBuffer.width, this.renderTargetMaskDownSampleBuffer.height );
+            this.edgeDetectionMaterial.uniforms[ 'visibleEdgeColor' ].value = this.tempPulseColor1;
+            this.edgeDetectionMaterial.uniforms[ 'hiddenEdgeColor' ].value = this.tempPulseColor2;
+            renderer.setRenderTarget( this.renderTargetEdgeBuffer1 );
+            renderer.clear();
+            this.fsQuad.render( renderer );
+
+            // 4. Apply Blur on Half res
+            this.fsQuad.material = this.separableBlurMaterial1;
+            this.separableBlurMaterial1.uniforms[ 'colorTexture' ].value = this.renderTargetEdgeBuffer1.texture;
+            this.separableBlurMaterial1.uniforms[ 'direction' ].value = OutlinePass.BlurDirectionX;
+            this.separableBlurMaterial1.uniforms[ 'kernelRadius' ].value = this.edgeThickness;
+            renderer.setRenderTarget( this.renderTargetBlurBuffer1 );
+            renderer.clear();
+            this.fsQuad.render( renderer );
+            this.separableBlurMaterial1.uniforms[ 'colorTexture' ].value = this.renderTargetBlurBuffer1.texture;
+            this.separableBlurMaterial1.uniforms[ 'direction' ].value = OutlinePass.BlurDirectionY;
+            renderer.setRenderTarget( this.renderTargetEdgeBuffer1 );
+            renderer.clear();
+            this.fsQuad.render( renderer );
+
+            // Apply Blur on quarter res
+            this.fsQuad.material = this.separableBlurMaterial2;
+            this.separableBlurMaterial2.uniforms[ 'colorTexture' ].value = this.renderTargetEdgeBuffer1.texture;
+            this.separableBlurMaterial2.uniforms[ 'direction' ].value = OutlinePass.BlurDirectionX;
+            renderer.setRenderTarget( this.renderTargetBlurBuffer2 );
+            renderer.clear();
+            this.fsQuad.render( renderer );
+            this.separableBlurMaterial2.uniforms[ 'colorTexture' ].value = this.renderTargetBlurBuffer2.texture;
+            this.separableBlurMaterial2.uniforms[ 'direction' ].value = OutlinePass.BlurDirectionY;
+            renderer.setRenderTarget( this.renderTargetEdgeBuffer2 );
+            renderer.clear();
+            this.fsQuad.render( renderer );
+
+            // Blend it additively over the input texture
+            this.fsQuad.material = this.overlayMaterial;
+            this.overlayMaterial.uniforms[ 'maskTexture' ].value = this.renderTargetMaskBuffer.texture;
+            this.overlayMaterial.uniforms[ 'edgeTexture1' ].value = this.renderTargetEdgeBuffer1.texture;
+            this.overlayMaterial.uniforms[ 'edgeTexture2' ].value = this.renderTargetEdgeBuffer2.texture;
+            this.overlayMaterial.uniforms[ 'patternTexture' ].value = this.patternTexture;
+            this.overlayMaterial.uniforms[ 'edgeStrength' ].value = this.edgeStrength;
+            this.overlayMaterial.uniforms[ 'edgeGlow' ].value = this.edgeGlow;
+            this.overlayMaterial.uniforms[ 'usePatternTexture' ].value = this.usePatternTexture;
+
+
+            if ( maskActive ) renderer.state.buffers.stencil.setTest( true );
+
+            renderer.setRenderTarget( readBuffer );
+            this.fsQuad.render( renderer );
+
+            renderer.setClearColor( this._oldClearColor, this.oldClearAlpha );
+            renderer.autoClear = oldAutoClear;
+
+            this.renderCamera.layers.disableAll();
+            this.renderCamera.layers.enable(0);
+        }
+
+        if ( this.renderToScreen ) {
+
+            this.fsQuad.material = this.materialCopy;
+            this.copyUniforms[ 'tDiffuse' ].value = readBuffer.texture;
+            renderer.setRenderTarget( null );
+            this.fsQuad.render( renderer );
+
+        }
+
+    }
+
+    getPrepareMaskMaterial() {
+
+        return new ShaderMaterial( {
+
+            uniforms: {
+                'depthTexture': { value: null },
+                'cameraNearFar': { value: new Vector2( 0.5, 0.5 ) },
+                'textureMatrix': { value: null }
+            },
+
+            vertexShader:
+                `#include <morphtarget_pars_vertex>
+                #include <skinning_pars_vertex>
+
+                varying vec4 projTexCoord;
+                varying vec4 vPosition;
+                uniform mat4 textureMatrix;
+
+                void main() {
+
+                    #include <skinbase_vertex>
+                    #include <begin_vertex>
+                    #include <morphtarget_vertex>
+                    #include <skinning_vertex>
+                    #include <project_vertex>
+
+                    vPosition = mvPosition;
+
+                    vec4 worldPosition = vec4( transformed, 1.0 );
+
+                    #ifdef USE_INSTANCING
+
+                        worldPosition = instanceMatrix * worldPosition;
+
+                    #endif
+
+                    worldPosition = modelMatrix * worldPosition;
+
+                    projTexCoord = textureMatrix * worldPosition;
+
+                }`,
+
+            fragmentShader:
+                `#include <packing>
+                varying vec4 vPosition;
+                varying vec4 projTexCoord;
+                uniform sampler2D depthTexture;
+                uniform vec2 cameraNearFar;
+
+                void main() {
+
+                    float depth = unpackRGBAToDepth(texture2DProj( depthTexture, projTexCoord ));
+                    float viewZ = - DEPTH_TO_VIEW_Z( depth, cameraNearFar.x, cameraNearFar.y );
+                    float depthTest = (-vPosition.z > viewZ) ? 1.0 : 0.0;
+                    gl_FragColor = vec4(0.0, depthTest, 1.0, 1.0);
+
+                }`
+
+        } );
+
+    }
+
+    getEdgeDetectionMaterial() {
+
+        return new ShaderMaterial( {
+
+            uniforms: {
+                'maskTexture': { value: null },
+                'texSize': { value: new Vector2( 0.5, 0.5 ) },
+                'visibleEdgeColor': { value: new Vector3( 1.0, 1.0, 1.0 ) },
+                'hiddenEdgeColor': { value: new Vector3( 1.0, 1.0, 1.0 ) },
+            },
+
+            vertexShader:
+                `varying vec2 vUv;
+
+                void main() {
+                    vUv = uv;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+                }`,
+
+            fragmentShader:
+                `varying vec2 vUv;
+
+                uniform sampler2D maskTexture;
+                uniform vec2 texSize;
+                uniform vec3 visibleEdgeColor;
+                uniform vec3 hiddenEdgeColor;
+
+                void main() {
+                    vec2 invSize = 1.0 / texSize;
+                    vec4 uvOffset = vec4(1.0, 0.0, 0.0, 1.0) * vec4(invSize, invSize);
+                    vec4 c1 = texture2D( maskTexture, vUv + uvOffset.xy);
+                    vec4 c2 = texture2D( maskTexture, vUv - uvOffset.xy);
+                    vec4 c3 = texture2D( maskTexture, vUv + uvOffset.yw);
+                    vec4 c4 = texture2D( maskTexture, vUv - uvOffset.yw);
+                    float diff1 = (c1.r - c2.r)*0.5;
+                    float diff2 = (c3.r - c4.r)*0.5;
+                    float d = length( vec2(diff1, diff2) );
+                    float a1 = min(c1.g, c2.g);
+                    float a2 = min(c3.g, c4.g);
+                    float visibilityFactor = min(a1, a2);
+                    vec3 edgeColor = 1.0 - visibilityFactor > 0.001 ? visibleEdgeColor : hiddenEdgeColor;
+                    gl_FragColor = vec4(edgeColor, 1.0) * vec4(d);
+                }`
+        } );
+
+    }
+
+    getSeperableBlurMaterial( maxRadius ) {
+
+        return new ShaderMaterial( {
+
+            defines: {
+                'MAX_RADIUS': maxRadius,
+            },
+
+            uniforms: {
+                'colorTexture': { value: null },
+                'texSize': { value: new Vector2( 0.5, 0.5 ) },
+                'direction': { value: new Vector2( 0.5, 0.5 ) },
+                'kernelRadius': { value: 1.0 }
+            },
+
+            vertexShader:
+                `varying vec2 vUv;
+
+                void main() {
+                    vUv = uv;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+                }`,
+
+            fragmentShader:
+                `#include <common>
+                varying vec2 vUv;
+                uniform sampler2D colorTexture;
+                uniform vec2 texSize;
+                uniform vec2 direction;
+                uniform float kernelRadius;
+
+                float gaussianPdf(in float x, in float sigma) {
+                    return 0.39894 * exp( -0.5 * x * x/( sigma * sigma))/sigma;
+                }
+
+                void main() {
+                    vec2 invSize = 1.0 / texSize;
+                    float sigma = kernelRadius/2.0;
+                    float weightSum = gaussianPdf(0.0, sigma);
+                    vec4 diffuseSum = texture2D( colorTexture, vUv) * weightSum;
+                    vec2 delta = direction * invSize * kernelRadius/float(MAX_RADIUS);
+                    vec2 uvOffset = delta;
+                    for( int i = 1; i <= MAX_RADIUS; i ++ ) {
+                        float x = kernelRadius * float(i) / float(MAX_RADIUS);
+                        float w = gaussianPdf(x, sigma);
+                        vec4 sample1 = texture2D( colorTexture, vUv + uvOffset);
+                        vec4 sample2 = texture2D( colorTexture, vUv - uvOffset);
+                        diffuseSum += ((sample1 + sample2) * w);
+                        weightSum += (2.0 * w);
+                        uvOffset += delta;
+                    }
+                    gl_FragColor = diffuseSum/weightSum;
+                }`
+        } );
+
+    }
+
+    getOverlayMaterial() {
+
+        return new ShaderMaterial( {
+
+            uniforms: {
+                'maskTexture': { value: null },
+                'edgeTexture1': { value: null },
+                'edgeTexture2': { value: null },
+                'patternTexture': { value: null },
+                'edgeStrength': { value: 1.0 },
+                'edgeGlow': { value: 1.0 },
+                'usePatternTexture': { value: 0.0 }
+            },
+
+            vertexShader:
+                `varying vec2 vUv;
+
+                void main() {
+                    vUv = uv;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+                }`,
+
+            fragmentShader:
+                `varying vec2 vUv;
+
+                uniform sampler2D maskTexture;
+                uniform sampler2D edgeTexture1;
+                uniform sampler2D edgeTexture2;
+                uniform sampler2D patternTexture;
+                uniform float edgeStrength;
+                uniform float edgeGlow;
+                uniform bool usePatternTexture;
+
+                void main() {
+                    vec4 edgeValue1 = texture2D(edgeTexture1, vUv);
+                    vec4 edgeValue2 = texture2D(edgeTexture2, vUv);
+                    vec4 maskColor = texture2D(maskTexture, vUv);
+                    vec4 patternColor = texture2D(patternTexture, 6.0 * vUv);
+                    float visibilityFactor = 1.0 - maskColor.g > 0.0 ? 1.0 : 0.5;
+                    vec4 edgeValue = edgeValue1 + edgeValue2 * edgeGlow;
+                    vec4 finalColor = edgeStrength * maskColor.r * edgeValue;
+                    if(usePatternTexture)
+                        finalColor += + visibilityFactor * (1.0 - maskColor.r) * (1.0 - patternColor.r);
+                    gl_FragColor = finalColor;
+                }`,
+            blending: NormalBlending,
+            depthTest: false,
+            depthWrite: false,
+            transparent: true
+        } );
+
+    }
+
+}
+
+OutlinePass.BlurDirectionX = new Vector2( 1.0, 0.0 );
+OutlinePass.BlurDirectionY = new Vector2( 0.0, 1.0 );
+
+/*
+ * SPDX-FileCopyrightText: Copyright © 2010-2024 three.js authors
+ *
+ * SPDX-FileContributor: three.js authors
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
+
+
+
+/* Customized version of the 'RenderPass' class of three.js
+
+This version only renders a specific layer.
+*/
+class LayerRenderPass extends Pass {
+
+    constructor( scene, camera, layer = 0, overrideMaterial = null, clearColor = null, clearAlpha = null ) {
+        super();
+
+        this.scene = scene;
+        this.camera = camera;
+        this.layer = layer;
+
+        this.overrideMaterial = overrideMaterial;
+
+        this.clearColor = clearColor;
+        this.clearAlpha = clearAlpha;
+
+        this.clear = false;
+        this.clearDepth = false;
+        this.needsSwap = false;
+        this._oldClearColor = new Color();
+    }
+
+    render( renderer, writeBuffer, readBuffer /*, deltaTime, maskActive */ ) {
+        const oldAutoClear = renderer.autoClear;
+        renderer.autoClear = false;
+
+        let oldClearAlpha, oldOverrideMaterial;
+
+        if ( this.overrideMaterial !== null ) {
+            oldOverrideMaterial = this.scene.overrideMaterial;
+            this.scene.overrideMaterial = this.overrideMaterial;
+        }
+
+        if ( this.clearColor !== null ) {
+            renderer.getClearColor( this._oldClearColor );
+            renderer.setClearColor( this.clearColor, renderer.getClearAlpha() );
+        }
+
+        if ( this.clearAlpha !== null ) {
+            oldClearAlpha = renderer.getClearAlpha();
+            renderer.setClearAlpha( this.clearAlpha );
+        }
+
+        if ( this.clearDepth == true ) {
+            renderer.clearDepth();
+        }
+
+        renderer.setRenderTarget( this.renderToScreen ? null : readBuffer );
+
+        if ( this.clear === true ) {
+            // TODO: Avoid using autoClear properties, see https://github.com/mrdoob/three.js/pull/15571#issuecomment-465669600
+            renderer.clear( renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil );
+        }
+
+        this.camera.layers.disableAll();
+        this.camera.layers.enable(this.layer);
+
+        renderer.render( this.scene, this.camera );
+
+        this.camera.layers.disable(this.layer);
+        this.camera.layers.enable(0);
+
+        // restore
+
+        if ( this.clearColor !== null ) {
+            renderer.setClearColor( this._oldClearColor );
+        }
+
+        if ( this.clearAlpha !== null ) {
+            renderer.setClearAlpha( oldClearAlpha );
+        }
+
+        if ( this.overrideMaterial !== null ) {
+            this.scene.overrideMaterial = oldOverrideMaterial;
+        }
+
+        renderer.autoClear = oldAutoClear;
+    }
+}
+
+/*
  * SPDX-FileCopyrightText: Copyright © 2023 Idiap Research Institute <contact@idiap.ch>
  *
  * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
@@ -5289,6 +6149,22 @@ const InteractionStates = Object.freeze({
 });
 
 
+const Passes = Object.freeze({
+    BaseRenderPass: Symbol(0),
+    NoShadowsRenderPass: Symbol(1),
+    TopRenderPass: Symbol(2),
+    OutputPass: Symbol(3),
+});
+
+
+const Layers = Object.freeze({
+    Base: 0,
+    NoShadows: 1,
+    Top: 2,
+    User: 3,
+    Labels: 31,
+});
+
 
 /* Entry point for the 'viewer3d.js' library, used to display and interact with a 3D
 representation of the Panda robotic arm.
@@ -5301,26 +6177,21 @@ class Viewer3D {
         domElement (element): The DOM element to use for displaying the robotic arm
         parameters (dict): Additional optional parameters, to customize the behavior of the
                            3D viewer (see below)
-        composition (list): Optional settings describing how to combine several rendering
-                            layers (see below)
 
     If no DOM element is provided, one is created. It is the duty of the caller to insert it
     somewhere in the DOM (see 'Viewer3D.domElement').
 
 
     Optional parameters:
-        joint_position_colors (list):
-            the colors to use for the visual indicators around the joints (see
-            "show_joint_positions", default: all 0xff0000)
-
-        joint_position_layer (int):
-            the layer on which the joint position helpers are rendered (default: 0)
-
         shadows (bool):
             enable the rendering of the shadows (default: true)
 
         show_joint_positions (bool):
             enable the display of an visual indicator around each joint (default: false)
+
+        joint_position_colors (list):
+            the colors to use for the visual indicators around the joints (see
+            "show_joint_positions", default: all 0xff0000)
 
         show_axes (bool):
             enable the display of the world coordinates axes (default: false)
@@ -5329,43 +6200,46 @@ class Viewer3D {
             enable the display of statistics about the rendering performance (default: false)
 
         external_loop (bool):
-            indicates that the rendering frequency is controlled by the user application (default: false)
+            indicates that the rendering frequency is controlled by the user application
+            (default: false)
 
 
     Composition:
+        This is an advanced topic that is only relevant if you need to customize the rendering
+        beyond the standard features of viewer3d.js.
 
-        3D objects can be put on different layers, each rendered on top of the previous one.
-        Each layer has its own set of settings affecting the way it is rendered. Those
-        settings are:
+        3D objects can be put on different layers, each rendered separately. Additionaly,
+        the rendering is based on three.js' EffectComposer, allowing the user to apply additional
+        effects as needed (by adding/removing render passes).
 
-            clear_depth (bool):
-                whether to clear the depth buffer before rendering the layer (default: false)
+        4 layers are pre-defined:
 
-            effect (str):
-                the effect applied to this layer. Supported values: 'outline' (default: null)
+            - Layers.Base (0): most objects should be put in that layer. This is the only layer
+                               in which objects are casting shadows.
+            - Layers.NoShadows (1): Objects that should not cast shadows should be put in that
+                                    layer
+            - Layers.Top (2): objects that should be rendered after clearing the depth buffer
+                              (= "on top of everything else") should be put in that layer
+            - Layers.Labels (31): texts to be rendered in the 3D world must be in that layer
 
-            effect_parameters (dict):
-                the parameters of the effect applied to this layer
+        The user can add its own layers (starting at index 'Layers.User'), but will also need
+        to also add corresponding render passes.
 
-        Example (apply the 'outline' effect on layer 1):
+        The default passes used are:
 
-            [
-                {
-                    layer: 1,
-                    effect: 'outline',
-                }
-            ]
+            - LayerRenderPass: render objects in layer 'Layers.Base' (id: Passes.BaseRenderPass)
+            - LayerRenderPass: render objects in layer 'Layers.NoShadows'
+                                 (id: Passes.NoShadowsRenderPass)
+            - LayerRenderPass: render objects in layer 'Layers.Top'
+                                 (id: Passes.TopRenderPass). Note that the depth buffer is cleared
+                                 by this pass.
+            - OutputPass: tone mapping, sRGB conversion (id: Passes.OutputPass)
 
-        Parameters for the 'outline' effect:
-            thickness (float):
-                thickness of the outline (default: 0.003)
-
-            color (list of 4 floats):
-                RGBA color of the outline (default: [0, 0, 0, 0])
+        Note that transparent objects might be rendered with incorrect colors due to an issue
+        in three.js. You might have to adjust their colors and/or opacity.
     */
-    constructor(domElement, parameters, composition) {
+    constructor(domElement, parameters) {
         this.parameters = this._checkParameters(parameters);
-        this.composition = this._checkComposition(composition);
 
         this.domElement = domElement;
 
@@ -5407,6 +6281,10 @@ class Viewer3D {
 
         this.renderer = null;
         this.labelRenderer = null;
+
+        this.composer = null;
+        this.passes = null;
+
         this.clock = new THREE.Clock();
 
         this.cameraControl = null;
@@ -5599,23 +6477,28 @@ class Viewer3D {
     }
 
 
-    /* Change the layer on which new objects are created
-
-    Each layer is drawn on top of the previous one, after clearing the depth buffer.
-    The default layer (the one were the robot is) is layer 0.
+    /* Change the layer in which new objects are created
 
     Parameters:
         layer (int): Index of the layer
     */
     activateLayer(layer) {
-        while (this.composition.length < layer + 1) {
-            this.composition.push(new Map([
-                ['clear_depth', false],
-                ['effect', null],
-            ]));
-        }
-
         this.activeLayer = layer;
+
+        this.passes[Passes.NoShadowsRenderPass].enabled = true;
+        this.passes[Passes.TopRenderPass].enabled = true;
+    }
+
+
+    addPassBefore(pass, standardPassId) {
+        let index = this.composer.passes.indexOf(this.passes[standardPassId]);
+        this.composer.insertPass(pass, index);
+    }
+
+
+    addPassAfter(pass, standardPassId) {
+        let index = this.composer.passes.indexOf(this.passes[standardPassId]);
+        this.composer.insertPass(pass, index+1);
     }
 
 
@@ -5752,27 +6635,23 @@ class Viewer3D {
         this.physicsSimulator.simulation.forward();
         this.physicsSimulator.synchronize();
 
-        if (this.activeLayer != 0) {
-            if (!this.composition[this.activeLayer].get('cast_shadows'))
-                robot.layers.disable(0);
-
-            robot.layers.enable(this.activeLayer);
-        }
+        robot.layers.disableAll();
+        robot.layers.enable(this.activeLayer);
 
         this.robots[name] = robot;
 
         if (this.parameters.get('show_joint_positions')) {
-            let layer = this.parameters.get('joint_position_layer');
-            if (layer == null)
-                layer = this.activeLayer;
-
             robot.createJointPositionHelpers(
-                this.scene, layer, this.parameters.get('joint_position_colors')
+                this.scene, Layers.NoShadows, this.parameters.get('joint_position_colors')
             );
+
+            this.passes[Passes.NoShadowsRenderPass].enabled = true;
+            this.passes[Passes.TopRenderPass].enabled = true;
         }
 
         if (robotParameters.get('color') != null) {
-            const color = robotParameters.get('color');
+            let color = robotParameters.get('color');
+            color = new THREE.Color().setRGB(color[0], color[1], color[2], THREE.SRGBColorSpace);
             robot.arm.visual.meshes.forEach((mesh) => modifyMaterialColor(mesh, color));
             robot.tool.visual.meshes.forEach((mesh) => modifyMaterialColor(mesh, color));
         }
@@ -5808,17 +6687,13 @@ class Viewer3D {
         color (int/str): Color of the target (by default: 0x0000aa)
         shape (Shapes): Shape of the target (by default: Shapes.Cube)
         listener (function): Function to call when the target is moved/rotated using the mouse
-        parameters (dict): Additional shape-dependent parameters (radius, width, height, ...)
+        parameters (dict): Additional shape-dependent parameters (radius, width, height, ...) and opacity
     */
     addTarget(name, position, orientation, color, shape=Shapes.Cube, listener=null, parameters=null) {
         const target = this.targets.create(name, position, orientation, color, shape, listener, parameters);
 
-        if (this.activeLayer != 0) {
-            if (!this.composition[this.activeLayer].get('cast_shadows'))
-                target.layers.disable(0);
-
-            target.layers.enable(this.activeLayer);
-        }
+        target.layers.disableAll();
+        target.layers.enable(this.activeLayer);
 
         this.scene.add(target);
         return target;
@@ -5870,12 +6745,8 @@ class Viewer3D {
             name, origin, direction, length, color, shading, headLength, headWidth
         );
 
-        if (this.activeLayer != 0) {
-            if (!this.composition[this.activeLayer].get('cast_shadows'))
-                arrow.layers.disable(0);
-
-            arrow.layers.enable(this.activeLayer);
-        }
+        arrow.layers.disableAll();
+        arrow.layers.enable(this.activeLayer);
 
         this.arrows.add(arrow);
         this.scene.add(arrow);
@@ -5917,12 +6788,8 @@ class Viewer3D {
     addPath(name, points, radius=0.01, color=0xffff00, shading=false, transparent=false, opacity=0.5) {
         const path = new Path(name, points, radius, color, shading, transparent, opacity);
 
-        if (this.activeLayer != 0) {
-            if (!this.composition[this.activeLayer].get('cast_shadows'))
-                path.layers.disable(0);
-
-            path.layers.enable(this.activeLayer);
-        }
+        path.layers.disableAll();
+        path.layers.enable(this.activeLayer);
 
         this.paths.add(path);
         this.scene.add(path);
@@ -5965,12 +6832,8 @@ class Viewer3D {
     addPoint(name, position, radius=0.01, color=0xffff00, label=null, shading=false, transparent=false, opacity=0.5) {
         const point = new Point(name, position, radius, color, label, shading, transparent, opacity);
 
-        if (this.activeLayer != 0) {
-            if (!this.composition[this.activeLayer].get('cast_shadows'))
-                point.layers.disable(0);
-
-            point.layers.enable(this.activeLayer);
-        }
+        point.layers.disableAll();
+        point.layers.enable(this.activeLayer);
 
         this.points.add(point);
         this.scene.add(point);
@@ -6010,10 +6873,8 @@ class Viewer3D {
     addGaussian(name, mu, sigma, color=0xffff00, listener=null) {
         const gaussian = new Gaussian(name, mu, sigma, color, listener);
 
-        if (this.activeLayer != 0) {
-            gaussian.layers.disable(0);
-            gaussian.layers.enable(this.activeLayer);
-        }
+        gaussian.layers.disableAll();
+        gaussian.layers.enable(this.activeLayer);
 
         this.gaussians.add(gaussian);
         this.scene.add(gaussian);
@@ -6131,49 +6992,11 @@ class Viewer3D {
             ['use_toon_shader', false],
             ['use_light_toon_shader', false],
             ['hue', null],
+            ['color', null],
             ['controlsEnabled', true],
         ]);
 
         return new Map([...defaults, ...parameters]);
-    }
-
-
-    _checkComposition(composition) {
-        if (composition == null)
-            composition = [];
-
-        const defaults = new Map([
-            ['cast_shadows', true],
-            ['clear_depth', false],
-            ['effect', null],
-            ['effect_parameters', null],
-        ]);
-
-        const result = [];
-
-        // Apply defaults
-        for (let i = 0; i < composition.length; ++i) {
-            let entry = composition[i];
-            if (!(entry instanceof Map))
-                entry = new Map(Object.entries(entry));
-
-            const layer = entry.get('layer');
-            result[layer] = new Map([...defaults, ...entry]);
-        }
-
-        // Ensure that all known layers have parameters
-        for (let i = 0; i < result.length; ++i) {
-            if (result[i] == null)
-                result[i] = new Map(defaults);
-        }
-
-        if (result.length == 0)
-            result.push(new Map(defaults));
-
-        // Ensure that the first layer clears the depth buffer
-        result[0].set('clear_depth', true);
-
-        return result;
     }
 
 
@@ -6194,6 +7017,8 @@ class Viewer3D {
         this.camera = new THREE.PerspectiveCamera(45, this.domElement.clientWidth / this.domElement.clientHeight, 0.1, 50);
         this.camera.up.set(0, 0, 1);
         this.camera.position.set(1, 1, -2);
+        this.camera.layers.disableAll();
+        this.camera.layers.enable(0);
 
         this.scene = new THREE.Scene();
 
@@ -6252,36 +7077,38 @@ class Viewer3D {
         this.labelRenderer.domElement.style.top = '0px';
         this.domElement.appendChild(this.labelRenderer.domElement);
 
-        // Effects
-        this.effects = [];
+        // Setup the effect composer
+        this.composer = new EffectComposer(this.renderer);
+        this.passes = [];
 
-        for (let i = 0; i < this.composition.length; ++i) {
-            const effect = this.composition[i].get('effect');
+        const gl = this.renderer.getContext();
+        const samples = gl.getParameter(gl.SAMPLES);
+        this.composer.renderTarget1.samples = samples;
+        this.composer.renderTarget2.samples = samples;
 
-            let effect_parameters = this.composition[i].get('effect_parameters');
-            if (effect_parameters == null)
-                effect_parameters = new Map();
-            else if (!(effect_parameters instanceof Map))
-                effect_parameters = new Map(Object.entries(effect_parameters));
+        this.composer.renderTarget1.depthTexture = new THREE.DepthTexture(this.composer._width, this.composer._height);
+        this.composer.renderTarget2.depthTexture = new THREE.DepthTexture(this.composer._width, this.composer._height);
 
-            if (effect == 'outline') {
-                const color = effect_parameters.get('color') || [0.0, 0.0, 0.0, 0.0];
-                const thickness = effect_parameters.get('thickness') || 0.003;
+        let renderPass = new LayerRenderPass(this.scene, this.camera, Layers.Base);
+        renderPass.clear = false;
+        renderPass.clearDepth = false;
+        this.composer.addPass(renderPass);
+        this.passes[Passes.BaseRenderPass] = renderPass;
 
-                this.effects.push(
-                    new OutlineEffect(
-                        this.renderer,
-                        {
-                            defaultAlpha: color[3],
-                            defaultThickness: thickness,
-                            defaultColor: color.slice(0, 3)
-                        }
-                    )
-                );
-            } else {
-                this.effects.push(null);
-            }
-        }
+        renderPass = new LayerRenderPass(this.scene, this.camera, Layers.NoShadows);
+        renderPass.enabled = false;
+        this.composer.addPass(renderPass);
+        this.passes[Passes.NoShadowsRenderPass] = renderPass;
+
+        renderPass = new LayerRenderPass(this.scene, this.camera, Layers.Top);
+        renderPass.enabled = false;
+        renderPass.clearDepth = true;
+        this.composer.addPass(renderPass);
+        this.passes[Passes.TopRenderPass] = renderPass;
+
+        let outputPass = new OutputPass();
+        this.composer.addPass(outputPass);
+        this.passes[Passes.ColorConversionPass] = outputPass;
 
         this.toolbar = new Toolbar(this.domElement);
 
@@ -6318,6 +7145,17 @@ class Viewer3D {
 
 
     render() {
+        // if (this.blah == undefined)
+        //     this.blah = 0;
+        //
+        // this.blah += 1;
+        // if (this.blah < 10)
+        // {
+        //     requestAnimationFrame(() => this.render());
+        //     return;
+        // }
+        // this.blah = 0;
+
         // Retrieve the time elapsed since the last frame
         const startTime = this.clock.startTime;
         const oldTime = this.clock.oldTime;
@@ -6421,7 +7259,10 @@ class Viewer3D {
             this.gaussians.get(name)._update(viewMatrix);
         }
 
+
         // Physics simulator-related rendering
+        this.renderer.setRenderTarget(this.composer.readBuffer);
+
         if (this.physicsSimulator != null) {
             // Update the headlight position (if necessary)
             if (this.physicsSimulator.headlight != null) {
@@ -6469,49 +7310,10 @@ class Viewer3D {
             this.renderer.clear();
         }
 
-        // Render the scenes
-        this.camera.layers.disableAll();
-        const disabledMaterials = [];
+        this.renderer.setRenderTarget(null);
 
-        for (let i = 0; i < this.composition.length; ++i) {
-            const layerConfig = this.composition[i];
-
-            if (layerConfig.get('clear_depth'))
-                this.renderer.clearDepth();
-
-            this.camera.layers.enable(i);
-
-            if (i == 0) {
-                const objects = [
-                    Object.keys(this.robots).map(name => { return this.robots[name]; }),
-                    Object.keys(this.targets.targets).map(name => { return this.targets.get(name); }),
-                    Object.keys(this.arrows.objects).map(name => { return this.arrows.get(name); }),
-                    Object.keys(this.paths.objects).map(name => { return this.paths.get(name); }),
-                    Object.keys(this.points.objects).map(name => { return this.points.get(name); }),
-                    Object.keys(this.gaussians.objects).map(name => { return this.gaussians.get(name); }),
-                ].flat();
-
-                for (let obj of objects) {
-                    if ((obj.layers.mask > 1) && (obj.layers.mask & 0x1 == 1))
-                        obj._disableVisibility(disabledMaterials);
-                }
-            }
-
-            const effect = this.effects[i];
-            if (effect != null)
-                effect.render(this.scene, this.camera);
-            else
-                this.renderer.render(this.scene, this.camera);
-
-            if (i == 0) {
-                for (let material of disabledMaterials) {
-                    material.colorWrite = true;
-                    material.depthWrite = true;
-                }
-            }
-
-            this.camera.layers.disable(i);
-        }
+        // Rendering
+        this.composer.render(delta * 0.001);
 
         // Display the labels
         this.camera.layers.enable(31);
@@ -6546,6 +7348,7 @@ class Viewer3D {
         this.camera.updateProjectionMatrix();
 
         this.renderer.setSize(width, height);
+        this.composer.setSize(width, height);
 
         if (this.labelRenderer != null)
             this.labelRenderer.setSize(width, height);
@@ -6779,11 +7582,13 @@ class Viewer3D {
     _activateJointHovering(robot, group) {
         function _highlight(object) {
             if (object.type == 'Mesh') {
+                const tint = new THREE.Color().setRGB(245 / 255, 175 / 255, 154 / 255, THREE.SRGBColorSpace);
+
                 object.originalMaterial = object.material;
                 object.material = object.material.clone();
-                object.material.color.r *= 245 / 255;
-                object.material.color.g *= 175 / 255;
-                object.material.color.b *= 154 / 255;
+                object.material.color.r *= tint.r;
+                object.material.color.g *= tint.g;
+                object.material.color.b *= tint.b;
             }
         }
 
@@ -6910,6 +7715,10 @@ function initViewer3D() {
     globalThis.katex = katex;
     globalThis.Viewer3Djs = Viewer3D;
     globalThis.Shapes = Shapes;
+    globalThis.Layers = Layers;
+    globalThis.Passes = Passes;
+    globalThis.OutlinePass = OutlinePass;
+    globalThis.LayerRenderPass = LayerRenderPass;
     globalThis.RobotBuilder = RobotBuilder;
     globalThis.readFile = readFile;
     globalThis.writeFile = writeFile;
@@ -6966,4 +7775,4 @@ cssFiles.forEach(css => {
     document.getElementsByTagName('HEAD')[0].appendChild(link);
 });
 
-export { PandaConfiguration, PandaNoHandConfiguration, RobotBuilder, RobotConfiguration, Shapes, Viewer3D, downloadFiles, downloadPandaRobot, downloadScene, getURL, initPyScript, initViewer3D, matrixFromSigma, readFile, sigmaFromMatrix3, sigmaFromMatrix4, sigmaFromQuaternionAndScale, writeFile };
+export { LayerRenderPass, Layers, OutlinePass, PandaConfiguration, PandaNoHandConfiguration, Passes, RobotBuilder, RobotConfiguration, Shapes, Viewer3D, downloadFiles, downloadPandaRobot, downloadScene, getURL, initPyScript, initViewer3D, matrixFromSigma, readFile, sigmaFromMatrix3, sigmaFromMatrix4, sigmaFromQuaternionAndScale, writeFile };
