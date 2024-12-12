@@ -3,28 +3,68 @@
 
     <div class="col-sm-7">
         <h3>iLQR for car</h3>
+        <div class="card block" id="instructionBlock">
 
+            <div class="card-header">
+                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
+                    Instructions
+                </button>
+                <div class="commands">
+                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/iLQR_car.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">Download standalone example</a>
+                </div>
+            </div>
+
+            <div id="instructions" class="collapse card-body instructions">
+                <h5>General information</h5>
+
+                <p>
+                    Modify the code in the cell below and study how different Q matrices affect the iLQR algorithm used for a car parking problem.
+                    You also have sliders and checkboxes to modify iLQR targets.
+                </p>
+
+                
+                <p>See <a href="#S8">iLQR optimization</a> for more information about iLQR.</p>
+
+                <h5>Coding information</h5>
+
+                <div>
+
+                    <p>
+                        In the cell below, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
+                        You can also download the standalone Python example to test it on your machine.
+                    </p>
+
+                    <p>
+                        The example is a smaller part of a larger Python script that is hidden from you. To properly interact with the script, we list below the functions and variables you can use in the interactive cell.
+                    </p>
+
+
+                    <h6>Available functions</h6>
+                    <ul>
+                        <li>
+                            <code class="inline_code">update_iLQR()</code>: this function updates the iLQR algorithm with the new Q matrix.
+                        </li>
+                    </ul>
+                    <h6>Global variables</h6>
+                    <ul>
+                        <li><code class="inline_code">Q</code>: the precision matrix of iLQR.</li>
+                    </ul>
+                </div>
+
+                <h5>Control</h5>
+
+                <ul>
+                    <li>Click on the green run button to execute the code.</li>
+                    <li>The target objects can be moved by dragging them with the mouse. They can also be rotated using either the sliders below or the mouse wheel while hovering them.</li>
+                </ul>
+            </div>
+
+        </div>
         <editor id="editor" src="user_code"></editor>
 
         <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
             <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
             <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
-        </div>
-
-        <div style="margin-bottom: 10px;">
-            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
-                Instructions
-            </button>
-        </div>
-
-        <div id="instructions" class="collapse instructions">
-            <div class="card card-body">
-                <h5>Control</h5>
-                <p>Click on the green run button to execute the code.</p>
-                <p>The target cars can be moved by dragging them with the mouse. They can also be rotated using either the sliders below or the mouse wheel while hovering them.</p>
-                <h5>Information</h5>
-                <p>See <a href="#S8">iLQR optimization</a> for more information about iLQR.</p>
-            </div>
         </div>
 
         <form style="margin-bottom: 20px;">
@@ -43,7 +83,7 @@
                 <div class="col-md"><label>Cost</label><span id="cost"></span></div>
             </div>
         </form>
-
+        
         <pre id="errors" class="py-error"></pre>
         <pre id="output" class="py-output"></pre>
     </div>

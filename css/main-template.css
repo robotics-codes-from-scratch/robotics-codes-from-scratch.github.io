@@ -297,3 +297,16 @@ div.row.exercise h5 {
     color: visible;
     opacity: 1;
 }
+
+.block {
+    margin-bottom: 15px;
+}
+
+.inline_code{
+
+}
+
+.commands{
+    /*margin-top: 15px;*/
+    float: right;
+}

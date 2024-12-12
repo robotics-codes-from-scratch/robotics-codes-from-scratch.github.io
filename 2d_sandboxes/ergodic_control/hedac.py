@@ -334,7 +334,7 @@ def update():
 
     x_prev = [ agent.x.copy() / param.nbRes for agent in agents ]
 
-    coverage_density, heat = controlCommand(agents, goal_density, coverage_density, heat, coverage_block, param)
+    coverage_density, heat = control(agents, goal_density, coverage_density, heat, coverage_block, param)
 
     x = [ agent.x.copy() / param.nbRes for agent in agents ]
 

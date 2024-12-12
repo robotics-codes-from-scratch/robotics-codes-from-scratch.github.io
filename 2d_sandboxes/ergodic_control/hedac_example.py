@@ -1,3 +1,4 @@
+# Initialization
 # Initial position of the the agents (as many as you want, one per row)
 param.x0 = np.array([
     [.2, .3],
@@ -10,7 +11,8 @@ param.nbGaussian = 2
 param.nb_diffusion_timesteps = 100  
 
 
-def controlCommand(agents, goal_density, coverage_density, heat, coverage_block, param):
+# Control loop definition
+def control(agents, goal_density, coverage_density, heat, coverage_block, param):
     # cooling of all the agents for a single timestep
     # this is used for collision avoidance bw/ agents
     for agent in agents:

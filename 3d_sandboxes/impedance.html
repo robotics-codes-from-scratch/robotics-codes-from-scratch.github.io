@@ -3,7 +3,92 @@
 
     <div class="col-sm-5">
         <h3>Impedance control</h3>
+        <div class="card block" id="instructionBlock">
 
+            <div class="card-header">
+                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
+                    Instructions
+                </button>
+                <div class="commands">
+                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/impedance_control.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">Download standalone example (2D)</a>
+                </div>
+            </div>
+
+            <div id="instructions" class="collapse card-body instructions">
+                <h5>General information</h5>
+                <p>
+                    This example illustrates the use of impedance control in (i) joint space, and (ii) task space.
+                </p>
+                    
+                <p>See <a href="#S11">Torque-controlled robots</a> for more information about impedance control.</p>
+
+                <h5>Coding information</h5>
+
+                <div>
+                    
+                    <p class="text-center">
+                        <img style="width:80%;" src="static_images/code_schema.png"/>
+                    </p>
+
+                    <p>
+                        As described by the figure above, the <code class="inline_code">control</code> function in the cell below is called repeatedly at a fixed frequency.
+                    </p>
+
+                    <p>
+                        In the cell below, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
+                        You can also download the standalone Python example to test it on your machine.
+                    </p>
+
+                    <p>
+                        The example is a smaller part of a larger Python script that is hidden from you. To properly interact with the script, we list below the functions and variables you can use in the interactive cell.
+                    </p>
+
+
+                    <h6>Available functions</h6>
+                    <ul>
+                        <li>
+                            <code class="inline_code">fkin(x)</code>: this function performs the forward kinematics from a given joint configuration
+                            (i.e. the input parameter, a list of floats). It returns a list of float containing the end-effector position and orientation
+                            stacked together (<code class="inline_code">[position, orientation]</code>).
+                        </li>
+                        <li>
+                            <code class="inline_code">Jkin(x)</code>: this function computes the robot's jacobian matrix for a given joint configuration
+                            (i.e. the input parameter, a list of floats). It returns the jacobian matrix.
+                        </li>
+                        <li>
+                            <code class="inline_code">logmap(mu,f)</code>: this function computes the residual between the actual and the desired end-effector states.
+                            Residual is a 1D array of size 6, with the three first components being the position residual and the last three being the orientation residual.
+                        </li>
+                        <li>
+                            <code class="inline_code">logmap_S3(mu,f)</code>: same as  <code class="inline_code">logmap(mu,f)</code>, but it only computes the orientation residual.
+                        </li>
+                    </ul>
+                    <h6>Global variables</h6>
+                    <ul>
+                        <li><code class="inline_code">x</code>: the current joint configuration of the robot as a list of floats.</li>
+                        <li><code class="inline_code">KP</code>: the proportional gains matrix.</li>
+                        <li><code class="inline_code">KV</code>: the derivative gains matrix.</li>
+                        <li><code class="inline_code">param</code>: a struct containing the example configuration. We recommend to only read this struct 
+                            without modifying it. The most useful struct members are:
+                            <ul>
+                                <li><code class="inline_code">param.nbVarX</code>: the joint space dimension.</li>
+                                <li><code class="inline_code">param.nbVarF</code>: the task space dimension.</li>
+                                <li><code class="inline_code">param.Mu</code>: the target position and orientation.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <h5>Control</h5>
+
+                <ul>
+                    <li>Click on the green run button to execute the code.</li>
+                    <li>The robot can be perturbed using the mouse, either by dragging the links or rotating the joints using the mouse wheel.</li>
+                    <li>To rotate the camera, press the left mouse button and drag the mouse. The right mouse button let you translate the camera. The mouse wheel let you zoom in/out.</li>
+                </ul>
+            </div>
+
+        </div>
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
                 <button aria-controls="impedance-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#impedance-tab-pane" data-bs-toggle="tab" id="impedance-tab" role="tab" type="button">Impedance in joint space</button>
@@ -28,23 +113,6 @@
             <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
         </div>
 
-        <div style="margin-bottom: 10px;">
-            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
-                Instructions
-            </button>
-        </div>
-
-        <div id="instructions" class="collapse instructions">
-            <div class="card card-body">
-                <h5>Control</h5>
-                <p>Click on the green run button to execute the code.</p>
-                <p>The robot can be perturbed using the mouse, either by dragging the links or rotating the joints using the mouse wheel.</p>
-                <p>To rotate the camera, press the left mouse button and drag the mouse. The right mouse button let you translate the camera. The mouse wheel let you zoom in/out.</p>
-                <h5>Information</h5>
-                <p>See <a href="#S10">Torque-controlled robots</a> for more information about impedance control.</p>
-            </div>
-        </div>
-
         <pre id="errors" class="py-error"></pre>
         <pre id="output" class="py-output"></pre>
     </div>
@@ -58,6 +126,7 @@
 
 
 <script id="user_code_impedance" type="python">
+    # Initialization
     # Initial robot state
     x = [
         0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0,    # joint positions
@@ -69,13 +138,15 @@
     KP = np.diag([200, 200, 200, 200, 200, 200, 200]) # Joint space stiffness matrix
     KV = np.diag([20, 20, 20, 20, 20, 20, 20])        # Joint space damping matrix
 
-    def controlCommand(x, mu):
+    # Control loop definition
+    def control(x, mu):
         u = KP @ (mu - x[:param.nbVarX]) - KV @ x[param.nbVarX:]
         return u
 </script>
 
 
 <script id="user_code_taskimpedance" type="python">
+    # Initialization
     # Initial robot state
     x = [
         0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0,    # joint positions
@@ -87,7 +158,8 @@
     KP = np.diag([100, 100, 100, 80, 80, 80])  # Task space stiffness (position and orientation)
     KV = np.diag([80, 80, 80, 40, 40, 40])     # Task space damping (position and orientation)
 
-    def controlCommand(x, mu):
+    # Control loop definition
+    def control(x, mu):
         f = fkin(x[:param.nbVarX]) # Forward kinematics
         J = Jkin(x[:param.nbVarX]) # Corresponding Jacobian matrix
         df = J @ x[param.nbVarX:]  # End-effector velocity
@@ -98,7 +170,7 @@
 
 
 <script id="page_code" type="python">
-    from viewer3d import Viewer3D, configs, logmap_S3, logmap, Shapes
+    from viewer3d import Viewer3D, configs, logmap_S3, logmap, Shapes, Layers
     from js import document
     from rcfs import configure, displayError, setAspectRatio, executePythonCode
     import numpy as np
@@ -133,9 +205,9 @@
             x[:param.nbVarX] = robot.jointPositions
 
             if document.getElementById('impedance-tab').ariaSelected == 'true':
-                u = controlCommand(x, x_target)
+                u = control(x, x_target)
             else:
-                u = controlCommand(x, f_target)
+                u = control(x, f_target)
 
             ddx = u
             dx = np.copy(x[param.nbVarX:])
@@ -193,10 +265,10 @@
 
 
     # Placeholder for the function to implement
-    def defaultControlCommand(x, mu):
+    def defaultcontrol(x, mu):
         return np.zeros(param.nbVarX)
 
-    controlCommand = defaultControlCommand
+    control = defaultcontrol
 
 
     # Forward kinematics function (allows to not care about 'robot' in the user code)
@@ -210,7 +282,7 @@
 
     # Load the scene and retrieve the robot
     def switch_to_tab(id, editor=None):
-        global robot, ghost, point, arrow, controlCommand
+        global robot, ghost, point, arrow, control
 
         viewer3D.setRenderingCallback(None)
         viewer3D.removePoint('point')
@@ -226,9 +298,9 @@
 
         if editor is not None:
             executePythonCode(editor.getContent())
-            controlCommand = defaultControlCommand
+            control = defaultcontrol
 
-        viewer3D.activateLayer(1);
+        viewer3D.activateLayer(Layers.NoShadows)
 
         ghost = None
         point = None
@@ -241,7 +313,7 @@
                 'ghost_',
                 {
                     'use_light_toon_shader': True,
-                    'color': [1.0, 0.2, 0.6],
+                    'color': [1.0, 0.5, 0.8],
                     'controlsEnabled': False,
                 }
             )
@@ -254,7 +326,7 @@
                 shading=False,
             )
 
-        viewer3D.activateLayer(2);
+        viewer3D.activateLayer(Layers.Base)
 
         if id == 'impedance-tab':
             robot = viewer3D.createRobot('panda', configs.Panda.new(), 'panda_')

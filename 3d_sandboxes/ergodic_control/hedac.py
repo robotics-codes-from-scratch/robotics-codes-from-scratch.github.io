@@ -359,7 +359,7 @@ def update():
 
     # Compute the command
     try:
-        u, coverage_density, heat = controlCommand(
+        u, coverage_density, heat = control(
             robot.jointPositions,
             agent,
             goal_density,

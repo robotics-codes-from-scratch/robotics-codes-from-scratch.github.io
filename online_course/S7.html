@@ -3,18 +3,18 @@
 </h1><div class="ltx_para" id="S7-para:p1">
 <p class="ltx_p">Linear quadratic tracking (LQT) is a simple form of optimal control that trades off tracking and control costs expressed as quadratic terms over a time horizon, with the evolution of the state described in a linear form. The LQT problem is formulated as the minimization of the cost</p>
 <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S7-eq:A5.EGx22">
-<tbody id="S7-eq:Ex59"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S7-eq:Ex71"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex59.m1">\displaystyle c</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex59.m2">\displaystyle={\big(\bm{\mu}_{T}\!-\!\bm{x}_{T}\big)}^{\scriptscriptstyle\top}\bm{Q}_{T}\big(\bm{\mu}_{T}\!-\!\bm{x}_{T}\big)+\sum_{t=1}^{T-1}\Big({\big(\bm{\mu}_{t}\!-\!\bm{x}_{t}\big)}^{\scriptscriptstyle\top}\bm{Q}_{t}\big(\bm{\mu}_{t}\!-\!\bm{x}_{t}\big)\;+\;\bm{u}_{t}^{\scriptscriptstyle\top}\bm{R}_{t}\;\bm{u}_{t}\Big)</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex71.m1">\displaystyle c</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex71.m2">\displaystyle={\big(\bm{\mu}_{T}\!-\!\bm{x}_{T}\big)}^{\scriptscriptstyle\top}\bm{Q}_{T}\big(\bm{\mu}_{T}\!-\!\bm{x}_{T}\big)+\sum_{t=1}^{T-1}\Big({\big(\bm{\mu}_{t}\!-\!\bm{x}_{t}\big)}^{\scriptscriptstyle\top}\bm{Q}_{t}\big(\bm{\mu}_{t}\!-\!\bm{x}_{t}\big)\;+\;\bm{u}_{t}^{\scriptscriptstyle\top}\bm{R}_{t}\;\bm{u}_{t}\Big)</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="S7-eq:E59"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S7-eq:cBatch"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E59.m1">\displaystyle={\big(\bm{\mu}-\bm{x}\big)}^{\scriptscriptstyle\top}\bm{Q}\big(\bm{\mu}-\bm{x}\big)\;+\;\bm{u}^{\scriptscriptstyle\top}\!\bm{R}\bm{u},</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E67.m1">\displaystyle={\big(\bm{\mu}-\bm{x}\big)}^{\scriptscriptstyle\top}\bm{Q}\big(\bm{\mu}-\bm{x}\big)\;+\;\bm{u}^{\scriptscriptstyle\top}\!\bm{R}\bm{u},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(59)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(67)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">with <span class="ltx_Math" id="p1.m1">\bm{x}\!=\!{\begin{bmatrix}\bm{x}_{1}^{\scriptscriptstyle\top},\bm{x}_{2}^{\scriptscriptstyle\top},\ldots,\bm{x}_{T}^{\scriptscriptstyle\top}\end{bmatrix}}^{\scriptscriptstyle\top}</span> the evolution of the state variables,
@@ -24,43 +24,44 @@
 <span class="ltx_Math" id="p1.m6">\bm{R}\!=\!\mathrm{blockdiag}(\bm{R}_{1},\bm{R}_{2},\ldots,\bm{R}_{T-1})</span> represents the evolution of the control weight matrices <span class="ltx_Math" id="p1.m7">\bm{R}_{t}</span>.</p>
 </div><div class="ltx_para" id="S7-para:p2">
 <p class="ltx_p">The evolution of the system is linear, described by</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:E60">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:linSys">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E60.m1">\bm{x}_{t+1}=\bm{A}_{t}\bm{x}_{t}+\bm{B}_{t}\bm{u}_{t},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E68.m1">\bm{x}_{t+1}=\bm{A}_{t}\bm{x}_{t}+\bm{B}_{t}\bm{u}_{t},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(60)</span></td>
-</tr></tbody>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(68)</span></td>
+</tr>
 </table>
 <p class="ltx_p">yielding at trajectory level</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:E61">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:linSysTraj">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E61.m1">\bm{x}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{u},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E69.m1">\bm{x}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{u},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(61)</span></td>
-</tr></tbody>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(69)</span></td>
+</tr>
 </table>
 <p class="ltx_p">see Appendix <a class="ltx_ref" href="#A1" title="Appendix A System dynamics at trajectory level ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">A</span></a> for details.</p>
 </div><div class="ltx_para" id="S7-para:p3">
-<p class="ltx_p">With open loop control commands organized as a vector <span class="ltx_Math" id="p3.m1">\bm{u}</span>, the solution of (<a class="ltx_ref" href="#S7-eq:E59" title="In 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">59</span></a>) subject to <span class="ltx_Math" id="p3.m2">\bm{x}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{u}</span> is analytic, given by</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:E62">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<p class="ltx_p">With open loop control commands organized as a vector <span class="ltx_Math" id="p3.m1">\bm{u}</span>, the solution of (<a class="ltx_ref" href="#S7-eq:cBatch" title="(67) ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">67</span></a>) subject to <span class="ltx_Math" id="p3.m2">\bm{x}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{u}</span> is analytic, given by</p>
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:uLQT">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E62.m1">\bm{\hat{u}}={\big(\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{u}}+\bm{R}\big)}^{-1}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\big(\bm{\mu}-\bm{S}_{\bm{x}}\bm{x}_{1}\big).</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E70.m1">\bm{\hat{u}}={\big(\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{u}}+\bm{R}\big)}^{-1}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\big(\bm{\mu}-\bm{S}_{\bm{x}}\bm{x}_{1}\big).</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(62)</span></td>
-</tr></tbody>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(70)</span></td>
+</tr>
 </table>
 </div><div class="ltx_para" id="S7-para:p4">
-<p class="ltx_p">The residuals of this least squares solution provides information about the uncertainty of this estimate, in the form of a full covariance matrix (at control trajectory level)</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:E63">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<p class="ltx_p">The residuals of this least squares solution provides information about the uncertainty of this estimate, in the form of a full covariance matrix (at control trajectory level)
+</p>
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:uSigma">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E63.m1">\bm{\hat{\Sigma}}^{\bm{u}}={\big(\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{u}}+\bm{R}\big)}^{-1},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E71.m1">\bm{\hat{\Sigma}}^{\bm{u}}={\big(\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{u}}+\bm{R}\big)}^{-1},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(63)</span></td>
-</tr></tbody>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(71)</span></td>
+</tr>
 </table>
 <p class="ltx_p">which provides a probabilistic interpretation of LQT, see Section <a class="ltx_ref" href="#S2" title="2 Quadratic costs minimization as a product of Gaussians (PoG) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">2</span></a>.</p>
 </div><div class="ltx_para" id="S7-para:p5">
@@ -69,47 +70,48 @@
 <p class="ltx_p">The approach can also be extended to model predictive control (MPC), iterative LQR (iLQR) and differential dynamic programming (DDP), whose solution needs this time to be interpreted locally at each iteration step of the algorithm, as we will see later in the technical report.</p>
 </div><div class="ltx_subsubsection" id="S7-sec:SS0.SSSx1">
 <h3 class="ltx_title ltx_title_subsubsection">Example: Bimanual tennis serve</h3>
-<figure class="ltx_figure figure_main" id="S7-fig:F17"><a href="online_course/images/LQT_tennisServe01.jpg" target="_blank"><img class="ltx_graphics ltx_centering ltx_img_landscape" id="F17.g1" src="online_course/images/small/LQT_tennisServe01.jpg"/></a>
+<figure class="ltx_figure figure_main" id="S7-fig:LQT_tennis"><a href="online_course/images/LQT_tennisServe01.jpg" target="_blank"><img class="ltx_graphics ltx_centering" id="F17.g1" src="online_course/images/small/LQT_tennisServe01.jpg"/></a>
 <figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 17</span>: </span><span class="ltx_text">Tennis serve problem solved by linear quadratic tracking (LQT).
 </span></figcaption>
 </figure>
 <div class="ltx_para" id="S7-para:SS0.SSSx1.p1">
-<p class="ltx_p">LQT can be used to solve a ballistic task mimicking a bimanual tennis serve problem. In this problem, a ball is thrown by one hand and then hit by the other, with the goal of bringing the ball to a desired target, see Fig. <a class="ltx_ref" href="#S7-fig:F17" title="Figure 17 ‣ Example: Bimanual tennis serve ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">17</span></a>.
-The problem is formulated as in (<a class="ltx_ref" href="#S7-eq:E59" title="In 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">59</span></a>), namely</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:E64">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<p class="ltx_p">LQT can be used to solve a ballistic task mimicking a bimanual tennis serve problem. In this problem, a ball is thrown by one hand and then hit by the other, with the goal of bringing the ball to a desired target, see Fig. <a class="ltx_ref" href="#S7-fig:LQT_tennis" title="Figure 17 ‣ Example: Bimanual tennis serve ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">17</span></a>.
+The problem is formulated as in (<a class="ltx_ref" href="#S7-eq:cBatch" title="(67) ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">67</span></a>), namely</p>
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:cTennis">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E64.m1">\min_{\bm{u}}{(\bm{\mu}-\bm{x})}^{\!{\scriptscriptstyle\top}}\bm{Q}(\bm{\mu}-\bm{x})\;+\;\bm{u}^{\!{\scriptscriptstyle\top}}\!\bm{R}\bm{u},\quad\text{s.t.}\quad\bm{x}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{u},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E72.m1">\min_{\bm{u}}{(\bm{\mu}-\bm{x})}^{\!{\scriptscriptstyle\top}}\bm{Q}(\bm{\mu}-\bm{x})\;+\;\bm{u}^{\!{\scriptscriptstyle\top}}\!\bm{R}\bm{u},\quad\text{s.t.}\quad\bm{x}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{u},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(64)</span></td>
-</tr></tbody>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(72)</span></td>
+</tr>
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="SS0.SSSx1.p1.m1">\bm{x}</span> represents the state trajectory of the 3 agents (left hand, right hand and ball), where only the hands can be controlled by a series of acceleration commands <span class="ltx_Math" id="SS0.SSSx1.p1.m2">\bm{u}</span> that can be estimated by LQT.</p>
 </div>
 <div class="ltx_para" id="S7-para:SS0.SSSx1.p2">
-<p class="ltx_p">In the above problem, <span class="ltx_Math" id="SS0.SSSx1.p2.m1">\bm{Q}</span> is a precision matrix and <span class="ltx_Math" id="SS0.SSSx1.p2.m2">\bm{\mu}</span> is a reference vector describing at specific time steps the targets that the three agents must reach. The linear systems are described according to the different phases of the task, see Appendix <a class="ltx_ref" href="#A3" title="Appendix C Linear systems used in the bimanual tennis serve example ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">C</span></a> for details. As shown above, the constrained objective in (<a class="ltx_ref" href="#S7-eq:E64" title="In Example: Bimanual tennis serve ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">64</span></a>) can be solved by least squares, providing an analytical solution given by (<a class="ltx_ref" href="#S7-eq:E62" title="In 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">62</span></a>), see also Fig. <a class="ltx_ref" href="#S7-fig:F17" title="Figure 17 ‣ Example: Bimanual tennis serve ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">17</span></a> for the visualization of the result for a given target and for given initial poses of the hands.</p>
+<p class="ltx_p">In the above problem, <span class="ltx_Math" id="SS0.SSSx1.p2.m1">\bm{Q}</span> is a precision matrix and <span class="ltx_Math" id="SS0.SSSx1.p2.m2">\bm{\mu}</span> is a reference vector describing at specific time steps the targets that the three agents must reach. The linear systems are described according to the different phases of the task, see Appendix <a class="ltx_ref" href="#A3" title="Appendix C Linear systems used in the bimanual tennis serve example ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">C</span></a> for details. As shown above, the constrained objective in (<a class="ltx_ref" href="#S7-eq:cTennis" title="(72) ‣ Example: Bimanual tennis serve ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">72</span></a>) can be solved by least squares, providing an analytical solution given by (<a class="ltx_ref" href="#S7-eq:uLQT" title="(70) ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">70</span></a>), see also Fig. <a class="ltx_ref" href="#S7-fig:LQT_tennis" title="Figure 17 ‣ Example: Bimanual tennis serve ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">17</span></a> for the visualization of the result for a given target and for given initial poses of the hands.</p>
 </div>
-</div><div class="ltx_subsection" id="S7-sec:SS1">
+</div><div class="ltx_subsection" id="S7-sec:initStateOptim">
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">7.1</span> </span><span class="ltx_text">LQT with initial state optimization</span>
 </h2>
 <div class="ltx_para" id="S7-para:SS1.p1">
 <p class="ltx_p">LQT can easily be extended to determine the optimal initial state <span class="ltx_Math" id="SS1.p1.m1">\bm{x}_{1}</span> together with the optimal control commands <span class="ltx_Math" id="SS1.p1.m2">\bm{u}</span>, by defining <span class="ltx_Math" id="SS1.p1.m3">\bm{\tilde{u}}={[\bm{x}_{1}^{\scriptscriptstyle\top},\bm{u}^{\scriptscriptstyle\top}]}^{\scriptscriptstyle\top}</span> as a vector concatenating <span class="ltx_Math" id="SS1.p1.m4">\bm{x}_{1}</span> and <span class="ltx_Math" id="SS1.p1.m5">\bm{u}</span> which is used as the variable to optimize.
-The linear system evolution <span class="ltx_Math" id="SS1.p1.m6">\bm{x}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{u}</span>, as defined in (<a class="ltx_ref" href="#S7-eq:E61" title="In 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">61</span></a>), then takes the form <span class="ltx_Math" id="SS1.p1.m7">\bm{x}=\bm{S}\bm{\tilde{u}}</span> with <span class="ltx_Math" id="SS1.p1.m8">\bm{S}=[\bm{S}_{\bm{x}},\bm{S}_{\bm{u}}]</span>. Similarly, the optimization problem becomes</p>
+The linear system evolution <span class="ltx_Math" id="SS1.p1.m6">\bm{x}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{u}</span>, as defined in (<a class="ltx_ref" href="#S7-eq:linSysTraj" title="(69) ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">69</span></a>), then takes the form <span class="ltx_Math" id="SS1.p1.m7">\bm{x}=\bm{S}\bm{\tilde{u}}</span> with <span class="ltx_Math" id="SS1.p1.m8">\bm{S}=[\bm{S}_{\bm{x}},\bm{S}_{\bm{u}}]</span>. Similarly, the optimization problem becomes</p>
 <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S7-eq:A5.EGx23">
-<tbody id="S7-eq:Ex60"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S7-eq:E75"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex60.m1">\displaystyle\bm{\hat{\tilde{u}}}=\begin{bmatrix}\bm{\hat{x}}_{1}\\
-\bm{\hat{u}}\end{bmatrix}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex60.m2">\displaystyle=\arg\min_{\bm{\tilde{u}}}{\big(\bm{\mu}-\bm{S}\bm{\tilde{u}}\big)}^{\!{\scriptscriptstyle\top}}\bm{Q}\big(\bm{\mu}-\bm{S}\bm{\tilde{u}}\big)+\bm{\tilde{u}}^{\scriptscriptstyle\top}\!\bm{\tilde{R}}\bm{\tilde{u}}</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E75.m1">\displaystyle\bm{\hat{\tilde{u}}}=\begin{bmatrix}\textstyle\bm{\hat{x}}_{1}\\
+\textstyle\bm{\hat{u}}\end{bmatrix}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E75.m2">\displaystyle=\arg\min_{\bm{\tilde{u}}}{\big(\bm{\mu}-\bm{S}\bm{\tilde{u}}\big)}^{\!{\scriptscriptstyle\top}}\bm{Q}\big(\bm{\mu}-\bm{S}\bm{\tilde{u}}\big)+\bm{\tilde{u}}^{\scriptscriptstyle\top}\!\bm{\tilde{R}}\bm{\tilde{u}}</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(75)</span></td>
 </tr></tbody>
-<tbody id="S7-eq:E65"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S7-eq:E76"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E65.m1">\displaystyle={\big(\bm{S}^{\scriptscriptstyle\top}\bm{Q}\bm{S}+\bm{\tilde{R}}\big)}^{-1}\bm{S}^{\scriptscriptstyle\top}\bm{Q}\bm{\mu},</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E76.m1">\displaystyle={\big(\bm{S}^{\scriptscriptstyle\top}\bm{Q}\bm{S}+\bm{\tilde{R}}\big)}^{-1}\bm{S}^{\scriptscriptstyle\top}\bm{Q}\bm{\mu},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(65)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(76)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">by using <span class="ltx_Math" id="SS1.p1.m9">\bm{\tilde{R}}=\begin{bmatrix}\bm{0}&amp;\bm{0}\\
@@ -119,13 +121,14 @@ The linear system evolution <span class="ltx_Math" id="SS1.p1.m6">\bm{x}=\bm{S}_
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">7.2</span> </span><span class="ltx_text">LQT with smoothness cost</span>
 </h2>
-<figure class="ltx_figure ltx_align_floatright figure_main" id="S7-fig:F18">
-<div class="ltx_flex_figure">
-<div class="ltx_flex_cell ltx_flex_size_2"><a href="online_course/images/LQT_smooth01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_figure_panel ltx_img_square" id="F18.g1" src="online_course/images/small/LQT_smooth01.png"/></a></div>
-<div class="ltx_flex_cell ltx_flex_size_2"><a href="online_course/images/LQT_smooth02.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_figure_panel ltx_img_landscape" id="F18.g2" src="online_course/images/small/LQT_smooth02.png"/></a></div>
-<div class="ltx_flex_break"></div>
-<div class="ltx_flex_cell ltx_flex_size_1"><a href="online_course/images/LQT_smooth03.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_figure_panel ltx_img_landscape" id="F18.g3" src="online_course/images/small/LQT_smooth03.png"/></a></div>
-</div>
+<figure class="ltx_figure ltx_align_floatright figure_main" id="S7-fig:LQT_smooth">
+<table>
+<tr>
+<td class="ltx_subgraphics"><a href="online_course/images/LQT_smooth01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F18.g1" src="online_course/images/small/LQT_smooth01.png"/></a></td>
+<td class="ltx_subgraphics"><a href="online_course/images/LQT_smooth02.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F18.g2" src="online_course/images/small/LQT_smooth02.png"/></a></td>
+<td class="ltx_subgraphics"><a href="online_course/images/LQT_smooth03.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F18.g3" src="online_course/images/small/LQT_smooth03.png"/></a></td>
+</tr>
+</table>
 <figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 18</span>: </span><span class="ltx_text">Examples of linear quadratic tracking (LQT) applied to the task of reaching a set of viapoints (red dots) by starting from an initial position (black dot). <em class="ltx_emph ltx_font_italic">Top-left:</em> With velocity commands, with a system described as a single integrator and a standard control cost. <em class="ltx_emph ltx_font_italic">Top-right:</em> With velocity commands, with a system described as a single integrator and a control cost ensuring smoothness. <em class="ltx_emph ltx_font_italic">Bottom:</em> With acceleration commands, with a system described as a double integrator and a standard control cost.
 </span></figcaption>
 </figure>
@@ -133,18 +136,18 @@ The linear system evolution <span class="ltx_Math" id="SS1.p1.m6">\bm{x}=\bm{S}_
 <p class="ltx_p">Linear quadratic tracking (LQT) can be used with dynamical systems described as simple integrators. With single integrators, the states correspond to positions, with velocity control commands. With double integrators, the states correspond to positions and velocities, with acceleration control commands. With triple integrators, the states correspond to positions, velocities and accelerations, with jerk control commands, etc.</p>
 </div>
 <div class="ltx_para" id="S7-para:SS2.p2">
-<p class="ltx_p">Figure <a class="ltx_ref" href="#S7-fig:F18" title="Figure 18 ‣ 7.2 LQT with smoothness cost ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">18</span></a> shows an example of LQT for a task that consist of passing through a set of viapoints. The left and right graphs show the result for single and double integrators, respectively. The graph in the center also considers a single integrator, by redefining the weight matrix <span class="ltx_Math" id="SS2.p2.m1">\bm{R}</span> of the control cost to ensure smoothness. This can be done by replacing the standard diagonal <span class="ltx_Math" id="SS2.p2.m2">\bm{R}</span> matrix in (<a class="ltx_ref" href="#S7-eq:E59" title="In 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">59</span></a>) with</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:Ex61">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<p class="ltx_p">Figure <a class="ltx_ref" href="#S7-fig:LQT_smooth" title="Figure 18 ‣ 7.2 LQT with smoothness cost ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">18</span></a> shows an example of LQT for a task that consist of passing through a set of viapoints. The left and right graphs show the result for single and double integrators, respectively. The graph in the center also considers a single integrator, by redefining the weight matrix <span class="ltx_Math" id="SS2.p2.m1">\bm{R}</span> of the control cost to ensure smoothness. This can be done by replacing the standard diagonal <span class="ltx_Math" id="SS2.p2.m2">\bm{R}</span> matrix in (<a class="ltx_ref" href="#S7-eq:cBatch" title="(67) ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">67</span></a>) with</p>
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:Ex72">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex61.m1">\bm{R}=\left[\begin{matrix}2&amp;-1&amp;0&amp;0&amp;\cdots&amp;0&amp;0\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex72.m1">\bm{R}=\left[\begin{matrix}2&amp;-1&amp;0&amp;0&amp;\cdots&amp;0&amp;0\\
 -1&amp;2&amp;-1&amp;0&amp;\cdots&amp;0&amp;0\\
 0&amp;-1&amp;2&amp;-1&amp;\cdots&amp;0&amp;0\\
 \vdots&amp;\vdots&amp;\vdots&amp;\vdots&amp;\ddots&amp;\vdots&amp;\vdots\\
 0&amp;0&amp;0&amp;0&amp;\cdots&amp;2&amp;-1\\
 0&amp;0&amp;0&amp;0&amp;\cdots&amp;-1&amp;2\end{matrix}\right]\otimes\bm{I}_{D}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr></tbody>
+</tr>
 </table>
 <br class="ltx_break"/>
 </div>
@@ -155,77 +158,67 @@ The linear system evolution <span class="ltx_Math" id="SS1.p1.m6">\bm{x}=\bm{S}_
 </h2>
 <div class="ltx_para" id="S7-para:SS3.p1">
 <p class="ltx_p">If we assume that the control commands profile <span class="ltx_Math" id="SS3.p1.m1">\bm{u}</span> is composed of <em class="ltx_emph ltx_font_italic">control primitives</em> (CP) with <span class="ltx_Math" id="SS3.p1.m2">\bm{u}=\bm{\Psi}\bm{w}</span>, the objective becomes</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:Ex62">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:Ex73">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex62.m1">\min_{\bm{w}}{(\bm{x}-\bm{\mu})}^{\!{\scriptscriptstyle\top}}\bm{Q}(\bm{x}-\bm{\mu})\;+\;\bm{w}^{\!{\scriptscriptstyle\top}}\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{R}\bm{\Psi}\bm{w},\quad\text{s.t.}\quad\bm{x}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{\Psi}\bm{w},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex73.m1">\min_{\bm{w}}{(\bm{x}-\bm{\mu})}^{\!{\scriptscriptstyle\top}}\bm{Q}(\bm{x}-\bm{\mu})\;+\;\bm{w}^{\!{\scriptscriptstyle\top}}\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{R}\bm{\Psi}\bm{w},\quad\text{s.t.}\quad\bm{x}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{\Psi}\bm{w},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr></tbody>
+</tr>
 </table>
 <p class="ltx_p">with a solution given by</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:Ex63">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:Ex74">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex63.m1">\bm{\hat{w}}={\big(\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{u}}\bm{\Psi}+\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{R}\bm{\Psi}\big)}^{-1}\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\big(\bm{\mu}-\bm{S}_{\bm{x}}\bm{x}_{1}\big),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex74.m1">\bm{\hat{w}}={\big(\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{u}}\bm{\Psi}+\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{R}\bm{\Psi}\big)}^{-1}\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\big(\bm{\mu}-\bm{S}_{\bm{x}}\bm{x}_{1}\big),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr></tbody>
+</tr>
 </table>
-<p class="ltx_p">which is used to compute the trajectory <span class="ltx_Math" id="SS3.p1.m3">\bm{\hat{u}}=\bm{\Psi}\bm{\hat{w}}</span> in control space, corresponding to the list of control commands organized in vector form. Similarly to (<a class="ltx_ref" href="#S7-eq:E63" title="In 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">63</span></a>), the residuals of the least squares solution provides a probabilistic approach to LQT with control primitives. Note also that the trajectory in control space can be converted to a trajectory in state space with <span class="ltx_Math" id="SS3.p1.m4">\bm{\hat{x}}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{\hat{u}}</span>. Thus, since all operations are linear, a covariance matrix on <span class="ltx_Math" id="SS3.p1.m5">\bm{w}</span> can be converted to a covariance on <span class="ltx_Math" id="SS3.p1.m6">\bm{u}</span> and on <span class="ltx_Math" id="SS3.p1.m7">\bm{x}</span>. A similar linear transformation is used in the context of probabilistic movement primitives (ProMP) <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib1" title="Probabilistic movement primitives">15</a>]</cite> to map a covariance matrix on <span class="ltx_Math" id="SS3.p1.m8">\bm{w}</span> to a covariance on <span class="ltx_Math" id="SS3.p1.m9">\bm{x}</span>. LQT with control primitives provides a more general approach by considering both control and state spaces. It also has the advantage of reframing the method to the more general context of optimal control, thus providing various extension opportunities.</p>
+<p class="ltx_p">which is used to compute the trajectory <span class="ltx_Math" id="SS3.p1.m3">\bm{\hat{u}}=\bm{\Psi}\bm{\hat{w}}</span> in control space, corresponding to the list of control commands organized in vector form. Similarly to (<a class="ltx_ref" href="#S7-eq:uSigma" title="(71) ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">71</span></a>), the residuals of the least squares solution provides a probabilistic approach to LQT with control primitives. Note also that the trajectory in control space can be converted to a trajectory in state space with <span class="ltx_Math" id="SS3.p1.m4">\bm{\hat{x}}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{\hat{u}}</span>. Thus, since all operations are linear, a covariance matrix on <span class="ltx_Math" id="SS3.p1.m5">\bm{w}</span> can be converted to a covariance on <span class="ltx_Math" id="SS3.p1.m6">\bm{u}</span> and on <span class="ltx_Math" id="SS3.p1.m7">\bm{x}</span>. A similar linear transformation is used in the context of probabilistic movement primitives (ProMP) <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib1" title="Probabilistic movement primitives">15</a>]</cite> to map a covariance matrix on <span class="ltx_Math" id="SS3.p1.m8">\bm{w}</span> to a covariance on <span class="ltx_Math" id="SS3.p1.m9">\bm{x}</span>. LQT with control primitives provides a more general approach by considering both control and state spaces. It also has the advantage of reframing the method to the more general context of optimal control, thus providing various extension opportunities.</p>
 </div>
 <div class="ltx_para" id="S7-para:SS3.p2">
 <p class="ltx_p">Several forms of basis functions can be considered, including stepwise control commands, radial basis functions (RBFs), Bernstein polynomials, Fourier series, or learned basis functions, which are organized as a dictionary matrix <span class="ltx_Math" id="SS3.p2.m1">\bm{\Psi}</span>. Dictionaries for multivariate control commands can be generated with a Kronecker product operator <span class="ltx_Math" id="SS3.p2.m2">\otimes</span> as</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:E66">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:Psi2">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E66.m1">\bm{\Psi}=\bm{\phi}\otimes\bm{C},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E77.m1">\bm{\Psi}=\bm{\phi}\otimes\bm{C},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(66)</span></td>
-</tr></tbody>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(77)</span></td>
+</tr>
 </table>
-<p class="ltx_p">where the matrix <span class="ltx_Math" id="SS3.p2.m3">\bm{\phi}</span> is a horizontal concatenation of univariate basis functions, and <span class="ltx_Math" id="SS3.p2.m4">\bm{C}</span> is a coordination matrix, which can be set to an identity matrix <span class="ltx_Math" id="SS3.p2.m5">\bm{I}_{D}</span> for the generic case of control variables with independent basis functions for each dimension <span class="ltx_Math" id="SS3.p2.m6">d\in\{1,\ldots,D\}</span>.</p>
+<p class="ltx_p">where the matrix <span class="ltx_Math" id="SS3.p2.m3">\bm{\phi}</span> is a horizontal concatenation of univariate basis functions, and <span class="ltx_Math" id="SS3.p2.m4">\bm{C}</span> is a coordination matrix, which can be set to an identity matrix <span class="ltx_Math" id="SS3.p2.m5">\bm{I}_{D}</span> for the generic case of control variables with independent basis functions for each dimension <span class="ltx_Math" id="SS3.p2.m6">d\in\{1,\ldots,D\}</span>.
+</p>
 </div>
 <div class="ltx_para" id="S7-para:SS3.p3">
 <p class="ltx_p">Note also that in some situations, <span class="ltx_Math" id="SS3.p3.m1">\bm{R}</span> can be set to zero because the regularization role of <span class="ltx_Math" id="SS3.p3.m2">\bm{R}</span> in the original problem formulation can sometimes be redundant with the use of sparse basis functions.</p>
 </div>
-</div><div class="ltx_subsection" id="S7-sec:SS4">
+</div><div class="ltx_subsection" id="S7-sec:LQRrecursive">
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">7.4</span> </span><span class="ltx_text">LQR with a recursive formulation</span>
 </h2>
-<figure class="ltx_float ltx_algorithm" id="S7-alg:algorithm3">
+<figure class="ltx_float" id="S7-alg:LQRrecursive">
 <div class="ltx_listing ltx_lst_numbers_left ltx_listing">
-<div class="ltx_listingline">
-Define quadratic cost function with <span class="ltx_Math" id="algorithm3.m1">\bm{Q}_{t}</span>, <span class="ltx_Math" id="algorithm3.m2">\bm{R}_{t}</span>
+<div class="ltx_listingline"> Define quadratic cost function with <span class="ltx_Math" id="algorithm3.m1">\bm{Q}_{t}</span>, <span class="ltx_Math" id="algorithm3.m2">\bm{R}_{t}</span>
 </div>
-<div class="ltx_listingline">
-Define dynamics with <span class="ltx_Math" id="algorithm3.m3">\bm{A}_{t}</span>, <span class="ltx_Math" id="algorithm3.m4">\bm{B}_{t}</span>, and initial state <span class="ltx_Math" id="algorithm3.m5">\bm{x}_{1}</span>
+<div class="ltx_listingline"> Define dynamics with <span class="ltx_Math" id="algorithm3.m3">\bm{A}_{t}</span>, <span class="ltx_Math" id="algorithm3.m4">\bm{B}_{t}</span>, and initial state <span class="ltx_Math" id="algorithm3.m5">\bm{x}_{1}</span>
 </div>
-<div class="ltx_listingline">
-<span class="ltx_text ltx_font_typewriter">// </span><span class="ltx_text ltx_font_typewriter">Backward pass </span>
+<div class="ltx_listingline"> <span class="ltx_text ltx_font_typewriter">// </span><span class="ltx_text ltx_font_typewriter">Backward pass </span>
 </div>
-<div class="ltx_listingline">
-Set <span class="ltx_Math" id="algorithm3.m6">\bm{V}_{T}=\bm{Q}_{T}</span>
+<div class="ltx_listingline"> Set <span class="ltx_Math" id="algorithm3.m6">\bm{V}_{T}=\bm{Q}_{T}</span>
 </div>
-<div class="ltx_listingline">
-<span class="ltx_text ltx_font_bold">for</span> <em class="ltx_emph ltx_font_italic"><span class="ltx_Math" id="algorithm3.m7">t\leftarrow T-1</span> to <span class="ltx_Math" id="algorithm3.m8">1</span></em> <span class="ltx_text ltx_font_bold">do</span>
+<div class="ltx_listingline"> <span class="ltx_text ltx_font_bold">for</span> <em class="ltx_emph ltx_font_italic"><span class="ltx_Math" id="algorithm3.m7">t\leftarrow T-1</span> to <span class="ltx_Math" id="algorithm3.m8">1</span></em> <span class="ltx_text ltx_font_bold">do</span>
 </div>
-<div class="ltx_listingline">  <span class="ltx_rule"> </span>   
-Compute <span class="ltx_Math" id="algorithm3.m9">\bm{V}_{t}</span> with (<a class="ltx_ref" href="#S7-eq:E75" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">75</span></a>) and (<a class="ltx_ref" href="#S7-eq:E73" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">73</span></a>)
-
+<div class="ltx_listingline">  <span class="ltx_rule"> </span>    Compute <span class="ltx_Math" id="algorithm3.m9">\bm{V}_{t}</span> with (<a class="ltx_ref" href="#S7-eq:V" title="(86) ‣ 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">86</span></a>) and (<a class="ltx_ref" href="#S7-eq:ct1" title="(84) ‣ 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">84</span></a>) 
 </div>
 <div class="ltx_listingline"> end for
 </div>
 <div class="ltx_listingline">
 <span class="ltx_text ltx_font_typewriter">// </span><span class="ltx_text ltx_font_typewriter">Forward pass </span>
 </div>
-<div class="ltx_listingline">
-<span class="ltx_text ltx_font_bold">for</span> <em class="ltx_emph ltx_font_italic"><span class="ltx_Math" id="algorithm3.m10">t\leftarrow 1</span> to <span class="ltx_Math" id="algorithm3.m11">T-1</span></em> <span class="ltx_text ltx_font_bold">do</span>
+<div class="ltx_listingline"> <span class="ltx_text ltx_font_bold">for</span> <em class="ltx_emph ltx_font_italic"><span class="ltx_Math" id="algorithm3.m10">t\leftarrow 1</span> to <span class="ltx_Math" id="algorithm3.m11">T-1</span></em> <span class="ltx_text ltx_font_bold">do</span>
 </div>
-<div class="ltx_listingline">  <span class="ltx_rule"> </span>   
-Compute <span class="ltx_Math" id="algorithm3.m12">\bm{K}_{t}</span> and <span class="ltx_Math" id="algorithm3.m13">\bm{\hat{u}}_{t}</span> with (<a class="ltx_ref" href="#S7-eq:E74" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">74</span></a>) 
+<div class="ltx_listingline">  <span class="ltx_rule"> </span>    Compute <span class="ltx_Math" id="algorithm3.m12">\bm{K}_{t}</span> and <span class="ltx_Math" id="algorithm3.m13">\bm{\hat{u}}_{t}</span> with (<a class="ltx_ref" href="#S7-eq:uLQRrecursive" title="(85) ‣ 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">85</span></a>) 
 </div>
-<div class="ltx_listingline">  <span class="ltx_rule"> </span>   
-Compute <span class="ltx_Math" id="algorithm3.m14">\bm{x}_{t+1}</span> with (<a class="ltx_ref" href="#S7-eq:E60" title="In 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">60</span></a>)
-
+<div class="ltx_listingline">  <span class="ltx_rule"> </span>    Compute <span class="ltx_Math" id="algorithm3.m14">\bm{x}_{t+1}</span> with (<a class="ltx_ref" href="#S7-eq:linSys" title="(68) ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">68</span></a>) 
 </div>
 <div class="ltx_listingline"> end for
 </div>
@@ -236,276 +229,280 @@ Compute <span class="ltx_Math" id="algorithm3.m14">\bm{x}_{t+1}</span> with (<a 
 </figure>
 <div class="ltx_para" id="S7-para:SS4.p1">
 <p class="ltx_p">The LQR problem is formulated as the minimization of the cost</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:E67">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:cLQR">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E67.m1">c(\bm{x}_{1},\bm{u})=c_{T}(\bm{x}_{T})+\sum_{t=1}^{T-1}c_{t}(\bm{x}_{t},\bm{u}_{t})\;=\bm{x}_{T}^{\scriptscriptstyle\top}\bm{Q}_{T}\bm{x}_{T}+\sum_{t=1}^{T-1}\Big(\bm{x}_{t}^{\scriptscriptstyle\top}\bm{Q}_{t}\bm{x}_{t}+\bm{u}_{t}^{\scriptscriptstyle\top}\bm{R}_{t}\,\bm{u}_{t}\Big),\quad\text{s.t.}\quad\bm{x}_{t+1}=\bm{A}_{t}\bm{x}_{t}+\bm{B}_{t}\bm{u}_{t},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E78.m1">c(\bm{x}_{1},\bm{u})=c_{T}(\bm{x}_{T})+\sum_{t=1}^{T-1}c_{t}(\bm{x}_{t},\bm{u}_{t})\;=\bm{x}_{T}^{\scriptscriptstyle\top}\bm{Q}_{T}\bm{x}_{T}+\sum_{t=1}^{T-1}\Big(\bm{x}_{t}^{\scriptscriptstyle\top}\bm{Q}_{t}\bm{x}_{t}+\bm{u}_{t}^{\scriptscriptstyle\top}\bm{R}_{t}\,\bm{u}_{t}\Big),\quad\text{s.t.}\quad\bm{x}_{t+1}=\bm{A}_{t}\bm{x}_{t}+\bm{B}_{t}\bm{u}_{t},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(67)</span></td>
-</tr></tbody>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(78)</span></td>
+</tr>
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="SS4.p1.m1">c</span> without index refers to the total cost (cumulative cost).
 We also define the partial cumulative cost</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:E68">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:cumulativeCost">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E68.m1">v_{t}(\bm{x}_{t},\bm{u}_{t:T-1})=c_{T}(\bm{x}_{T})+\sum_{s=t}^{T-1}c_{s}(\bm{x}_{t},\bm{u}_{t}),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E79.m1">v_{t}(\bm{x}_{t},\bm{u}_{t:T-1})=c_{T}(\bm{x}_{T})+\sum_{s=t}^{T-1}c_{s}(\bm{x}_{t},\bm{u}_{t}),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(68)</span></td>
-</tr></tbody>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(79)</span></td>
+</tr>
 </table>
 <p class="ltx_p">which depends on the states and control commands, except for <span class="ltx_Math" id="SS4.p1.m2">v_{T}</span> that only depends on the state.</p>
 </div>
 <div class="ltx_para" id="S7-para:SS4.p2">
 <p class="ltx_p">We define the <em class="ltx_emph ltx_font_italic">value function</em> as the value taken by <span class="ltx_Math" id="SS4.p2.m1">v_{t}</span> when applying optimal control commands, namely</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:E69">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:valueFunction">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E69.m1">\hat{v}_{t}(\bm{x}_{t})=\min_{\bm{u}_{t:T-1}}v_{t}(\bm{x}_{t},\bm{u}_{t:T-1}).</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E80.m1">\hat{v}_{t}(\bm{x}_{t})=\min_{\bm{u}_{t:T-1}}v_{t}(\bm{x}_{t},\bm{u}_{t:T-1}).</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(69)</span></td>
-</tr></tbody>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(80)</span></td>
+</tr>
 </table>
 </div>
 <div class="ltx_para" id="S7-para:SS4.p3">
-<p class="ltx_p">We will use the dynamic programming principle to reduce the minimization in (<a class="ltx_ref" href="#S7-eq:E69" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">69</span></a>) over the entire sequence of control commands <span class="ltx_Math" id="SS4.p3.m1">\bm{u}_{t:T-1}</span> to a sequence of minimization problems over control commands at a single time step, by proceeding backwards in time.</p>
+<p class="ltx_p">We will use the dynamic programming principle to reduce the minimization in (<a class="ltx_ref" href="#S7-eq:valueFunction" title="(80) ‣ 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">80</span></a>) over the entire sequence of control commands <span class="ltx_Math" id="SS4.p3.m1">\bm{u}_{t:T-1}</span> to a sequence of minimization problems over control commands at a single time step, by proceeding backwards in time.</p>
 </div>
 <div class="ltx_para" id="S7-para:SS4.p4">
-<p class="ltx_p">By inserting (<a class="ltx_ref" href="#S7-eq:E68" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">68</span></a>) in (<a class="ltx_ref" href="#S7-eq:E69" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">69</span></a>), we observe that</p>
+<p class="ltx_p">By inserting (<a class="ltx_ref" href="#S7-eq:cumulativeCost" title="(79) ‣ 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">79</span></a>) in (<a class="ltx_ref" href="#S7-eq:valueFunction" title="(80) ‣ 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">80</span></a>), we observe that</p>
 <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S7-eq:A5.EGx24">
-<tbody id="S7-eq:Ex64"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S7-eq:Ex75"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex64.m1">\displaystyle\hat{v}_{t}(\bm{x}_{t})</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex64.m2">\displaystyle=\min_{\bm{u}_{t:T-1}}\Big(c_{T}(\bm{x}_{T})+\sum_{s=t}^{T-1}c_{s}(\bm{x}_{t},\bm{u}_{t})\Big)</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex75.m1">\displaystyle\hat{v}_{t}(\bm{x}_{t})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex75.m2">\displaystyle=\min_{\bm{u}_{t:T-1}}\Big(c_{T}(\bm{x}_{T})+\sum_{s=t}^{T-1}c_{s}(\bm{x}_{t},\bm{u}_{t})\Big)</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="S7-eq:Ex65"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S7-eq:Ex76"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex65.m1">\displaystyle=\min_{\bm{u}_{t}}c_{t}(\bm{x}_{t},\bm{u}_{t})\!+\!\!\!\min_{\bm{u}_{t+1:T-1}}\!\!\!\Big(\!c_{T}(\bm{x}_{T})\!+\!\!\sum_{s=t+1}^{T-1}\!\!c_{s}(\bm{x}_{t},\bm{u}_{t})\!\Big)</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex76.m1">\displaystyle=\min_{\bm{u}_{t}}c_{t}(\bm{x}_{t},\bm{u}_{t})\!+\!\!\!\min_{\bm{u}_{t+1:T-1}}\!\!\!\Big(\!c_{T}(\bm{x}_{T})\!+\!\!\sum_{s=t+1}^{T-1}\!\!c_{s}(\bm{x}_{t},\bm{u}_{t})\!\Big)</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="S7-eq:E70"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S7-eq:qtLQR"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E70.m1">\displaystyle=\min_{\bm{u}_{t}}\underbrace{c_{t}(\bm{x}_{t},\bm{u}_{t})+\hat{v}_{t+1}(\bm{x}_{t+1})}_{q_{t}(\bm{x}_{t},\bm{u}_{t})},</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E81.m1">\displaystyle=\min_{\bm{u}_{t}}\underbrace{c_{t}(\bm{x}_{t},\bm{u}_{t})+\hat{v}_{t+1}(\bm{x}_{t+1})}_{q_{t}(\bm{x}_{t},\bm{u}_{t})},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(70)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(81)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="SS4.p4.m1">q_{t}</span> is called the <em class="ltx_emph ltx_font_italic">q-function</em>.</p>
 </div>
 <div class="ltx_para" id="S7-para:SS4.p5">
 <p class="ltx_p">By starting from the last time step <span class="ltx_Math" id="SS4.p5.m1">T</span>, and by relabeling <span class="ltx_Math" id="SS4.p5.m2">\bm{Q}_{T}</span> as <span class="ltx_Math" id="SS4.p5.m3">\bm{V}_{T}</span>, we can see that <span class="ltx_Math" id="SS4.p5.m4">\hat{v}_{T}(\bm{x}_{T})=c_{T}(\bm{x}_{T})</span> is independent of the control commands, taking the quadratic error form</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:E71">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:vhatT">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E71.m1">\hat{v}_{T}=\bm{x}_{T}^{\scriptscriptstyle\top}\bm{V}_{T}\bm{x}_{T},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E82.m1">\hat{v}_{T}=\bm{x}_{T}^{\scriptscriptstyle\top}\bm{V}_{T}\bm{x}_{T},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(71)</span></td>
-</tr></tbody>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(82)</span></td>
+</tr>
 </table>
 <p class="ltx_p">which only involves the final state <span class="ltx_Math" id="SS4.p5.m5">\bm{x}_{T}</span>. We will show that <span class="ltx_Math" id="SS4.p5.m6">\hat{v}_{T-1}</span> has the same quadratic form as <span class="ltx_Math" id="SS4.p5.m7">\hat{v}_{T}</span>, enabling the backward recursive computation of <span class="ltx_Math" id="SS4.p5.m8">\hat{v}_{t}</span> from <span class="ltx_Math" id="SS4.p5.m9">t=T-1</span> to <span class="ltx_Math" id="SS4.p5.m10">t=1</span>.</p>
 </div>
 <div class="ltx_para" id="S7-para:SS4.p6">
-<p class="ltx_p">With (<a class="ltx_ref" href="#S7-eq:E70" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">70</span></a>), the dynamic programming recursion takes the form</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:E72">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<p class="ltx_p">With (<a class="ltx_ref" href="#S7-eq:qtLQR" title="(81) ‣ 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">81</span></a>), the dynamic programming recursion takes the form</p>
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:ct0">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E72.m1">\hat{v}_{t}=\min_{\bm{u}_{t}}\begin{bmatrix}\bm{x}_{t}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E83.m1">\hat{v}_{t}=\min_{\bm{u}_{t}}\begin{bmatrix}\bm{x}_{t}\\
 \bm{u}_{t}\end{bmatrix}^{\scriptscriptstyle\top}\begin{bmatrix}\bm{Q}_{t}&amp;\bm{0}\\
 \bm{0}&amp;\bm{R}_{t}\end{bmatrix}\begin{bmatrix}\bm{x}_{t}\\
 \bm{u}_{t}\end{bmatrix}+\bm{x}_{t+1}^{\scriptscriptstyle\top}\bm{V}_{t+1}\bm{x}_{t+1}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(72)</span></td>
-</tr></tbody>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(83)</span></td>
+</tr>
 </table>
 </div>
 <div class="ltx_para" id="S7-para:SS4.p7">
-<p class="ltx_p">By substituting <span class="ltx_Math" id="SS4.p7.m1">\bm{x}_{{t+1}}=\bm{A}_{t}\bm{x}_{t}+\bm{B}_{t}\bm{u}_{t}</span> into (<a class="ltx_ref" href="#S7-eq:E72" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">72</span></a>), <span class="ltx_Math" id="SS4.p7.m2">\hat{v}_{t}</span> can be rewritten as</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:E73">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<p class="ltx_p">By substituting <span class="ltx_Math" id="SS4.p7.m1">\bm{x}_{{t+1}}=\bm{A}_{t}\bm{x}_{t}+\bm{B}_{t}\bm{u}_{t}</span> into (<a class="ltx_ref" href="#S7-eq:ct0" title="(83) ‣ 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">83</span></a>), <span class="ltx_Math" id="SS4.p7.m2">\hat{v}_{t}</span> can be rewritten as</p>
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:ct1">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E73.m1">\hat{v}_{t}=\min_{\bm{u}_{t}}\begin{bmatrix}\bm{x}_{t}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E84.m1">\hat{v}_{t}=\min_{\bm{u}_{t}}\begin{bmatrix}\bm{x}_{t}\\
 \bm{u}_{t}\end{bmatrix}^{\scriptscriptstyle\top}\begin{bmatrix}\bm{Q}_{\bm{x}\bm{x},t}&amp;\bm{Q}_{\bm{u}\bm{x},t}^{\scriptscriptstyle\top}\\
 \bm{Q}_{\bm{u}\bm{x},t}&amp;\bm{Q}_{\bm{u}\bm{u},t}\end{bmatrix}\begin{bmatrix}\bm{x}_{t}\\
 \bm{u}_{t}\end{bmatrix},\quad\text{where}\quad\left\{\begin{aligned} \bm{Q}_{\bm{x}\bm{x},t}&amp;=\bm{A}_{t}^{\scriptscriptstyle\top}\bm{V}_{t+1}\bm{A}_{t}+\bm{Q}_{t},\\
 \bm{Q}_{\bm{u}\bm{u},t}&amp;=\bm{B}_{t}^{\scriptscriptstyle\top}\bm{V}_{t+1}\bm{B}_{t}+\bm{R}_{t},\\
 \bm{Q}_{\bm{u}\bm{x},t}&amp;=\bm{B}_{t}^{\scriptscriptstyle\top}\bm{V}_{t+1}\bm{A}_{t}.\end{aligned}\right.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(73)</span></td>
-</tr></tbody>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(84)</span></td>
+</tr>
 </table>
 </div>
 <div class="ltx_para" id="S7-para:SS4.p8">
-<p class="ltx_p">An optimal control command <span class="ltx_Math" id="SS4.p8.m1">\bm{\hat{u}}_{t}</span> can be computed by differentiating (<a class="ltx_ref" href="#S7-eq:E73" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">73</span></a>) with respect to <span class="ltx_Math" id="SS4.p8.m2">\bm{u}_{t}</span> and equating to zero, providing a feedback law</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:E74">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<p class="ltx_p">An optimal control command <span class="ltx_Math" id="SS4.p8.m1">\bm{\hat{u}}_{t}</span> can be computed by differentiating (<a class="ltx_ref" href="#S7-eq:ct1" title="(84) ‣ 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">84</span></a>) with respect to <span class="ltx_Math" id="SS4.p8.m2">\bm{u}_{t}</span> and equating to zero, providing a feedback law</p>
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:uLQRrecursive">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E74.m1">\bm{\hat{u}}_{t}=-\bm{K}_{t}\,\bm{x}_{t},\quad\text{with}\quad\bm{K}_{t}=\bm{Q}_{\bm{u}\bm{u},t}^{-1}\,\bm{Q}_{\bm{u}\bm{x},t}.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E85.m1">\bm{\hat{u}}_{t}=-\bm{K}_{t}\,\bm{x}_{t},\quad\text{with}\quad\bm{K}_{t}=\bm{Q}_{\bm{u}\bm{u},t}^{-1}\,\bm{Q}_{\bm{u}\bm{x},t}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(74)</span></td>
-</tr></tbody>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(85)</span></td>
+</tr>
 </table>
 </div>
 <div class="ltx_para" id="S7-para:SS4.p9">
-<p class="ltx_p">By introducing (<a class="ltx_ref" href="#S7-eq:E74" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">74</span></a>) back into (<a class="ltx_ref" href="#S7-eq:E73" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">73</span></a>), the resulting value function <span class="ltx_Math" id="SS4.p9.m1">\hat{v}_{t}</span> has the quadratic form</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:E75">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<p class="ltx_p">By introducing (<a class="ltx_ref" href="#S7-eq:uLQRrecursive" title="(85) ‣ 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">85</span></a>) back into (<a class="ltx_ref" href="#S7-eq:ct1" title="(84) ‣ 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">84</span></a>), the resulting value function <span class="ltx_Math" id="SS4.p9.m1">\hat{v}_{t}</span> has the quadratic form</p>
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:V">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E75.m1">\hat{v}_{t}=\bm{x}_{t}^{\scriptscriptstyle\top}\bm{V}_{t}\bm{x}_{t},\quad\text{with}\quad\bm{V}_{t}=\bm{Q}_{\bm{x}\bm{x},t}-\bm{Q}_{\bm{u}\bm{x},t}^{\scriptscriptstyle\top}\,\bm{Q}_{\bm{u}\bm{u},t}^{-1}\,\bm{Q}_{\bm{u}\bm{x},t}.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E86.m1">\hat{v}_{t}=\bm{x}_{t}^{\scriptscriptstyle\top}\bm{V}_{t}\bm{x}_{t},\quad\text{with}\quad\bm{V}_{t}=\bm{Q}_{\bm{x}\bm{x},t}-\bm{Q}_{\bm{u}\bm{x},t}^{\scriptscriptstyle\top}\,\bm{Q}_{\bm{u}\bm{u},t}^{-1}\,\bm{Q}_{\bm{u}\bm{x},t}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(75)</span></td>
-</tr></tbody>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(86)</span></td>
+</tr>
 </table>
 </div>
 <div class="ltx_para" id="S7-para:SS4.p10">
-<p class="ltx_p">We observe that (<a class="ltx_ref" href="#S7-eq:E75" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">75</span></a>) has the same quadratic form as (<a class="ltx_ref" href="#S7-eq:E71" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">71</span></a>), so that (<a class="ltx_ref" href="#S7-eq:E70" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">70</span></a>) can be solved recursively. We thus obtain a backward recursion procedure in which <span class="ltx_Math" id="SS4.p10.m1">\bm{V}_{t}</span> is evaluated recursively from <span class="ltx_Math" id="SS4.p10.m2">t=T-1</span> to <span class="ltx_Math" id="SS4.p10.m3">t=1</span>, starting from <span class="ltx_Math" id="SS4.p10.m4">\bm{V}_{T}=\bm{Q}_{T}</span>, which corresponds to a Riccati equation.</p>
+<p class="ltx_p">We observe that (<a class="ltx_ref" href="#S7-eq:V" title="(86) ‣ 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">86</span></a>) has the same quadratic form as (<a class="ltx_ref" href="#S7-eq:vhatT" title="(82) ‣ 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">82</span></a>), so that (<a class="ltx_ref" href="#S7-eq:qtLQR" title="(81) ‣ 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">81</span></a>) can be solved recursively. We thus obtain a backward recursion procedure in which <span class="ltx_Math" id="SS4.p10.m1">\bm{V}_{t}</span> is evaluated recursively from <span class="ltx_Math" id="SS4.p10.m2">t=T-1</span> to <span class="ltx_Math" id="SS4.p10.m3">t=1</span>, starting from <span class="ltx_Math" id="SS4.p10.m4">\bm{V}_{T}=\bm{Q}_{T}</span>, which corresponds to a Riccati equation.</p>
 </div>
 <div class="ltx_para" id="S7-para:SS4.p11">
-<p class="ltx_p">After all feedback gain matrices <span class="ltx_Math" id="SS4.p11.m1">\bm{K}_{t}</span> have been computed by backward recursion, a forward recursion can be used to compute the evolution of the state, starting from <span class="ltx_Math" id="SS4.p11.m2">\bm{x}_{1}</span>, by using the linear system <span class="ltx_Math" id="SS4.p11.m3">\bm{x}_{t+1}=\bm{A}_{t}\bm{x}_{t}+\bm{B}_{t}\bm{u}_{t}</span> and the control policy <span class="ltx_Math" id="SS4.p11.m4">\bm{u}_{t}=-\bm{K}_{t}\bm{x}_{t}</span>, see Algorithm <a class="ltx_ref" href="#S7-alg:algorithm3" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">3</span></a> for the summary of the overall procedure.</p>
+<p class="ltx_p">After all feedback gain matrices <span class="ltx_Math" id="SS4.p11.m1">\bm{K}_{t}</span> have been computed by backward recursion, a forward recursion can be used to compute the evolution of the state, starting from <span class="ltx_Math" id="SS4.p11.m2">\bm{x}_{1}</span>, by using the linear system <span class="ltx_Math" id="SS4.p11.m3">\bm{x}_{t+1}=\bm{A}_{t}\bm{x}_{t}+\bm{B}_{t}\bm{u}_{t}</span> and the control policy <span class="ltx_Math" id="SS4.p11.m4">\bm{u}_{t}=-\bm{K}_{t}\bm{x}_{t}</span>, see Algorithm <a class="ltx_ref" href="#S7-alg:LQRrecursive" title="Algorithm 3 ‣ 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">3</span></a> for the summary of the overall procedure.</p>
 </div>
-</div><div class="ltx_subsection" id="S7-sec:SS5">
+</div><div class="ltx_subsection" id="S7-sec:augmState">
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">7.5</span> </span><span class="ltx_text">LQT with a recursive formulation and an augmented state space</span>
 </h2>
 <div class="ltx_para" id="S7-para:SS5.p1">
 <p class="ltx_p">In order to extend the above development to linear quadratic tracking (LQT), the problem of tracking a reference signal <span class="ltx_Math" id="SS5.p1.m1">\{\bm{\mu}_{t}\}_{t=1}^{T}</span> can be recast as a regulation problem by considering a dynamical system with an augmented state</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:E76">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:ABaugm">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E76.m1">\underbrace{\left[\begin{matrix}\bm{x}_{t+1}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E87.m1">\underbrace{\left[\begin{matrix}\bm{x}_{t+1}\\
 1\end{matrix}\right]}_{\bm{\tilde{x}}_{t+1}}=\underbrace{\left[\begin{matrix}\bm{A}&amp;\bm{0}\\
 \bm{0}&amp;1\end{matrix}\right]}_{\bm{\tilde{A}}}\underbrace{\left[\begin{matrix}\bm{x}_{t}\\
 1\end{matrix}\right]}_{\bm{\tilde{x}}_{t}}+\underbrace{\left[\begin{matrix}\bm{B}\\
 0\end{matrix}\right]}_{\bm{\tilde{B}}}\bm{u}_{t},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(76)</span></td>
-</tr></tbody>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(87)</span></td>
+</tr>
 </table>
 <p class="ltx_p">and an augmented tracking weight</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:Ex66">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:Ex77">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex66.m1">\bm{\tilde{Q}}_{t}=\begin{bmatrix}\bm{Q}_{t}^{-1}\!+\!\bm{\mu}_{t}\bm{\mu}_{t}^{\scriptscriptstyle\top}&amp;\bm{\mu}_{t}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex77.m1">\bm{\tilde{Q}}_{t}=\begin{bmatrix}\bm{Q}_{t}^{-1}\!+\!\bm{\mu}_{t}\bm{\mu}_{t}^{\scriptscriptstyle\top}&amp;\bm{\mu}_{t}\\
 \bm{\mu}_{t}^{\scriptscriptstyle\top}&amp;1\end{bmatrix}^{-1}=\begin{bmatrix}\bm{I}&amp;\bm{0}\\
 -\bm{\mu}_{t}^{\scriptscriptstyle\top}&amp;1\end{bmatrix}\begin{bmatrix}\bm{Q}_{t}&amp;\bm{0}\\
 \bm{0}&amp;1\end{bmatrix}\begin{bmatrix}\bm{I}&amp;-\bm{\mu}_{t}\\
 \bm{0}&amp;1\end{bmatrix},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr></tbody>
+</tr>
 </table>
 <p class="ltx_p">which is used to define the cost</p>
 <table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S7-eq:A5.EGx25">
-<tbody id="S7-eq:Ex67"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S7-eq:Ex78"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex67.m1">\displaystyle c</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex67.m2">\displaystyle={\big(\bm{\mu}_{T}-\bm{x}_{T}\big)}^{\scriptscriptstyle\top}\bm{Q}_{T}\big(\bm{\mu}_{T}-\bm{x}_{T}\big)+\sum_{t=1}^{T-1}\Big({\big(\bm{\mu}_{t}-\bm{x}_{t}\big)}^{\scriptscriptstyle\top}\bm{Q}_{t}\big(\bm{\mu}_{t}-\bm{x}_{t}\big)\;+\;\bm{u}_{t}^{\scriptscriptstyle\top}\bm{R}_{t}\;\bm{u}_{t}\Big)</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex78.m1">\displaystyle c</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex78.m2">\displaystyle={\big(\bm{\mu}_{T}-\bm{x}_{T}\big)}^{\scriptscriptstyle\top}\bm{Q}_{T}\big(\bm{\mu}_{T}-\bm{x}_{T}\big)+\sum_{t=1}^{T-1}\Big({\big(\bm{\mu}_{t}-\bm{x}_{t}\big)}^{\scriptscriptstyle\top}\bm{Q}_{t}\big(\bm{\mu}_{t}-\bm{x}_{t}\big)\;+\;\bm{u}_{t}^{\scriptscriptstyle\top}\bm{R}_{t}\;\bm{u}_{t}\Big)</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="S7-eq:E77"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S7-eq:cBatchAugm"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E77.m1">\displaystyle=\bm{\tilde{x}}_{T}^{\scriptscriptstyle\top}\bm{\tilde{Q}}_{T}\bm{\tilde{x}}_{T}\;+\;\sum_{t=1}^{T-1}\Big(\bm{\tilde{x}}_{t}^{\scriptscriptstyle\top}\bm{\tilde{Q}}_{t}\bm{\tilde{x}}_{t}\;+\;\bm{u}_{t}^{\scriptscriptstyle\top}\bm{R}_{t}\bm{u}_{t}\Big),</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E88.m1">\displaystyle=\bm{\tilde{x}}_{T}^{\scriptscriptstyle\top}\bm{\tilde{Q}}_{T}\bm{\tilde{x}}_{T}\;+\;\sum_{t=1}^{T-1}\Big(\bm{\tilde{x}}_{t}^{\scriptscriptstyle\top}\bm{\tilde{Q}}_{t}\bm{\tilde{x}}_{t}\;+\;\bm{u}_{t}^{\scriptscriptstyle\top}\bm{R}_{t}\bm{u}_{t}\Big),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(77)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(88)</span></td>
 </tr></tbody>
 </table>
-<p class="ltx_p">where the augmented form in (<a class="ltx_ref" href="#S7-eq:E77" title="In 7.5 LQT with a recursive formulation and an augmented state space ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">77</span></a>) has the same form as the standard LQR cost in (<a class="ltx_ref" href="#S7-eq:E67" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">67</span></a>), allowing the tracking problem to be solved in the same way by using this augmented state representation. Additional verification details can be found in Appendix <a class="ltx_ref" href="#A4" title="Appendix D Equivalence between LQT and LQR with augmented state space ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">D</span></a>.</p>
+<p class="ltx_p">where the augmented form in (<a class="ltx_ref" href="#S7-eq:cBatchAugm" title="(88) ‣ 7.5 LQT with a recursive formulation and an augmented state space ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">88</span></a>) has the same form as the standard LQR cost in (<a class="ltx_ref" href="#S7-eq:cLQR" title="(78) ‣ 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">78</span></a>), allowing the tracking problem to be solved in the same way by using this augmented state representation. Additional verification details can be found in Appendix <a class="ltx_ref" href="#A4" title="Appendix D Equivalence between LQT and LQR with augmented state space ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">D</span></a>.</p>
 </div>
 <div class="ltx_para" id="S7-para:SS5.p2">
 <p class="ltx_p">For a tracking problem, we can see that the resulting optimal control policy takes the form</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:E78">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:uLQTrecursive">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E78.m1">\bm{\hat{u}}_{t}=-\bm{\tilde{K}}_{t}\;\bm{\tilde{x}}_{t}=\bm{K}_{t}\,(\bm{\mu}_{t}-\bm{x}_{t})+\bm{u}^{\text{ff}}_{t},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E89.m1">\bm{\hat{u}}_{t}=-\bm{\tilde{K}}_{t}\;\bm{\tilde{x}}_{t}=\bm{K}_{t}\,(\bm{\mu}_{t}-\bm{x}_{t})+\bm{u}^{\text{ff}}_{t},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(78)</span></td>
-</tr></tbody>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(89)</span></td>
+</tr>
 </table>
-<p class="ltx_p">characterized by a feedback gain matrix <span class="ltx_Math" id="SS5.p2.m1">\bm{K}_{t}</span> extracted from <span class="ltx_Math" id="SS5.p2.m2">\bm{\tilde{K}}_{t}=\big[\bm{K}_{t},\bm{k}_{t}\big]</span>, and a feedforward term <span class="ltx_Math" id="SS5.p2.m3">\bm{u}^{\text{ff}}_{t}=-\bm{k}_{t}-\bm{K}_{t}\bm{\mu}_{t}</span> depending on <span class="ltx_Math" id="SS5.p2.m4">\bm{\mu}_{t}</span>.</p>
+<p class="ltx_p">characterized by a feedback gain matrix <span class="ltx_Math" id="SS5.p2.m1">\bm{K}_{t}</span> extracted from <span class="ltx_Math" id="SS5.p2.m2">\bm{\tilde{K}}_{t}=\big[\bm{K}_{t},\bm{k}_{t}\big]</span>, and a feedforward term <span class="ltx_Math" id="SS5.p2.m3">\bm{u}^{\text{ff}}_{t}=-\bm{k}_{t}-\bm{K}_{t}\bm{\mu}_{t}</span> depending on <span class="ltx_Math" id="SS5.p2.m4">\bm{\mu}_{t}</span>.
+</p>
 </div>
-</div><div class="ltx_subsection" id="S7-sec:SS6">
+</div><div class="ltx_subsection" id="S7-sec:LQRLS">
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">7.6</span> </span><span class="ltx_text">Least squares formulation of recursive LQR</span>
 </h2>
 <div class="ltx_para" id="S7-para:SS6.p1">
-<p class="ltx_p">We have seen in Section <a class="ltx_ref" href="#S7-sec:SS4" title="7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">7.4</span></a> that a standard LQR problem is formulated as</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:Ex68">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<p class="ltx_p">We have seen in Section <a class="ltx_ref" href="#S7-sec:LQRrecursive" title="7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">7.4</span></a> that a standard LQR problem is formulated as</p>
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:Ex79">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex68.m1">\min_{\bm{u}}\;\bm{x}^{\!{\scriptscriptstyle\top}}\bm{Q}\bm{x}+\bm{u}^{\!{\scriptscriptstyle\top}}\!\bm{R}\bm{u},\quad\text{s.t.}\quad\bm{x}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{u},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex79.m1">\min_{\bm{u}}\;\bm{x}^{\!{\scriptscriptstyle\top}}\bm{Q}\bm{x}+\bm{u}^{\!{\scriptscriptstyle\top}}\!\bm{R}\bm{u},\quad\text{s.t.}\quad\bm{x}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{u},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr></tbody>
+</tr>
 </table>
 <p class="ltx_p">whose solution is</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:E79">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:LQRsolution">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E79.m1">\bm{\hat{u}}=-\big({\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{u}}+\bm{R}\big)}^{-1}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{x}}\bm{x}_{1},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E90.m1">\bm{\hat{u}}=-\big({\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{u}}+\bm{R}\big)}^{-1}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{x}}\bm{x}_{1},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(79)</span></td>
-</tr></tbody>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(90)</span></td>
+</tr>
 </table>
 <p class="ltx_p">corresponding to open loop control commands.</p>
 </div>
 <div class="ltx_para" id="S7-para:SS6.p2">
-<p class="ltx_p">We can see in (<a class="ltx_ref" href="#S7-eq:E79" title="In 7.6 Least squares formulation of recursive LQR ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">79</span></a>) that the open loop control commands <span class="ltx_Math" id="SS6.p2.m1">\bm{\hat{u}}</span> (in a vector form) is linear with respect to <span class="ltx_Math" id="SS6.p2.m2">\bm{x}_{1}</span>.
+<p class="ltx_p">We can see in (<a class="ltx_ref" href="#S7-eq:LQRsolution" title="(90) ‣ 7.6 Least squares formulation of recursive LQR ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">90</span></a>) that the open loop control commands <span class="ltx_Math" id="SS6.p2.m1">\bm{\hat{u}}</span> (in a vector form) is linear with respect to <span class="ltx_Math" id="SS6.p2.m2">\bm{x}_{1}</span>.
 Thus, by introducing a matrix <span class="ltx_Math" id="SS6.p2.m3">\bm{F}</span> to describe <span class="ltx_Math" id="SS6.p2.m4">\bm{u}=-\bm{F}\bm{x}_{1}</span>, we can alternatively define the optimization problem as</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:Ex69">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:Ex80">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex69.m1">\min_{\bm{F}}\;\;\bm{x}^{\!{\scriptscriptstyle\top}}\bm{Q}\bm{x}+(-\bm{F}\bm{x}_{1})^{\!{\scriptscriptstyle\top}}\,\bm{R}\,(-\bm{F}\bm{x}_{1}),\quad\text{s.t.}\quad\bm{x}=(\bm{S}_{\bm{x}}-\bm{S}_{\bm{u}}\bm{F})\bm{x}_{1},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex80.m1">\min_{\bm{F}}\;\;\bm{x}^{\!{\scriptscriptstyle\top}}\bm{Q}\bm{x}+(-\bm{F}\bm{x}_{1})^{\!{\scriptscriptstyle\top}}\,\bm{R}\,(-\bm{F}\bm{x}_{1}),\quad\text{s.t.}\quad\bm{x}=(\bm{S}_{\bm{x}}-\bm{S}_{\bm{u}}\bm{F})\bm{x}_{1},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr></tbody>
+</tr>
 </table>
 <p class="ltx_p">whose least squares solution is</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:E80">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:LQR_LS_F">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E80.m1">\bm{F}={\big(\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{u}}+\bm{R}\big)}^{-1}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{x}}.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E91.m1">\bm{F}={\big(\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{u}}+\bm{R}\big)}^{-1}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{x}}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(80)</span></td>
-</tr></tbody>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(91)</span></td>
+</tr>
 </table>
 </div>
 <div class="ltx_para" id="S7-para:SS6.p3">
 <p class="ltx_p">By decomposing <span class="ltx_Math" id="SS6.p3.m1">\bm{F}</span> as block matrices <span class="ltx_Math" id="SS6.p3.m2">\bm{F}_{t}</span> with <span class="ltx_Math" id="SS6.p3.m3">t\in\{1,\ldots,T-1\}</span>, <span class="ltx_Math" id="SS6.p3.m4">\bm{F}</span> can be used to iteratively reconstruct regulation gains <span class="ltx_Math" id="SS6.p3.m5">\bm{K}_{t}</span>, by starting from <span class="ltx_Math" id="SS6.p3.m6">\bm{K}_{1}=\bm{F}_{1}</span>, <span class="ltx_Math" id="SS6.p3.m7">\bm{P}_{1}=\bm{I}</span>, and by computing recursively</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:E81">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:K_from_F">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E81.m1">\bm{P}_{t}=\bm{P}_{t-1}{(\bm{A}_{t-1}-\bm{B}_{t-1}\bm{K}_{t-1})}^{-1},\quad\bm{K}_{t}=\bm{F}_{t}\;\bm{P}_{t},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E92.m1">\bm{P}_{t}=\bm{P}_{t-1}{(\bm{A}_{t-1}-\bm{B}_{t-1}\bm{K}_{t-1})}^{-1},\quad\bm{K}_{t}=\bm{F}_{t}\;\bm{P}_{t},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(81)</span></td>
-</tr></tbody>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(92)</span></td>
+</tr>
 </table>
-<p class="ltx_p">which can then be used in a feedback controller as in (<a class="ltx_ref" href="#S7-eq:E74" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">74</span></a>).</p>
+<p class="ltx_p">which can then be used in a feedback controller as in (<a class="ltx_ref" href="#S7-eq:uLQRrecursive" title="(85) ‣ 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">85</span></a>).</p>
 </div>
 <div class="ltx_para" id="S7-para:SS6.p4">
-<p class="ltx_p">It is straightforward to extend this least squares formulation of recursive LQR to linear quadratic tracking and use (<a class="ltx_ref" href="#S7-eq:E78" title="In 7.5 LQT with a recursive formulation and an augmented state space ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">78</span></a>) as feedback controller on an augmented state space, since the recursive LQT problem can be transformed to a recursive LQR problem with an augmented state space representation (see Section <a class="ltx_ref" href="#S7-sec:SS5" title="7.5 LQT with a recursive formulation and an augmented state space ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">7.5</span></a>).</p>
+<p class="ltx_p">It is straightforward to extend this least squares formulation of recursive LQR to linear quadratic tracking and use (<a class="ltx_ref" href="#S7-eq:uLQTrecursive" title="(89) ‣ 7.5 LQT with a recursive formulation and an augmented state space ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">89</span></a>) as feedback controller on an augmented state space, since the recursive LQT problem can be transformed to a recursive LQR problem with an augmented state space representation (see Section <a class="ltx_ref" href="#S7-sec:augmState" title="7.5 LQT with a recursive formulation and an augmented state space ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">7.5</span></a>).
+</p>
 </div>
 <div class="ltx_para" id="S7-para:SS6.p5">
-<p class="ltx_p">This least squares formulation of LQT (LQT-LS) yields the same controller as with the standard recursive computation presented in Section <a class="ltx_ref" href="#S7-sec:SS5" title="7.5 LQT with a recursive formulation and an augmented state space ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">7.5</span></a>. However, the linear form in (<a class="ltx_ref" href="#S7-eq:E80" title="In 7.6 Least squares formulation of recursive LQR ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">80</span></a>) used by LQT-LS has several advantages. First, it allows the use of full precision matrices <span class="ltx_Math" id="SS6.p5.m1">\bm{Q}</span>, which will be demonstrated in the example below. It also allows to extend LQT-LS to the use of control primitives, which will be further discussed in Section <a class="ltx_ref" href="#S7-sec:SS7" title="7.7 Dynamical movement primitives (DMP) reformulated as LQT with control primitives ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">7.7</span></a>. Moreover, it provides a nullspace structure that can be exploited in recursive LQR/LQT problems.</p>
+<p class="ltx_p">This least squares formulation of LQT (LQT-LS) yields the same controller as with the standard recursive computation presented in Section <a class="ltx_ref" href="#S7-sec:augmState" title="7.5 LQT with a recursive formulation and an augmented state space ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">7.5</span></a>. However, the linear form in (<a class="ltx_ref" href="#S7-eq:LQR_LS_F" title="(91) ‣ 7.6 Least squares formulation of recursive LQR ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">91</span></a>) used by LQT-LS has several advantages. First, it allows the use of full precision matrices <span class="ltx_Math" id="SS6.p5.m1">\bm{Q}</span>, which will be demonstrated in the example below. It also allows to extend LQT-LS to the use of control primitives, which will be further discussed in Section <a class="ltx_ref" href="#S7-sec:DMPLQT" title="7.7 Dynamical movement primitives (DMP) reformulated as LQT with control primitives ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">7.7</span></a>. Moreover, it provides a nullspace structure that can be exploited in recursive LQR/LQT problems.</p>
 </div>
 <div class="ltx_subsubsection" id="S7-sec:SS6.SSSx1">
 <h3 class="ltx_title ltx_title_subsubsection">Example with the control of multiple agents</h3>
-<figure class="ltx_figure figure_main" id="S7-fig:F19"><a href="online_course/images/LQT_recursive_LS_multiAgents01.png" target="_blank"><img class="ltx_graphics ltx_img_landscape" id="F19.g1" src="online_course/images/small/LQT_recursive_LS_multiAgents01.png"/></a>
+<figure class="ltx_figure figure_main" id="S7-fig:LQT_recursive_LS_multiAgents"><a href="online_course/images/LQT_recursive_LS_multiAgents01.png" target="_blank"><img class="ltx_graphics" id="F19.g1" src="online_course/images/small/LQT_recursive_LS_multiAgents01.png"/></a>
 <figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 19</span>: </span><span class="ltx_text">Least squares formulation of recursive LQR to control multiple agents (as point mass systems), where the task of each agent is to reach a desired target at the end of the motion, and to meet the other agent in the middle of the motion (e.g., for a handover task, see main text for the alternative option of nonzero offdiagonal elements at different time steps). We then test the adaptation capability of the agents by simulating a perturbation at 1/4 of the movement. The original and adapted movements are depicted in dashed and solid lines, respectively. The initial positions are represented with black points, the targets are in red, the optimized meeting points are in blue, and the perturbation is in green.
 </span></figcaption>
 </figure>
 <div class="ltx_para" id="S7-para:SS6.SSSx1.p1">
-<p class="ltx_p">Figure <a class="ltx_ref" href="#S7-fig:F19" title="Figure 19 ‣ Example with the control of multiple agents ‣ 7.6 Least squares formulation of recursive LQR ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">19</span></a> presents an example with the control of multiple agents, with a precision matrix involving nonzero offdiagonal elements. The corresponding example code presents two options: it either requests the two agents to meet in the middle of the motion (e.g., for a handover task), or it requests the two agents to find a location to reach at different time steps (e.g., to drop and pick-up an object), involving nonzero offdiagonal elements at different time steps.</p>
+<p class="ltx_p">Figure <a class="ltx_ref" href="#S7-fig:LQT_recursive_LS_multiAgents" title="Figure 19 ‣ Example with the control of multiple agents ‣ 7.6 Least squares formulation of recursive LQR ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">19</span></a> presents an example with the control of multiple agents, with a precision matrix involving nonzero offdiagonal elements. The corresponding example code presents two options: it either requests the two agents to meet in the middle of the motion (e.g., for a handover task), or it requests the two agents to find a location to reach at different time steps (e.g., to drop and pick-up an object), involving nonzero offdiagonal elements at different time steps.</p>
 </div>
 </div>
-</div><div class="ltx_subsection" id="S7-sec:SS7">
+</div><div class="ltx_subsection" id="S7-sec:DMPLQT">
 <h2 class="ltx_title ltx_title_subsection">
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">7.7</span> </span><span class="ltx_text">Dynamical movement primitives (DMP) reformulated as LQT with control primitives</span>
 </h2>
-<figure class="ltx_figure figure_main" id="S7-fig:F20">
-<div class="ltx_flex_figure">
-<div class="ltx_flex_cell ltx_flex_size_2"><a href="online_course/images/LQT_CP_DMP01.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_figure_panel ltx_img_square" id="F20.g1" src="online_course/images/small/LQT_CP_DMP01.png"/></a></div>
-<div class="ltx_flex_cell ltx_flex_size_2"><a href="online_course/images/LQT_CP_DMP02.png" target="_blank"><img class="ltx_graphics ltx_centering ltx_figure_panel ltx_img_square" id="F20.g2" src="online_course/images/small/LQT_CP_DMP02.png"/></a></div>
-</div>
+<figure class="ltx_figure figure_main" id="S7-fig:LQT_CP_DMP">
+<table>
+<tr>
+<td class="ltx_subgraphics"><a href="online_course/images/LQT_CP_DMP01.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F20.g1" src="online_course/images/small/LQT_CP_DMP01.png"/></a></td>
+<td class="ltx_subgraphics"><a href="online_course/images/LQT_CP_DMP02.png" target="_blank"><img class="ltx_graphics ltx_centering" id="F20.g2" src="online_course/images/small/LQT_CP_DMP02.png"/></a></td>
+</tr>
+</table>
 <figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 20</span>: </span><span class="ltx_text">Linear quadratic tracking (LQT) with control primitives applied to a trajectory tracking task, with a formulation similar to dynamical movement primitives (DMP).
 <em class="ltx_emph ltx_font_italic">Left:</em> The observed “S” shape (in blue) is reproduced by starting from a different initial position (black point), with a perturbation simulated at 1/4 of the movement (green points) to show the capability of the approach to recover from perturbations. The trajectory in dashed line shows the result without perturbation and trajectory in solid line shows the result with perturbation.
 <em class="ltx_emph ltx_font_italic">Right:</em> The corresponding LQT problem formulation consists of requesting an end-point to be reached (red points) and an acceleration profile to be tracked (red lines), where the control commands <span class="ltx_Math" id="F20.m3">\bm{u}</span> are represented as a superposition of radial basis functions <span class="ltx_Math" id="F20.m4">\bm{\phi}_{k}</span>.
@@ -515,24 +512,25 @@ Thus, by introducing a matrix <span class="ltx_Math" id="SS6.p2.m3">\bm{F}</span
 <p class="ltx_p">The dynamical movement primitives (DMP) <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib4" title="Dynamical movement primitives: learning attractor models for motor behaviors">5</a>]</cite> approach proposes to reproduce an observed movement by crafting a controller composed of two parts: a closed-loop spring-damper system reaching the final point of the observed movement, and an open-loop system reproducing the acceleration profile of the observed movement. These two controllers are weighted so that the spring-damper system part is progressively increased until it becomes the only active controller. In DMP, the acceleration profile (also called forcing terms) is encoded with radial basis functions <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib5" title="Multivariable functional interpolation and adaptive networks">1</a>]</cite>, and the spring-damper system parameters are defined heuristically, usually as a critically damped system.</p>
 </div>
 <div class="ltx_para" id="S7-para:SS7.p2">
-<p class="ltx_p">Linear quadratic tracking (LQT) with control primitives can be used in a similar fashion as in DMP, by requesting a target to be reached at the end of the movement and by requesting the observed acceleration profile to be tracked, while encoding the control commands as radial basis functions. The controller can be estimated either as the open-loop control commands (<a class="ltx_ref" href="#S7-eq:E62" title="In 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">62</span></a>), or as the closed-loop controller (<a class="ltx_ref" href="#S7-eq:E78" title="In 7.5 LQT with a recursive formulation and an augmented state space ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">78</span></a>).</p>
+<p class="ltx_p">Linear quadratic tracking (LQT) with control primitives can be used in a similar fashion as in DMP, by requesting a target to be reached at the end of the movement and by requesting the observed acceleration profile to be tracked, while encoding the control commands as radial basis functions. The controller can be estimated either as the open-loop control commands (<a class="ltx_ref" href="#S7-eq:uLQT" title="(70) ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">70</span></a>), or as the closed-loop controller (<a class="ltx_ref" href="#S7-eq:uLQTrecursive" title="(89) ‣ 7.5 LQT with a recursive formulation and an augmented state space ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">89</span></a>).</p>
 </div>
 <div class="ltx_para" id="S7-para:SS7.p3">
-<p class="ltx_p">In the latter case, the matrix <span class="ltx_Math" id="SS7.p3.m1">\bm{F}</span> in (<a class="ltx_ref" href="#S7-eq:E80" title="In 7.6 Least squares formulation of recursive LQR ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">80</span></a>) is estimated by using control primitives and an augmented state space formulation, namely</p>
-<table class="ltx_equation ltx_eqn_table" id="S7-eq:Ex70">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<p class="ltx_p">In the latter case, the matrix <span class="ltx_Math" id="SS7.p3.m1">\bm{F}</span> in (<a class="ltx_ref" href="#S7-eq:LQR_LS_F" title="(91) ‣ 7.6 Least squares formulation of recursive LQR ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">91</span></a>) is estimated by using control primitives and an augmented state space formulation, namely</p>
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:Ex81">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex70.m1">\bm{\hat{W}}={\big(\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{\tilde{Q}}\bm{S}_{\bm{u}}\bm{\Psi}+\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{R}\bm{\Psi}\big)}^{-1}\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{\tilde{Q}}\bm{S}_{\bm{x}},\quad\bm{F}=\bm{\Psi}\bm{\hat{W}},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex81.m1">\bm{\hat{W}}={\big(\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{\tilde{Q}}\bm{S}_{\bm{u}}\bm{\Psi}+\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{R}\bm{\Psi}\big)}^{-1}\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{\tilde{Q}}\bm{S}_{\bm{x}},\quad\bm{F}=\bm{\Psi}\bm{\hat{W}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr></tbody>
+</tr>
 </table>
-<p class="ltx_p">which is used to compute feedback gains <span class="ltx_Math" id="SS7.p3.m2">\bm{\tilde{K}}_{t}</span> on the augmented state with (<a class="ltx_ref" href="#S7-eq:E81" title="In 7.6 Least squares formulation of recursive LQR ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">81</span></a>).</p>
+<p class="ltx_p">which is used to compute feedback gains <span class="ltx_Math" id="SS7.p3.m2">\bm{\tilde{K}}_{t}</span> on the augmented state with (<a class="ltx_ref" href="#S7-eq:K_from_F" title="(92) ‣ 7.6 Least squares formulation of recursive LQR ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">92</span></a>).</p>
 </div>
 <div class="ltx_para" id="S7-para:SS7.p4">
 <p class="ltx_p">The resulting controller <span class="ltx_Math" id="SS7.p4.m1">\bm{\hat{u}}_{t}=-\bm{\tilde{K}}_{t}\bm{\tilde{x}}_{t}</span> tracks the acceleration profile while smoothly reaching the desired goal at the end of the movement, with a smooth transition between the two. The main difference with DMP is that the smooth transition between the two behaviors is directly optimized by the system, and the parameters of the feedback controller are automatically optimized (in DMP, stiffness and damping ratio).</p>
 </div>
 <div class="ltx_para" id="S7-para:SS7.p5">
-<p class="ltx_p">Figure <a class="ltx_ref" href="#S7-fig:F20" title="Figure 20 ‣ 7.7 Dynamical movement primitives (DMP) reformulated as LQT with control primitives ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">20</span></a> presents an example of reproducing an “S” trajectory with simulation perturbations.</p>
+<p class="ltx_p">Figure <a class="ltx_ref" href="#S7-fig:LQT_CP_DMP" title="Figure 20 ‣ 7.7 Dynamical movement primitives (DMP) reformulated as LQT with control primitives ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">20</span></a> presents an example of reproducing an “S” trajectory with simulation perturbations.
+</p>
 </div>
 <div class="ltx_para" id="S7-para:SS7.p6">
 <p class="ltx_p">In addition, the LQT formulation allows the resulting controller to be formalized in the form of a cost function, which allows the approach to be combined more fluently with other optimal control strategies. Notably, the approach can be extended to multiple viapoints without any modification. It allows multiple demonstrations of a movement to be used to estimate a feedback controller that will exploit the (co)variations in the demonstrations to provide a minimal intervention control strategy that will selectively reject perturbations based on the impact they can have on the task to achieve. This is effectively attained by automatically regulating the gains in accordance to the variations in the demonstrations, with low gains in parts of the movement allowing variations, and higher gains for parts of the movement that are invariant in the demonstrations. It is also important to highlight that the solution of the LQT problem formulated as in the above is analytical, corresponding to a simple least squares problem.</p>

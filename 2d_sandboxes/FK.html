@@ -3,29 +3,63 @@
 
     <div class="col-sm-7">
         <h3>Forward kinematics (FK)</h3>
+        <div class="card block" id="instructionBlock">
 
+            <div class="card-header">
+                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
+                    Instructions
+                </button>
+            </div>
+
+            <div id="instructions" class="collapse card-body instructions">
+                <h5>General information</h5>
+
+                <p>
+                    Modify the code in the cell below and study how forward kinematics (FK) works. 
+                </p>
+
+                <p>See <a href="#S4">Forward kinematics (FK) for a planar robot manipulator</a> for more information about forward kinematics.</p>
+
+                <h5>Coding information</h5>
+
+                <div>
+
+                    <p>
+                        In the cell below, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
+                    </p>
+
+                    <p>
+                        The example is a smaller part of a larger Python script that is hidden from you. To properly interact with the script, we list below the functions and variables you can use in the interactive cell.
+                    </p>
+
+                    <h6>Global variables</h6>
+                    <ul>
+                        <li><code class="inline_code">x</code>: the current joint configuration of the robot as a list of floats.</li>
+                        <li><code class="inline_code">param</code>: a struct containing the example configuration. We recommend to only read this struct 
+                            without modifying it. The most useful struct members are:
+                            <ul>
+                                <li><code class="inline_code">param.nbVarX</code>: the joint space dimension.</li>
+                                <li><code class="inline_code">param.l</code>: the robot links lengths as a float list.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <h5>Control</h5>
+
+                <ul>
+                    <li>Click on the green run button to execute the code.</li>
+                    <li>Joints and links can be moved by dragging them with the mouse.</li>
+                    <li>Joints can also be rotated using the mouse wheel while hovering them.</li>
+                </ul>
+            </div>
+
+        </div>
         <editor id="editor" src="user_code"></editor>
 
         <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
             <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
             <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
-        </div>
-
-        <div style="margin-bottom: 10px;">
-            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
-                Instructions
-            </button>
-        </div>
-
-        <div id="instructions" class="collapse instructions">
-            <div class="card card-body">
-                <h5>Control</h5>
-                <p>Click on the green run button to execute the code.</p>
-                <p>Joints and links can be moved by dragging them with the mouse.</p>
-                <p>Joints can also be rotated using the mouse wheel while hovering them.</p>
-                <h5>Information</h5>
-                <p>See <a href="#S4">Forward kinematics (FK) for a planar robot manipulator</a> for more information about forward kinematics.</p>
-            </div>
         </div>
 
         <pre id="errors" class="py-error"></pre>
@@ -282,7 +316,7 @@
         ctx.translate(-f[0], -f[1])
 
 
-    def controlCommand(x, param):
+    def control(x, param):
         u = np.zeros(param.nbVarX)
         if move_joint >= 0:
             # Residual and Jacobian
@@ -325,7 +359,7 @@
         global hover_joint, x
 
         try:
-            u = controlCommand(x, param)
+            u = control(x, param)
             x += u * param.dt # Update robot state
             f = fkin(x, param)
         except Exception as e:

@@ -3,6 +3,74 @@
 
     <div class="col-sm-6">
         <h3>Ergodic control</h3>
+        <div class="card block" id="instructionBlock">
+
+            <div class="card-header">
+                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
+                    Instructions
+                </button>
+                <div class="commands">
+                    <div>
+                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/ergodic_control_SMC_1D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">SMC 1D example</a>
+                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/ergodic_control_SMC_2D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">SMC 2D example</a>
+                    </div>
+                    <div>
+                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/ergodic_control_HEDAC_1D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">HEDAC 1D example</a>
+                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/ergodic_control_HEDAC_2D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">HEDAC 2D example</a>
+                    </div>
+                </div>
+            </div>
+
+            <div id="instructions" class="collapse card-body instructions">
+                <h5>General information</h5>
+                <p>
+                    1D and 2D ergodic control examples with SMC or HEDAC.
+                </p>
+
+                <p>See <a href="#S10">Ergodic control</a> for more information.</p>
+
+                <h5>Coding information</h5>
+
+                <div>
+                    
+                    <p class="text-center">
+                        <img style="width:80%;" src="static_images/code_schema.png"/>
+                    </p>
+
+                    <p>
+                        As described by the figure above, the <code class="inline_code">control</code> function in the cell below is called repeatedly at a fixed frequency.
+                    </p>
+
+                    <p>
+                        In the cell below, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
+                        You can also download the standalone Python example to test it on your machine.
+                    </p>
+
+                    <p>
+                        The example is a smaller part of a larger Python script that is hidden from you. To properly interact with the script, we list below the functions and variables you can use in the interactive cell.
+                    </p>
+
+                    <h6>Global variables</h6>
+                    <ul>
+                        <li><code class="inline_code">param</code>: a struct containing the example configuration. We recommend to only read this struct 
+                            without modifying it. The most useful struct members are:
+                            <ul>
+                                <li><code class="inline_code">param.u_max</code>: maximum command amplitude.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <h5>Control</h5>
+
+                <ul>
+                    <li>Click on the green run button to execute the code.</li>
+                    <li>Joints can be moved by dragging them with the mouse, or by using the mouse wheel while hovering them.</li>
+                    <li>The target objects can be moved by dragging them with the mouse.</li>
+                </ul>
+            </div>
+
+        </div>
 
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
@@ -36,23 +104,6 @@
             <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
         </div>
 
-        <div style="margin-bottom: 10px;">
-            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
-                Instructions
-            </button>
-        </div>
-
-        <div id="instructions" class="collapse instructions">
-            <div class="card card-body">
-                <h5>Control</h5>
-                <p>Click on the green run button to execute the code.</p>
-                <p>On the 2D versions, the gaussians can be moved and scaled by dragging the red points.</p>
-                <h5>Information</h5>
-                <p id="help"></p>
-                <p>See <a href="#S9">Ergodic control</a> for more information.</p>
-            </div>
-        </div>
-
         <pre id="errors" class="py-error"></pre>
         <pre id="output" class="py-output"></pre>
     </div>
@@ -81,7 +132,6 @@
                 'ui': 'smc_1d_ui.py',
             },
             'texts': {
-                'help': 'If you need context about how this code is used, see <a href="2d_sandboxes/ergodic_control/smc_1d.py" target="#">this script</a>',
                 'legend': '<br>Top: the gaussians defined in <code>initialState()</code><br>Middle: the trajectory, both in 1D (in black) and over time (in gray)<br>Bottom: <code>w_hat</code> (colored) and <code>w</code> (grayscale)',
             },
         },
@@ -92,7 +142,6 @@
                 'common': 'common.py',
             },
             'texts': {
-                'help': 'If you need context about how this code is used, see <a href="2d_sandboxes/ergodic_control/smc_2d.py" target="#">this script</a> and <a href="2d_sandboxes/ergodic_control/common.py" target="#">this one</a>',
                 'legend': '<span style="text-align:center; width: 50%; display: inline-block"><code>w_hat</code></span><span style="text-align:center; width: 50%; display: inline-block"><code>w</code></span>',
             },
             'has_histogram': True,
@@ -104,7 +153,6 @@
                 'common': 'common.py',
             },
             'texts': {
-                'help': 'If you need context about how this code is used, see <a href="2d_sandboxes/ergodic_control/hedac.py" target="#">this script</a> and <a href="2d_sandboxes/ergodic_control/common.py" target="#">this one</a>',
                 'legend': '',
             },
         }
@@ -116,7 +164,6 @@
     canvas_histogram = document.getElementById('canvas_histogram')
     ctx = canvas.getContext('2d')
     ctx_histogram = canvas_histogram.getContext('2d')
-    help = document.getElementById('help')
     legend = document.getElementById('legend')
 
 
@@ -129,7 +176,6 @@
             canvas_histogram.style.display = 'none'
 
         texts = entry['texts']
-        help.innerHTML = texts['help']
         legend.innerHTML = texts['legend']
 
         scripts = entry['scripts']

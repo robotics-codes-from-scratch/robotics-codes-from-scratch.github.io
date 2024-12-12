@@ -79,7 +79,7 @@ def ergodicControl(x, agent, goal_density, coverage_density, heat, coverage_bloc
     return p / param.nbRes, coverage_density, heat
 
 
-def controlCommand(x, agent, goal_density, coverage_density, heat, coverage_block, param):
+def control(x, agent, goal_density, coverage_density, heat, coverage_block, param):
     J = Jkin(x)
     f = fkin(x)
 

@@ -82,7 +82,7 @@ def update():
 
     # Retrieve the command
     try:
-        u, wt = controlCommand(robot.jointPositions, t, wt, param)
+        u, wt = control(robot.jointPositions, t, wt, param)
     except Exception as e:
         displayError(e)
         u = np.zeros(param.x0.shape)

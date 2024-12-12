@@ -82,7 +82,7 @@ def update():
     x_prev = x
 
     # Retrieve the command
-    u, wt = controlCommand(x, t, wt, param)
+    u, wt = control(x, t, wt, param)
     if isinstance(u, np.ndarray):
         u = u.flatten()[0]
 
