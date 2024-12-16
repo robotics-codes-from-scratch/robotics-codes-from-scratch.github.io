@@ -169,19 +169,19 @@
     
     # Control loop definition
     def control(x, mu, dt):
-        J = Jkin(x)
+        J = Jkin(x)[3:,:] # Only rotational part
         f = fkin(x)
-        u = np.linalg.pinv(J[3:,:]) @ logmap_S3(mu[3:], f[3:])  # Orientation tracking
+        u = np.linalg.pinv(J) @ logmap_S3(mu[3:], f[3:])  # Orientation tracking
     
         # Discard orientation around z axis (global)
         # Q = np.diag([1,1,0])
-        # u = np.linalg.pinv(J[3:,:]) @ Q @ logmap_S3(mu[3:], f[3:])  # Orientation tracking
+        # u = np.linalg.pinv(J.T @ Q @ J) @ J.T @ Q @ logmap_S3(mu[3:], f[3:])  # Orientation tracking
     
         # Discard orientation around z axis (relative to EE)
         # R = q2R(mu[3:])
         # Q = np.diag([1,1,0])
         # Qr = R @ Q @ R.T
-        # u = np.linalg.pinv(J[3:,:]) @ Qr @ logmap_S3(mu[3:],f[3:])  # Orientation tracking
+        # u = np.linalg.pinv(J.T @ Qr @ J) @ J.T @ Qr @ logmap_S3(mu[3:], f[3:])  # Orientation tracking
     
         return 0.1 * u / dt  # Velocity in rad/s
 </script>
