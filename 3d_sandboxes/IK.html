@@ -195,7 +195,7 @@
         Q = np.diag([1,1,1,1,1,0])
         u = np.linalg.pinv(J.T @ Q @ J) @ J.T @ Q @ logmap(mu, f)  # Position & orientation tracking
     
-        # Discard orientation around z axis (relative to EE)
+        # # Discard orientation around z axis (relative to EE)
         # R = q2R(mu[3:])
         # R_aug = np.zeros((6,6))
         # R_aug[:3,:3] = R
@@ -220,15 +220,15 @@
         # Prioritized tracking with motion of first joint as secondary task
         u1 = np.linalg.pinv(J[:3,:]) @ (mu[:3] - f[:3]) # Position tracking
         N = np.eye(7) - np.linalg.pinv(J[:3,:]) @ J[:3,:] # Nullspace projection matrix
-        u = u1 + N @ [0, 0.1, 0, 0, 0, 0, 0,] # Control commands
+        u = u1 + N @ [0, 0, 0, 0, 0, -0.05, 0,] # Control commands
         
-        # Prioritized tracking with preferred state maintenance as secondary task
+        # # Prioritized tracking with preferred state maintenance as secondary task
         # xh = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Preferred robot state
         # u1 = np.linalg.pinv(J[:3,:]) @ (mu[:3] - f[:3]) # Position tracking
         # N = np.eye(7) - np.linalg.pinv(J[:3,:]) @ J[:3,:] # Nullspace projection matrix
         # u = u1 + N @ (xh - x) # Control commands
     
-        # Prioritized control (position tracking prioritized over orientation tracking)
+        # # Prioritized control (position tracking prioritized over orientation tracking)
         # e = logmap(mu,f)
         # e_p = e[:3] # Position correction
         # e_o = e[-3:] # Orientation correction
