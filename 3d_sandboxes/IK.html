@@ -220,7 +220,7 @@
         # Prioritized tracking with motion of first joint as secondary task
         u1 = np.linalg.pinv(J[:3,:]) @ (mu[:3] - f[:3]) # Position tracking
         N = np.eye(7) - np.linalg.pinv(J[:3,:]) @ J[:3,:] # Nullspace projection matrix
-        u = u1 + N @ [0, 0.1, 0, 0, 0, 0, 0,] # Control commands
+        u = u1 + N @ [0, 0, 0, 0, 0, -0.05, 0,] # Control commands
         
         # # Prioritized tracking with preferred state maintenance as secondary task
         # xh = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Preferred robot state
