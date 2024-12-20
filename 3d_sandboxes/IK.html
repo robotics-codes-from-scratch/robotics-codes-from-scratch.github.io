@@ -20,8 +20,23 @@
                 <p>
                     Modify the code in the cell below and study how inverse kinematics (IK) works. When performing IK we are interested 
                     in finding a joint angle configuration that satisfies the desired task space configuration (position and/or orientation).
-                    You will find three tabs, each of them tracking specific task space components: (i) position and orientation, (ii) position only, and (iii) orientation only.
+                    As this can be performed in multiple ways, you will find four different tabs showcasing different IK implementations:
                 </p>
+                <ul>
+                    <li>
+                        Standard IK: the Moore-Penrose pseudo-inverse of the jacobian matrix is used.
+                    </li>
+                    <li>
+                        Damped IK: the damped pseudo-inverse of the jacobian matrix is used.
+                    </li>
+                    <li>
+                        Weighted IK: The weighted pseudo-inverse of the Jacobian matrix is used. This can be useful for softly prioritizing a state space element over another (e.g., softly prioritizing position accuracy instead of orientation accuracy).
+                    </li>
+                    <li>
+                        Prioritized IK: the nullspace projection of the jacobian matrix is used to 
+                        perform a secondary task that does not interfere with the primary one.
+                    </li>
+                </ul>
                 <p>
                     The upper-left corner shows a representation of the logarithmic map, with the distance between the (projected) end-effector orientation (in yellow) and the one of the target (in red).
                     See <a href="#S12">Orientation representations and Riemannian manifolds</a>,
@@ -72,14 +87,6 @@
                     <h6>Global variables</h6>
                     <ul>
                         <li><code class="inline_code">x</code>: the current joint configuration of the robot as a list of floats.</li>
-                        <li><code class="inline_code">param</code>: a struct containing the example configuration. We recommend to only read this struct 
-                            without modifying it. The most useful struct members are:
-                            <ul>
-                                <li><code class="inline_code">param.nbVarX</code>: the joint space dimension.</li>
-                                <li><code class="inline_code">param.nbVarF</code>: the task space dimension.</li>
-                                <li><code class="inline_code">param.Mu</code>: the target position and orientation.</li>
-                            </ul>
-                        </li>
                     </ul>
                 </div>
 
@@ -96,27 +103,34 @@
 
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
-                <button aria-controls="posorient-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#posorient-tab-pane" data-bs-toggle="tab" id="posorient-tab" role="tab" type="button">Position + orientation</button>
+                <button aria-controls="ik-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#ik-tab-pane" data-bs-toggle="tab" id="ik-tab" role="tab" type="button">IK</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button aria-controls="pos-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#pos-tab-pane" data-bs-toggle="tab" id="pos-tab" role="tab" type="button">Position</button>
+                <button aria-controls="damped-ik-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#damped-ik-tab-pane" data-bs-toggle="tab" id="damped-ik-tab" role="tab" type="button">Damped IK</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button aria-controls="orient-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#orient-tab-pane" data-bs-toggle="tab" id="orient-tab" role="tab" type="button">Orientation</button>
+                <button aria-controls="weighted-ik-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#weighted-ik-tab-pane" data-bs-toggle="tab" id="weighted-ik-tab" role="tab" type="button">Weighted IK</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button aria-controls="prioritized-ik-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#prioritized-ik-tab-pane" data-bs-toggle="tab" id="prioritized-ik-tab" role="tab" type="button">Prioritized IK</button>
             </li>
         </ul>
 
         <div class="tab-content" id="myTabContent">
-            <div aria-labelledby="posorient-tab" class="tab-pane fade show active" id="posorient-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-posorient" src="user_code_posorient"></editor>
+            <div aria-labelledby="ik-tab" class="tab-pane fade show active" id="ik-tab-pane" role="tabpanel" tabindex="0">
+                <editor id="editor-ik" src="user_code_ik"></editor>
             </div>
 
-            <div aria-labelledby="pos-tab" class="tab-pane fade show" id="pos-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-pos" src="user_code_pos"></editor>
+            <div aria-labelledby="damped-ik-tab" class="tab-pane fade show" id="damped-ik-tab-pane" role="tabpanel" tabindex="0">
+                <editor id="editor-dik" src="user_code_dik"></editor>
             </div>
 
-            <div aria-labelledby="orient-tab" class="tab-pane fade show" id="orient-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-orient" src="user_code_orient"></editor>
+            <div aria-labelledby="weighted-ik-tab" class="tab-pane fade show" id="weighted-ik-tab-pane" role="tabpanel" tabindex="0">
+                <editor id="editor-wik" src="user_code_wik"></editor>
+            </div>
+
+            <div aria-labelledby="prioritized-ik-tab" class="tab-pane fade show" id="prioritized-ik-tab-pane" role="tabpanel" tabindex="0">
+                <editor id="editor-pik" src="user_code_pik"></editor>
             </div>
         </div>
 
@@ -137,7 +151,7 @@
 </div>
 
 
-<script id="user_code_posorient" type="python">
+<script id="user_code_ik" type="python">
     # Initialization
     x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
 
@@ -146,11 +160,13 @@
         J = Jkin(x)
         f = fkin(x)
         u = np.linalg.pinv(J) @ logmap(mu, f)  # Position & orientation tracking
+        # u = np.linalg.pinv(J[:3,:]) @ logmap(mu, f)[:3]  # Position tracking
+        # u = np.linalg.pinv(J[-3:,:]) @ logmap(mu, f)[-3:]  # Orientation tracking
         return 0.1 * u / dt  # Velocity in rad/s
 </script>
 
 
-<script id="user_code_pos" type="python">
+<script id="user_code_dik" type="python">
     # Initialization
     x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
 
@@ -158,12 +174,15 @@
     def control(x, mu, dt):
         J = Jkin(x)
         f = fkin(x)
-        u = np.linalg.pinv(J[0:3,:]) @ (mu[0:3] - f[0:3])  # Position tracking
+        
+        pinvJ = np.linalg.inv(J.T @ J + np.eye(7) * 1E-2) @ J.T # Damped pseudoinverse
+        u = pinvJ @ logmap(mu, f)  # Position & orientation tracking
+
         return 0.1 * u / dt  # Velocity in rad/s
 </script>
 
 
-<script id="user_code_orient" type="python">
+<script id="user_code_wik" type="python">
     # Initialization
     x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
     
@@ -171,21 +190,60 @@
     def control(x, mu, dt):
         J = Jkin(x)
         f = fkin(x)
-        u = np.linalg.pinv(J[3:,:]) @ logmap_S3(mu[3:], f[3:])  # Orientation tracking
     
         # Discard orientation around z axis (global)
-        # Q = np.diag([1,1,0])
-        # u = np.linalg.pinv(J[3:,:]) @ Q @ logmap_S3(mu[3:], f[3:])  # Orientation tracking
+        Q = np.diag([1,1,1,1,1,0])
+        u = np.linalg.pinv(J.T @ Q @ J) @ J.T @ Q @ logmap(mu, f)  # Position & orientation tracking
     
-        # Discard orientation around z axis (relative to EE)
+        # # Discard orientation around z axis (relative to EE)
         # R = q2R(mu[3:])
-        # Q = np.diag([1,1,0])
-        # Qr = R @ Q @ R.T
-        # u = np.linalg.pinv(J[3:,:]) @ Qr @ logmap_S3(mu[3:],f[3:])  # Orientation tracking
+        # R_aug = np.zeros((6,6))
+        # R_aug[:3,:3] = R
+        # R_aug[-3:,-3:] = R
+        # Q = np.diag([1,1,1,1,1,0])
+        # Qr = R_aug @ Q @ R_aug.T
+        # u = np.linalg.pinv(J.T @ Qr @ J) @ J.T @ Qr @ logmap(mu, f)  # Position & orientation tracking
     
         return 0.1 * u / dt  # Velocity in rad/s
 </script>
 
+
+<script id="user_code_pik" type="python">
+    # Initialization
+    x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Initial robot state
+    
+    # Control loop definition
+    def control(x, mu, dt):
+        J = Jkin(x)
+        f = fkin(x)
+        
+        # Prioritized tracking with motion of first joint as secondary task
+        u1 = np.linalg.pinv(J[:3,:]) @ (mu[:3] - f[:3]) # Position tracking
+        N = np.eye(7) - np.linalg.pinv(J[:3,:]) @ J[:3,:] # Nullspace projection matrix
+        u = u1 + N @ [0, 0.1, 0, 0, 0, 0, 0,] # Control commands
+        
+        # # Prioritized tracking with preferred state maintenance as secondary task
+        # xh = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]  # Preferred robot state
+        # u1 = np.linalg.pinv(J[:3,:]) @ (mu[:3] - f[:3]) # Position tracking
+        # N = np.eye(7) - np.linalg.pinv(J[:3,:]) @ J[:3,:] # Nullspace projection matrix
+        # u = u1 + N @ (xh - x) # Control commands
+    
+        # # Prioritized control (position tracking prioritized over orientation tracking)
+        # e = logmap(mu,f)
+        # e_p = e[:3] # Position correction
+        # e_o = e[-3:] # Orientation correction
+        # Jp = J[:3,:] # Jacobian for position
+        # Jo = J[3:,:] # Jacobian for orientation
+        # pinvJp = np.linalg.inv(Jp.T @ Jp + np.eye(7) * 1e-2) @ Jp.T # Damped pseudoinverse
+        # Np = np.eye(7) - pinvJp @ Jp # Nullspace projection operator
+        # up = pinvJp @ e_p # Command for position tracking
+        # JoNp = Jo @ Np
+        # pinvJoNp = JoNp.T @ np.linalg.inv(JoNp @ JoNp.T + np.eye(3) * 1e1) # Damped pseudoinverse
+        # uo = pinvJoNp @ (e_o - Jo @ up) # Command for orientation tracking (with position tracking prioritized)
+        # u = up + Np @ uo # Control commands
+    
+        return 0.1 * u / dt  # Velocity in rad/s
+</script>
 
 <script id="page_code" type="python">
     from viewer3d import Viewer3D, configs, logmap_S3, logmap, q2R, Shapes

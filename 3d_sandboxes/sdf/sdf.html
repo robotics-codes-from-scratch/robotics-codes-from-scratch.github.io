@@ -85,10 +85,10 @@
 
         // Evaluate polynomials
         for (int n = 0; n < nbFctVec; ++n) {
-            T[nbFct / 4 + n].x = pow(tt, float(n * 4));
-            T[nbFct / 4 + n].y = pow(tt, float(n * 4 + 1));
-            T[nbFct / 4 + n].z = pow(tt, float(n * 4 + 2));
-            T[nbFct / 4 + n].w = pow(tt, float(n * 4 + 3));
+            T[n].x = pow(tt, float(n * 4));
+            T[n].y = pow(tt, float(n * 4 + 1));
+            T[n].z = pow(tt, float(n * 4 + 2));
+            T[n].w = pow(tt, float(n * 4 + 3));
         }
 
         segment = id;
@@ -417,10 +417,10 @@
 
         // Evaluate polynomials
         for (int n = 0; n < nbFctVec; ++n) {
-            T[nbFct / 4 + n].x = pow(tt, float(n * 4));
-            T[nbFct / 4 + n].y = pow(tt, float(n * 4 + 1));
-            T[nbFct / 4 + n].z = pow(tt, float(n * 4 + 2));
-            T[nbFct / 4 + n].w = pow(tt, float(n * 4 + 3));
+            T[n].x = pow(tt, float(n * 4));
+            T[n].y = pow(tt, float(n * 4 + 1));
+            T[n].z = pow(tt, float(n * 4 + 2));
+            T[n].w = pow(tt, float(n * 4 + 3));
         }
 
         segment = id;
