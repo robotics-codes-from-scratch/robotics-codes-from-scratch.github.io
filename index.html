@@ -170,7 +170,7 @@
    </div>
   </div>
   <script type="module">
-   import { initViewer3D, initPyScript, downloadScene, downloadPandaRobot } from './viewer3d/viewer3d.js';
+   import { initViewer3D, initPyScript, downloadScene, downloadPandaRobot, downloadG1Robot } from './viewer3d/viewer3d.js';
 
         // Retrieve the base URL of the page
         const url = window.location;
@@ -443,6 +443,8 @@
                         {
                             if (robot == "panda")
                                 await downloadPandaRobot();
+                            else if (robot == "g1")
+                                await downloadG1Robot();
 
                             loadedRobots.push(robot);
                         }
@@ -456,14 +458,28 @@
 
                         for (let script of scriptsToLoad)
                         {
-                            const response = await fetch(baseUrl + '/' + script);
-                            if (!response.ok)
+                            if (script.endsWith('.js'))
                             {
-                                navigate('home');
-                                return;
+                                import('./' + script)
+                                    .then((module) => {
+                                        loadedScripts[script] = true;
+                                    })
+                                    .catch((err) => {
+                                        console.error(err);
+                                    }
+                                );
                             }
+                            else
+                            {
+                                const response = await fetch(baseUrl + '/' + script);
+                                if (!response.ok)
+                                {
+                                    navigate('home');
+                                    return;
+                                }
 
-                            loadedScripts[script] = await response.text();
+                                loadedScripts[script] = await response.text();
+                            }
                         }
 
                         for (let data of dataToLoad)

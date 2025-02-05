@@ -119,6 +119,19 @@
                 }
             },
             {
+                "title": "Bimanual robot",
+                "hash": "3d_bimanual",
+                "page": "bimanual.html",
+                "assets": {
+                    "robots": [
+                        "g1"
+                    ],
+                    "scenes": [
+                        "scenes/g1_upperbody.xml"
+                    ]
+                }
+            },
+            {
                 "title": "Impedance control",
                 "hash": "3d_impedance",
                 "page": "impedance.html",
@@ -129,6 +142,9 @@
                     "scenes": [
                         "scenes/panda.xml",
                         "scenes/panda_ghost.xml"
+                    ],
+                    "scripts": [
+                        "postprocessing/sdfpass.js"
                     ]
                 }
             },

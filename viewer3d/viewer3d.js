@@ -14,7 +14,7 @@ import { Pass, FullScreenQuad } from 'three/examples/jsm/postprocessing/Pass.js'
 import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js';
 
 /*
- * SPDX-FileCopyrightText: Copyright © 2023 Idiap Research Institute <contact@idiap.ch>
+ * SPDX-FileCopyrightText: Copyright © 2025 Idiap Research Institute <contact@idiap.ch>
  *
  * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
  *
@@ -24,9 +24,417 @@ import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js';
 
 
 
-function getURL(path) {
-    let url = new URL(import.meta.url);
-    return url.href.substring(0, url.href.lastIndexOf('/')) + '/' + path;
+// Load the MuJoCo Module
+const mujoco = await load_mujoco();
+
+/*
+ * SPDX-FileCopyrightText: Copyright © 2025 Idiap Research Institute <contact@idiap.ch>
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
+
+
+
+function readFile(filename, binary=false) {
+    try {
+        const stat = mujoco.FS.stat(filename);
+    } catch (ex) {
+        return null;
+    }
+
+    const content = mujoco.FS.readFile(filename);
+
+    if (!binary)
+    {
+        const textDecoder = new TextDecoder("utf-8");
+        return textDecoder.decode(content);
+    }
+
+    return content;
+}
+
+
+function writeFile(filename, content) {
+    mujoco.FS.writeFile(filename, content);
+}
+
+
+function mkdir(path) {
+    const parts = path.split("/");
+
+    let current = parts[0];
+    if (path[0] == "/")
+        current = "/" + current;
+
+    let i = 0;
+
+    while (i < parts.length) {
+        try {
+            const stat = mujoco.FS.stat(current);
+        } catch (ex) {
+            mujoco.FS.mkdir(current);
+        }
+
+        i++;
+        if (i < parts.length)
+            current += "/" + parts[i];
+    }
+}
+
+/*
+ * SPDX-FileCopyrightText: Copyright © 2025 Idiap Research Institute <contact@idiap.ch>
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
+
+
+
+
+/* Arcosine redefinition to make sure the distance between antipodal quaternions is zero
+*/
+function acoslog(x) {
+    let y = math.acos(Math.min(x, 1.0));
+
+    if (math.typeOf(y) == 'Complex')
+        return NaN;
+
+    if (x < 0.0)
+        y = y - math.pi;
+
+    return y;
+}
+
+
+
+/* Logarithmic map for S^3 manifold (with e in tangent space)
+*/
+function logmap_S3(x, x0) {
+
+    function _dQuatToDxJac(q) {
+        // Jacobian from quaternion velocities to angular velocities.
+        // q is wxyz!
+        return math.matrix([
+            [-q.get([1]), q.get([0]), -q.get([3]), q.get([2])],
+            [-q.get([2]), q.get([3]), q.get([0]), -q.get([1])],
+            [-q.get([3]), -q.get([2]), q.get([1]), q.get([0])],
+        ]);
+    }
+
+    if (math.typeOf(x) == 'DenseMatrix')
+        x = math.reshape(x, [4]).toArray();
+
+    if (math.typeOf(x0) == 'DenseMatrix')
+        x0 = math.reshape(x0, [4]).toArray();
+
+    // Code below is for quat as wxyz so need to transform it!
+    x = math.matrix([x[3], x[0], x[1], x[2]]);
+    x0 = math.matrix([x0[3], x0[0], x0[1], x0[2]]);
+
+    const x0Tx = math.multiply(math.transpose(x0), x);
+
+    const th = acoslog(x0Tx);
+
+    let u = math.subtract(x, math.multiply(x0Tx, x0));
+
+    // Avoid numerical issue with small numbers
+    if (math.norm(u) < 1e-7)
+        return math.zeros(3);
+
+    u = math.divide(math.multiply(th, u), math.norm(u));
+
+    const H = _dQuatToDxJac(x0);
+    return math.squeeze(math.multiply(math.multiply(2, math.squeeze(H)), u))
+}
+
+
+
+/* Logarithmic map for R^3 x S^3 manifold (with e in tangent space)
+*/
+function logmap$1(f, f0) {
+    let e;
+
+    if (f.size().length == 1) {
+        const indices1 = math.index(math.range(0, 3));
+        const indices2 = math.index(math.range(3, 6));
+        const indices3 = math.index(math.range(3, f.size()[0]));
+
+        e = math.zeros(6);
+        e.subset(indices1, math.subtract(f.subset(indices1), f0.subset(indices1)));
+        e.subset(indices2, logmap_S3(f.subset(indices3), f0.subset(indices3)));
+
+    } else {
+        const N = f.size()[1];
+        const M = f.size()[0];
+
+        const indices1 = math.index(math.range(0, 3), math.range(0, N));
+        math.index(math.range(3, 6));
+        math.index(math.range(3, f.size()[0]));
+
+        e = math.zeros(6, f.size()[1]);
+
+        e.subset(indices1, math.subtract(f.subset(indices1), f0.subset(indices1)));
+
+        for (let t = 0; t < N; ++t)
+            e.subset(math.index(math.range(3, 6), t), logmap_S3(f.subset(math.index(math.range(3, M), t)), f0.subset(math.index(math.range(3, M), t))));
+    }
+
+    return e;
+}
+
+/*
+ * SPDX-FileCopyrightText: Copyright © 2025 Idiap Research Institute <contact@idiap.ch>
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
+
+
+
+const _tmpVector3$2 = new THREE.Vector3();
+const _tmpQuaternion$2 = new THREE.Quaternion();
+
+
+
+class KinematicChain {
+
+    constructor(robot, joint=null, tool=null) {
+        this.robot = robot;
+        this.tool = tool;
+
+        let segment = null;
+        let index = null;
+
+        if (tool != null) {
+            segment = robot.tools[tool].parent;
+            index = segment.joints.length - 1;
+        } else {
+            segment = robot._getSegmentOfJoint(joint);
+            index = segment.joints.indexOf(joint);
+        }
+
+        this.joints = segment.joints.slice(0, index+1);
+        this.actuators = segment.actuators.slice(0, index+1);
+        this.limits = segment.limits.slice(0, index+1);
+
+        while (segment.parent != -1) {
+            segment = robot.segments[segment.parent];
+            if (segment.joints.length > 0) {
+                this.joints = segment.joints.concat(this.joints);
+                this.actuators = segment.actuators.concat(this.actuators);
+                this.limits = segment.limits.concat(this.limits);
+            }
+        }
+    }
+
+
+    /* Performs Forward Kinematics, on a subset of the joints
+
+    Parameters:
+        positions (array): The joint positions
+        offset (Vector3): Optional, an offset from the last joint
+
+    Returns:
+        A tuple of a Vector3 and a Quaternion: (position, orientation)
+    */
+    fkin(positions, offset=null) {
+        if (math.typeOf(positions) == 'DenseMatrix')
+            positions = positions.toArray();
+        else if (math.typeOf(positions) == 'number')
+            positions = [positions];
+
+        // Check the input
+        if (positions.length > this.joints.length)
+            throw new Error('The number of joint positions must be less or equal than the number of movable joints');
+
+        // Set the joint positions
+        const nbJoints = positions.length;
+
+        for (let i = 0; i < nbJoints; ++i)
+            this.robot._setJointPosition(this.joints[i], positions[i]);
+
+        // Retrieve the position and orientation of the last joint
+        if ((positions.length == this.joints.length) && (offset == null)) {
+            this.robot.fk.tcps[this.tool].getWorldPosition(_tmpVector3$2);
+            this.robot.fk.tcps[this.tool].getWorldQuaternion(_tmpQuaternion$2);
+        } else {
+            const bodyId = this.robot.fk.joints.filter((j) => j.jointId == this.joints[positions.length - 1])[0].children[0].bodyId;
+            const link = this.robot.fk.links.filter((l) => l.bodyId == bodyId)[0];
+
+            link.getWorldPosition(_tmpVector3$2);
+            link.getWorldQuaternion(_tmpQuaternion$2);
+
+            if (offset != null) {
+                let offset2;
+
+                if (math.typeOf(offset) == 'DenseMatrix')
+                    offset2 = new THREE.Vector3().fromArray(offset.toArray());
+                else if (Array.isArray(offset))
+                    offset2 = new THREE.Vector3().fromArray(offset);
+                else
+                    offset2 = offset.clone();
+
+                offset2.applyQuaternion(_tmpQuaternion$2);
+                _tmpVector3$2.add(offset2);
+            }
+        }
+
+        return [
+            _tmpVector3$2.x, _tmpVector3$2.y, _tmpVector3$2.z,
+            _tmpQuaternion$2.x, _tmpQuaternion$2.y, _tmpQuaternion$2.z, _tmpQuaternion$2.w,
+        ];
+    }
+
+
+    ik(mu, nbJoints=null, offset=null, limit=5, dt=0.01, successDistance=1e-4, damping=false) {
+        let x = math.matrix(Array.from(this.getControl()));
+        const startx = math.matrix(x);
+
+        if (math.typeOf(mu) == 'Array')
+            mu = math.matrix(mu);
+
+        if (nbJoints == null)
+            nbJoints = x.size()[0];
+
+        const jointIndices = math.index(math.range(0, nbJoints));
+
+        let indices = math.index(math.range(0, 7));
+        let jacobianIndices = math.index(math.range(0, 6), math.range(0, nbJoints));
+        if (mu.size()[0] == 3) {
+            indices = math.index(math.range(0, 3));
+            jacobianIndices = math.index(math.range(0, 3), math.range(0, nbJoints));
+        } else if (mu.size()[0] == 4) {
+            indices = math.index(math.range(3, 7));
+            jacobianIndices = math.index(math.range(3, 6), math.range(0, nbJoints));
+        }
+
+        damping = damping || (this.tool == null) || (nbJoints < x.size()[0]);
+
+        let done = false;
+        let i = 0;
+        let diff;
+        let pinvJ;
+        let u;
+        while (!done && ((limit == null) || (i < limit))) {
+            const f = math.matrix(this.fkin(x.subset(jointIndices), offset));
+
+            if (mu.size()[0] == 3)
+                diff = math.subtract(mu, f.subset(indices));
+            else if (mu.size()[0] == 4)
+                diff = logmap_S3(mu, f.subset(indices));
+            else
+                diff = logmap$1(mu, f);
+
+            let J = this.Jkin(x.subset(jointIndices), offset);
+            J = J.subset(jacobianIndices);
+
+            if (!damping) {
+                try {
+                    pinvJ = math.pinv(J);
+                }
+                catch(err) {
+                    // Sometimes mathjs fail to compute the pseudoinverse, so as a fallback we'll compute it
+                    // manually using a damping factor
+                    damping = true;
+                }
+            }
+
+            if (damping) {
+                // Damped pseudoinverse
+                const JT = math.transpose(J);
+
+                pinvJ = math.multiply(
+                    math.inv(
+                        math.add(
+                            math.multiply(JT, J),
+                            math.multiply(math.identity(nbJoints), 1e-2)
+                        )
+                    ),
+                    JT
+                );
+            }
+
+            u = math.multiply(math.multiply(pinvJ, diff), 0.1 / dt);  // Velocity command, with a 0.1 gain to not overshoot the target
+
+            x.subset(jointIndices, math.add(x.subset(jointIndices), math.multiply(u, dt)).subset(jointIndices));
+
+            i++;
+
+            if (math.norm(math.subtract(x, startx)) < successDistance)
+                done = true;
+        }
+
+        startx.subset(jointIndices, x.subset(jointIndices));
+        this.setControl(startx.toArray());
+
+        return done;
+    }
+
+
+    /* Jacobian with numerical computation, on a subset of the joints
+    */
+    Jkin(positions, offset=null) {
+        const eps = 1e-6;
+
+        if (math.typeOf(positions) == 'Array')
+            positions = math.matrix(positions);
+        else if (math.typeOf(positions) == 'number')
+            positions = math.matrix([ positions ]);
+
+        const D = positions.size()[0];
+
+        positions = math.reshape(positions, [D, 1]);
+
+        // Matrix computation
+        const F1 = math.zeros(7, D);
+        const F2 = math.zeros(7, D);
+
+        const f0 = math.matrix(this.fkin(positions, offset));
+
+        for (let i = 0; i < D; ++i) {
+            F1.subset(math.index(math.range(0, 7), i), f0);
+
+            const diff = math.zeros(D);
+            diff.set([i, 0], eps);
+
+            F2.subset(math.index(math.range(0, 7), i), this.fkin(math.add(positions, diff), offset));
+        }
+
+        let J = math.divide(logmap$1(F2, F1), eps);
+
+        if (J.size().length == 1)
+            J = math.reshape(J, [J.size()[0], 1]);
+
+        return J;
+    }
+
+
+    getControl() {
+        return this.robot._simulator.getControl(this.actuators);
+    }
+
+
+    setControl(control) {
+        const ctrl = control.map(
+            (v, i) => (Math.abs(this.limits[i][0]) > 1e-6) || (Math.abs(this.limits[i][1]) > 1e-6) ?
+                            Math.min(Math.max(v, this.limits[i][0]), this.limits[i][1]) :
+                            v
+        );
+
+        const nbJoints = control.length;
+
+        if (this.robot._simulator.paused)
+            this.robot._simulator.setJointPositions(ctrl, this.joints.slice(0, nbJoints));
+
+        this.robot._simulator.setControl(ctrl, this.actuators.slice(0, nbJoints));
+    }
 }
 
 /*
@@ -40,7 +448,7 @@ function getURL(path) {
 
 
 
-const axisY = new THREE.Vector3(0, 1, 0);
+const axisZ = new THREE.Vector3(0, 0, 1);
 
 
 class JointPositionGeometry extends THREE.BufferGeometry {
@@ -110,7 +518,7 @@ class JointPositionGeometry extends THREE.BufferGeometry {
 
 class JointPositionHelper extends THREE.Object3D {
 
-    constructor(scene, layer, jointId, jointIndex, jointPosition, invert=false, color=0xff0000, offset=0.0) {
+    constructor(scene, layer, jointId, jointIndex, axis, jointPosition, invert=false, color=0xff0000, offset=0.0) {
         super();
 
         this.layers.disableAll();
@@ -125,10 +533,11 @@ class JointPositionHelper extends THREE.Object3D {
         this.previousPosition = null;
 
         this.origin = new THREE.Object3D();
-        this.origin.rotateX(Math.PI / 2);
-        this.origin.translateY(offset);
+        this.origin.translateZ(offset);
         this.add(this.origin);
 
+        const zAxis = new THREE.Vector3(0, 0, 1);
+        this.origin.quaternion.setFromUnitVectors(zAxis, axis);
 
         if (typeof color === 'string') {
             if (color[0] == '#')
@@ -166,12 +575,13 @@ class JointPositionHelper extends THREE.Object3D {
         this.origin.add(this.endLine);
 
         if (invert)
-            this.endLine.setRotationFromAxisAngle(axisY, Math.PI);
+            this.endLine.setRotationFromAxisAngle(axisZ, Math.PI);
 
         const circleGeometry = new JointPositionGeometry(0.2, 16, -jointPosition, jointPosition);
 
         this.circle = new THREE.Mesh(circleGeometry, circleMaterial);
         this.circle.layers = this.layers;
+        this.circle.rotateX(Math.PI / 2);
         this.origin.add(this.circle);
 
 
@@ -181,7 +591,7 @@ class JointPositionHelper extends THREE.Object3D {
         this.labelElement = document.createElement('div');
         this.labelElement.style.fontSize = '1vw';
 
-        katex.render(String.raw`\color{#` + color.getHexString() + `}x_` + jointIndex, this.labelElement, {
+        katex.render(String.raw`\color{#` + color.getHexString() + `}x_{` + jointIndex + `}`, this.labelElement, {
             throwOnError: false
         });
 
@@ -196,6 +606,12 @@ class JointPositionHelper extends THREE.Object3D {
     }
 
 
+    destroy() {
+        this.parent.remove(this);
+        this.labelElement.remove();
+    }
+
+
     updateTransforms(joint) {
         joint.getWorldPosition(this.position);
         joint.getWorldQuaternion(this.quaternion);
@@ -207,13 +623,13 @@ class JointPositionHelper extends THREE.Object3D {
             return;
 
         if (this.invert) {
-            this.startLine.setRotationFromAxisAngle(axisY, Math.PI - jointPosition);
+            this.startLine.setRotationFromAxisAngle(axisZ, Math.PI - jointPosition);
             this.circle.geometry.update(Math.PI - jointPosition, jointPosition);
-            this.labelRotator.setRotationFromAxisAngle(axisY, Math.PI - jointPosition / 2);
+            this.labelRotator.setRotationFromAxisAngle(axisZ, Math.PI - jointPosition / 2);
         } else {
-            this.startLine.setRotationFromAxisAngle(axisY, -jointPosition);
+            this.startLine.setRotationFromAxisAngle(axisZ, -jointPosition);
             this.circle.geometry.update(-jointPosition, jointPosition);
-            this.labelRotator.setRotationFromAxisAngle(axisY, -jointPosition / 2);
+            this.labelRotator.setRotationFromAxisAngle(axisZ, -jointPosition / 2);
         }
 
         this.previousPosition = jointPosition;
@@ -271,6 +687,22 @@ class JointPositionHelper extends THREE.Object3D {
 
 /*
  * SPDX-FileCopyrightText: Copyright © 2023 Idiap Research Institute <contact@idiap.ch>
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
+
+
+
+function getURL(path) {
+    let url = new URL(import.meta.url);
+    return url.href.substring(0, url.href.lastIndexOf('/')) + '/' + path;
+}
+
+/*
+ * SPDX-FileCopyrightText: Copyright © 2023 Idiap Research Institute <contact@idiap.ch>
  * SPDX-FileCopyrightText: Copyright © 2022 Nikolas Dahn
  *
  * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
@@ -284,96 +716,9 @@ class JointPositionHelper extends THREE.Object3D {
 
 
 
-const _tmpVector3 = new THREE.Vector3();
-const _tmpQuaternion = new THREE.Quaternion();
+const _tmpVector3$1 = new THREE.Vector3();
+const _tmpQuaternion$1 = new THREE.Quaternion();
 const _tmpQuaternion2 = new THREE.Quaternion();
-
-
-/* Matrix form of quaternion
-
-Note: quaternions elements are ordered as [x, y, z, w]
-*/
-function QuatMatrix(q) {
-    if (math.typeOf(q) == 'DenseMatrix')
-        q = math.reshape(q, [4]).toArray();
-
-    return math.matrix([
-        [q[3], -q[2], q[1], q[0]],
-        [q[2], q[3], -q[0], q[1]],
-        [-q[1], q[0], q[3], q[2]],
-        [-q[0], -q[1], -q[2], q[3]],
-    ]);
-}
-
-
-
-/* Arcosine redefinition to make sure the distance between antipodal quaternions is zero
-*/
-function acoslog(x) {
-    let y = math.acos(x);
-
-    if (math.typeOf(y) == 'Complex')
-        return NaN;
-
-    if (x < 0.0)
-        y = y - math.pi;
-
-    return y;
-}
-
-
-
-/* Logarithmic map for S^3 manifold (with e in tangent space)
-*/
-function logmap_S3(x, x0) {
-    const R = QuatMatrix(x0);
-
-    if (x.size().length == 2)
-        x = math.reshape(x, [4]);
-
-    x = math.multiply(math.transpose(R), x);
-
-    let sc = acoslog(x.get([3])) / math.sqrt(1.0 - x.get([3])**2);
-    if (math.isNaN(sc))
-        sc = 1.0;
-
-    return math.multiply(x.subset(math.index(math.range(0, 3))), sc);
-}
-
-
-
-/* Logarithmic map for R^3 x S^3 manifold (with e in tangent space)
-*/
-function logmap(f, f0) {
-    let e;
-
-    if (f.size().length == 1) {
-        const indices1 = math.index(math.range(0, 3));
-        const indices2 = math.index(math.range(3, 6));
-        const indices3 = math.index(math.range(3, f.size()[0]));
-
-        e = math.zeros(6);
-        e.subset(indices1, math.subtract(f.subset(indices1), f0.subset(indices1)));
-        e.subset(indices2, logmap_S3(f.subset(indices3), f0.subset(indices3)));
-
-    } else {
-        const N = f.size()[1];
-        const M = f.size()[0];
-
-        const indices1 = math.index(math.range(0, 3), math.range(0, N));
-        math.index(math.range(3, 6));
-        math.index(math.range(3, f.size()[0]));
-
-        e = math.zeros(6, f.size()[1]);
-
-        e.subset(indices1, math.subtract(f.subset(indices1), f0.subset(indices1)));
-
-        for (let t = 0; t < N; ++t)
-            e.subset(math.index(math.range(3, 6), t), logmap_S3(f.subset(math.index(math.range(3, M), t)), f0.subset(math.index(math.range(3, M), t))));
-    }
-
-    return e;
-}
 
 
 
@@ -382,64 +727,23 @@ class Robot {
     constructor(name, configuration, physicsSimulator) {
         this.name = name;
         this.configuration = configuration;
-        this._physicsSimulator = physicsSimulator;
         this.controlsEnabled = true;
 
-        this.arm = {
+        this.segments = [];
+
+        this.joints = [];
+        this.actuators = [];
+        this.links = [];
+
+        this.names = {
             joints: [],
             actuators: [],
             links: [],
-            limits: [],
+        },
 
-            names: {
-                joints: [],
-                actuators: [],
-                links: [],
-            },
-
-            visual: {
-                joints: [],
-                links: [],
-                meshes: [],
-                helpers: [],
-            },
-        };
-
-        this.tool = {
-            joints: [],
-            actuators: [],
-            links: [],
-
-            names: {
-                joints: [],
-                actuators: [],
-                links: [],
-            },
-
-            states: [],
-            state: null,
-
-            visual: {
-                joints: [],
-                links: [],
-                meshes: [],
-            },
-
-            button: {
-                object: null,
-                element: null,
-            },
-
-            toolbar: null,
-
-            enabled: false,
-
-            _previousAbduction: null,
-            _stateCounter: 0,
-        };
-
-        this.tcp = null;
-        this.tcpTarget = null;
+        this.tools = [];
+        this.toolsEnabled = false;
+        this.toolbar = null;
 
         this.layers = new THREE.Layers();
 
@@ -448,82 +752,97 @@ class Robot {
             links: [],
             joints: [],
             axes: [],
-            tcp: null,
+            tcps: [],
         };
+
+        this._simulator = physicsSimulator;
     }
 
 
     destroy() {
-        if (this.tool.button.element != null)
-            this.tool.button.element.remove();
+        for (const tool of this.tools) {
+            if ((tool.button != null) && (tool.button.element != null))
+                tool.button.element.remove();
 
-        if (this.tool.toolbar != null)
-            this.tool.toolbar.destroy();
+            for (const mesh of tool.visual.meshes)
+                mesh.layers = new THREE.Layers();
+        }
 
-        for (const mesh of this.arm.visual.meshes)
-            mesh.layers = new THREE.Layers();
+        if (this.toolbar != null)
+            this.toolbar.destroy();
 
-        for (const mesh of this.tool.visual.meshes)
-            mesh.layers = new THREE.Layers();
+        for (const segment of this.segments) {
+            for (const mesh of segment.visual.meshes)
+                mesh.layers = new THREE.Layers();
+
+            for (const helper of segment.visual.helpers)
+                helper.destroy();
+        }
     }
 
 
     getMeshes() {
-        return [].concat(this.arm.visual.meshes).concat(this.tool.visual.meshes);
+        return this.segments.map((segment) => segment.visual.meshes).flat().concat(
+                    this.tools.map((tool) => tool.visual.meshes).flat()
+        );
     }
 
 
     getJointPositions() {
-        return this._physicsSimulator.getJointPositions(this.arm.joints);
+        return this._simulator.getJointPositions(this.joints);
     }
 
 
     setJointPositions(positions) {
+        const limits = this.segments.map((segment) => segment.limits).flat();
+
         const pos = positions.map(
-            (v, i) => (Math.abs(this.arm.limits[i][0]) > 1e-6) || (Math.abs(this.arm.limits[i][1]) > 1e-6) ?
-                            Math.min(Math.max(v, this.arm.limits[i][0]), this.arm.limits[i][1]) :
+            (v, i) => (Math.abs(limits[i][0]) > 1e-6) || (Math.abs(limits[i][1]) > 1e-6) ?
+                            Math.min(Math.max(v, limits[i][0]), limits[i][1]) :
                             v
         );
 
         const nbJoints = positions.length;
 
-        this._physicsSimulator.setJointPositions(pos, this.arm.joints.slice(0, nbJoints));
-        this._physicsSimulator.setControl(pos, this.arm.actuators.slice(0, nbJoints));
+        this._simulator.setJointPositions(pos, this.joints.slice(0, nbJoints));
+        this._simulator.setControl(pos, this.actuators.slice(0, nbJoints));
     }
 
 
     getControl() {
-        return this._physicsSimulator.getControl(this.arm.actuators);
+        return this._simulator.getControl(this.actuators);
     }
 
 
     setControl(control) {
+        const limits = this.segments.map((segment) => segment.limits).flat();
+
         const ctrl = control.map(
-            (v, i) => (Math.abs(this.arm.limits[i][0]) > 1e-6) || (Math.abs(this.arm.limits[i][1]) > 1e-6) ?
-                            Math.min(Math.max(v, this.arm.limits[i][0]), this.arm.limits[i][1]) :
+            (v, i) => (Math.abs(limits[i][0]) > 1e-6) || (Math.abs(limits[i][1]) > 1e-6) ?
+                            Math.min(Math.max(v, limits[i][0]), limits[i][1]) :
                             v
         );
 
         const nbJoints = control.length;
 
-        if (this._physicsSimulator.paused)
-            this._physicsSimulator.setJointPositions(ctrl, this.arm.joints.slice(0, nbJoints));
+        if (this._simulator.paused)
+            this._simulator.setJointPositions(ctrl, this.joints.slice(0, nbJoints));
 
-        this._physicsSimulator.setControl(ctrl, this.arm.actuators.slice(0, nbJoints));
+        this._simulator.setControl(ctrl, this.actuators.slice(0, nbJoints));
     }
 
 
     getJointVelocities() {
-        return this._physicsSimulator.getJointVelocities(this.arm.joints);
+        return this._simulator.getJointVelocities(this.joints);
     }
 
 
     getDefaultPose() {
-        const pose = new Float32Array(this.arm.joints.length);
+        const pose = new Float32Array(this.joints.length);
         pose.fill(0.0);
 
         for (let name in this.configuration.defaultPose)
-            pose[this.arm.names.joints.indexOf(name)] = this.configuration.defaultPose[name];
+            pose[this.names.joints.indexOf(name)] = this.configuration.defaultPose[name];
 
         return pose;
     }
@@ -534,38 +853,45 @@ class Robot {
     }
 
 
-    /* Returns the position of the end-effector of the robot (a Vector3)
+    /* Returns the number of end-effectors of the robot
     */
-    getEndEffectorPosition() {
-        this.tcp.getWorldPosition(_tmpVector3);
-        return _tmpVector3.clone();
+    getNbEndEffectors() {
+        return this.tools.length;
     }
 
 
-    /* Returns the orientation of the end-effector of the robot (a Quaternion)
+    /* Returns the position of a specific end-effector of the robot (a Vector3)
     */
-    getEndEffectorOrientation() {
-        this.tcp.getWorldQuaternion(_tmpQuaternion);
-        return _tmpQuaternion.clone();
+    _getEndEffectorPosition(index=0) {
+        this.tools[index].tcp.getWorldPosition(_tmpVector3$1);
+        return _tmpVector3$1.clone();
     }
 
 
-    /* Returns the position and orientation of the end-effector of the robot in an array
-    of the form: [px, py, pz, qx, qy, qz, qw]
+    /* Returns the orientation of a specific end-effector of the robot (a Quaternion)
     */
-    getEndEffectorTransforms() {
-        this.tcp.getWorldPosition(_tmpVector3);
-        this.tcp.getWorldQuaternion(_tmpQuaternion);
+    _getEndEffectorOrientation(index=0) {
+        this.tools[index].tcp.getWorldQuaternion(_tmpQuaternion$1);
+        return _tmpQuaternion$1.clone();
+    }
+
+
+    /* Returns the position and orientation of a specific end-effector of the robot
+    in an array of the form: [px, py, pz, qx, qy, qz, qw]
+    */
+    _getEndEffectorTransforms(index=0) {
+        this.tools[index].tcp.getWorldPosition(_tmpVector3$1);
+        this.tools[index].tcp.getWorldQuaternion(_tmpQuaternion$1);
 
         return [
-            _tmpVector3.x, _tmpVector3.y, _tmpVector3.z,
-            _tmpQuaternion.x, _tmpQuaternion.y, _tmpQuaternion.z, _tmpQuaternion.w,
+            _tmpVector3$1.x, _tmpVector3$1.y, _tmpVector3$1.z,
+            _tmpQuaternion$1.x, _tmpQuaternion$1.y, _tmpQuaternion$1.z, _tmpQuaternion$1.w,
         ];
     }
 
 
-    /* Returns the desired position and orientation for the end-effector of the robot in an
-    array of the form: [px, py, pz, qx, qy, qz, qw]
+    /* Returns the desired position and orientation for a specific end-effector of
+    the robot in an array of the form: [px, py, pz, qx, qy, qz, qw]
 
     The desired position and orientation are those of the manipulator of the
     end-effector (if enabled, see 'Viewer3D.endEffectorManipulation'), that the
@@ -574,297 +900,259 @@ class Robot {
     Returns:
         [px, py, pz, qx, qy, qz, qw]
     */
-    getEndEffectorDesiredTransforms() {
-        if (this.tcpTarget != null) {
-            this.tcpTarget.getWorldPosition(_tmpVector3);
-            this.tcpTarget.getWorldQuaternion(_tmpQuaternion);
+    _getEndEffectorDesiredTransforms(index=0) {
+        if (this.tools[index].tcpTarget != null) {
+            this.tools[index].tcpTarget.getWorldPosition(_tmpVector3$1);
+            this.tools[index].tcpTarget.getWorldQuaternion(_tmpQuaternion$1);
 
             return [
-                _tmpVector3.x, _tmpVector3.y, _tmpVector3.z,
-                _tmpQuaternion.x, _tmpQuaternion.y, _tmpQuaternion.z, _tmpQuaternion.w,
+                _tmpVector3$1.x, _tmpVector3$1.y, _tmpVector3$1.z,
+                _tmpQuaternion$1.x, _tmpQuaternion$1.y, _tmpQuaternion$1.z, _tmpQuaternion$1.w,
             ];
         }
 
-        return this.robot.getEndEffectorTransforms();
+        return this._getEndEffectorTransforms(index);
     }
 
 
-    enableTool(enabled, toolbar=null) {
-        this.tool.enabled = enabled && this.controlsEnabled;
+    /* Returns the position of all the end-effectors of the robot (an array of Nx3 values)
+    */
+    _getAllEndEffectorPositions() {
+        const result = [];
 
-        if (this.tool.enabled) {
-            this.tool.toolbar = toolbar;
-
-            if (toolbar != null) {
-                if (this.tool.button != null)
-                    this.tool.button.object.visible = false;
-            }
-
-            this._updateToolButton();
-        } else {
-            if (this.tool.button != null)
-                this.tool.button.object.visible = false;
-
-            if (this.tool.toolbar != null) {
-                this.tool.toolbar.destroy();
-                this.tool.toolbar = null;
-            }
+        for (let tool of this.tools) {
+            tool.tcp.getWorldPosition(_tmpVector3$1);
+            result.push(_tmpVector3$1.x, _tmpVector3$1.y, _tmpVector3$1.z);
         }
+
+        return result;
     }
 
 
-    isToolEnabled() {
-        return this.tool.enabled;
+    /* Returns the orientation of all the end-effectors of the robot (an array of Nx4 values,
+    [qx, qy, qz, qw])
+    */
+    _getAllEndEffectorOrientations() {
+        const result = [];
+
+        for (let tool of this.tools) {
+            tool.tcp.getWorldQuaternion(_tmpQuaternion$1);
+            result.push(_tmpQuaternion$1.x, _tmpQuaternion$1.y, _tmpQuaternion$1.z, _tmpQuaternion$1.w);
+        }
+
+        return result;
     }
 
 
-    /* Performs Forward Kinematics, on a subset of the joints
+    /* Returns the position and orientation of all the end-effectors of the robot
+    in an array of the form: N x [px, py, pz, qx, qy, qz, qw]
+    */
+    _getAllEndEffectorTransforms() {
+        const result = [];
 
-    Parameters:
-        positions (array): The joint positions
-        offset (Vector3): Optional, an offset from the last joint
+        for (let tool of this.tools) {
+            tool.tcp.getWorldPosition(_tmpVector3$1);
+            tool.tcp.getWorldQuaternion(_tmpQuaternion$1);
+
+            result.push(
+                _tmpVector3$1.x, _tmpVector3$1.y, _tmpVector3$1.z,
+                _tmpQuaternion$1.x, _tmpQuaternion$1.y, _tmpQuaternion$1.z, _tmpQuaternion$1.w,
+            );
+        }
+
+        return result;
+    }
+
+
+    /* Returns the desired position and orientation for all the end-effectors of
+    the robot in an array of the form: N x [px, py, pz, qx, qy, qz, qw]
+
+    The desired position and orientation are those of the manipulators of the
+    end-effectors (if enabled, see 'Viewer3D.endEffectorManipulation'), that the
+    user can move freely.
 
     Returns:
-        A tuple of a Vector3 and a Quaternion: (position, orientation)
+        [px, py, pz, qx, qy, qz, qw]
     */
-    fkin(positions, offset=null) {
-        if (math.typeOf(positions) == 'DenseMatrix')
-            positions = positions.toArray();
-        else if (math.typeOf(positions) == 'number')
-            positions = [positions];
+    _getAllEndEffectorDesiredTransforms() {
+        const result = [];
 
-        // Check the input
-        if (positions.length > this.arm.joints.length)
-            throw new Error('The number of joint positions must be less or equal than the number of movable joints');
-
-        // Set the joint positions
-        const nbJoints = positions.length;
-
-        for (let i = 0; i < nbJoints; ++i)
-            this._setJointPosition(i, positions[i]);
-
-        if ((positions.length == this.arm.joints.length) && (offset == null)) {
-            this.fk.tcp.getWorldPosition(_tmpVector3);
-            this.fk.tcp.getWorldQuaternion(_tmpQuaternion);
-        } else {
-            const bodyId = this.fk.joints[positions.length - 1].children[0].bodyId;
-            const link = this.fk.links.filter((l) => l.bodyId == bodyId)[0];
-
-            link.getWorldPosition(_tmpVector3);
-            link.getWorldQuaternion(_tmpQuaternion);
-
-            if (offset != null) {
-                let offset2;
-
-                if (math.typeOf(offset) == 'DenseMatrix')
-                    offset2 = new THREE.Vector3().fromArray(offset.toArray());
-                else if (Array.isArray(offset))
-                    offset2 = new THREE.Vector3().fromArray(offset);
-                else
-                    offset2 = offset.clone();
-
-                offset2.applyQuaternion(_tmpQuaternion);
-                _tmpVector3.add(offset2);
+        for (let tool of this.tools) {
+            if (tool.tcpTarget != null) {
+                tool.tcpTarget.getWorldPosition(_tmpVector3$1);
+                tool.tcpTarget.getWorldQuaternion(_tmpQuaternion$1);
+            } else {
+                tool.tcp.getWorldPosition(_tmpVector3$1);
+                tool.tcp.getWorldQuaternion(_tmpQuaternion$1);
             }
+
+            result.push(
+                _tmpVector3$1.x, _tmpVector3$1.y, _tmpVector3$1.z,
+                _tmpQuaternion$1.x, _tmpQuaternion$1.y, _tmpQuaternion$1.z, _tmpQuaternion$1.w,
+            );
         }
 
-        return [
-            _tmpVector3.x, _tmpVector3.y, _tmpVector3.z,
-            _tmpQuaternion.x, _tmpQuaternion.y, _tmpQuaternion.z, _tmpQuaternion.w,
-        ];
+        return result;
     }
 
 
-    ik(mu, nbJoints=null, offset=null, limit=5, dt=0.01, successDistance=1e-4, damping=false) {
-        let x = math.matrix(Array.from(this.getControl()));
-        const startx = math.matrix(x);
+    _enableTools(enabled, toolbar=null) {
+        this.toolsEnabled = enabled && this.controlsEnabled;
 
-        if (math.typeOf(mu) == 'Array')
-            mu = math.matrix(mu);
+        if (this.toolsEnabled) {
+            this.toolbar = toolbar;
 
-        if (nbJoints == null)
-            nbJoints = x.size()[0];
-
-        const jointIndices = math.index(math.range(0, nbJoints));
-
-        let indices = math.index(math.range(0, 7));
-        let jacobianIndices = math.index(math.range(0, 6), math.range(0, nbJoints));
-        if (mu.size()[0] == 3) {
-            indices = math.index(math.range(0, 3));
-            jacobianIndices = math.index(math.range(0, 3), math.range(0, nbJoints));
-        } else if (mu.size()[0] == 4) {
-            indices = math.index(math.range(3, 7));
-            jacobianIndices = math.index(math.range(3, 6), math.range(0, nbJoints));
-        }
-
-        damping = damping || (nbJoints < x.size()[0]);
-
-        let done = false;
-        let i = 0;
-        let diff;
-        let pinvJ;
-        let u;
-        while (!done && ((limit == null) || (i < limit))) {
-            const f = math.matrix(this.fkin(x.subset(jointIndices), offset));
-
-            if (mu.size()[0] == 3)
-                diff = math.subtract(mu, f.subset(indices));
-            else if (mu.size()[0] == 4)
-                diff = logmap_S3(mu, f.subset(indices));
-            else
-                diff = logmap(mu, f);
-
-            let J = this.Jkin(x.subset(jointIndices), offset);
-            J = J.subset(jacobianIndices);
-
-            try {
-                if (damping) {
-                    // Damped pseudoinverse
-                    const JT = math.transpose(J);
-
-                    pinvJ = math.multiply(
-                        math.inv(
-                            math.add(
-                                math.multiply(JT, J),
-                                math.multiply(math.identity(nbJoints), 1e-2)
-                            )
-                        ),
-                        JT
-                    );
-                } else {
-                    pinvJ = math.pinv(J);
+            if (toolbar != null) {
+                for (let tool of this.tools) {
+                    if (tool.button != null)
+                        tool.button.object.visible = false;
                 }
             }
-            catch(err) {
-                break;
+
+            this._updateToolButtons();
+        } else {
+            for (let tool of this.tools) {
+                if (tool.button != null)
+                    tool.button.object.visible = false;
             }
 
-            u = math.multiply(math.multiply(pinvJ, diff), 0.1 / dt);  // Velocity command, with a 0.1 gain to not overshoot the target
-
-            x.subset(jointIndices, math.add(x.subset(jointIndices), math.multiply(u, dt)).subset(jointIndices));
-
-            i++;
-
-            if (math.norm(math.subtract(x, startx)) < successDistance)
-                done = true;
+            if (this.toolbar != null) {
+                this.toolbar.destroy();
+                this.toolbar = null;
+            }
         }
-
-        startx.subset(jointIndices, x.subset(jointIndices));
-        this.setControl(startx.toArray());
-
-        return done;
     }
 
 
-    /* Jacobian with numerical computation, on a subset of the joints
-    */
-    Jkin(positions, offset=null) {
-        const eps = 1e-6;
-
-        if (math.typeOf(positions) == 'Array')
-            positions = math.matrix(positions);
-        else if (math.typeOf(positions) == 'number')
-            positions = math.matrix([ positions ]);
-
-        const D = positions.size()[0];
-
-        positions = math.reshape(positions, [D, 1]);
-
-        // Matrix computation
-        const F1 = math.zeros(7, D);
-        const F2 = math.zeros(7, D);
-
-        const f0 = math.matrix(this.fkin(positions, offset));
-
-        for (let i = 0; i < D; ++i) {
-            F1.subset(math.index(math.range(0, 7), i), f0);
-
-            const diff = math.zeros(D);
-            diff.set([i, 0], eps);
-
-            F2.subset(math.index(math.range(0, 7), i), this.fkin(math.add(positions, diff), offset));
-        }
-
-        let J = math.divide(logmap(F2, F1), eps);
-
-        if (J.size().length == 1)
-            J = math.reshape( J, [J.size()[0], 1]);
-
-        return J;
+    _areToolsEnabled() {
+        return this.toolsEnabled;
     }
 
 
-    isGripperOpen() {
-        return (this.tool.state == 'opened') && (this.getGripperAbduction() >= 0.99);
+    getKinematicChainForJoint(joint) {
+        return new KinematicChain(this, joint);
     }
 
 
-    isGripperClosed() {
-        return (this.tool.state == 'closed') && (this.getGripperAbduction() <= 0.01);
+    getKinematicChainForTool(index=0) {
+        return new KinematicChain(this, null, index);
     }
 
 
-    isGripperHoldingSomeObject() {
-        return (this.tool.state == 'closed') && (this.tool._stateCounter >= 5);
+    _isGripperOpen(index=0) {
+        const tool = this.tools[index];
+        if (tool.type != 'gripper')
+            return false;
+
+        return (tool.state == 'opened') && (this.getGripperAbduction(index) >= 0.99);
     }
 
 
-    getGripperAbduction() {
-        if (this.tool.actuators.length === 0)
+    _isGripperClosed(index=0) {
+        const tool = this.tools[index];
+        if (tool.type != 'gripper')
+            return false;
+
+        return (tool.state == 'closed') && (this.getGripperAbduction(index) <= 0.01);
+    }
+
+
+    _isGripperHoldingSomeObject(index=0) {
+        const tool = this.tools[index];
+        if (tool.type != 'gripper')
+            return false;
+
+        return (tool.state == 'closed') && (tool._stateCounter >= 5);
+    }
+
+
+    _getGripperAbduction(index=0) {
+        const tool = this.tools[index];
+        if (tool.type != 'gripper')
+            return 0.0;
+
+        if (tool.actuators.length === 0)
             return 0.0;
 
         // Average abduction of all tool joints
         let abduction = 0.0;
-        const qpos = this._physicsSimulator.getJointPositions(this.tool.joints);
+        let N = 0;
+        const qpos = this._simulator.getJointPositions(tool.joints);
 
-        for (let i = 0; i < this.tool.joints.length; ++i) {
-            const joint = this.tool.joints[i];
-            const range = this._physicsSimulator.jointRange(joint);
+        for (let i = 0; i < tool.joints.length; ++i) {
+            const joint = tool.joints[i];
+            const actuator = this._simulator.getJointActuator(joint);
+
+            if (tool.ignoredActuators.indexOf(actuator) >= 0)
+                continue;
+
+            const range = this._simulator.jointRange(joint);
+
             let rel = (qpos[i] - range[0]) / (range[1] - range[0]);
+
+            if (tool.invertedActuators.indexOf(actuator) >= 0)
+                rel = 1.0 - rel;
+
             abduction += rel;
+
+            ++N;
         }
-        abduction /= this.tool.joints.length;
+        abduction /= N;
 
         return abduction;
     }
 
 
-    closeGripper() {
-        this._activateGripper('closed', 0);
+    _closeGripper(index=0) {
+        this._activateGripper(index, 'closed', 0);
     }
 
 
-    openGripper() {
-        this._activateGripper('opened', 1);
+    _openGripper(index=0) {
+        this._activateGripper(index, 'opened', 1);
     }
 
 
-    toggleGripper() {
-        if (this.tool.state == 'opened')
-            this.closeGripper();
+    _toggleGripper(index=0) {
+        const tool = this.tools[index];
+        if (tool.type != 'gripper')
+            return;
+
+        if (tool.state == 'opened')
+            this._closeGripper(index);
         else
-            this.openGripper();
+            this._openGripper(index);
     }
 
 
     createJointPositionHelpers(scene, layer, colors=[]) {
         const cfg = this.configuration.jointPositionHelpers;
-        const x = this.getJointPositions();
 
-        for (let i = 0; i < this.arm.joints.length; ++i) {
-            const joint = this.arm.joints[i];
-            const name = this.arm.names.joints[i];
+        let index = 0;
 
-            const helper = new JointPositionHelper(
-                scene, layer, joint, i + 1, x[i],
-                cfg.inverted.includes(name),
-                colors[i] || 0xff0000,
-                cfg.offsets[name] || 0.0
-            );
+        for (let segment of this.segments) {
+            const x = this._simulator.getJointPositions(segment.joints);
 
-            helper.updateTransforms(this.arm.visual.joints[i]);
+            for (let i = 0; i < segment.joints.length; ++i) {
+                const joint = segment.joints[i];
+                const name = this._getJointName(joint);
 
-            this.arm.visual.helpers.push(helper);
+                const axis = new THREE.Vector3();
+                this._simulator._getPosition(this._simulator.model.jnt_axis, joint, axis);
+
+                const helper = new JointPositionHelper(
+                    scene, layer, joint, index + 1, axis, x[i],
+                    cfg.inverted.includes(name),
+                    colors[index] || 0xff0000,
+                    cfg.offsets[name] || 0.0
+                );
+
+                helper.updateTransforms(segment.visual.joints[i]);
+
+                segment.visual.helpers.push(helper);
+
+                ++index;
+            }
         }
     }
 
@@ -874,123 +1162,174 @@ class Robot {
         // updated by the physics simulator.
 
         // Update the robot joints visualisation (if necessary)
-        const x = this.getJointPositions();
+        for (let segment of this.segments) {
+            const x = this._simulator.getJointPositions(segment.joints);
 
-        for (let i = 0; i < this.arm.visual.helpers.length; ++i) {
-            const helper = this.arm.visual.helpers[i];
-            helper.updateTransforms(this.arm.visual.joints[i]);
-            helper.updateJointPosition(x[i]);
-            helper.updateSize(cameraPosition, elementWidth);
-        }
-
-        // Synchronize the transforms of the TCP target element (if necessary)
-        if (tcpTarget && (this.tcpTarget != null)) {
-            this.tcp.getWorldPosition(_tmpVector3);
-            this.tcp.getWorldQuaternion(_tmpQuaternion);
-
-            this.arm.visual.links[0].worldToLocal(_tmpVector3);
-            this.tcpTarget.position.copy(_tmpVector3);
-
-            this.arm.visual.links[0].getWorldQuaternion(_tmpQuaternion2);
-            this.tcpTarget.quaternion.multiplyQuaternions(_tmpQuaternion2.invert(), _tmpQuaternion);
-        }
-
-        // Update the internal state of the tool
-        if (this.tool.state == 'closed') {
-            const abduction = this.getGripperAbduction();
-            // console.log(abduction, this.tool._previousAbduction, this.tool._stateCounter);
-            if ((abduction > 0.01) && (Math.abs(abduction - this.tool._previousAbduction) < 1e-3)) {
-                this.tool._stateCounter++;
-            } else {
-                this.tool._stateCounter = 0;
-                this.tool._previousAbduction = abduction;
+            for (let i = 0; i < segment.visual.helpers.length; ++i) {
+                const helper = segment.visual.helpers[i];
+                helper.updateTransforms(segment.visual.joints[i]);
+                helper.updateJointPosition(x[i]);
+                helper.updateSize(cameraPosition, elementWidth);
             }
         }
 
-        // Update the button allowing to toggle the tool (if necessary)
-        if (this.tool.enabled)
-            this._updateToolButton();
+        const root = this.segments[0].visual.links[0];
+
+        for (let i = 0; i < this.tools.length; ++i) {
+            const tool = this.tools[i];
+
+            // Synchronize the transforms of the TCP target element (if necessary)
+            if (tcpTarget && (tool.tcpTarget != null)) {
+                tool.tcp.getWorldPosition(_tmpVector3$1);
+                tool.tcp.getWorldQuaternion(_tmpQuaternion$1);
+
+                root.worldToLocal(_tmpVector3$1);
+                tool.tcpTarget.position.copy(_tmpVector3$1);
+
+                root.getWorldQuaternion(_tmpQuaternion2);
+                tool.tcpTarget.quaternion.multiplyQuaternions(_tmpQuaternion2.invert(), _tmpQuaternion$1);
+            }
+
+            // Update the internal state of the tool
+            if ((tool.type == 'gripper') && (tool.state == 'closed')) {
+                const abduction = this.getGripperAbduction(i);
+                // console.log(abduction, this.tool._previousAbduction, this.tool._stateCounter);
+                if ((abduction > 0.01) && (Math.abs(abduction - tool._previousAbduction) < 1e-3)) {
+                    tool._stateCounter++;
+                } else {
+                    tool._stateCounter = 0;
+                    tool._previousAbduction = abduction;
+                }
+            }
+        }
+
+        // Update the buttons allowing to toggle the tools (if necessary)
+        if (this.toolsEnabled)
+            this._updateToolButtons();
     }
 
 
     _init() {
+        // Retrieve the list of all joints, actuators and links
+        for (let segment of this.segments) {
+            this.joints = this.joints.concat(segment.joints);
+            this.actuators = this.actuators.concat(segment.actuators);
+            this.links = this.links.concat(segment.links);
+        }
+
         // Retrieve the names of all joints, links and actuators
-        this.arm.names.joints = this._physicsSimulator.jointNames(this.arm.joints);
-        this.arm.names.actuators = this._physicsSimulator.actuatorNames(this.arm.actuators);
-        this.arm.names.links = this._physicsSimulator.bodyNames(this.arm.links);
+        this.names.joints = this._simulator.jointNames(this.joints);
+        this.names.actuators = this._simulator.actuatorNames(this.actuators);
+        this.names.links = this._simulator.bodyNames(this.links);
 
-        this.tool.names.joints = this._physicsSimulator.jointNames(this.tool.joints);
-        this.tool.names.actuators = this._physicsSimulator.actuatorNames(this.tool.actuators);
-        this.tool.names.links = this._physicsSimulator.bodyNames(this.tool.links);
-
-        // Retrieve the limit of the actuators of the arm
-        for (let actuator of this.arm.actuators) {
-            const range = this._physicsSimulator.actuatorRange(actuator);
-            this.arm.limits.push(range);
+        for (let tool of this.tools) {
+            tool.names.joints = this._simulator.jointNames(tool.joints);
+            tool.names.actuators = this._simulator.actuatorNames(tool.actuators);
+            tool.names.links = this._simulator.bodyNames(tool.links);
         }
 
-        // Retrieve the actuator values representing the states of the tool (if any)
-        for (let actuator of this.tool.actuators) {
-            const range = this._physicsSimulator.actuatorRange(actuator);
+        // Process each segment
+        for (let segment of this.segments) {
 
-            this.tool.states.push({
-                closed: range[0],
-                opened: range[1],
-            });
+            // Retrieve the limits of the joints of the segment
+            for (let joint of segment.joints) {
+                const actuator = this._simulator.getJointActuator(joint);
+                let range = null;
+
+                if (actuator != -1)
+                    range = this._simulator.actuatorRange(actuator);
+                else
+                    range = this._simulator.jointRange(joint);
+
+                segment.limits.push(range);
+            }
+
+            // Retrieve the list of all visual links (=groups) of the segment
+            segment.visual.links = segment.links.map((b) => this._simulator.bodies[b]);
+
+            // Retrieve the list of all visual links (=groups) with a joint of the segment
+            segment.visual.joints = segment.joints.map((j) => this._simulator.bodies[this._simulator.model.jnt_bodyid[j]]);
+
+            // Retrieve the list of all the meshes used by the segment
+            segment.visual.meshes = segment.visual.links.map((body) => body.children.filter((c) => c.type == "Mesh")).flat();
+
+            for (const mesh of segment.visual.meshes)
+                mesh.layers = this.layers;
         }
 
-        // Retrieve the list of all links (=groups) of the robot
-        this.arm.visual.links = this.arm.links.map((b) => this._physicsSimulator.bodies[b]);
+        // Process each tool
+        for (let i = 0; i < this.tools.length; ++i) {
+            const tool = this.tools[i];
 
-        this.tool.visual.links = this.tool.links.map((b) => this._physicsSimulator.bodies[b]);
+            // Retrieve the actuator values representing the states of the tools (if any)
+            for (let actuator of tool.actuators) {
+                const range = this._simulator.actuatorRange(actuator);
 
-        // Retrieve the list of all links (=groups) with a joint of the robot
-        this.arm.visual.joints = this.arm.joints.map((j) => this._physicsSimulator.bodies[this._physicsSimulator.model.jnt_bodyid[j]]);
+                if (tool.invertedActuators.indexOf(actuator) >= 0) {
+                    tool.states.push({
+                        closed: range[1],
+                        opened: range[0],
+                    });
+                } else {
+                    tool.states.push({
+                        closed: range[0],
+                        opened: range[1],
+                    });
+                }
+            }
 
-        this.tool.visual.joints = this.tool.joints.map((j) => this._physicsSimulator.bodies[this._physicsSimulator.model.jnt_bodyid[j]]);
+            // Retrieve the list of all visual links (=groups) of the tool
+            tool.visual.links = tool.links.map((b) => this._simulator.bodies[b]);
 
-        // Retrieve the list of all the meshes used by the robot
-        this.arm.visual.meshes = this.arm.visual.links.map((body) => body.children.filter((c) => c.type == "Mesh")).flat();
+            // Retrieve the list of all visual links (=groups) with a joint of the tool
+            tool.visual.joints = tool.joints.map((j) => this._simulator.bodies[this._simulator.model.jnt_bodyid[j]]);
 
-        this.tool.visual.meshes = this.tool.visual.links.map((body) => body.children.filter((c) => c.type == "Mesh")).flat();
+            // Retrieve the list of all the meshes used by the tool
+            tool.visual.meshes = tool.visual.links.map((body) => body.children.filter((c) => c.type == "Mesh")).flat();
 
-        for (const mesh of this.arm.visual.meshes)
-            mesh.layers = this.layers;
+            for (const mesh of tool.visual.meshes)
+                mesh.layers = this.layers;
 
-        for (const mesh of this.tool.visual.meshes)
-            mesh.layers = this.layers;
+            // Tool-specific actions (if necessary)
+            if (tool.type == 'gripper') {
+                // Create the button to use the tool
+                const img = document.createElement('img');
+                img.src = getURL('images/open_gripper.png');
+                img.width = 24;
+                img.height = 24;
 
-        // Tool-specific actions (if necessary)
-        if (this.configuration.toolRoot != null) {
-            // Create the button to use the tool
-            const img = document.createElement('img');
-            img.src = getURL('images/open_gripper.png');
-            img.width = 24;
-            img.height = 24;
+                img.toolButtonFor = this;
+                img.toolIndex = i;
 
-            img.toolButtonFor = this;
+                tool.button.element = document.createElement('div');
+                tool.button.element.className = 'tool-button';
+                tool.button.element.appendChild(img);
 
-            this.tool.button.element = document.createElement('div');
-            this.tool.button.element.className = 'tool-button';
-            this.tool.button.element.appendChild(img);
+                tool.button.object = new CSS2DObject(tool.button.element);
 
-            this.tool.button.object = new CSS2DObject(this.tool.button.element);
-            this.tool.button.object.position.set(0, 0, 0.11);
+                if (this.configuration.tools[i].buttonOffset != undefined)
+                    tool.button.object.position.set(...this.configuration.tools[i].buttonOffset);
 
-            this.tool.button.object.layers.disableAll();
-            this.tool.button.object.layers.enable(31);
+                tool.button.object.layers.disableAll();
+                tool.button.object.layers.enable(31);
 
-            this.tool.visual.links[0].add(this.tool.button.object);
+                tool.visual.links[0].add(tool.button.object);
 
-            // Initialise the internal state
-            if (this.isGripperOpen())
-                this.tool.state = 'opened';
-            else
-                this.tool.state = 'closed';
+                // Initialise the internal state
+                if (this.isGripperOpen(i))
+                    tool.state = 'opened';
+                else
+                    tool.state = 'closed';
 
-            this.tool._previousAbduction = this.getGripperAbduction();
-            this.tool._stateCounter = 0;
+                tool._previousAbduction = this.getGripperAbduction(i);
+                tool._stateCounter = 0;
+            }
         }
+
+        if (this.tools.length == 1)
+            this.kinematicChain = new KinematicChain(this, null, 0);
+        else if (this.tools.length == 0)
+            this.kinematicChain = new KinematicChain(this, this.joints[this.joints.length - 1]);
 
         // Create everything needed to do FK
         this._setupFK();
@@ -1000,31 +1339,46 @@ class Robot {
     }
 
 
-    _activateGripper(stateName, rangeIndex) {
-        if (this.tool.button.object != null)
-            this.tool.button.object.visible = false;
+    _activateGripper(index, stateName, rangeIndex) {
+        const tool = this.tools[index];
+        if (tool.type != 'gripper')
+            return;
 
-        if (this.tool.toolbar != null)
-            this.tool.toolbar.disable();
+        if (tool.button.object != null)
+            tool.button.object.visible = false;
 
-        if (this.tool.actuators.length > 0) {
-            const ctrl = new Float32Array(this.tool.actuators.length);
-            for (let i = 0; i < this.tool.states.length; ++i)
-                ctrl[i] = this.tool.states[i][stateName];
+        if (this.toolbar != null)
+            this.toolbar.disable();
 
-            this._physicsSimulator.setControl(ctrl, this.tool.actuators);
+        if (tool.actuators.length - tool.ignoredActuators.length > 0) {
+            const N = tool.actuators.length - tool.ignoredActuators.length;
+            const ctrl = new Float32Array(N);
+            const actuators = [];
+
+            for (let i = 0, j = 0; i < tool.actuators.length; ++i) {
+                const actuator = tool.actuators[i];
+                if (tool.ignoredActuators.indexOf(actuator) >= 0)
+                    continue;
+
+                ctrl[j] = tool.states[i][stateName];
+                actuators.push(actuator);
+
+                ++j;
+            }
+
+            this._simulator.setControl(ctrl, actuators);
         }
 
-        if (this._physicsSimulator.paused) {
+        if (this._simulator.paused) {
             const start = {};
             const target = {};
 
-            const qpos = this._physicsSimulator.getJointPositions(this.tool.joints);
+            const qpos = this._simulator.getJointPositions(tool.joints);
 
-            for (let i = 0; i < this.tool.joints.length; ++i) {
-                const name = this.tool.names.joints[i];
+            for (let i = 0; i < tool.joints.length; ++i) {
+                const name = tool.names.joints[i];
                 start[name] = qpos[i];
-                target[name] = this._physicsSimulator.jointRange(this.tool.joints[i])[rangeIndex];
+                target[name] = this._simulator.jointRange(tool.joints[i])[rangeIndex];
             }
 
             let tween = new TWEEN.Tween(start)
@@ -1032,19 +1386,19 @@ class Robot {
                 .easing(TWEEN.Easing.Quadratic.Out);
 
             tween.onUpdate(object => {
-                const x = new Float32Array(this.tool.joints.length);
+                const x = new Float32Array(tool.joints.length);
 
                 for (const name in object)
-                    x[this.tool.names.joints.indexOf(name)] = object[name];
+                    x[tool.names.joints.indexOf(name)] = object[name];
 
-                this._physicsSimulator.setJointPositions(x, this.tool.joints);
+                this._simulator.setJointPositions(x, tool.joints);
             });
 
             tween.start();
         }
 
-        this.tool.state = stateName;
-        this.tool._stateCounter = 0;
+        tool.state = stateName;
+        tool._stateCounter = 0;
     }
 
 
@@ -1073,43 +1427,52 @@ class Robot {
 
 
     _createTcpTarget() {
-        this.tcpTarget = new THREE.Mesh(
-            new THREE.SphereGeometry(this.configuration.tcpSize),
-            new THREE.MeshBasicMaterial({
-                visible: false
-            })
-        );
+        const root = this.segments[0].visual.links[0];
 
-        this.tcpTarget.tag = 'tcp-target';
-        this.tcpTarget.robot = this;
+        for (let i = 0; i < this.tools.length; ++i) {
+            const tool = this.tools[i];
 
-        this.tcp.getWorldPosition(_tmpVector3);
-        this.tcp.getWorldQuaternion(_tmpQuaternion);
+            let size = this.configuration.tools[i].tcpSize != undefined ? this.configuration.tools[i].tcpSize : 0.1;
 
-        this.arm.visual.links[0].worldToLocal(_tmpVector3);
-        this.tcpTarget.position.copy(_tmpVector3);
+            tool.tcpTarget = new THREE.Mesh(
+                new THREE.SphereGeometry(size),
+                new THREE.MeshBasicMaterial({
+                    visible: false
+                })
+            );
 
-        this.arm.visual.links[0].getWorldQuaternion(_tmpQuaternion2);
-        this.tcpTarget.quaternion.multiplyQuaternions(_tmpQuaternion2.invert(), _tmpQuaternion);
+            tool.tcpTarget.tag = 'tcp-target';
+            tool.tcpTarget.robot = this;
+            tool.tcpTarget.tool = i;
 
-        this.arm.visual.links[0].add(this.tcpTarget);
+            tool.tcp.getWorldPosition(_tmpVector3$1);
+            tool.tcp.getWorldQuaternion(_tmpQuaternion$1);
+
+            root.worldToLocal(_tmpVector3$1);
+            tool.tcpTarget.position.copy(_tmpVector3$1);
+
+            root.getWorldQuaternion(_tmpQuaternion2);
+            tool.tcpTarget.quaternion.multiplyQuaternions(_tmpQuaternion2.invert(), _tmpQuaternion$1);
+
+            root.add(tool.tcpTarget);
+        }
     }
 
 
     _setupFK() {
-        this.arm.visual.links[0].getWorldPosition(_tmpVector3);
-        this.arm.visual.links[0].getWorldQuaternion(_tmpQuaternion);
+        this.segments[0].visual.links[0].getWorldPosition(_tmpVector3$1);
+        this.segments[0].visual.links[0].getWorldQuaternion(_tmpQuaternion$1);
 
         this.fk.root = new THREE.Object3D();
-        this.fk.root.position.copy(_tmpVector3);
-        this.fk.root.quaternion.copy(_tmpQuaternion);
-        this.fk.root.bodyId = this.arm.visual.links[0].bodyId;
-        this.fk.root.name = this.arm.visual.links[0].name;
+        this.fk.root.position.copy(_tmpVector3$1);
+        this.fk.root.quaternion.copy(_tmpQuaternion$1);
+        this.fk.root.bodyId = this.segments[0].visual.links[0].bodyId;
+        this.fk.root.name = this.segments[0].visual.links[0].name;
         this.fk.links.push(this.fk.root);
 
-        const allLinks = [this.arm.visual.links, this.tool.visual.links].flat();
-
-        new THREE.Vector3(0, 1, 0);
+        let allLinks = this.segments.map((segment) => segment.visual.links);
+        allLinks = allLinks.concat(this.tools.map((tool) => tool.visual.links));
+        allLinks = allLinks.flat();
 
         for (let i = 1; i < allLinks.length; ++i) {
             const ref = allLinks[i];
@@ -1120,12 +1483,12 @@ class Robot {
                 const joint = new THREE.Object3D();
                 joint.jointId = ref.jointId;
                 joint.axis = new THREE.Vector3();
-                joint.name = this._physicsSimulator.names[this._physicsSimulator.model.name_jntadr[ref.jointId]];
+                joint.name = this._simulator.names[this._simulator.model.name_jntadr[ref.jointId]];
 
-                this._physicsSimulator._getPosition(this._physicsSimulator.model.jnt_pos, ref.jointId, joint.position);
+                this._simulator._getPosition(this._simulator.model.jnt_pos, ref.jointId, joint.position);
                 joint.position.add(ref.position);
 
-                this._physicsSimulator._getPosition(this._physicsSimulator.model.jnt_axis, ref.jointId, joint.axis);
+                this._simulator._getPosition(this._simulator.model.jnt_axis, ref.jointId, joint.axis);
                 joint.quaternion.setFromAxisAngle(joint.axis, 0.0);
                 joint.quaternion.premultiply(ref.quaternion);
 
@@ -1151,8 +1514,8 @@ class Robot {
                 link.position.copy(ref.position);
                 link.quaternion.copy(ref.quaternion);
             } else {
-                this._physicsSimulator._getPosition(this._physicsSimulator.model.jnt_pos, ref.jointId, _tmpVector3);
-                link.position.sub(_tmpVector3);
+                this._simulator._getPosition(this._simulator.model.jnt_pos, ref.jointId, _tmpVector3$1);
+                link.position.sub(_tmpVector3$1);
             }
 
             parent.add(link);
@@ -1162,47 +1525,517 @@ class Robot {
             this.fk.links.push(link);
         }
 
-        if (this.tcp != null) {
-            this.fk.tcp = new THREE.Object3D();
-            this.fk.tcp.position.copy(this.tcp.position);
-            this.fk.tcp.quaternion.copy(this.tcp.quaternion);
+        for (let tool of this.tools) {
+            const tcp = new THREE.Object3D();
+            tcp.position.copy(tool.tcp.position);
+            tcp.quaternion.copy(tool.tcp.quaternion);
 
-            const parent = this.fk.links.filter((l) => l.bodyId == this.tcp.parent.bodyId)[0];
-            parent.add(this.fk.tcp);
+            const parent = this.fk.links.filter((l) => l.bodyId == tool.tcp.parent.bodyId)[0];
+            parent.add(tcp);
+
+            this.fk.tcps.push(tcp);
         }
     }
 
 
-    _setJointPosition(index, position) {
-        const joint = this.fk.joints[index];
+    _setJointPosition(jointId, position) {
+        const joint = this.fk.joints.filter((j) => j.jointId == jointId)[0];
+
         joint.quaternion.setFromAxisAngle(joint.axis, position);
         joint.quaternion.premultiply(joint.refQuaternion);
         joint.matrixWorldNeedsUpdate = true;
     }
 
 
-    _updateToolButton() {
-        if (this.tool.toolbar != null) {
-            if (!this.tool.toolbar.isEnabled()) {
-                if (this.isGripperOpen()) {
-                    this.tool.toolbar.update(false);
-                } else if (this.isGripperClosed() || this.isGripperHoldingSomeObject()) {
-                    this.tool.toolbar.update(true);
+    _updateToolButtons() {
+        if (this.toolbar != null) {
+            if (!this.toolbar.isEnabled()) {
+                for (let i = 0; i < this.tools.length; ++i) {
+                    const tool = this.tools[i];
+                    if (tool.type == 'gripper') {
+                        if (this.isGripperOpen(i)) {
+                            this.toolbar.update(false);
+                        } else if (this.isGripperClosed(i) || this.isGripperHoldingSomeObject(i)) {
+                            this.toolbar.update(true);
+                        }
+                    }
                 }
             }
 
-        } else if (this.tool.button.object != null) {
-             if (!this.tool.button.object.visible) {
-                if (this.isGripperOpen()) {
-                    this.tool.button.element.children[0].src = getURL('images/close_gripper.png');
-                    this.tool.button.object.visible = true;
+        } else {
+            for (let i = 0; i < this.tools.length; ++i) {
+                const tool = this.tools[i];
 
-                } else if (this.isGripperClosed() || this.isGripperHoldingSomeObject()) {
-                    this.tool.button.element.children[0].src = getURL('images/open_gripper.png');
-                    this.tool.button.object.visible = true;
+                 if ((tool.button != undefined) && (tool.button.object != null)) {
+                     if (!tool.button.object.visible) {
+                        if (tool.type == 'gripper') {
+                            if (this.isGripperOpen(i)) {
+                                tool.button.element.children[0].src = getURL('images/close_gripper.png');
+                                tool.button.object.visible = true;
+
+                            } else if (this.isGripperClosed(i) || this.isGripperHoldingSomeObject(i)) {
+                                tool.button.element.children[0].src = getURL('images/open_gripper.png');
+                                tool.button.object.visible = true;
+                            }
+                        }
+                    }
                 }
             }
         }
+    }
+
+
+    _createSegment(body, parent=null) {
+        const segment = {
+            joints: [],
+            actuators: [],
+            links: [body],
+            limits: [],
+
+            visual: {
+                joints: [],
+                links: [],
+                meshes: [],
+                helpers: [],
+            },
+
+            parent: this.segments.indexOf(parent),
+        };
+
+        this.segments.push(segment);
+
+        return segment;
+    }
+
+
+    _createTool(tcp, body, configuration) {
+        let tool = {
+            type: configuration.type,
+
+            joints: [],
+            actuators: [],
+            links: [],
+
+            tcp: tcp,
+            tcpTarget: null,
+
+            names: {
+                joints: [],
+                actuators: [],
+                links: [],
+            },
+
+            visual: {
+                joints: [],
+                links: [],
+                meshes: [],
+            },
+
+            parent: -1,
+        };
+
+        if (body != null)
+            tool.links.push(body);
+
+        if (configuration.type == "gripper") {
+            const additions = {
+                states: [],
+                state: null,
+
+                ignoredActuators: [],
+                invertedActuators: [],
+
+                button: {
+                    object: null,
+                    element: null,
+                },
+
+                _previousAbduction: null,
+                _stateCounter: 0,
+            };
+
+            tool = {...tool, ...additions};
+        }
+
+        this.tools.push(tool);
+
+        return tool;
+    }
+
+
+    _getJointName(joint) {
+        const idx = this.joints.indexOf(joint);
+        if (idx >= 0)
+            return this.names.joints[idx];
+
+        return null;
+    }
+
+
+    _getSegmentOfJoint(joint) {
+        for (let segment of this.segments) {
+            if (segment.joints.indexOf(joint) != -1)
+                return segment;
+        }
+
+        return null;
+    }
+
+    _getSegmentOfBody(body) {
+        for (let segment of this.segments) {
+            if (segment.links.indexOf(body) != -1)
+                return segment;
+        }
+
+        return null;
+    }
+}
+
+/*
+ * SPDX-FileCopyrightText: Copyright © 2025 Idiap Research Institute <contact@idiap.ch>
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
+
+
+
+
+class SimpleRobot extends Robot {
+
+    constructor(name, configuration, physicsSimulator) {
+        super(name, configuration, physicsSimulator);
+
+        this.kinematicChain = null;
+    }
+
+
+    /* Returns the position of the end-effector of the robot (a Vector3)
+    */
+    getEndEffectorPosition() {
+        return this._getEndEffectorPosition();
+    }
+
+
+    /* Returns the orientation of the end-effector of the robot (a Quaternion)
+    */
+    getEndEffectorOrientation() {
+        return this._getEndEffectorOrientation();
+    }
+
+
+    /* Returns the position and orientation of the end-effector of the robot
+    in an array of the form: [px, py, pz, qx, qy, qz, qw]
+    */
+    getEndEffectorTransforms() {
+        return this._getEndEffectorTransforms();
+    }
+
+
+    /* Returns the desired position and orientation for the end-effector of
+    the robot in an array of the form: [px, py, pz, qx, qy, qz, qw]
+
+    The desired position and orientation are those of the manipulator of the
+    end-effector (if enabled, see 'Viewer3D.endEffectorManipulation'), that the
+    user can move freely.
+
+    Returns:
+        [px, py, pz, qx, qy, qz, qw]
+    */
+    getEndEffectorDesiredTransforms() {
+        return this._getEndEffectorDesiredTransforms();
+    }
+
+
+    enableTool(enabled, toolbar=null) {
+        this._enableTools(enabled, toolbar);
+    }
+
+
+    isToolEnabled() {
+        return this._areToolsEnabled();
+    }
+
+
+    /* Performs Forward Kinematics, on a subset of the joints
+
+    Parameters:
+        positions (array): The joint positions
+        offset (Vector3): Optional, an offset from the last joint
+
+    Returns:
+        A tuple of a Vector3 and a Quaternion: (position, orientation)
+    */
+    fkin(positions, offset=null) {
+        return this.kinematicChain.fkin(positions, offset);
+    }
+
+
+    ik(mu, nbJoints=null, offset=null, limit=5, dt=0.01, successDistance=1e-4, damping=false) {
+        return this.kinematicChain.ik(mu, nbJoints, offset, limit, dt, successDistance, damping);
+    }
+
+
+    /* Jacobian with numerical computation, on a subset of the joints
+    */
+    Jkin(positions, offset=null) {
+        return this.kinematicChain.Jkin(positions, offset);
+    }
+
+
+    isGripperOpen() {
+        return this._isGripperOpen();
+    }
+
+
+    isGripperClosed() {
+        return this._isGripperClosed();
+    }
+
+
+    isGripperHoldingSomeObject() {
+        return this._isGripperHoldingSomeObject();
+    }
+
+
+    getGripperAbduction() {
+        return this._getGripperAbduction();
+    }
+
+
+    closeGripper() {
+        this._closeGripper();
+    }
+
+
+    openGripper() {
+        this._openGripper();
+    }
+
+
+    toggleGripper() {
+        this._toggleGripper();
+    }
+}
+
+/*
+ * SPDX-FileCopyrightText: Copyright © 2025 Idiap Research Institute <contact@idiap.ch>
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
+
+
+
+const _tmpVector3 = new THREE.Vector3();
+const _tmpQuaternion = new THREE.Quaternion();
+
+
+class ComplexRobot extends Robot {
+
+    constructor(name, configuration, physicsSimulator) {
+        super(name, configuration, physicsSimulator);
+    }
+
+
+    /* Returns the position of a specific end-effector of the robot (a Vector3)
+    */
+    getEndEffectorPosition(index=0) {
+        return this._getEndEffectorPosition(index);
+    }
+
+
+    /* Returns the orientation of a specific end-effector of the robot (a Quaternion)
+    */
+    getEndEffectorOrientation(index=0) {
+        return this._getEndEffectorOrientation(index);
+    }
+
+
+    /* Returns the position and orientation of a specific end-effector of the robot
+    in an array of the form: [px, py, pz, qx, qy, qz, qw]
+    */
+    getEndEffectorTransforms(index=0) {
+        return this._getEndEffectorTransforms(index);
+    }
+
+
+    /* Returns the desired position and orientation for a specific end-effector of
+    the robot in an array of the form: [px, py, pz, qx, qy, qz, qw]
+
+    The desired position and orientation are those of the manipulator of the
+    end-effector (if enabled, see 'Viewer3D.endEffectorManipulation'), that the
+    user can move freely.
+
+    Returns:
+        [px, py, pz, qx, qy, qz, qw]
+    */
+    getEndEffectorDesiredTransforms(index=0) {
+        return this._getEndEffectorDesiredTransforms(index);
+    }
+
+
+    /* Returns the position of all the end-effectors of the robot (an array of Nx3 values)
+    */
+    getAllEndEffectorPositions() {
+        return this._getAllEndEffectorPositions();
+    }
+
+
+    /* Returns the orientation of all the end-effectors of the robot (an array of Nx4 values,
+    [qx, qy, qz, qw])
+    */
+    getAllEndEffectorOrientations() {
+        return this._getAllEndEffectorOrientations();
+    }
+
+
+    /* Returns the position and orientation of all the end-effectors of the robot
+    in an array of the form: N x [px, py, pz, qx, qy, qz, qw]
+    */
+    getAllEndEffectorTransforms() {
+        return this._getAllEndEffectorTransforms();
+    }
+
+
+    /* Returns the desired position and orientation for all the end-effectors of
+    the robot in an array of the form: N x [px, py, pz, qx, qy, qz, qw]
+
+    The desired position and orientation are those of the manipulators of the
+    end-effectors (if enabled, see 'Viewer3D.endEffectorManipulation'), that the
+    user can move freely.
+
+    Returns:
+        [px, py, pz, qx, qy, qz, qw]
+    */
+    getAllEndEffectorDesiredTransforms() {
+        return this._getAllEndEffectorDesiredTransforms();
+    }
+
+
+    enableTools(enabled, toolbar=null) {
+        this._enableTools(enabled, toolbar);
+    }
+
+
+    areToolsEnabled() {
+        return this._areToolsEnabled();
+    }
+
+
+    isGripperOpen(index=0) {
+        return this._isGripperOpen(index);
+    }
+
+
+    isGripperClosed(index=0) {
+        return this._isGripperClosed(index);
+    }
+
+
+    isGripperHoldingSomeObject(index=0) {
+        this._isGripperHoldingSomeObject(index);
+    }
+
+
+    getGripperAbduction(index=0) {
+        return this._getGripperAbduction(index);
+    }
+
+
+    closeGripper(index=0) {
+        this._closeGripper(index);
+    }
+
+
+    openGripper(index=0) {
+        this._openGripper(index);
+    }
+
+
+    toggleGripper(index=0) {
+        this._toggleGripper(index);
+    }
+
+
+    fkin(positions) {
+        if (math.typeOf(positions) == 'DenseMatrix')
+            positions = positions.toArray();
+        else if (math.typeOf(positions) == 'number')
+            positions = [positions];
+
+        // Check the input
+        if (positions.length != this.joints.length)
+            throw new Error('The number of joint positions must be equal to the number of movable joints');
+
+        // Set the joint positions
+        const nbJoints = positions.length;
+
+        for (let i = 0; i < nbJoints; ++i)
+            this._setJointPosition(this.joints[i], positions[i]);
+
+        // Retrieve the position and orientation of the end-effectors
+        const result = [];
+
+        for (let tcp of this.fk.tcps) {
+            tcp.getWorldPosition(_tmpVector3);
+            tcp.getWorldQuaternion(_tmpQuaternion);
+
+            result.push(
+                _tmpVector3.x, _tmpVector3.y, _tmpVector3.z,
+                _tmpQuaternion.x, _tmpQuaternion.y, _tmpQuaternion.z, _tmpQuaternion.w
+            );
+        }
+
+        return result;
+    }
+
+
+    Jkin(positions) {
+        const eps = 1e-6;
+
+        if (math.typeOf(positions) == 'Array')
+            positions = math.matrix(positions);
+        else if (math.typeOf(positions) == 'number')
+            positions = math.matrix([ positions ]);
+
+        const D = positions.size()[0];
+        const N = this.tools.length * 7;
+
+        positions = math.reshape(positions, [D, 1]);
+
+        // Matrix computation
+        const F1 = math.zeros(N, D);
+        const F2 = math.zeros(N, D);
+
+        const f0 = math.matrix(this.fkin(positions));
+
+        for (let i = 0; i < D; ++i) {
+            F1.subset(math.index(math.range(0, N), i), f0);
+
+            const diff = math.zeros(D);
+            diff.set([i, 0], eps);
+
+            F2.subset(math.index(math.range(0, N), i), this.fkin(math.add(positions, diff)));
+        }
+
+        let J = math.matrix(this.tools.length * 6, D);
+
+        for (let i = 0; i < this.tools.length; ++i) {
+            const Findices = math.index(math.range(i * 7, (i + 1) * 7), math.range(0, D));
+            const Jindices = math.index(math.range(i * 6, (i + 1) * 6), math.range(0, D));
+
+            J.subset(Jindices, math.divide(logmap(F2.subset(Findices), F1.subset(Findices)), eps));
+        }
+
+        if (J.size().length == 1)
+            J = math.reshape(J, [J.size()[0], 1]);
+
+        return J;
     }
 }
 
@@ -1216,214 +2049,6 @@ class Robot {
  */
 
 
-
-// Load the MuJoCo Module
-const mujoco = await load_mujoco();
-
-
-
-/* Download some files and store them in Mujoco's filesystem
-
-Parameters:
-    dstFolder (string): The destination folder in Mujoco's filesystem
-    srcFolderUrl (string): The URL of the folder in which all the files are located
-    filenames ([string]): List of the filenames
-*/
-async function downloadFiles(dstFolder, srcFolderUrl, filenames) {
-    const FS = mujoco.FS;
-
-    if (dstFolder[0] != '/') {
-        console.error('Destination folders must be absolute paths starting with /');
-        return;
-    }
-
-    if (dstFolder.length > 1) {
-        if (dstFolder[dstFolder.length-1] == '/')
-            dstFolder = dstFolder.substr(0, dstFolder.length-1);
-
-        const parts = dstFolder.substring(1).split('/');
-
-        let path = '';
-        for (let i = 0; i < parts.length; ++i) {
-            path += '/' + parts[i];
-
-            try {
-                const stat = FS.stat(path);
-            } catch (ex) {
-                FS.mkdir(path);
-            }
-        }
-    }
-
-    if (srcFolderUrl[srcFolderUrl.length-1] != '/')
-        srcFolderUrl += '/';
-
-    for (let i = 0; i < filenames.length; ++i) {
-        const filename = filenames[i];
-        const data = await fetch(srcFolderUrl + filename);
-
-        const contentType = data.headers.get("content-type");
-        if ((contentType == 'application/xml') || (contentType == 'text/plain')) {
-            mujoco.FS.writeFile(dstFolder + '/' + filename, await data.text());
-        } else {
-            mujoco.FS.writeFile(dstFolder + '/' + filename, new Uint8Array(await data.arrayBuffer()));
-        }
-    }
-}
-
-
-
-/* Download a scene file
-
-The scenes are stored in Mujoco's filesystem at '/scenes'
-*/
-async function downloadScene(url, destFolder='/scenes') {
-    const offset = url.lastIndexOf('/');
-    await downloadFiles(destFolder, url.substring(0, offset), [ url.substring(offset + 1) ]);
-}
-
-
-
-/* Download all the files needed to simulate and display the Franka Emika Panda robot
-
-The files are stored in Mujoco's filesystem at '/scenes/franka_emika_panda'
-*/
-async function downloadPandaRobot() {
-    const dstFolder = '/scenes/franka_emika_panda';
-    const srcURL = getURL('models/franka_emika_panda/');
-
-    await downloadFiles(
-        dstFolder,
-        srcURL,
-        [
-            'panda.xml',
-            'panda_nohand.xml'
-        ]
-    );
-
-    await downloadFiles(
-        dstFolder + '/assets',
-        srcURL + 'assets/',
-        [
-            'link0.stl',
-            'link0.stl',
-            'link1.stl',
-            'link2.stl',
-            'link3.stl',
-            'link4.stl',
-            'link5_collision_0.obj',
-            'link5_collision_1.obj',
-            'link5_collision_2.obj',
-            'link6.stl',
-            'link7.stl',
-            'hand.stl',
-            'link0_0.obj',
-            'link0_1.obj',
-            'link0_2.obj',
-            'link0_3.obj',
-            'link0_4.obj',
-            'link0_5.obj',
-            'link0_7.obj',
-            'link0_8.obj',
-            'link0_9.obj',
-            'link0_10.obj',
-            'link0_11.obj',
-            'link1.obj',
-            'link2.obj',
-            'link3_0.obj',
-            'link3_1.obj',
-            'link3_2.obj',
-            'link3_3.obj',
-            'link4_0.obj',
-            'link4_1.obj',
-            'link4_2.obj',
-            'link4_3.obj',
-            'link5_0.obj',
-            'link5_1.obj',
-            'link5_2.obj',
-            'link6_0.obj',
-            'link6_1.obj',
-            'link6_2.obj',
-            'link6_3.obj',
-            'link6_4.obj',
-            'link6_5.obj',
-            'link6_6.obj',
-            'link6_7.obj',
-            'link6_8.obj',
-            'link6_9.obj',
-            'link6_10.obj',
-            'link6_11.obj',
-            'link6_12.obj',
-            'link6_13.obj',
-            'link6_14.obj',
-            'link6_15.obj',
-            'link6_16.obj',
-            'link7_0.obj',
-            'link7_1.obj',
-            'link7_2.obj',
-            'link7_3.obj',
-            'link7_4.obj',
-            'link7_5.obj',
-            'link7_6.obj',
-            'link7_7.obj',
-            'hand_0.obj',
-            'hand_1.obj',
-            'hand_2.obj',
-            'hand_3.obj',
-            'hand_4.obj',
-            'finger_0.obj',
-            'finger_1.obj',
-        ]
-    );
-}
-
-
-
-function readFile(filename, binary=false) {
-    try {
-        const stat = mujoco.FS.stat(filename);
-    } catch (ex) {
-        return null;
-    }
-
-    const content = mujoco.FS.readFile(filename);
-
-    if (!binary)
-    {
-        const textDecoder = new TextDecoder("utf-8");
-        return textDecoder.decode(content);
-    }
-
-    return content;
-}
-
-
-function writeFile(filename, content) {
-    mujoco.FS.writeFile(filename, content);
-}
-
-
-function mkdir(path) {
-    const parts = path.split("/");
-
-    let current = parts[0];
-    if (path[0] == "/")
-        current = "/" + current;
-
-    let i = 0;
-
-    while (i < parts.length) {
-        try {
-            const stat = mujoco.FS.stat(current);
-        } catch (ex) {
-            mujoco.FS.mkdir(current);
-        }
-
-        i++;
-        if (i < parts.length)
-            current += "/" + parts[i];
-    }
-}
 
 
 function loadScene(filename, robotBuilders=null) {
@@ -1679,6 +2304,15 @@ class PhysicsSimulator {
     }
 
 
+    getJointActuator(jointId) {
+        const index = this.model.actuator_trnid.indexOf(jointId);
+        if (index != -1)
+            return index  / 2;
+
+        return -1;
+    }
+
+
     getJointPositions(indices=null) {
         if (indices == null)
             return new Float64Array(this.simulation.qpos);
@@ -1784,62 +2418,152 @@ class PhysicsSimulator {
             }
         }
 
+        function _getDirectChildBodies(bodyIdx) {
+            const children = [];
+
+            for (let b = bodyIdx + 1; b < sim.model.nbody; ++b) {
+                if (sim.model.body_parentid[b] == bodyIdx)
+                    children.push(b);
+            }
+
+            return children;
+        }
+
+        function _buildSegments(bodyIdx, segment, toolBodies) {
+            const children =  _getDirectChildBodies(bodyIdx);
+
+            if (children.length == 1) {
+                if (toolBodies.indexOf(children[0]) == -1) {
+                    segment.links.push(children[0]);
+                    _buildSegments(children[0], segment, toolBodies);
+                }
+
+            } else if (children.length > 1) {
+                for (let i = 0; i < children.length; ++i) {
+                    if (toolBodies.indexOf(children[i]) == -1) {
+                        const segment2 = robot._createSegment(children[i], segment);
+                        _buildSegments(children[i], segment2, toolBodies);
+                    }
+                }
+            }
+        }
+
+        function _getBody(name) {
+            for (let b = 0; b < sim.model.nbody; ++b) {
+                const bodyName = sim.names[sim.model.name_bodyadr[b]];
+
+                if (bodyName == name)
+                    return b;
+            }
+
+            return null;
+        }
+
+        function _getSite(name) {
+            for (let s = 0; s < sim.model.nsite; ++s) {
+                const siteName = sim.names[sim.model.name_siteadr[s]];
+
+                if (siteName == name)
+                    return sim.sites[s];
+            }
+
+            return null;
+        }
+
+
         // Modify the configuration if a prefix was provided
         if (prefix != null)
             configuration = configuration.addPrefix(prefix);
 
         // Create the robot
-        const robot = new Robot(name, configuration, this);
+        const robot = configuration.tools.length > 1 ?
+                        new ComplexRobot(name, configuration, this) :
+                        new SimpleRobot(name, configuration, this);
 
-        // Search the root body of the robot and the tool (if any)
-        let rootBody = null;
-        let toolBody = null;
-        for (let b = 0; b < this.model.nbody; ++b) {
-            const name = this.names[this.model.name_bodyadr[b]];
+        // Retrieve all the tools of the robot
+        const toolBodies = [];
+        for (let j = 0; j < configuration.tools.length; ++j) {
+            let body = null;
+            if (configuration.tools[j].root != null)
+            {
+                body = _getBody(configuration.tools[j].root);
+                if (body == null) {
+                    console.error("Failed to create the robot: link '" + configuration.tools[j].root + "' not found");
+                    return null;
+                }
 
-            if ((rootBody == null) && (name == configuration.robotRoot))
-                rootBody = b;
-
-            if ((toolBody == null) && (name == configuration.toolRoot))
-                toolBody = b;
-
-            if (rootBody != null) {
-                if ((configuration.toolRoot == null) || (toolBody != null))
-                    break;
+                toolBodies.push(body);
             }
+
+            const tcp = _getSite(configuration.tools[j].tcpSite);
+
+            const tool = robot._createTool(tcp, body, configuration.tools[j]);
+
+            if (body != null)
+                _getChildBodies(body, tool.links);
         }
 
+        // Retrieve all the segments of the robot
+        const rootBody = _getBody(configuration.robotRoot);
         if (rootBody == null) {
             console.error("Failed to create the robot: link '" + configuration.robotRoot + "' not found");
             return null;
         }
 
-        if ((toolBody == null) && (configuration.toolRoot != null)) {
-            console.error("Failed to create the robot: link '" + configuration.toolRoot + "' not found");
-            return null;
-        }
-
-        // Retrieve all the bodies of arm of the robot
-        robot.arm.links = [rootBody];
-        _getChildBodies(rootBody, robot.arm.links);
-
-        // Retrieve all the bodies of the tool of the robot
-        if (toolBody != null) {
-            robot.tool.links = [toolBody];
-            _getChildBodies(toolBody, robot.tool.links);
-        }
+        const segment = robot._createSegment(rootBody);
+        _buildSegments(rootBody, segment, toolBodies);
 
         // Retrieve all the joints of the robot
         for (let j = 0; j < this.model.njnt; ++j) {
+            const type = this.model.jnt_type[j];
+            if (type == mujoco.mjtJoint.mjJNT_FREE.value)
+                continue;
+
             const body = this.model.jnt_bodyid[j];
 
-            if (robot.arm.links.indexOf(body) >= 0) {
-                robot.arm.joints.push(j);
-                this.freeJoints.splice(this.freeJoints.indexOf(j), 1);
+            let found = false;
+            for (let segment of robot.segments) {
+                if (segment.links.indexOf(body) >= 0) {
+                    segment.joints.push(j);
+                    this.freeJoints.splice(this.freeJoints.indexOf(j), 1);
+                    found = true;
+                    break;
+                }
+            }
 
-            } else if (robot.tool.links.indexOf(body) >= 0) {
-                robot.tool.joints.push(j);
-                this.freeJoints.splice(this.freeJoints.indexOf(j), 1);
+            if (found)
+                continue;
+
+            for (let tool of robot.tools) {
+                if (tool.links.indexOf(body) >= 0) {
+                    tool.joints.push(j);
+                    this.freeJoints.splice(this.freeJoints.indexOf(j), 1);
+                    break;
+                }
+            }
+        }
+
+        // Merge segments
+        let modified = true;
+        while (modified) {
+            modified = false;
+
+            for (let j = robot.segments.length - 1; j >= 0; --j) {
+                const segment = robot.segments[j];
+                if ((segment.joints.length == 0) && (segment.parent >= 0)) {
+                    const parent = robot.segments[segment.parent];
+                    parent.links = parent.links.concat(segment.links);
+
+                    robot.segments.splice(j, 1);
+
+                    for (let k = 0; k < robot.segments.length; ++k) {
+                        if (robot.segments[k].parent >= j)
+                            robot.segments[k].parent -= 1;
+                    }
+
+                    modified = true;
+                    break;
+                }
             }
         }
 
@@ -1849,12 +2573,37 @@ class PhysicsSimulator {
             const id = this.model.actuator_trnid[a * 2];
 
             if ((type == mujoco.mjtTrn.mjTRN_JOINT.value) ||
-                (type == mujoco.mjtTrn.mjTRN_JOINT.mjTRN_JOINTINPARENT)) {
+                (type == mujoco.mjtTrn.mjTRN_JOINTINPARENT.value)) {
 
-                if (robot.arm.joints.indexOf(id) >= 0)
-                    robot.arm.actuators.push(a);
-                else if (robot.tool.joints.indexOf(id) >= 0)
-                    robot.tool.actuators.push(a);
+                let found = false;
+                for (let segment of robot.segments) {
+                    if (segment.joints.indexOf(id) >= 0) {
+                        segment.actuators.push(a);
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found)
+                    continue;
+
+                for (let j = 0; j < robot.tools.length; ++j) {
+                    const tool = robot.tools[j];
+
+                    if (tool.joints.indexOf(id) >= 0) {
+                        tool.actuators.push(a);
+
+                        const cfg = configuration.tools[j];
+
+                        if ((cfg.ignoredActuators != undefined) && (cfg.ignoredActuators.indexOf(this.actuatorNames([a])[0]) >= 0))
+                            tool.ignoredActuators.push(a);
+
+                        if ((cfg.invertedActuators != undefined) && (cfg.invertedActuators.indexOf(this.actuatorNames([a])[0]) >= 0))
+                            tool.invertedActuators.push(a);
+
+                        break;
+                    }
+                }
 
             } else if (type == mujoco.mjtTrn.mjTRN_TENDON.value) {
                 const adr = this.model.tendon_adr[id];
@@ -1864,10 +2613,35 @@ class PhysicsSimulator {
                     if (this.model.wrap_type[w] == mujoco.mjtWrap.mjWRAP_JOINT.value) {
                         const jointId = this.model.wrap_objid[w];
 
-                        if (robot.arm.joints.indexOf(jointId) >= 0)
-                            robot.arm.actuators.push(a);
-                        else if (robot.tool.joints.indexOf(jointId) >= 0)
-                            robot.tool.actuators.push(a);
+                        let found = false;
+                        for (let segment of robot.segments) {
+                            if (segment.joints.indexOf(jointId) >= 0) {
+                                segment.actuators.push(a);
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (found)
+                            continue;
+
+                        for (let j = 0; j < robot.tools.length; ++j) {
+                            const tool = robot.tools[j];
+
+                            if (tool.joints.indexOf(jointId) >= 0) {
+                                tool.actuators.push(a);
+
+                                const cfg = configuration.tools[j];
+
+                                if ((cfg.ignoredActuators != undefined) && (cfg.ignoredActuators.indexOf(this.actuatorNames([a])[0]) >= 0))
+                                    tool.ignoredActuators.push(a);
+
+                                if ((cfg.invertedActuators != undefined) && (cfg.invertedActuators.indexOf(this.actuatorNames([a])[0]) >= 0))
+                                    tool.invertedActuators.push(a);
+
+                                break;
+                            }
+                        }
 
                         break;
                     }
@@ -1875,16 +2649,17 @@ class PhysicsSimulator {
             }
         }
 
-        // Retrieve the TCP of the robot (if necessary)
-        if (configuration.tcpSite != null) {
-            for (let s = 0; s < this.model.nsite; ++s) {
-                const name = this.names[this.model.name_siteadr[s]];
+        // Retrieve the parent segment of each tool
+        for (let j = 0; j < robot.tools.length; ++j) {
+            const tool = robot.tools[j];
 
-                if (name == configuration.tcpSite) {
-                    robot.tcp = this.sites[s];
-                    break;
-                }
-            }
+            let parentBody = null;
+            if (configuration.tools[j].root != null)
+                parentBody = this.model.body_parentid[tool.links[0]];
+            else
+                parentBody = this.model.site_bodyid[tool.tcp.site_id];
+
+            tool.parent = robot._getSegmentOfBody(parentBody);
         }
 
         // Let the robot initialise its internal state
@@ -1952,33 +2727,65 @@ class PhysicsSimulator {
                     geometry = new THREE.BufferGeometry();
 
                     // Positions
-                    let vertex_buffer = this.model.mesh_vert.subarray(
+                    let vertices = this.model.mesh_vert.subarray(
                         this.model.mesh_vertadr[meshID] * 3,
                         (this.model.mesh_vertadr[meshID] + this.model.mesh_vertnum[meshID]) * 3
                     );
+
+                    const vertex_buffer = new Float32Array(this.model.mesh_facenum[meshID] * 3 * 3);
 
                     // Normals
-                    let normal_buffer = this.model.mesh_normal.subarray(
-                        this.model.mesh_vertadr[meshID] * 3,
-                        (this.model.mesh_vertadr[meshID] + this.model.mesh_vertnum[meshID]) * 3
+                    let normals = this.model.mesh_normal.subarray(
+                        this.model.mesh_normaladr[meshID] * 3,
+                        (this.model.mesh_normaladr[meshID] + this.model.mesh_normalnum[meshID]) * 3
                     );
+
+                    const normal_buffer = new Float32Array(this.model.mesh_facenum[meshID] * 3 * 3);
 
                     // UVs
-                    let uv_buffer = this.model.mesh_texcoord.subarray(
-                        this.model.mesh_texcoordadr[meshID] * 2,
-                        (this.model.mesh_texcoordadr[meshID] + this.model.mesh_vertnum[meshID]) * 2
-                    );
+                    let uvs = null;
+                    let uv_buffer = null;
 
-                    // Indices
-                    let triangle_buffer = this.model.mesh_face.subarray(
-                        this.model.mesh_faceadr[meshID] * 3,
-                        (this.model.mesh_faceadr[meshID] + this.model.mesh_facenum[meshID]) * 3
-                    );
+                    if (this.model.mesh_texcoordadr[meshID] != -1)
+                    {
+                        uvs = this.model.mesh_texcoord.subarray(
+                            this.model.mesh_texcoordadr[meshID] * 2,
+                            (this.model.mesh_texcoordadr[meshID] + this.model.mesh_texcoordnum[meshID]) * 2
+                        );
+
+                        uv_buffer = new Float32Array(this.model.mesh_facenum[meshID] * 3 * 2);
+                    }
+
+                    const offset = this.model.mesh_faceadr[meshID] * 3;
+
+                    for (let i = 0; i < this.model.mesh_facenum[meshID] * 3; ++i)
+                    {
+                        const l = this.model.mesh_face[offset + i];
+
+                        vertex_buffer[i * 3] = vertices[l * 3];
+                        vertex_buffer[i * 3 + 1] = vertices[l * 3 + 1];
+                        vertex_buffer[i * 3 + 2] = vertices[l * 3 + 2];
+
+                        const j = this.model.mesh_facenormal[offset + i];
+
+                        normal_buffer[i * 3] = normals[j * 3];
+                        normal_buffer[i * 3 + 1] = normals[j * 3 + 1];
+                        normal_buffer[i * 3 + 2] = normals[j * 3 + 2];
+
+                        if (uv_buffer != null)
+                        {
+                            const k = this.model.mesh_facetexcoord[offset + i];
+
+                            uv_buffer[i * 2] = uvs[k * 2];
+                            uv_buffer[i * 2 + 1] = uvs[k * 2 + 1];
+                        }
+                    }
 
                     geometry.setAttribute("position", new THREE.BufferAttribute(vertex_buffer, 3));
                     geometry.setAttribute("normal", new THREE.BufferAttribute(normal_buffer, 3));
-                    geometry.setAttribute("uv", new THREE.BufferAttribute(uv_buffer, 2));
-                    geometry.setIndex(Array.from(triangle_buffer));
+
+                    if (uv_buffer != null)
+                        geometry.setAttribute("uv", new THREE.BufferAttribute(uv_buffer, 2));
 
                     this.meshes[meshID] = geometry;
                 } else {
@@ -2009,7 +2816,7 @@ class PhysicsSimulator {
                 ];
 
                 // Retrieve or construct the texture
-                let texId = this.model.mat_texid[matId];
+                let texId = this.model.mat_texid[matId * mujoco.mjtTextureRole.mjNTEXROLE.value + mujoco.mjtTextureRole.mjTEXROLE_RGB.value];
                 if (texId != -1) {
                     if (!(texId in this.textures))
                         texture = this._createTexture(texId);
@@ -2287,7 +3094,7 @@ class PhysicsSimulator {
         let height = this.model.tex_height[texId];
         let offset = this.model.tex_adr[texId];
         let type = this.model.tex_type[texId];
-        let rgbArray = this.model.tex_rgb;
+        let rgbArray = this.model.tex_data;
         let rgbaArray = new Uint8Array(width * height * 4);
 
         for (let p = 0; p < width * height; p++) {
@@ -3114,6 +3921,77 @@ function changeAssetNames(xmlElement, prefix) {
 }
 
 /*
+ * SPDX-FileCopyrightText: Copyright © 2025 Idiap Research Institute <contact@idiap.ch>
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
+
+
+
+/* Download some files and store them in Mujoco's filesystem
+
+Parameters:
+    dstFolder (string): The destination folder in Mujoco's filesystem
+    srcFolderUrl (string): The URL of the folder in which all the files are located
+    filenames ([string]): List of the filenames
+*/
+async function downloadFiles(dstFolder, srcFolderUrl, filenames) {
+    const FS = mujoco.FS;
+
+    if (dstFolder[0] != '/') {
+        console.error('Destination folders must be absolute paths starting with /');
+        return;
+    }
+
+    if (dstFolder.length > 1) {
+        if (dstFolder[dstFolder.length-1] == '/')
+            dstFolder = dstFolder.substr(0, dstFolder.length-1);
+
+        const parts = dstFolder.substring(1).split('/');
+
+        let path = '';
+        for (let i = 0; i < parts.length; ++i) {
+            path += '/' + parts[i];
+
+            try {
+                const stat = FS.stat(path);
+            } catch (ex) {
+                FS.mkdir(path);
+            }
+        }
+    }
+
+    if (srcFolderUrl[srcFolderUrl.length-1] != '/')
+        srcFolderUrl += '/';
+
+    for (let i = 0; i < filenames.length; ++i) {
+        const filename = filenames[i];
+        const data = await fetch(srcFolderUrl + filename);
+
+        const contentType = data.headers.get("content-type");
+        if ((contentType == 'application/xml') || (contentType == 'text/plain')) {
+            mujoco.FS.writeFile(dstFolder + '/' + filename, await data.text());
+        } else {
+            mujoco.FS.writeFile(dstFolder + '/' + filename, new Uint8Array(await data.arrayBuffer()));
+        }
+    }
+}
+
+
+
+/* Download a scene file
+
+The scenes are stored in Mujoco's filesystem at '/scenes'
+*/
+async function downloadScene(url, destFolder='/scenes') {
+    const offset = url.lastIndexOf('/');
+    await downloadFiles(destFolder, url.substring(0, offset), [ url.substring(offset + 1) ]);
+}
+
+/*
  * SPDX-FileCopyrightText: Copyright © 2023 Idiap Research Institute <contact@idiap.ch>
  *
  * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
@@ -3413,7 +4291,7 @@ class PlanarIKControls {
     constructor() {
         this.robot = null;
         this.offset = null;
-        this.joint = null;
+        this.kinematicChain = null;
 
         this.plane = new THREE.Mesh(
             new THREE.PlaneGeometry(100000, 100000, 2, 2),
@@ -3422,10 +4300,10 @@ class PlanarIKControls {
     }
 
 
-    setup(robot, offset, jointIndex, startPosition, planeDirection) {
+    setup(robot, offset, kinematicChain, startPosition, planeDirection) {
         this.robot = robot;
         this.offset = offset;
-        this.joint = jointIndex;
+        this.kinematicChain = kinematicChain;
 
         this.plane.position.copy(startPosition); 
 
@@ -3440,9 +4318,9 @@ class PlanarIKControls {
         if (intersects.length > 0) {
             const mu = intersects[0].point;
 
-            this.robot.ik(
+            this.kinematicChain.ik(
                 [mu.x, mu.y, mu.z],
-                this.joint,
+                null,
                 [this.offset.x, this.offset.y, this.offset.z]
             );
         }
@@ -4965,14 +5843,20 @@ class RobotConfiguration {
         // Root link of the robot
         this.robotRoot = null;
 
-        // Root link of the tool of the robot (can be null if no tool)
-        this.toolRoot = null;
-
-        // Site to use as the TCP
-        this.tcpSite = null;
-
-        // Size of the TCP collision object
-        this.tcpSize = 0.1;
+        this.tools = [
+            // Each entry should have this structure
+            // {
+            //     root: null,              // Root link of the tool of the robot (can be null if no tool)
+            //     tcpSite: null,           // Site to use as the TCP
+            //     tcpSize: 0.1,            // Size of the TCP collision object
+            //     type: null,              // Type of the tool ("generic", "gripper")
+            //
+            // For grippers:
+            //     buttonOffset: [0, 0, 0], // Location of the button, relative to the tcp
+            //     ignoredActuators: [],    // Names of the actuators to ignore when opening/closing
+            //     invertedActuators: [],   // Names of the actuators to invert when opening/closing
+            // }
+        ];
 
         // Default pose of the robot
         this.defaultPose = {
@@ -4992,9 +5876,18 @@ class RobotConfiguration {
         const configuration = new RobotConfiguration();
 
         configuration.robotRoot = prefix + this.robotRoot;
-        configuration.toolRoot = (this.toolRoot != null ? prefix + this.toolRoot : null);
-        configuration.tcpSite = (this.tcpSite != null ? prefix + this.tcpSite : null);
-        configuration.tcpSize = this.tcpSize;
+
+        for (const tool of this.tools) {
+            let tool2 = {
+                root: (tool.root != null ? prefix + tool.root : null),
+                tcpSite: (tool.tcpSite != null ? prefix + tool.tcpSite : null),
+                tcpSize: tool.tcpSize,
+                type: tool.type,
+                buttonOffset: tool.buttonOffset,
+            };
+
+            configuration.tools.push(tool2);
+        }
 
         for (let name in this.defaultPose)
             configuration.defaultPose[prefix + name] = this.defaultPose[name];
@@ -5029,8 +5922,16 @@ class PandaConfiguration extends RobotConfiguration {
         super();
 
         this.robotRoot = "link0";
-        this.toolRoot = "hand";
-        this.tcpSite = "tcp";
+
+        this.tools = [
+            {
+                root: "hand",
+                tcpSite: "tcp",
+                tcpSize: 0.1,
+                type: "gripper",
+                buttonOffset: [0, -0.11, 0.05,]
+            }
+        ];
 
         this.defaultPose = {
             joint1: 0.5,
@@ -5076,8 +5977,14 @@ class PandaNoHandConfiguration extends RobotConfiguration {
         super();
 
         this.robotRoot = "link0";
-        this.toolRoot = null;
-        this.tcpSite = "attachment_site";
+
+        this.tools = [
+            {
+                root: null,
+                tcpSite: "attachment_site",
+                type: "generic",
+            }
+        ];
 
         this.defaultPose = {
             joint1: 0.5,
@@ -5101,6 +6008,331 @@ class PandaNoHandConfiguration extends RobotConfiguration {
             'joint6',
         ];
     }
+}
+
+/*
+ * SPDX-FileCopyrightText: Copyright © 2024 Idiap Research Institute <contact@idiap.ch>
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+
+
+class G1Configuration extends RobotConfiguration {
+    constructor() {
+        super();
+
+        this.robotRoot = "pelvis";
+
+        this.tools = [
+            {
+                root: "right_hand",
+                tcpSite: "right_hand_tcp",
+                tcpSize: 0.08,
+                type: "generic",
+            },
+            {
+                root: "left_hand",
+                tcpSite: "left_hand_tcp",
+                tcpSize: 0.08,
+                type: "generic",
+            },
+            {
+                root: "right_foot",
+                tcpSite: "right_foot_tcp",
+                tcpSize: 0.08,
+                type: "generic",
+            },
+            {
+                root: "left_foot",
+                tcpSite: "left_foot_tcp",
+                tcpSize: 0.08,
+                type: "generic",
+            },
+        ];
+    }
+}
+
+
+class G1UpperBodyConfiguration extends RobotConfiguration {
+    constructor() {
+        super();
+
+        this.robotRoot = "pelvis";
+
+        this.tools = [
+            {
+                root: "right_hand",
+                tcpSite: "right_tcp",
+                tcpSize: 0.08,
+                type: "generic",
+            },
+            {
+                root: "left_hand",
+                tcpSite: "left_tcp",
+                tcpSize: 0.08,
+                type: "generic",
+            },
+        ];
+    }
+}
+
+
+class G1WithHandsConfiguration extends RobotConfiguration {
+    constructor() {
+        super();
+
+        this.robotRoot = "pelvis";
+
+        this.tools = [
+            {
+                root: "right_hand",
+                tcpSite: "right_hand_tcp",
+                tcpSize: 0.08,
+                type: "gripper",
+                ignoredActuators: ['right_hand_thumb_0_joint'],
+                invertedActuators: ['right_hand_thumb_1_joint', 'right_hand_thumb_2_joint'],
+                buttonOffset: [0.1, -0.07, 0],
+            },
+            {
+                root: "left_hand",
+                tcpSite: "left_hand_tcp",
+                tcpSize: 0.08,
+                type: "gripper",
+                ignoredActuators: ['left_hand_thumb_0_joint'],
+                invertedActuators: ['left_hand_middle_0_joint', 'left_hand_middle_1_joint', 'left_hand_index_0_joint', 'left_hand_index_1_joint'],
+                buttonOffset: [0.1, 0.07, 0],
+            },
+            {
+                root: "right_foot",
+                tcpSite: "right_foot_tcp",
+                tcpSize: 0.08,
+                type: "generic",
+            },
+            {
+                root: "left_foot",
+                tcpSite: "left_foot_tcp",
+                tcpSize: 0.08,
+                type: "generic",
+            },
+        ];
+    }
+}
+
+
+class G1WithHandsUpperBodyConfiguration extends RobotConfiguration {
+    constructor() {
+        super();
+
+        this.robotRoot = "pelvis";
+
+        this.tools = [
+            {
+                root: "right_hand",
+                tcpSite: "right_hand_tcp",
+                tcpSize: 0.08,
+                type: "gripper",
+                ignoredActuators: ['right_hand_thumb_0_joint'],
+                invertedActuators: ['right_hand_thumb_1_joint', 'right_hand_thumb_2_joint'],
+                buttonOffset: [0.1, -0.07, 0],
+            },
+            {
+                root: "left_hand",
+                tcpSite: "left_hand_tcp",
+                tcpSize: 0.08,
+                type: "gripper",
+                ignoredActuators: ['left_hand_thumb_0_joint'],
+                invertedActuators: ['left_hand_middle_0_joint', 'left_hand_middle_1_joint', 'left_hand_index_0_joint', 'left_hand_index_1_joint'],
+                buttonOffset: [0.1, 0.07, 0],
+            },
+        ];
+    }
+}
+
+/*
+ * SPDX-FileCopyrightText: Copyright © 2025 Idiap Research Institute <contact@idiap.ch>
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
+
+
+
+/* Download all the files needed to simulate and display the Franka Emika Panda robot
+
+The files are stored in Mujoco's filesystem at '/scenes/franka_emika_panda'
+*/
+async function downloadPandaRobot() {
+    const dstFolder = '/scenes/franka_emika_panda';
+    const srcURL = getURL('models/franka_emika_panda/');
+
+    await downloadFiles(
+        dstFolder,
+        srcURL,
+        [
+            'panda.xml',
+            'panda_nohand.xml'
+        ]
+    );
+
+    await downloadFiles(
+        dstFolder + '/assets',
+        srcURL + 'assets/',
+        [
+            'link0.stl',
+            'link0.stl',
+            'link1.stl',
+            'link2.stl',
+            'link3.stl',
+            'link4.stl',
+            'link5_collision_0.obj',
+            'link5_collision_1.obj',
+            'link5_collision_2.obj',
+            'link6.stl',
+            'link7.stl',
+            'hand.stl',
+            'link0_0.obj',
+            'link0_1.obj',
+            'link0_2.obj',
+            'link0_3.obj',
+            'link0_4.obj',
+            'link0_5.obj',
+            'link0_7.obj',
+            'link0_8.obj',
+            'link0_9.obj',
+            'link0_10.obj',
+            'link0_11.obj',
+            'link1.obj',
+            'link2.obj',
+            'link3_0.obj',
+            'link3_1.obj',
+            'link3_2.obj',
+            'link3_3.obj',
+            'link4_0.obj',
+            'link4_1.obj',
+            'link4_2.obj',
+            'link4_3.obj',
+            'link5_0.obj',
+            'link5_1.obj',
+            'link5_2.obj',
+            'link6_0.obj',
+            'link6_1.obj',
+            'link6_2.obj',
+            'link6_3.obj',
+            'link6_4.obj',
+            'link6_5.obj',
+            'link6_6.obj',
+            'link6_7.obj',
+            'link6_8.obj',
+            'link6_9.obj',
+            'link6_10.obj',
+            'link6_11.obj',
+            'link6_12.obj',
+            'link6_13.obj',
+            'link6_14.obj',
+            'link6_15.obj',
+            'link6_16.obj',
+            'link7_0.obj',
+            'link7_1.obj',
+            'link7_2.obj',
+            'link7_3.obj',
+            'link7_4.obj',
+            'link7_5.obj',
+            'link7_6.obj',
+            'link7_7.obj',
+            'hand_0.obj',
+            'hand_1.obj',
+            'hand_2.obj',
+            'hand_3.obj',
+            'hand_4.obj',
+            'finger_0.obj',
+            'finger_1.obj',
+        ]
+    );
+}
+
+
+
+/* Download all the files needed to simulate and display the Unitree G1 robot
+
+The files are stored in Mujoco's filesystem at '/scenes/unitree_g1'
+*/
+async function downloadG1Robot() {
+    const dstFolder = '/scenes/unitree_g1';
+    const srcURL = getURL('models/unitree_g1/');
+
+    await downloadFiles(
+        dstFolder,
+        srcURL,
+        [
+            'g1.xml',
+            'g1_upperbody.xml',
+            'g1_with_hands.xml',
+            'g1_with_hands_upperbody.xml',
+        ]
+    );
+
+    await downloadFiles(
+        dstFolder + '/assets',
+        srcURL + 'assets/',
+        [
+            'head_link.STL',
+            'left_ankle_pitch_link.STL',
+            'left_ankle_roll_link.STL',
+            'left_elbow_link.STL',
+            'left_hand_index_0_link.STL',
+            'left_hand_index_1_link.STL',
+            'left_hand_middle_0_link.STL',
+            'left_hand_middle_1_link.STL',
+            'left_hand_palm_link.STL',
+            'left_hand_thumb_0_link.STL',
+            'left_hand_thumb_1_link.STL',
+            'left_hand_thumb_2_link.STL',
+            'left_hip_pitch_link.STL',
+            'left_hip_roll_link.STL',
+            'left_hip_yaw_link.STL',
+            'left_knee_link.STL',
+            'left_rubber_hand.STL',
+            'left_shoulder_pitch_link.STL',
+            'left_shoulder_roll_link.STL',
+            'left_shoulder_yaw_link.STL',
+            'left_wrist_pitch_link.STL',
+            'left_wrist_roll_link.STL',
+            'left_wrist_yaw_link.STL',
+            'logo_link.STL',
+            'pelvis.STL',
+            'pelvis_contour_link.STL',
+            'right_ankle_pitch_link.STL',
+            'right_ankle_roll_link.STL',
+            'right_elbow_link.STL',
+            'right_hand_index_0_link.STL',
+            'right_hand_index_1_link.STL',
+            'right_hand_middle_0_link.STL',
+            'right_hand_middle_1_link.STL',
+            'right_hand_palm_link.STL',
+            'right_hand_thumb_0_link.STL',
+            'right_hand_thumb_1_link.STL',
+            'right_hand_thumb_2_link.STL',
+            'right_hip_pitch_link.STL',
+            'right_hip_roll_link.STL',
+            'right_hip_yaw_link.STL',
+            'right_knee_link.STL',
+            'right_rubber_hand.STL',
+            'right_shoulder_pitch_link.STL',
+            'right_shoulder_roll_link.STL',
+            'right_shoulder_yaw_link.STL',
+            'right_wrist_pitch_link.STL',
+            'right_wrist_roll_link.STL',
+            'right_wrist_yaw_link.STL',
+            'torso_link_rev_1_0.STL',
+            'waist_roll_link_rev_1_0.STL',
+            'waist_yaw_link_rev_1_0.STL',
+        ]
+    );
 }
 
 /*
@@ -6276,6 +7508,7 @@ class Viewer3D {
         this.didClick = false;
 
         this.planarIkControls = new PlanarIKControls();
+        this.kinematicChain = null;
 
         this.toolbar = null;
 
@@ -6307,6 +7540,9 @@ class Viewer3D {
         this.objectsManipulationEnabled = true;
         this.toolsEnabled = true;
 
+        this.controlStartedCallback = null;
+        this.controlEndedCallback = null;
+
         this.mustStop = false;
 
         this._initScene();
@@ -6330,6 +7566,12 @@ class Viewer3D {
         this.renderingCallback = renderingCallback;
         this.renderingCallbackTimestep = timestep;
         this.renderingCallbackTime = null;
+    }
+
+
+    setControlCallbacks(startCallback, endCallback) {
+        this.controlStartedCallback = startCallback;
+        this.controlEndedCallback = endCallback;
     }
 
 
@@ -6364,8 +7606,8 @@ class Viewer3D {
         if (enabled) {
             for (let name in self.robots) {
                 const robot = self.robots[name];
-                if (robot.controlsEnabled && robot.tcpTarget == null)
-                    robot._createTcpTarget();
+                if (robot.controlsEnabled && robot.tools[0].tcpTarget == null)
+                    robot._createTcpTargets();
             }
         }
     }
@@ -6468,7 +7710,7 @@ class Viewer3D {
         this.toolsEnabled = enabled;
 
         for (const name in this.robots)
-            this.robots[name].enableTool(this.toolsEnabled && this.controlsEnabled && robot.controlsEnabled);
+            this.robots[name]._enableTools(this.toolsEnabled && this.controlsEnabled && robot.controlsEnabled);
     }
 
 
@@ -6622,15 +7864,17 @@ class Viewer3D {
         if (toolEnabled && (robotsWithControlsEnabled.length == 1))
         {
             for (const name in this.robots) {
-                this.robots[name].enableTool(false);
-                this.robots[name].enableTool(true);
+                this.robots[name]._enableTools(false);
+                this.robots[name]._enableTools(true);
             }
         }
 
-        if (toolEnabled && (robotsWithControlsEnabled.length == 0) && (configuration.toolRoot != null))
+        if (toolEnabled && (robotsWithControlsEnabled.length == 0) && (configuration.tools.length == 1) &&
+            (configuration.tools[0].root != null)) {
             robot.enableTool(toolEnabled, new GripperToolbarSection(this.toolbar, robot));
-        else
-            robot.enableTool(toolEnabled);
+        } else {
+            robot._enableTools(toolEnabled);
+        }
 
         this.physicsSimulator.simulation.forward();
         this.physicsSimulator.synchronize();
@@ -6652,16 +7896,27 @@ class Viewer3D {
         if (robotParameters.get('color') != null) {
             let color = robotParameters.get('color');
             color = new THREE.Color().setRGB(color[0], color[1], color[2], THREE.SRGBColorSpace);
-            robot.arm.visual.meshes.forEach((mesh) => modifyMaterialColor(mesh, color));
-            robot.tool.visual.meshes.forEach((mesh) => modifyMaterialColor(mesh, color));
+
+            for (let segment of robot.segments)
+                segment.visual.meshes.forEach((mesh) => modifyMaterialColor(mesh, color));
+
+            for (let tool of robot.tools)
+                tool.visual.meshes.forEach((mesh) => modifyMaterialColor(mesh, color));
         }
 
         if (robotParameters.get('use_toon_shader')) {
-            robot.arm.visual.meshes.forEach((mesh) => enableToonShading(mesh));
-            robot.tool.visual.meshes.forEach((mesh) => enableToonShading(mesh));
+            for (let segment of robot.segments)
+                segment.visual.meshes.forEach((mesh) => enableToonShading(mesh));
+
+            for (let tool of robot.tools)
+                tool.visual.meshes.forEach((mesh) => enableToonShading(mesh));
+
         } else if (robotParameters.get('use_light_toon_shader')) {
-            robot.arm.visual.meshes.forEach((mesh) => enableLightToonShading(mesh));
-            robot.tool.visual.meshes.forEach((mesh) => enableLightToonShading(mesh));
+            for (let segment of robot.segments)
+                segment.visual.meshes.forEach((mesh) => enableLightToonShading(mesh));
+
+            for (let tool of robot.tools)
+                tool.visual.meshes.forEach((mesh) => enableLightToonShading(mesh));
         }
 
         if (this.endEffectorManipulationEnabled && robot.controlsEnabled)
@@ -7145,17 +8400,6 @@ class Viewer3D {
 
 
     render() {
-        // if (this.blah == undefined)
-        //     this.blah = 0;
-        //
-        // this.blah += 1;
-        // if (this.blah < 10)
-        // {
-        //     requestAnimationFrame(() => this.render());
-        //     return;
-        // }
-        // this.blah = 0;
-
         // Retrieve the time elapsed since the last frame
         const startTime = this.clock.startTime;
         const oldTime = this.clock.oldTime;
@@ -7358,7 +8602,7 @@ class Viewer3D {
     _onMouseDown(event) {
         if ((event.target.toolButtonFor != undefined) && (event.button == 0)) {
             const robot = event.target.toolButtonFor;
-            robot.toggleGripper();
+            robot.toggleGripper(event.target.toolIndex);
             event.preventDefault();
             return;
         }
@@ -7383,8 +8627,10 @@ class Viewer3D {
             const tcpTargets = [];
             for (let name in this.robots) {
                 const robot = this.robots[name];
-                if (robot.tcpTarget != null)
-                    tcpTargets.push(robot.tcpTarget);
+                for (let tool of robot.tools) {
+                    if (tool.tcpTarget != null)
+                        tcpTargets.push(tool.tcpTarget);
+                }
             }
 
             if (tcpTargets.length > 0)
@@ -7429,6 +8675,9 @@ class Viewer3D {
 
                 this.transformControls.attach(object, scalingEnabled, listener);
 
+                if (object.robot != null)
+                    this.kinematicChain = object.robot.getKinematicChainForTool(object.tool);
+
                 this._switchToInteractionState(InteractionStates.Manipulation, { robot: object.robot });
             } else {
                 intersection = null;
@@ -7441,16 +8690,19 @@ class Viewer3D {
                     if (this.linksManipulationEnabled) {
                         this._switchToInteractionState(InteractionStates.LinkDisplacement);
 
-                        const jointIndex = this.hoveredRobot.arm.joints.indexOf(this.hoveredJoint);
-                        const joint = this.hoveredRobot.arm.visual.joints[jointIndex];
+                        const segment = this.hoveredRobot._getSegmentOfJoint(this.hoveredJoint);
+                        const jointIndex = segment.joints.indexOf(this.hoveredJoint);
+                        const joint = segment.visual.joints[jointIndex];
 
                         const direction = new THREE.Vector3();
                         this.camera.getWorldDirection(direction);
 
+                        this.kinematicChain = this.hoveredRobot.getKinematicChainForJoint(this.hoveredJoint);
+
                         this.planarIkControls.setup(
                             this.hoveredRobot,
                             joint.worldToLocal(hoveredIntersection.point.clone()),
-                            jointIndex + 1,
+                            this.kinematicChain,
                             hoveredIntersection.point,
                             direction
                         );
@@ -7477,6 +8729,8 @@ class Viewer3D {
             const pointer = this._getPointerPosition(event);
             const [hoveredRobot, hoveredGroup] = this._getHoveredRobotGroup(pointer);
 
+            this.kinematicChain = null;
+
             if (hoveredGroup != null) {
                 this._switchToInteractionState(InteractionStates.JointHovering, { robot: hoveredRobot, group: hoveredGroup });
             } else {
@@ -7491,6 +8745,7 @@ class Viewer3D {
                 return;
 
             this.transformControls.detach();
+            this.kinematicChain = null;
 
             let hoveredRobot = null;
             let hoveredGroup = null;
@@ -7522,9 +8777,9 @@ class Viewer3D {
 
         if (this.transformControls.isEnabled()) {
             if (this.transformControls.isDragging() && (this.planarIkControls != null) && (this.hoveredRobot != null)) {
-                this.hoveredRobot.ik(
-                    this.hoveredRobot.getEndEffectorDesiredTransforms(),
-                    this.hoveredRobot.arm.joints.length,
+                this.kinematicChain.ik(
+                    this.hoveredRobot.getEndEffectorDesiredTransforms(this.kinematicChain.tool),
+                    null,
                     null,
                     5
                 );
@@ -7592,11 +8847,14 @@ class Viewer3D {
             }
         }
 
-        this.hoveredRobot = robot;
-        this.hoveredGroup = group;
-        this.hoveredGroup.children.forEach(_highlight);
+        const segment = robot._getSegmentOfJoint(group.jointId);
+        if (segment != null) {
+            this.hoveredRobot = robot;
+            this.hoveredGroup = group;
+            this.hoveredGroup.children.forEach(_highlight);
 
-        this.hoveredJoint = this.hoveredGroup.jointId;
+            this.hoveredJoint = this.hoveredGroup.jointId;
+        }
     }
 
 
@@ -7623,7 +8881,7 @@ class Viewer3D {
         this.raycaster.setFromCamera(pointer, this.camera);
 
         const meshes = Object.values(this.robots).filter((r) => r.controlsEnabled)
-                                                 .map((r) => r.arm.visual.meshes).flat()
+                                                 .map((r) => r.segments.map((segment) => segment.visual.meshes).flat()).flat()
                                                  .filter((mesh) => mesh.parent.jointId !== undefined);
 
         let intersects = this.raycaster.intersectObjects(meshes, false);
@@ -7633,7 +8891,7 @@ class Viewer3D {
         const intersection = intersects[0];
 
         const group = intersection.object.parent;
-        const robot = Object.values(this.robots).filter((r) => r.arm.links.indexOf(group.bodyId) >= 0)[0];
+        const robot = Object.values(this.robots).filter((r) => r.links.indexOf(group.bodyId) >= 0)[0];
 
         return [robot, group];
     }
@@ -7641,7 +8899,7 @@ class Viewer3D {
 
     _changeHoveredJointPosition(delta) {
         let ctrl = this.hoveredRobot.getControl();
-        ctrl[this.hoveredRobot.arm.joints.indexOf(this.hoveredJoint)] -= delta;
+        ctrl[this.hoveredRobot.joints.indexOf(this.hoveredJoint)] -= delta;
         this.hoveredRobot.setControl(ctrl);
     }
 
@@ -7674,8 +8932,12 @@ class Viewer3D {
 
             case InteractionStates.JointDisplacement:
             case InteractionStates.LinkDisplacement:
-                if (this.hoveredGroup != null)
+                if (this.hoveredGroup != null) {
                     this._disableJointHovering();
+
+                    if (this.controlEndedCallback != null)
+                        this.controlEndedCallback();
+                }
                 break;
         }
 
@@ -7703,6 +8965,9 @@ class Viewer3D {
             case InteractionStates.LinkDisplacement:
                 this.cameraControl.enableZoom = true;
                 this.cameraControl.enabled = false;
+
+                if (this.controlStartedCallback != null)
+                    this.controlStartedCallback();
                 break;
         }
     }
@@ -7727,6 +8992,10 @@ function initViewer3D() {
         RobotConfiguration: RobotConfiguration,
         Panda: PandaConfiguration,
         PandaNoHand: PandaNoHandConfiguration,
+        G1: G1Configuration,
+        G1UpperBody: G1UpperBodyConfiguration,
+        G1WithHands: G1WithHandsConfiguration,
+        G1WithHandsUpperBody: G1WithHandsUpperBodyConfiguration,
     };
 
     globalThis.gaussians = {
@@ -7775,4 +9044,4 @@ cssFiles.forEach(css => {
     document.getElementsByTagName('HEAD')[0].appendChild(link);
 });
 
-export { LayerRenderPass, Layers, OutlinePass, PandaConfiguration, PandaNoHandConfiguration, Passes, RobotBuilder, RobotConfiguration, Shapes, Viewer3D, downloadFiles, downloadPandaRobot, downloadScene, getURL, initPyScript, initViewer3D, matrixFromSigma, readFile, sigmaFromMatrix3, sigmaFromMatrix4, sigmaFromQuaternionAndScale, writeFile };
+export { G1Configuration, G1UpperBodyConfiguration, G1WithHandsConfiguration, G1WithHandsUpperBodyConfiguration, LayerRenderPass, Layers, OutlinePass, PandaConfiguration, PandaNoHandConfiguration, Passes, RobotBuilder, RobotConfiguration, Shapes, Viewer3D, downloadFiles, downloadG1Robot, downloadPandaRobot, downloadScene, getURL, initPyScript, initViewer3D, matrixFromSigma, readFile, sigmaFromMatrix3, sigmaFromMatrix4, sigmaFromQuaternionAndScale, writeFile };

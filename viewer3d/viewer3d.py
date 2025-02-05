@@ -165,7 +165,10 @@ class Viewer3D:
         if robotjs is None:
             return None
 
-        return Robot(robotjs, self.viewer)
+        if robotjs.getNbEndEffectors() > 1:
+            return ComplexRobot(robotjs)
+        else:
+            return SimpleRobot(robotjs)
 
 
     def getRobot(self, name):
@@ -178,7 +181,10 @@ class Viewer3D:
         if robotjs is None:
             return None
 
-        return Robot(robotjs, self.viewer)
+        if robotjs.getNbEndEffectors() > 1:
+            return ComplexRobot(robotjs)
+        else:
+            return SimpleRobot(robotjs)
 
 
     def setRenderingCallback(self, callback, timestep=-1.0):
@@ -195,6 +201,13 @@ class Viewer3D:
         self.viewer.setRenderingCallback(
             create_proxy(callback) if callback is not None else None,
             timestep
+        )
+
+
+    def setControlCallbacks(self, startCallback, endCallback):
+        self.viewer.setControlCallbacks(
+            create_proxy(startCallback) if startCallback is not None else None,
+            create_proxy(endCallback) if endCallback is not None else None
         )
 
 
@@ -661,13 +674,145 @@ class Viewer3D:
 
 
 
-class Robot:
-    """The robot"""
+class KinematicChain:
+    """A kinematic chain of a robot"""
 
-    def __init__(self, robotjs, viewerjs):
+    def __init__(self, chainjs):
+        """Constructor, for internal use only"""
+        self.chain = chainjs
+
+
+    def fkin(self, positions, offset=None):
+        """Forward kinematics computation given some joint positions
+
+        Parameters:
+            positions (list/NumpPy array): the joint positions. If a 2D Numpy array is
+                                           provided, one forward kinematics computation
+                                           is performed for each column
+
+        Returns:
+            A Numpy array containing the position and orientation of the end-effector
+            [px, py, pz, qx, qy, qz, qw] if the robot has the specified joint positions.
+
+            If 'positions' is a 2D Numpy array, the result is also a 2D array, with each
+            column corresponding to a column in 'positions'.
+        """
+        if offset is not None:
+            offset = three.Vector3.new(*offset)
+
+        if isinstance(positions, np.ndarray):
+            if (len(positions.shape) == 2) and (positions.shape[1] > 1):
+                result = np.ndarray((7, positions.shape[1]))
+
+                for i in range(positions.shape[1]):
+                    result[:, i] = self.chain.fkin(to_js(list(positions[:, i])), offset).to_py()
+
+                return result
+
+            else:
+                positions = list(positions)
+
+        return np.array(self.chain.fkin(to_js(positions), offset).to_py())
+
+
+    def ik(self, mu, nbJoints=None, offset=None, limit=None, dt=0.01, successDistance=1e-4, damping=False):
+        x = self.control
+        startx = x.copy()
+
+        indices = slice(0, 7)
+        if len(mu) == 3:
+            indices = slice(0, 3)
+        elif len(mu) == 4:
+            indices = slice(3, 7)
+
+        if nbJoints is None:
+            nbJoints = len(x)
+
+        if not isinstance(mu, np.ndarray):
+            mu = np.array(mu)
+
+        damping = damping or (self.chain.tool is None) or (nbJoints < len(x))
+
+        done = False
+        i = 0
+        while not(done) and ((limit is None) or (i < limit)):
+            f = self.fkin(x[:nbJoints], offset)
+
+            if len(mu) == 3:
+                diff = mu - f[indices]
+            elif len(mu) == 4:
+                diff = logmap_S3(mu, f[indices])
+            else:
+                diff = logmap(mu, f)
+
+            J = self.Jkin(x[:nbJoints], offset)
+            J = J[indices, :]
+
+            if damping:
+                pinvJ = np.linalg.inv(J.T @ J + np.eye(nbJoints) * 1e-2) @ J.T # Damped pseudoinverse
+            else:
+                pinvJ = np.linalg.pinv(J)
+
+            u = 0.1 * pinvJ @ diff / dt     # Velocity command, with a 0.1 gain to not overshoot the target
+
+            x[:nbJoints] += u * dt
+
+            i += 1
+
+            if np.linalg.norm(x - startx) < successDistance:
+                done = True
+
+        control = self.control
+        control[:nbJoints] = x[:nbJoints]
+        self.control = control
+
+        return done
+
+
+    def Jkin(self, positions, offset=None):
+        """Jacobian with numerical computation, on a subset of the joints
+        """
+        eps = 1e-6
+        D = len(positions)
+
+        # Matrix computation
+        X = np.tile(positions.reshape((D,1)), [1,D])
+        F1 = self.fkin(X, offset)
+        F2 = self.fkin(X + np.identity(D) * eps, offset)
+        J = logmap(F2, F1) / eps
+
+        if len(J.shape) == 1:
+            J = J.reshape((-1,1))
+
+        return J
+
+
+    @property
+    def control(self):
+        """Returns the position of the joints of the robot (as a NumPy array)"""
+        return np.array(self.chain.robot.getControl().to_py())
+
+
+    @control.setter
+    def control(self, control):
+        """Sets the position of the joints of the robot
+
+        Parameters:
+            positions (list/NumpPy array): the joint positions
+        """
+        if isinstance(control, np.ndarray):
+            control = list(control)
+
+        self.chain.robot.setControl(to_js(control))
+
+
+
+class Robot:
+    """Base class for all robots"""
+
+    def __init__(self, robotjs):
         """Constructor, for internal use only"""
         self.robot = robotjs
-        self.viewer = viewerjs
 
 
     @property
@@ -736,30 +881,31 @@ class Robot:
 
 
     @property
-    def endEffectorPosition(self):
-        pos = self.robot.getEndEffectorPosition().to_py()
+    def nbEndEffectors(self):
+        return self.robot.getNbEndEffectors()
+
+
+    def _endEffectorPosition(self, index=0):
+        pos = self.robot.getEndEffectorPosition(index).to_py()
         return np.array([pos.x, pos.y, pos.z])
 
 
-    @property
-    def endEffectorOrientation(self):
-        quat = self.robot.getEndEffectorOrientation().to_py()
+    def _endEffectorOrientation(self, index=0):
+        quat = self.robot.getEndEffectorOrientation(index).to_py()
         return np.array([quat.x, quat.y, quat.z, quat.w])
 
 
-    @property
-    def endEffectorTransforms(self):
+    def _endEffectorTransforms(self, index=0):
         """Returns the position and orientation of the end-effector of the robot in
         a Numpy array of the form: [px, py, pz, qx, qy, qz, qw]
 
         Returns:
             A NumPy array like [px, py, pz, qx, qy, qz, qw]
         """
-        return np.array(self.robot.getEndEffectorTransforms().to_py())
+        return np.array(self.robot.getEndEffectorTransforms(index).to_py())
 
 
-    @property
-    def endEffectorDesiredTransforms(self):
+    def _endEffectorDesiredTransforms(self, index=0):
         """Returns the desired position and orientation for the end-effector of the robot
         in a Numpy array of the form: [px, py, pz, qx, qy, qz, qw]
 
@@ -770,151 +916,304 @@ class Robot:
         Returns:
             A NumPy array like [px, py, pz, qx, qy, qz, qw]
         """
-        return np.array(self.robot.getEndEffectorDesiredTransforms().to_py())
+        return np.array(self.robot.getEndEffectorDesiredTransforms(index).to_py())
+
+
+    @property
+    def _allEndEffectorPositions(self):
+        return np.array(self.robot._getAllEndEffectorPositions().to_py())
+
+
+    @property
+    def _allEndEffectorOrientations(self):
+        return np.array(self.robot._getAllEndEffectorOrientations().to_py())
+
+
+    @property
+    def _allEndEffectorTransforms(self):
+        """Returns the position and orientation of all the end-effectors of the robot in
+        a Numpy array of the form: N x [px, py, pz, qx, qy, qz, qw]
+
+        Returns:
+            A NumPy array like [px, py, pz, qx, qy, qz, qw]
+        """
+        return np.array(self.robot._getAllEndEffectorTransforms().to_py())
+
+
+    @property
+    def _allEndEffectorDesiredTransforms(self):
+        """Returns the desired position and orientation for all the end-effectors of the robot
+        in a Numpy array of the form: N x [px, py, pz, qx, qy, qz, qw]
+
+        The desired position and orientation are those of the manipulator of the
+        end-effector (if enabled, see 'Viewer3D.endEffectorManipulation'), that the
+        user can move freely.
+
+        Returns:
+            A NumPy array like [px, py, pz, qx, qy, qz, qw]
+        """
+        return np.array(self.robot._getAllEndEffectorDesiredTransforms().to_py())
+
+
+    @property
+    def _toolsEnabled(self):
+        return self.robot._areToolsEnabled()
+
+
+    @_toolsEnabled.setter
+    def _toolsEnabled(self, enabled):
+        self.robot._enableTools(enabled)
+
+
+    def getKinematicChainForJoint(joint):
+        chainjs = this.robot.getKinematicChainForJoint(joint)
+        return KinematicChain(chainjs)
+
+
+    def getKinematicChainForTool(index=0):
+        chainjs = this.robot.getKinematicChainForTool(index)
+        return KinematicChain(chainjs)
+
+
+    def _isGripperOpen(self, index=0):
+        return self.robot._isGripperOpen(index)
+
+
+    def _isGripperClosed(self, index=0):
+        return self.robot._isGripperClosed(index)
+
+
+    def _isGripperHoldingSomeObject(self, index=0):
+        return self.robot._isGripperHoldingSomeObject(index)
+
+
+    def _gripperAbduction(self, index=0):
+        """Returns the current abduction of the gripper, between 0.0 (closed) and 1.0 (fully open)"""
+        return self.robot._getGripperAbduction(index)
+
+
+    def _openGripper(self, index=0):
+        """Opens the gripper (will take some time to complete)"""
+        self.robot._openGripper(index)
+
+
+    def _closeGripper(self, index=0):
+        """Closes the gripper (will take some time to complete)"""
+        self.robot._closeGripper(index)
+
+
+    def _toggleGripper(self, index=0):
+        self.robot._toggleGripper(index)
+
+
+
+class SimpleRobot(Robot):
+    """A robot with only one kinematic chain and tool"""
+
+    def __init__(self, robotjs):
+        """Constructor, for internal use only"""
+        super().__init__(robotjs)
+        self.kinematicChain = KinematicChain(self.robot.kinematicChain)
+
+
+    @property
+    def endEffectorPosition(self):
+        return self._endEffectorPosition()
+
+
+    @property
+    def endEffectorOrientation(self):
+        return self._endEffectorOrientation()
+
+
+    @property
+    def endEffectorTransforms(self):
+        return self._endEffectorTransforms()
+
+
+    @property
+    def endEffectorDesiredTransforms(self):
+        return self._endEffectorDesiredTransforms()
 
 
     @property
     def toolEnabled(self):
-        return self.robot.isToolEnabled()
+        return self._toolsEnabled
 
 
     @toolEnabled.setter
     def toolEnabled(self, enabled):
-        self.robot.enableTool(enabled)
+        self._toolsEnabled = enabled
 
 
     def fkin(self, positions, offset=None):
-        """Forward kinematics computation given some joint positions
+        return self.kinematicChain.fkin(positions, offset)
 
-        Parameters:
-            positions (list/NumpPy array): the joint positions. If a 2D Numpy array is
-                                           provided, one forward kinematics computation
-                                           is performed for each column
 
-        Returns:
-            A Numpy array containing the position and orientation of the end-effector
-            [px, py, pz, qx, qy, qz, qw] if the robot has the specified joint positions.
+    def ik(self, mu, nbJoints=None, offset=None, limit=None, dt=0.01, successDistance=1e-4, damping=False):
+        return self.kinematicChain.ik(mu, nbJoints, offset, limit, dt, successDistance, damping)
 
-            If 'positions' is a 2D Numpy array, the result is also a 2D array, with each
-            column corresponding to a column in 'positions'.
-        """
-        if offset is not None:
-            offset = three.Vector3.new(*offset)
 
+    def Jkin(self, positions, offset=None):
+        return self.kinematicChain.Jkin(positions, offset)
+
+
+    @property
+    def isGripperOpen(self):
+        return self._isGripperOpen()
+
+
+    @property
+    def isGripperClosed(self):
+        return self._isGripperClosed()
+
+
+    @property
+    def isGripperHoldingSomeObject(self):
+        return self._isGripperHoldingSomeObject()
+
+
+    @property
+    def gripperAbduction(self):
+        """Returns the current abduction of the gripper, between 0.0 (closed) and 1.0 (fully open)"""
+        return self._getGripperAbduction()
+
+
+    def openGripper(self):
+        """Opens the gripper (will take some time to complete)"""
+        self._openGripper()
+
+
+    def closeGripper(self):
+        """Closes the gripper (will take some time to complete)"""
+        self._closeGripper()
+
+
+    def toggleGripper(self):
+        self._toggleGripper()
+
+
+
+class ComplexRobot(Robot):
+    """A robot with multiple kinematic chains and tools"""
+
+    def __init__(self, robotjs):
+        """Constructor, for internal use only"""
+        super().__init__(robotjs)
+
+
+    def endEffectorPosition(self, index=0):
+        return self._endEffectorPosition(index)
+
+
+    def endEffectorOrientation(self, index=0):
+        return self._endEffectorOrientation(index)
+
+
+    def endEffectorTransforms(self, index=0):
+        return self._endEffectorTransforms(index)
+
+
+    def endEffectorDesiredTransforms(self, index=0):
+        return self._endEffectorDesiredTransforms(index)
+
+
+    @property
+    def allEndEffectorPositions(self):
+        return self._allEndEffectorPositions()
+
+
+    @property
+    def allEndEffectorOrientations(self):
+        return self._allEndEffectorOrientations()
+
+
+    @property
+    def allEndEffectorTransforms(self):
+        return self._allEndEffectorTransforms()
+
+
+    @property
+    def allEndEffectorDesiredTransforms(self):
+        return self._allEndEffectorDesiredTransforms()
+
+
+    @property
+    def toolsEnabled(self):
+        return self._toolsEnabled
+
+
+    @toolsEnabled.setter
+    def toolsEnabled(self, enabled):
+        self._toolsEnabled = enabled
+
+
+    def isGripperOpen(self, index=0):
+        return self._isGripperOpen(index)
+
+
+    def isGripperClosed(self, index=0):
+        return self._isGripperClosed(index)
+
+
+    def isGripperHoldingSomeObject(self, index=0):
+        return self._isGripperHoldingSomeObject(index)
+
+
+    def gripperAbduction(self, index=0):
+        """Returns the current abduction of the gripper, between 0.0 (closed) and 1.0 (fully open)"""
+        return self._getGripperAbduction(index)
+
+
+    def openGripper(self, index=0):
+        """Opens the gripper (will take some time to complete)"""
+        self._openGripper(index)
+
+
+    def closeGripper(self, index=0):
+        """Closes the gripper (will take some time to complete)"""
+        self._closeGripper(index)
+
+
+    def toggleGripper(self, index=0):
+        self._toggleGripper(index)
+
+
+    def fkin(self, positions):
         if isinstance(positions, np.ndarray):
             if (len(positions.shape) == 2) and (positions.shape[1] > 1):
-                result = np.ndarray((7, positions.shape[1]))
+                result = np.ndarray((self.nbEndEffectors * 7, positions.shape[1]))
 
                 for i in range(positions.shape[1]):
-                    result[:, i] = self.robot.fkin(to_js(list(positions[:, i])), offset).to_py()
+                    result[:, i] = self.robot.fkin(to_js(list(positions[:, i]))).to_py()
 
                 return result
 
             else:
                 positions = list(positions)
 
-        return np.array(self.robot.fkin(to_js(positions), offset).to_py())
+        return np.array(self.robot.fkin(to_js(positions)).to_py())
 
 
-    def ik(self, mu, nbJoints=None, offset=None, limit=None, dt=0.01, successDistance=1e-4, damping=False):
-        x = self.control
-        startx = x.copy()
-
-        indices = slice(0, 7)
-        if len(mu) == 3:
-            indices = slice(0, 3)
-        elif len(mu) == 4:
-            indices = slice(3, 7)
-
-        if nbJoints is None:
-            nbJoints = len(x)
-
-        if not isinstance(mu, np.ndarray):
-            mu = np.array(mu)
-
-        damping = damping or (nbJoints < len(x))
-
-        done = False
-        i = 0
-        while not(done) and ((limit is None) or (i < limit)):
-            f = self.fkin(x[:nbJoints], offset)
-
-            if len(mu) == 3:
-                diff = mu - f[indices]
-            elif len(mu) == 4:
-                diff = logmap_S3(mu, f[indices])
-            else:
-                diff = logmap(mu, f)
-
-            J = self.Jkin(x[:nbJoints], offset)
-            J = J[indices, :]
-
-            if damping:
-                pinvJ = np.linalg.inv(J.T @ J + np.eye(nbJoints) * 1e-2) @ J.T # Damped pseudoinverse
-            else:
-                pinvJ = np.linalg.pinv(J)
-
-            u = 0.1 * pinvJ @ diff / dt     # Velocity command, with a 0.1 gain to not overshoot the target
-
-            x[:nbJoints] += u * dt
-
-            i += 1
-
-            if np.linalg.norm(x - startx) < successDistance:
-                done = True
-
-        control = self.control
-        control[:nbJoints] = x[:nbJoints]
-        self.control = control
-
-        return done
-
-
-    def Jkin(self, positions, offset=None):
-        """Jacobian with numerical computation, on a subset of the joints
-        """
+    def Jkin(self, positions):
         eps = 1e-6
         D = len(positions)
+        N = self.nbEndEffectors
 
         # Matrix computation
         X = np.tile(positions.reshape((D,1)), [1,D])
-        F1 = self.fkin(X, offset)
-        F2 = self.fkin(X + np.identity(D) * eps, offset)
-        J = logmap(F2, F1) / eps
+        F1 = self.fkin(X)
+        F2 = self.fkin(X + np.identity(D) * eps)
+
+        J = np.ndarray((N * 6, D))
+
+        for i in range(N):
+            J[i*6:(i+1)*6, :] = logmap(F2[i*7:(i+1)*7, :], F1[i*7:(i+1)*7, :]) / eps
 
         if len(J.shape) == 1:
             J = J.reshape((-1,1))
 
         return J
-
-
-    @property
-    def isGripperOpen(self):
-        return self.robot.isGripperOpen()
-
-
-    @property
-    def isGripperClosed(self):
-        return self.robot.isGripperClosed()
-
-    @property
-    def isGripperHoldingSomeObject(self):
-        return self.robot.isGripperHoldingSomeObject()
-
-    @property
-    def gripperAbduction(self):
-        """Returns the current abduction of the gripper, between 0.0 (closed) and 1.0 (fully open)"""
-        return self.robot.getGripperAbduction()
-
-
-    def openGripper(self):
-        """Opens the gripper (will take some time to complete)"""
-        return self.robot.openGripper()
-
-
-    def closeGripper(self):
-        """Closes the gripper (will take some time to complete)"""
-        return self.robot.closeGripper()
 
 
 
@@ -1152,37 +1451,11 @@ class PhysicalBody:
 
 
 
-def QuatMatrix(q):
-    """Matrix form of quaternion
-
-    Note: quaternions elements are ordered as [x, y, z, w]
-    """
-    return np.array([
-        [q[3], -q[2], q[1], q[0]],
-        [q[2], q[3], -q[0], q[1]],
-        [-q[1], q[0], q[3], q[2]],
-        [-q[0], -q[1], -q[2], q[3]],
-    ])
-
-
-
-def acoslog(x):
-    """Arcosine redefinition to make sure the distance between antipodal quaternions is zero
-    """
-    try:
-        y = math.acos(x)
-    except ValueError:
-        return math.nan
-
-    if x < 0:
-        y = y - np.pi
-    return y
-
 def q2R(q):
     """Unit quaternion to rotation matrix conversion (for quaternions as [x,y,z,w])
     """
     # Code below is for quat as wxyz
-    q = [q[3],q[0],q[1],q[2]] 
+    q = [q[3], q[0], q[1], q[2]] 
 
     return np.array([
         [1.0 - 2.0 * q[2]**2 - 2.0 * q[3]**2, 2.0 * q[1] * q[2] - 2.0 * q[3] * q[0], 2.0 * q[1] * q[3] + 2.0 * q[2] * q[0]],
@@ -1191,10 +1464,24 @@ def q2R(q):
     ])
 
 
-def logmap_S3(x,x0):
+
+def acoslog(x):
+    """Arcosine redefinition to make sure the distance between antipodal quaternions is zero
+    """
+    try:
+        y = math.acos(min(x, 1.0))
+    except ValueError:
+        return math.nan
+
+    if x < 0:
+        y = y - np.pi
+    return y
+
+
+
+def logmap_S3(x, x0):
     """Logarithmic map for S^3 manifold (with e in tangent space)
     """
-
     def _dQuatToDxJac(q):
         """Jacobian from quaternion velocities to angular velocities.
         
@@ -1207,8 +1494,8 @@ def logmap_S3(x,x0):
         ])
     
     # Code below is for quat as wxyz so need to transform it!
-    x = np.array([x[3],x[0],x[1],x[2]])
-    x0 = np.array([x0[3],x0[0],x0[1],x0[2]])
+    x = np.array([x[3], x[0], x[1], x[2]])
+    x0 = np.array([x0[3], x0[0], x0[1], x0[2]])
 
     x0 = x0.reshape((4, 1))
     x = x.reshape((4, 1))
@@ -1225,6 +1512,7 @@ def logmap_S3(x,x0):
 
     H = _dQuatToDxJac(x0)
     return (2 * H.squeeze() @ u).squeeze()
+
 
 
 def logmap(f, f0):

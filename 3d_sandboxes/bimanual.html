@@ -1,0 +1,263 @@
+﻿<div class="row">
+    <div class="col-sm-1"></div>
+
+    <div class="col-sm-5">
+        <h3>Bimanual robot</h3>
+        
+        <div class="card block" id="instructionBlock">
+
+            <div class="card-header">
+                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
+                    Instructions
+                </button>
+            </div>
+
+            <div id="instructions" class="collapse card-body instructions">
+                <h5>General information</h5>
+                <p>
+                    Modify the code in the cell below and study how inverse kinematics (IK) works for bimanual robots.
+                    You will find two different tabs showcasing different IK implementation:
+                </p>
+                
+                <ul>
+                    <li>
+                        IK: where the two arms reach their target with the same priority.
+                    </li>
+                    <li>
+                        Prioritized IK: where the tasks are prioritized, and right arm tracking is the main objective.
+                    </li>
+                </ul>
+
+                <p>
+                    See <a href="#S5">Inverse kinematics (IK) for a planar robot manipulator</a> for more information about inverse kinematics,
+                    and <a href="#S9-sec:SS6">Bimanual robot</a> for details about a bimanual robot.
+                </p>
+
+                <h5>Coding information</h5>
+
+                <div>
+                    
+                    <p class="text-center">
+                        <img style="width:80%;" src="static_images/code_schema.png"/>
+                    </p>
+
+                    <p>
+                        As described by the figure above, the <code class="inline_code">control</code> function in the cell below is called repeatedly at a fixed frequency.
+                    </p>
+
+                    <p>
+                        The example is a smaller part of a larger Python script that is hidden from you. To properly interact with the script, we list below the functions and variables you can use in the interactive cell.
+                    </p>
+
+
+                    <h6>Available functions</h6>
+                    <ul>
+                        <li>
+                            <code class="inline_code">fkin(x)</code>: this function performs the forward kinematics from a given joint configuration
+                            (i.e. the input parameter, a list of floats). It returns a list of float containing the end-effector positions and orientations
+                            stacked together (<code class="inline_code">[right_hand_position, right_hand_orientation, left_hand_position, left_hand_orientation]</code>).
+                        </li>
+                        <li>
+                            <code class="inline_code">Jkin(x)</code>: this function computes the robot's jacobian matrix for a given joint configuration
+                            (i.e. the input parameter, a list of floats). It returns the jacobian matrices for the right and left hands stacked together.
+                        </li>
+                        <li>
+                            <code class="inline_code">logmap(mu,f)</code>: this function computes the residual between the actual and the desired end-effector states.
+                            Residual is a 1D array of size 6, with the three first components being the position residual and the last three being the orientation residual.
+                        </li>
+                        <li>
+                            <code class="inline_code">logmap_S3(mu,f)</code>: same as  <code class="inline_code">logmap(mu,f)</code>, but it only computes the orientation residual.
+                        </li>
+                    </ul>
+                    <h6>Global variables</h6>
+                    <ul>
+                        <li><code class="inline_code">x</code>: the current joint configuration of the robot as a list of floats.</li>
+                    </ul>
+                </div>
+
+                <h5>Control</h5>
+
+                <ul>
+                    <li>Click on the green run button to execute the code.</li>
+                    <li>The target objects can be controlled by clicking on them, which makes a translation/rotation widget appears. The behavior of this widget can be changed using the buttons at the top.</li>
+                    <li>To rotate the camera, press the left mouse button and drag the mouse. The right mouse button let you translate the camera. The mouse wheel let you zoom in/out.</li>
+                </ul>
+            </div>
+
+        </div>
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button aria-controls="ik-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#ik-tab-pane" data-bs-toggle="tab" id="ik-tab" role="tab" type="button">IK</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button aria-controls="prioritized-ik-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#prioritized-ik-tab-pane" data-bs-toggle="tab" id="prioritized-ik-tab" role="tab" type="button">Prioritized IK</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <div aria-labelledby="ik-tab" class="tab-pane fade show active" id="ik-tab-pane" role="tabpanel" tabindex="0">
+                <editor id="editor-ik" src="user_code_ik"></editor>
+            </div>
+
+            <div aria-labelledby="prioritized-ik-tab" class="tab-pane fade show" id="prioritized-ik-tab-pane" role="tabpanel" tabindex="0">
+                <editor id="editor-prioritized-ik" src="user_code_prioritized_ik"></editor>
+            </div>
+        </div>
+
+        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
+            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        </div>
+
+        <pre id="errors" class="py-error"></pre>
+        <pre id="output" class="py-output"></pre>
+    </div>
+
+    <div class="col-sm-6">
+        <div class="sticky-sm-top" style="padding-top: 2rem;">
+            <div id="viewer3d" style="width: 100%; height: 400px;"></div>
+        </div>
+    </div>
+</div>
+
+
+<script id="user_code_ik" type="python">
+    # Initialization
+    x = [
+        0., 0., 0., 0., 0., 0., 0., 0., 0.,
+        0., 0., 0., 0., 0., 0., 0., 0.
+    ]  # Initial robot state
+
+    # Control loop definition
+    def control(x, mu, dt):
+        J = Jkin(x)
+        f = fkin(x)
+
+        diff = np.ndarray(12)
+        diff[:6] = logmap(mu[:7], f[:7]) # Right hand correction
+        diff[6:] = logmap(mu[7:], f[7:]) # Left hand correction
+    
+        u = np.linalg.pinv(J) @ diff  # Position & orientation tracking
+
+        return 0.1 * u / dt  # Velocity in rad/s
+</script>
+
+
+<script id="user_code_prioritized_ik" type="python">
+    # Initialization
+    x = [
+        0., 0., 0., 0., 0., 0., 0., 0., 0.,
+        0., 0., 0., 0., 0., 0., 0., 0.
+    ]  # Initial robot state
+
+    # Control loop definition
+    def control(x, mu, dt):
+        J = Jkin(x)
+        f = fkin(x)
+
+        D = x.shape[0]
+
+        # Prioritized control (right tracking as main objective)
+        dfr = logmap(mu[:7], f[:7])     # Right hand correction
+        dfl = logmap(mu[7:], f[7:])     # Left hand correction
+        Jr = J[:6,:]                    # Jacobian for right hand
+        Jl = J[6:,:]                    # Jacobian for left hand
+
+        pinvJr = np.linalg.inv(Jr.T @ Jr + np.eye(D) * 1e-1) @ Jr.T # Damped pseudoinverse
+        Nr = np.eye(D) - pinvJr @ Jr # Nullspace projection operator
+        ur = pinvJr @ dfr # Command for position & orientation tracking
+
+        JlNr = Jl @ Nr
+        pinvJlNr = JlNr.T @ np.linalg.inv(JlNr @ JlNr.T + np.eye(6) * 1e-4) # Damped pseudoinverse
+        ul = pinvJlNr @ (dfl - Jl @ ur) # Command for left hand tracking (with right hand tracking prioritized)
+
+        u = ur + Nr @ ul # Control commands
+
+        return 0.1 * u / dt  # Velocity in rad/s
+</script>
+
+
+<script id="page_code" type="python">
+    from viewer3d import Viewer3D, configs, logmap_S3, logmap, q2R, Shapes
+    from js import document
+    from rcfs import configure, displayError, setAspectRatio
+    import numpy as np
+
+    # The function that will be called once per frame
+    x = None
+
+    def ikUpdate(delta, time):
+        global x
+
+        try:
+            if x is None:
+                x = robot.jointPositions
+            elif not isinstance(x, np.ndarray):
+                x = np.array(x)
+
+            mu = np.ndarray((14,))
+            mu[:7] = leftTarget.transforms
+            mu[7:] = rightTarget.transforms
+
+            u = control(x, mu, delta)
+
+            x += u * delta
+            robot.jointPositions = x
+        except Exception as e:
+            displayError(e)
+
+
+    # Resize the container of the Viewer3D to have a 1:1 aspect ratio
+    setAspectRatio('viewer3d', 1.0)
+
+    # Create the Viewer3D
+    element = document.getElementById('viewer3d')
+
+    viewer3D = Viewer3D(
+        element,
+        {
+            'external_loop': True,
+        }
+    )
+
+    viewer3D.setRenderingCallback(ikUpdate, 0.01)
+
+    # Load the scene and retrieve the robot
+    viewer3D.loadScene('/scenes/g1_upperbody.xml')
+    viewer3D.translateCamera([0.0, 0.0, 0.3])
+
+    robot = viewer3D.createRobot('panda', configs.G1UpperBody.new())
+
+    # Disable the manipulation of the joints
+    viewer3D.jointsManipulationEnabled = False
+    viewer3D.endEffectorManipulationEnabled = False
+
+    # Add the targets
+    leftTarget = viewer3D.addTarget('leftTarget', [0.3, -0.25,  1.0], [0.76, 0.1, 0.5, -0.4], '#FF3399', shape=Shapes.Cone)
+    rightTarget = viewer3D.addTarget('rightTarget', [0.3, 0.3, 0.9], [0.67, 0.22, 0.016, 0.7], '#FF9933', shape=Shapes.Cone)
+
+
+    # Placeholder for the function to implement
+    def control(x, mu, dt):
+        return np.zeros(x.shape)
+
+    # Forward kinematics function (allows to not care about 'robot' in the user code)
+    def fkin(x):
+        return robot.fkin(x)
+
+    # Jacobian function (allows to not care about 'robot' in the user code)
+    def Jkin(x):
+        return robot.Jkin(x)
+
+
+    async def loop(delta, time):
+        viewer3D.render()
+
+
+    configure({
+        'loop': loop,
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>
