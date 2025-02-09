@@ -76,7 +76,7 @@
 
 <script id="user_code" type="python">
     # Control loop definition
-    def control(x):
+    def control(x, dt):
         u = np.zeros(x.shape)
         u[0] = 1.0
 
@@ -85,7 +85,7 @@
             print('DONE')
             stopControl()
 
-        return u  # Velocity in rad/s
+        return u / dt  # Velocity in rad/s
 </script>
 
 
@@ -96,35 +96,27 @@
     import numpy as np
 
     # The function that will be called once per frame
-    x = None
     robot = None
 
     def update(delta, time):
-        global x
-
         try:
-            if x is None:
-                x = robot.jointPositions
-            elif not isinstance(x, np.ndarray):
-                x = np.array(x)
+            x = robot.jointPositions
 
-            u = control(x)
-
+            u = control(x, delta)
             x += u * delta
-            robot.jointPositions = x
+
+            robot.control = x
         except Exception as e:
             displayError(e)
 
     # Load the scene and retrieve the robot
     def reset():
-        global robot, x
+        global robot
 
         viewer3D.loadScene('/scenes/physics.xml')
         viewer3D.translateCamera([0.0, 0.0, 0.3])
         robot = viewer3D.createRobot('panda', configs.Panda.new())
         viewer3D.physicsSimulatorPaused = False
-
-        x = None
 
     # Resize the container of the Viewer3D to have a 1:1 aspect ratio
     setAspectRatio('viewer3d', 1.0)
@@ -140,7 +132,7 @@
     reset()
 
     # Placeholder for the function to implement
-    def control(x):
+    def control(x, dt):
         return np.zeros(x.shape)
 
     def stopControl():

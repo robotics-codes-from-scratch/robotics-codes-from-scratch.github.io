@@ -119,7 +119,7 @@
         target = np.copy(target0)
 
         try:
-            x = robot.control
+            x = robot.jointPositions
             u = controlCommand(x, delta)
             x += u * delta
             robot.control = x

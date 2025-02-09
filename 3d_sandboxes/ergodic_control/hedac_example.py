@@ -92,6 +92,6 @@ def control(x, agent, goal_density, coverage_density, heat, coverage_block, para
     xh = np.array([0.0, 0.0, 0.0, -1.5, 0.0, 1.5, 1])
     u = u + N @ (xh - x)
 
-    u = 0.5 * u / param.dt  # Velocity in rad/s
+    u = u / param.dt  # Velocity in rad/s
 
     return u, coverage_density, heat

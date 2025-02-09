@@ -1519,14 +1519,26 @@ def logmap(f, f0):
     """Logarithmic map for R^3 x S^3 manifold (with e in tangent space)
     """
     if len(f.shape) == 1:
-        e = np.ndarray((6,))
-        e[0:3] = (f[0:3] - f0[0:3])
-        e[3:] = logmap_S3(f[3:], f0[3:])
+        if f.shape[0] == 3:
+            e = f - f0
+        elif f.shape[0] == 4:
+            e = logmap_S3(f, f0)
+        else:
+            e = np.ndarray((6,))
+            e[0:3] = (f[0:3] - f0[0:3])
+            e[3:] = logmap_S3(f[3:], f0[3:])
     else:
-        e = np.ndarray((6, f.shape[1]))
-        e[0:3,:] = (f[0:3,:] - f0[0:3,:])
-        for t in range(f.shape[1]):
-            e[3:,t] = logmap_S3(f[3:,t], f0[3:,t])
+        if f.shape[0] == 3:
+            e = f - f0
+        elif f.shape[0] == 4:
+            e = np.ndarray((3, f.shape[1]))
+            for t in range(f.shape[1]):
+                e[:,t] = logmap_S3(f[:,t], f0[:,t])
+        else:
+            e = np.ndarray((6, f.shape[1]))
+            e[0:3,:] = (f[0:3,:] - f0[0:3,:])
+            for t in range(f.shape[1]):
+                e[3:,t] = logmap_S3(f[3:,t], f0[3:,t])
     return e
 
 

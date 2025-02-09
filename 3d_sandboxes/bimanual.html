@@ -134,13 +134,31 @@
         J = Jkin(x)
         f = fkin(x)
 
+        # Position & orientation tracking
         diff = np.ndarray(12)
         diff[:6] = logmap(mu[:7], f[:7]) # Right hand correction
         diff[6:] = logmap(mu[7:], f[7:]) # Left hand correction
-    
-        u = np.linalg.pinv(J) @ diff  # Position & orientation tracking
+        u = np.linalg.pinv(J) @ diff
 
-        return 0.1 * u / dt  # Velocity in rad/s
+        # Position tracking
+        # diff = np.ndarray(6)
+        # diff[:3] = logmap(mu[:3], f[:3])     # Right hand correction
+        # diff[3:] = logmap(mu[7:10], f[7:10]) # Left hand correction
+        # J2 = np.ndarray((6, J.shape[1]))
+        # J2[:3,:] = J[:3,:]                   # Right hand Jacobian
+        # J2[3:,:] = J[6:9,:]                  # Left hand Jacobian
+        # u = np.linalg.pinv(J2) @ diff
+
+        # Orientation tracking
+        # diff = np.ndarray(6)
+        # diff[:3] = logmap(mu[3:7], f[3:7])   # Right hand correction
+        # diff[3:] = logmap(mu[10:], f[10:])   # Left hand correction
+        # J2 = np.ndarray((6, J.shape[1]))
+        # J2[:3,:] = J[3:6,:]                  # Right hand Jacobian
+        # J2[3:,:] = J[9:,:]                   # Left hand Jacobian
+        # u = np.linalg.pinv(J2) @ diff
+
+        return u / dt  # Velocity in rad/s
 </script>
 
 
@@ -174,13 +192,13 @@
 
         u = ur + Nr @ ul # Control commands
 
-        return 0.1 * u / dt  # Velocity in rad/s
+        return u / dt  # Velocity in rad/s
 </script>
 
 
 <script id="page_code" type="python">
     from viewer3d import Viewer3D, configs, logmap_S3, logmap, q2R, Shapes
-    from js import document
+    from js import document, three
     from rcfs import configure, displayError, setAspectRatio
     import numpy as np
 
@@ -188,22 +206,27 @@
     x = None
 
     def ikUpdate(delta, time):
-        global x
-
         try:
-            if x is None:
-                x = robot.jointPositions
-            elif not isinstance(x, np.ndarray):
-                x = np.array(x)
+            x = robot.jointPositions
 
             mu = np.ndarray((14,))
             mu[:7] = leftTarget.transforms
             mu[7:] = rightTarget.transforms
 
-            u = control(x, mu, delta)
+            quaternion = three.Quaternion.new(mu[3], mu[4], mu[5], mu[6])
+            vector = three.Vector3.new(0, 0, -0.02)
+            vector.applyQuaternion(quaternion)
+            mu[:3] += [vector.x, vector.y, vector.z]
 
+            quaternion = three.Quaternion.new(mu[10], mu[11], mu[12], mu[13])
+            vector = three.Vector3.new(0, 0, -0.02)
+            vector.applyQuaternion(quaternion)
+            mu[7:10] += [vector.x, vector.y, vector.z]
+
+            u = control(x, mu, delta)
             x += u * delta
-            robot.jointPositions = x
+
+            robot.control = x
         except Exception as e:
             displayError(e)
 
@@ -233,9 +256,16 @@
     viewer3D.jointsManipulationEnabled = False
     viewer3D.endEffectorManipulationEnabled = False
 
+    viewer3D.physicsSimulatorPaused = False
+
     # Add the targets
-    leftTarget = viewer3D.addTarget('leftTarget', [0.3, -0.25,  1.0], [0.76, 0.1, 0.5, -0.4], '#FF3399', shape=Shapes.Cone)
-    rightTarget = viewer3D.addTarget('rightTarget', [0.3, 0.3, 0.9], [0.67, 0.22, 0.016, 0.7], '#FF9933', shape=Shapes.Cone)
+    parameters = {
+        'width': 0.05,
+        'height': 0.05,
+        'depth': 0.05,
+    }
+    leftTarget = viewer3D.addTarget('leftTarget', [0.3, -0.25,  1.0], [0.76, 0.1, 0.5, -0.4], '#FF3399', shape=Shapes.Cube, parameters=parameters)
+    rightTarget = viewer3D.addTarget('rightTarget', [0.3, 0.3, 0.9], [0.67, 0.22, 0.016, 0.7], '#FF9933', shape=Shapes.Cube, parameters=parameters)
 
 
     # Placeholder for the function to implement
@@ -255,8 +285,13 @@
         viewer3D.render()
 
 
+    async def run():
+        robot.jointPositions = x
+
+
     configure({
         'loop': loop,
+        'run': run,
         'output': 'output',
         'errors': 'errors',
     })

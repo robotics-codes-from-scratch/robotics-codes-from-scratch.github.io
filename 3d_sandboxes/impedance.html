@@ -136,7 +136,6 @@
 
 
 <script id="user_code_impedance" type="python">
-    # Initialization
     # Initial robot state
     x = [
         0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0,    # joint positions
@@ -145,8 +144,8 @@
 
     x_target = [-0.5, 0.3, 0.0, -1.8, 0.0, 1.5, 1.0] # Target in joint space
 
-    KP = np.diag([2000, 2000, 2000, 2000, 2000, 2000, 2000]) # Joint space stiffness matrix
-    KV = np.diag([200, 200, 200, 200, 200, 200, 200])        # Joint space damping matrix
+    KP = np.diag([20000, 20000, 20000, 20000, 20000, 20000, 20000]) # Joint space stiffness matrix
+    KV = np.diag([2000, 2000, 2000, 2000, 2000, 2000, 2000])        # Joint space damping matrix
 
     # Control loop definition
     def control(x, mu):
@@ -156,7 +155,6 @@
 
 
 <script id="user_code_taskimpedance" type="python">
-    # Initialization
     # Initial robot state
     x = [
         0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0,    # joint positions
@@ -165,8 +163,8 @@
 
     f_target = fkin([0.5, 0.3, 0.0, -1.8, 0.0, 1.5, 1.0]) # Target in task space
 
-    KP = np.diag([2000, 2000, 2000, 2000, 2000, 2000])  # Task space stiffness (position and orientation)
-    KV = np.diag([1600, 1600, 1600, 800, 800, 800])     # Task space damping (position and orientation)
+    KP = np.diag([20000, 20000, 20000, 20000, 20000, 20000])  # Task space stiffness (position and orientation)
+    KV = np.diag([2000, 2000, 2000, 1000, 1000, 1000])     # Task space damping (position and orientation)
 
     # Control loop definition
     def control(x, mu):
@@ -193,9 +191,9 @@
     sdf_box_offset = np.array([0.08, 0.06, -0.06]) # Box position wrt the disc
     sdf_smoothing_ratio = 0.05 # Smoothing factor for softmax composition of SDF shapes 
 
-    KP = np.diag([2000, 2000, 2000, 2000, 2000, 2000])  # Task space stiffness (position and orientation)
+    KP = np.diag([20000, 20000, 20000, 0, 0, 0])  # Task space stiffness (position and orientation)
     KP0 = np.copy(KP)
-    KV = np.diag([1600, 1600, 1600, 800, 800, 800])     # Task space damping (position and orientation)
+    KV = np.diag([200, 200, 200, 200, 200, 200])     # Task space damping (position and orientation)
 
     def control(x):
         global KP
@@ -213,7 +211,7 @@
 
 <script id="page_code" type="python">
     from viewer3d import Viewer3D, configs, logmap_S3, logmap, Shapes, Layers, Passes
-    from js import document, SDFPass
+    from js import document, SDFPass, three
     from rcfs import configure, displayError, setAspectRatio, executePythonCode
     from pyodide.ffi import to_js
     import numpy as np
@@ -248,6 +246,7 @@
         d = np.min([d1, d2]) - (h**2) * 0.25 / k
         return d
 
+
     def compute_distance(f):
         p1 = f_target
         p2 = f_target + sdf_box_offset
@@ -259,8 +258,9 @@
             dist[t] = smooth_union(d1, d2, sdf_smoothing_ratio) # Smoothing union with softmax composition of SDF shapes
         return dist
 
+
     def quaternionFromDirection(direction):
-        vFrom = np.array([0, 0, 1])
+        vFrom = np.array([1, 0, 0])
         vTo = np.array(direction) / np.linalg.norm(direction)
 
         r = np.dot(vFrom, vTo) + 1.0
@@ -285,16 +285,17 @@
 
         return np.array(q) / np.linalg.norm(q)
 
+
     def quaternionToMatrix(Q):
         """
         Convert a quaternion into a full three-dimensional rotation matrix.
  
         Input
-        :param Q: A 4 element array representing the quaternion (q0,q1,q2,q3) 
+        :param Q: A 4 element array representing the quaternion (qx,qy,qz,qw)
  
         Output
-        :return: A 3x3 element matrix representing the full 3D rotation matrix. 
-                 This rotation matrix converts a point in the local reference 
+        :return: A 3x3 element matrix representing the full 3D rotation matrix.
+                 This rotation matrix converts a point in the local reference
                  frame to a point in the global reference frame.
         """
         # Extract the values from Q
@@ -386,11 +387,8 @@
     f_target = None
 
 
-    TTTT = None
-
-
     def update(delta, time):
-        global x, x_target, f_target, arrow, TTTT
+        global x, x_target, f_target, arrow
 
         try:
             if not isinstance(x, np.ndarray):
@@ -402,29 +400,9 @@
             if (f_target is not None) and (not isinstance(f_target, np.ndarray)):
                 f_target = np.array(f_target)
 
-            x[:param.nbVarX] = robot.control
+            x[:param.nbVarX] = robot.jointPositions
             x[param.nbVarX:] = robot.jointVelocities
 
-            if (TTTT is None) or (time - TTTT > 1):
-                # TTTT = time
-
-                if document.getElementById('impedance-tab').ariaSelected == 'true':
-                    u = control(x, x_target)
-                elif document.getElementById('taskimpedance2-tab').ariaSelected == 'true':
-                    u = control(x)
-                else:
-                    u = control(x, f_target)
-
-                ddx = u
-                dx = np.copy(x[param.nbVarX:])
-
-                dx = dx + 0.5 * ddx * param.dt
-
-                x[:param.nbVarX] = x[:param.nbVarX] + dx * param.dt
-
-                x[param.nbVarX:] = dx
-
-                robot.control = x[:param.nbVarX]
 
             if (document.getElementById('taskimpedance-tab').ariaSelected == 'true') and (f_target is not None):
                 f = fkin(x[:param.nbVarX])
@@ -443,12 +421,32 @@
                 dist, orient, grad = sdf(f)
 
                 if dist > 1e-2:
-                    direction = f_target[:3] - robot.endEffectorPosition
-                    update_arrow(robot.endEffectorPosition, direction, dist)
+                    direction = three.Vector3.new(1, 0, 0)
+                    q = three.Quaternion.new(orient[0], orient[1], orient[2], orient[3])
+                    direction.applyQuaternion(q)
+                    update_arrow(f[:3], [direction.x, direction.y, direction.z], dist)
                 else:
                     viewer3D.removeArrow('arrow')
                     arrow = None
 
+
+            if document.getElementById('impedance-tab').ariaSelected == 'true':
+                u = control(x, x_target)
+            elif document.getElementById('taskimpedance2-tab').ariaSelected == 'true':
+                u = control(x)
+            else:
+                u = control(x, f_target)
+
+            ddx = u
+            dx = np.copy(x[param.nbVarX:])
+
+            dx = dx + 0.5 * ddx * param.dt
+
+            x[:param.nbVarX] = x[:param.nbVarX] + dx * param.dt
+
+            x[param.nbVarX:] = dx
+
+            robot.control = x[:param.nbVarX]
 
         except Exception as e:
             displayError(e)

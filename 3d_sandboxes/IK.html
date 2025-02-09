@@ -255,18 +255,13 @@
     x = None
 
     def ikUpdate(delta, time):
-        global x
-
         try:
-            if x is None:
-                x = robot.jointPositions
-            elif not isinstance(x, np.ndarray):
-                x = np.array(x)
+            x = robot.jointPositions
 
             u = control(x, target.transforms, delta)
-
             x += u * delta
-            robot.jointPositions = x
+
+            robot.control = x
         except Exception as e:
             displayError(e)
 
@@ -302,6 +297,8 @@
     # Enable the logmap
     viewer3D.enableLogmap(robot, target, position='left', size=element.clientWidth * 0.15)
 
+    viewer3D.physicsSimulatorPaused = False
+
 
     # Placeholder for the function to implement
     def control(x, mu, dt):
@@ -320,8 +317,13 @@
         viewer3D.render()
 
 
+    async def run():
+        robot.jointPositions = x
+
+
     configure({
         'loop': loop,
+        'run': run,
         'output': 'output',
         'errors': 'errors',
     })
