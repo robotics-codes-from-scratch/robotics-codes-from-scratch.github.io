@@ -1,0 +1,349 @@
+<h3>Jacobian</h3>
+
+<div align='center' style='display: inline-block; width: 49%; font-size: 80%; margin-top: 13%;'>
+    <div id='jacobian2d_formula0' class="ltx_Math">
+        \bm{J}(\bm{x})=\begin{bmatrix}
+        \frac{\color{#00AA00}\partial f_1}{\color{#CC0000}\partial x_1} &
+        {\color{#CCCCCC}\frac{\partial f_1}{\partial x_2}} &
+        {\color{#CCCCCC}\frac{\partial f_1}{\partial x_3}}
+        \\[2mm]
+        \frac{\color{#0000CC}\partial f_2}{\color{#CC0000}\partial x_1} &
+        {\color{#CCCCCC}\frac{\partial f_2}{\partial x_2}} &
+        {\color{#CCCCCC}\frac{\partial f_2}{\partial x_3}}
+        \end{bmatrix}
+    </div>
+
+    <div id='jacobian2d_formula1' class="ltx_Math" hidden='hidden'>
+        \bm{J}(\bm{x})=\begin{bmatrix}
+        {\color{#CCCCCC}\frac{\partial f_1}{\partial x_1}} &
+        \frac{\color{#00AA00}\partial f_1}{\color{#CC5500}\partial x_2} &
+        {\color{#CCCCCC}\frac{\partial f_1}{\partial x_3}}
+        \\[2mm]
+        {\color{#CCCCCC}\frac{\partial f_2}{\partial x_1}} &
+        \frac{\color{#0000CC}\partial f_2}{\color{#CC5500}\partial x_2} &
+        {\color{#CCCCCC}\frac{\partial f_2}{\partial x_3}}
+        \end{bmatrix}
+    </div>
+
+    <div id='jacobian2d_formula2' class="ltx_Math" hidden='hidden'>
+        \bm{J}(\bm{x})=\begin{bmatrix}
+        {\color{#CCCCCC}\frac{\partial f_1}{\partial x_1}} &
+        {\color{#CCCCCC}\frac{\partial f_1}{\partial x_2}} &
+        \frac{\color{#00AA00}\partial f_1}{\color{#CC9900}\partial x_3}
+        \\[2mm]
+        {\color{#CCCCCC}\frac{\partial f_2}{\partial x_1}} &
+        {\color{#CCCCCC}\frac{\partial f_2}{\partial x_2}} &
+        \frac{\color{#0000CC}\partial f_2}{\color{#CC9900}\partial x_3}
+        \end{bmatrix}
+    </div>
+</div>
+
+<div style="display: inline-block; width: 49%; vertical-align: top; font-size: 80%; position: relative;">
+    <canvas id='jacobian2d_canvas' style='width:100%;' width='900px' height='700px'></canvas>
+    <span id='jacobian2d_x0' class="ltx_Math" style='position:absolute; left:9999px; bottom:0px;'>\color{#CC0000}x_1</span>
+    <span id='jacobian2d_x1' class="ltx_Math" style='position:absolute; left:9999px; bottom:0px;'>\color{#CC5500}x_2</span>
+    <span id='jacobian2d_x2' class="ltx_Math" style='position:absolute; left:9999px; bottom:0px;'>\color{#CC9900}x_3</span>
+    <span id='jacobian2d_f0' class="ltx_Math" style='position:absolute; left:9999px; bottom:0px;'>\color{#00AA00}f_1</span>
+    <span id='jacobian2d_f1' class="ltx_Math" style='position:absolute; left:9999px; bottom:0px;'>\color{#0000CC}f_2</span>
+</div>
+
+
+<script id="jacobian2d_page_code" type="python">
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document
+    from rcfs import configure
+    import numpy as np
+
+    # Forward kinematics for end-effector (in robot coordinate system)
+    def fkin(x, param):
+        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+        f = [param.l @ np.cos(L @ x), param.l @ np.sin(L @ x)]
+        return f
+
+    # Forward kinematics for all joints (in robot coordinate system)
+    def fkin0(x, param):
+        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+        f = np.vstack([
+            L @ np.diag(param.l) @ np.cos(L @ x),
+            L @ np.diag(param.l) @ np.sin(L @ x)
+        ])
+        f = np.hstack([np.zeros([2,1]), f])
+        return f
+
+
+    ## Parameters
+    # ===============================
+
+    param = lambda: None # Lazy way to define an empty class in python
+    param.dt = 1E-1 # Time step length
+    param.nbVarX = 3 # State space dimension (x1,x2,x3)
+    param.l = [320, 280, 160] # Robot links lengths
+
+
+    #########################################################################################
+
+    canvas = document.getElementById('jacobian2d_canvas')
+    ctx = canvas.getContext('2d')
+
+    x_el = []
+    formula_el = []
+    for i in range(param.nbVarX):
+        formula_el.append(document.getElementById('jacobian2d_formula%d' % i))
+        x_el.append(document.getElementById('jacobian2d_x%d' % i))
+    f_el = [document.getElementById('jacobian2d_f0'), document.getElementById('jacobian2d_f1')]
+
+
+    def clear_screen():
+        ctx.setTransform(1, 0, 0, 1, 0, 0)
+        ctx.fillStyle = 'white'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.2, canvas.height*0.9)
+
+
+    def draw_robot(x):
+        global x_el
+        f = fkin0(x, param)
+
+        # Draw axes
+        ctx.lineWidth = '2'
+        ctx.fillStyle = '#DDDDDD'
+        ctx.strokeStyle = '#DDDDDD'
+        ctx.beginPath()
+        ctx.moveTo(650,0)
+        ctx.lineTo(0,0)
+        ctx.lineTo(0,500)
+        ctx.stroke()
+        # Draw arrow tips
+        ctx.beginPath()
+        ctx.moveTo(650,0)
+        ctx.lineTo(630,-10)
+        ctx.lineTo(630,10)
+        ctx.fill()
+        ctx.beginPath()
+        ctx.moveTo(0,500)
+        ctx.lineTo(-10,480)
+        ctx.lineTo(10,480)
+        ctx.fill()
+
+        # Draw base
+        ctx.translate(f[0,0], f[1,0])
+        ctx.lineWidth = '4'
+        ctx.strokeStyle = 'white'
+        ctx.fillStyle = '#AAAAAA'
+        ctx.beginPath()
+        ctx.arc(0, 0, 40, 0, np.pi)
+        ctx.rect(-40, 0, 80, -40)
+        ctx.fill()
+        ctx.strokeStyle = '#AAAAAA'
+        for i in range(5):
+            ctx.beginPath()
+            ctx.moveTo(-30+i*15, -40)
+            ctx.lineTo(-40+i*15, -60)
+            ctx.stroke()
+
+        # Draw links and articulations
+        obj_articulation = Path2D.new()
+        obj_articulation.arc(0, 0, 12, 0, 2*np.pi)
+        ctx.lineCap = 'round'
+        ctx.lineJoin = 'round'
+        for i in range(param.nbVarX):
+            if i < param.nbVarX:
+                # Draw links outlines
+                ctx.lineWidth = '46'
+                ctx.strokeStyle = 'white'
+                ctx.beginPath()
+                ctx.lineTo(f[0,i], f[1,i])
+                ctx.lineTo(f[0,i+1], f[1,i+1])
+                ctx.stroke()
+                # Draw links
+                obj = Path2D.new()
+                obj.lineTo(f[0,i], f[1,i])
+                obj.lineTo(f[0,i+1], f[1,i+1])
+                ctx.lineWidth = '38'
+                ctx.strokeStyle = '#AAAAAA'
+                ctx.stroke(obj)
+            # Draw articulations
+            ctx.lineWidth = '4'
+            ctx.strokeStyle = 'white'
+            ctx.translate(f[0,i], f[1,i])
+            ctx.stroke(obj_articulation)
+            ctx.translate(-f[0,i], -f[1,i])
+
+    #   # Draw link lengths
+    #   ctx.font = '38px serif'
+    #   ctx.fillStyle = 'rgb(0, 160, 0)'
+    #   ctx.strokeStyle = 'rgb(0, 160, 0)'
+    #   ctx.setLineDash([2, 6])
+    #   for i in range(param.nbVarX):
+    #       ctx.beginPath()
+    #       ctx.moveTo(f[0,i], f[1,i])
+    #       ctx.lineTo(f[0,i+1], f[1,i+1])
+    #       ctx.stroke()
+    #       ctx.save()
+    #       xtmp = [np.mean([f[0,i], f[0,i+1]]), np.mean([f[1,i], f[1,i+1]])]
+    #       dtmp = f[:,i+1] - f[:,i]
+    #       dtmp = [dtmp[1], -dtmp[0]] / np.linalg.norm(dtmp)
+    #       ctx.translate(xtmp[0]+dtmp[0]*30-15, xtmp[1]+dtmp[1]*30-15)
+    #       ctx.scale(1, -1)
+    #       ctx.fillText('l' + chr(8321 + i), 0, 0) # Display subscript with unicode
+    #       ctx.restore()
+
+        # Draw joint angles
+        ctx.setLineDash([])
+        colors = ['#CC0000','#CC5500','#CC9900']
+        colors2 = ['#CC000033','#CC550033','#CC990033']
+        r = 80
+        ctx.font = '48px serif'
+        ctx.setLineDash([2, 6])
+        for i in range(param.nbVarX):
+            a = np.sort([np.sum(x[:i]), np.sum(x[:(i+1)])])
+            ctx.translate(f[0,i], f[1,i])
+            # Draw sector
+            ctx.fillStyle = colors2[i]
+            ctx.beginPath()
+            ctx.moveTo(0, 0)
+            ctx.arc(0, 0, r*.9, a[0], a[1])
+            ctx.lineTo(0, 0)
+            ctx.fill()
+            # Draw sector boundaries
+            ctx.strokeStyle = colors[i]
+            ctx.beginPath()
+            ctx.moveTo(0, 0)
+            ctx.lineTo(np.cos(a[0])*r, np.sin(a[0])*r)
+            ctx.stroke()
+            ctx.beginPath()
+            ctx.moveTo(0, 0)
+            ctx.lineTo(np.cos(a[1])*r, np.sin(a[1])*r)
+            ctx.stroke()
+
+    #       # Draw joint angle name (with canvas)
+    #       ctx.fillStyle = colors[i]
+    #       ctx.save()
+    #       ctx.translate(np.cos(np.mean(a))*(r+20)-15, np.sin(np.mean(a))*(r+20)-15)
+    #       ctx.scale(1, -1)
+    #       ctx.fillText('x' + chr(8321 + i), 0, 0) # Display subscript with unicode
+    #       ctx.restore()
+
+            # Draw joint angle name (with latex)
+            xtmp = np.zeros(2)
+            xtmp[0] = (f[0,i] + np.cos(np.mean(a))*(r+20)-15 + canvas.width * 0.2) * canvas.clientWidth / canvas.width
+            xtmp[1] = (f[1,i] + np.sin(np.mean(a))*(r+20)-15 + canvas.height * 0.1) * canvas.clientHeight / canvas.height
+            x_el[i].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1]))
+
+            ctx.translate(-f[0,i], -f[1,i])
+
+        # Draw robot end-effector
+        ctx.setLineDash([])
+        obj = Path2D.new()
+        obj.arc(0, 0, 6, 0, 2*np.pi)
+        ctx.fillStyle = 'rgb(0, 0, 0)'
+        ctx.translate(f[0,-1], 0)
+        ctx.fill(obj)
+        ctx.translate(0, f[1,-1])
+        ctx.fill(obj)
+        ctx.translate(-f[0,-1], 0)
+        ctx.fill(obj)
+        ctx.translate(0, -f[1,-1])
+
+
+    def draw_trace(fhist):
+        # Draw trace
+        ctx.lineWidth = '8'
+        ctx.strokeStyle = '#555555'
+        ctx.beginPath()
+        for i in range(fhist_id+1, fhist.shape[1]):
+            ctx.lineTo(fhist[0,i], fhist[1,i])
+        for i in range(fhist_id):
+            ctx.lineTo(fhist[0,i], fhist[1,i])
+        ctx.stroke()
+        # Draw trace on horizontal axis
+        ctx.strokeStyle = '#00AA00'
+        ctx.fillStyle = '#00AA00'
+        ctx.beginPath()
+        for i in range(fhist_id+1, fhist.shape[1]):
+            ctx.lineTo(fhist[0,i], 0)
+        for i in range(fhist_id):
+            ctx.lineTo(fhist[0,i], 0)
+        ctx.stroke()
+
+    #   # Draw text on horizontal axis
+    #   ctx.save()
+    #   ctx.translate(fhist[0,fhist_id-1]-15, -45)
+    #   ctx.scale(1, -1)
+    #   ctx.fillText('f' + chr(8321), 0, 0) # Display subscript with unicode
+    #   ctx.restore()
+
+        # Draw trace on vertical axis
+        ctx.strokeStyle = '#0000CC'
+        ctx.fillStyle = '#0000CC'
+        ctx.beginPath()
+        for i in range(fhist_id+1, fhist.shape[1]):
+            ctx.lineTo(0, fhist[1,i])
+        for i in range(fhist_id):
+            ctx.lineTo(0, fhist[1,i])
+        ctx.stroke()
+
+    #   # Draw text on vertical axis (with canvas)
+    #   ctx.save()
+    #   ctx.translate(-45, fhist[1,fhist_id-1]-15)
+    #   ctx.scale(1, -1)
+    #   ctx.fillText('f' + chr(8322), 0, 0) # Display subscript with unicode
+    #   ctx.restore()
+
+        # Draw text on axes (with latex)
+        xtmp = np.zeros(2)
+        xtmp[0] = (fhist[0,fhist_id-1] - 15 + canvas.width * 0.2) * canvas.clientWidth / canvas.width
+        xtmp[1] = (- 80 + canvas.height * 0.1) * canvas.clientHeight / canvas.height
+        f_el[0].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # Horizontal axis
+        xtmp[0] = (- 80 + canvas.width * 0.2) * canvas.clientWidth / canvas.width
+        xtmp[1] = (fhist[1,fhist_id-1] - 15 + canvas.height * 0.1) * canvas.clientHeight / canvas.height
+        f_el[1].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # Vertical axis
+
+
+    def wiggleJoint(joint_id, frequency, t):
+        u = np.zeros(param.nbVarX)
+        u[joint_id] = np.sin(2.0 * np.pi * frequency * t) * .05
+        return u
+
+
+    #########################################################################################
+
+    x0 = [np.pi/3, -np.pi/4, -np.pi/2] # Initial robot state
+    x = np.array(x0)
+
+    fhist = np.tile(np.array(fkin(x,param)).reshape(-1,1), [1,400])
+    fhist_id = 0
+    joint_id = 0
+    frequency = 0.5
+    t = 0.0
+    tmax = 4.0
+
+    async def loop(delta, time):
+        global x, fhist, fhist_id, t, joint_id, formula_el
+
+        u = wiggleJoint(joint_id, frequency, t)
+        x += u * param.dt # Update robot state
+        f = fkin(x, param)
+        fhist[:,fhist_id] = f
+        fhist_id = (fhist_id+1) % 400
+
+        t += delta / 1000.0
+        if t > tmax:
+            t = 0.0
+            x = np.array(x0)
+            joint_id = (joint_id+1) % param.nbVarX
+            fhist = np.tile(np.array(fkin(x,param)).reshape(-1,1), [1,400])
+            for i in range(param.nbVarX):
+                formula_el[i].setAttribute('hidden', 'hidden')
+            formula_el[joint_id].removeAttribute('hidden')
+
+        # Rendering
+        clear_screen()
+        draw_robot(x)
+        draw_trace(fhist)
+
+
+    configure({
+        'loop': loop,
+    })
+</script>

@@ -5,12 +5,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>reveal.js</title>
+    <title>Tutorial at International Humanoid Forum 2025</title>
 
-    <link rel="stylesheet" href="slides/reveal/reset.css">
-    <link rel="stylesheet" href="slides/reveal/reveal.css">
-    <link rel="stylesheet" href="slides/reveal/theme/white.css">
-    <link href="https://pyscript.net/releases/2024.8.2/core.css" rel="stylesheet"/>
+	<link href="../css/permanent_marker.css" rel="stylesheet">
+    <link rel="stylesheet" href="reveal/reset.css">
+    <link rel="stylesheet" href="reveal/reveal.css">
+    <link rel="stylesheet" href="reveal/theme/white.css">
+    <link href="../css/katex.min.css" rel="stylesheet">
+    <link href="https://pyscript.net/releases/2024.8.2/core.css" rel="stylesheet">
 
     <!-- Theme used for syntax highlighted code -->
     <!-- <link rel="stylesheet" href="plugin/highlight/monokai.css"> -->
@@ -19,13 +21,16 @@
         packages = ['numpy']
         terminal = false
         [[fetch]]
-            from = 'viewer3d/'
+            from = '../viewer3d/'
             files = ['viewer3d.py']
     </py-config>
 
     <!-- <script type="module" src="https://pyscript.net/releases/2024.8.2/core.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/reveal.js-plugins@latest/loadcontent/plugin.js"></script>
-    <script src="js/editor.bundle.js"></script>
+    <script src="../js/editor.bundle.js"></script>
+    <script src="../js/katex.min.js"></script>
+    <script src="../js/katex-auto-render.js"></script>
+    <script src="../js/glslrenderer.js"></script>
 
     <!-- Import all the necessary JavaScript dependency modules -->
     <script src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
@@ -34,12 +39,14 @@
             "imports": {
                 "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
                 "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
-                "mujoco": "./viewer3d/jsm/mujoco_wasm.js",
+                "mujoco": "../viewer3d/jsm/mujoco_wasm.js",
                 "katex": "https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.mjs",
                 "mathjs": "https://cdn.jsdelivr.net/npm/mathjs@12.0.0/+esm"
             }
         }
     </script>
+
+    <script type="module" src="../3d_sandboxes/postprocessing/sdfpass.js"></script>
 
     <style>
         .python-editor {
@@ -87,18 +94,77 @@
 <body>
     <div class="reveal">
         <div class="slides">
-            <section>Test of integration</section>
-            <section data-load="slides/ik2d.html" data-code="ik2d"></section>
-            <section data-load="slides/bimanual2d.html" data-code="bimanual2d"></section>
-            <section data-load="slides/ik3d.html" data-code="ik3d"></section>
-            <section>Normal slide</section>
+        
+        	<section data-background="#eee">
+        		<br><br><br><br>
+				<h1>Tutorial on Programming Humanoid Robots</h1>
+				<br>
+				<h6 style="color: #999;">International Humanoid Forum — February 21, 2025</h6>
+				<br><br><br><br>
+				<h2>Sylvain Calinon</h2>
+				<h3>Idiap Research Institute</h3>
+            </section>
+            
+            <section>
+            	<img src="images/Idiap01.jpg" class="r-stretch">
+            </section>
+            
+            <section>
+            	<img src="images/RCFSwithContributors01.jpg" class="r-stretch">
+            </section>
+            
+            <section>
+            	<h2>Why is it hard to program a humanoid robot?</h2>
+            	<img src="images/whyisroboticshard01.jpg" class="r-stretch">
+            </section>
+            
+            <section>
+            	<h2>Forward kinematics</h2>
+            	<img src="images/FK01.png" class="r-stretch">
+            </section>
+            
+            <!--
+			<section>
+				<h6>Stack Example</h6>
+				<div class="r-stack">
+					<p class="fragment fade-in-then-out">One</p>
+					<p class="fragment fade-in-then-out">Two</p>
+					<p class="fragment fade-in-then-out">Three</p>
+					<p class="fragment fade-in-then-out">Four</p>
+				</div>
+				<div class="r-stack">
+					<img src="https://placekittens.com/g/450/300" width="450" height="300" class="fragment">
+					<img src="https://placekittens.com/g/300/450" width="300" height="450" class="fragment">
+					<img src="https://placekittens.com/g/400/400" width="400" height="400" class="fragment">
+				</div>
+			</section>
+			-->
+			
+            <section data-load="fk2d.html" data-code="fk2d"></section>
+            <section data-load="jacobian2d.html" data-code="jacobian2d"></section>
+            <section data-load="jacobian3d.html" data-code="jacobian3d"></section>
+            <section data-load="ik2d.html" data-code="ik2d"></section>
+            <section data-load="ik2d_damped.html" data-code="ik2d_damped"></section>
+            <section data-load="ik2d_weighted.html" data-code="ik2d_weighted"></section>
+            <section data-load="ik2d_prioritized.html" data-code="ik2d_prioritized"></section>
+            <section data-load="ik3d.html" data-code="ik3d"></section>
+            <section data-load="bimanual2d.html" data-code="bimanual2d"></section>
+            <section data-load="humanoid2d_ik.html" data-code="humanoid2d_ik"></section>
+            <section data-load="humanoid2d_com.html" data-code="humanoid2d_com"></section>
+            <section data-load="impedance2d_joint.html" data-code="impedance2d_joint"></section>
+            <section data-load="impedance2d_task.html" data-code="impedance2d_task"></section>
+            <section data-load="impedance2d_sdf.html" data-code="impedance2d_sdf"></section>
+            <section data-load="impedance3d_joint.html" data-code="impedance3d_joint"></section>
+            <section data-load="impedance3d_task.html" data-code="impedance3d_task"></section>
+            <section data-load="impedance3d_sdf.html" data-code="impedance3d_sdf"></section>
+            <section data-load="iLQR.html" data-code="ilqr"></section>
         </div>
     </div>
 
 
     <script type="module">
-        import Reveal from './slides/reveal/reveal.esm.js';
-        import { initViewer3D, initPyScript, downloadScene, downloadPandaRobot, downloadG1Robot } from './viewer3d/viewer3d.js';
+        import Reveal from './reveal/reveal.esm.js';
+        import { initViewer3D, initPyScript, downloadScene, downloadPandaRobot, downloadG1Robot } from '../viewer3d/viewer3d.js';
 
         let currentPageParams = null;
 
@@ -116,6 +182,13 @@
         Reveal.initialize({
             hash: true,
             plugins: [ RevealLoadContent ],
+            width: 1600, 
+			height: 900,
+        });
+
+
+        Reveal.on('ready', (event) => {
+            convertMath();
         });
 
 
@@ -291,12 +364,57 @@
             }
         }
 
+
+        // Convert the LaTeX formulas into HTML
+        function convertMath()
+        {
+            const elements = document.getElementsByClassName("ltx_Math");
+            const macros = {
+                '\\tp': '\\text{\\tiny{#1}}',
+                '\\trsp' : '\\top',
+                '\\psin' : '\\dagger',
+                '\\eqref': '\\href{###1}{(\\text{#1})}',
+                '\\ref': '\\href{###1}{\\text{#1}}',
+                '\\label': '\\htmlId{#1}{}'
+            };
+
+            for (let element of elements) {
+                katex.render(element.textContent, element, {
+                    throwOnError: false,
+                    macros
+                });
+            }
+
+            renderMathInElement(document.body, {
+                trust: (context) => ['\\htmlId', '\\href'].includes(context.command),
+                macros: macros,
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\begin{equation}', right: '\\end{equation}', display: true},
+                    {left: '\\begin{equation*}', right: '\\end{equation*}', display: true},
+                    {left: '\\begin{align}', right: '\\end{align}', display: true},
+                    {left: '\\begin{align*}', right: '\\end{align*}', display: true},
+                    {left: '\\begin{alignat}', right: '\\end{alignat}', display: true},
+                    {left: '\\begin{gather}', right: '\\end{gather}', display: true},
+                    {left: '\\begin{CD}', right: '\\end{CD}', display: true},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false,
+                ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'option', 'py-repl'],
+            });
+        }
+
+
         function setAspectRatio(id, ratio)
         {
             aspectRatios[id] = ratio;
 
             const element = document.getElementById(id);
             element.style.height = '' + (element.clientWidth * ratio) + 'px';
+
+            window.dispatchEvent(new Event('resize'));
         }
 
         window.onresize = (evt) => {
@@ -315,7 +433,8 @@
         initViewer3D();
         initPyScript();
 
-        await downloadScene('3d_sandboxes/scenes/panda.xml');
+        await downloadScene('../3d_sandboxes/scenes/panda.xml');
+        await downloadScene('../3d_sandboxes/scenes/panda_ghost.xml');
         await downloadPandaRobot();
     </script>
 
@@ -328,8 +447,6 @@
         from js import document, console
         from js import _configure as _jsConfigure
         from js import _stopContentLoop as _jsStopContentLoop
-        # from js import _getScript as _jsGetScript
-        # from js import _getData as _jsGetData
         from js import _createEditors as _jsCreateEditors
         from js import _setAspectRatio as _jsSetAspectRatio
         from js import Reveal
@@ -500,8 +617,6 @@
         _rcfs.executePythonScript = _executePythonScript
         _rcfs.executePythonCode = _executePythonCode
         _rcfs.executePythonCodeAsModule = _executePythonCodeAsModule
-        # _rcfs.getScript = _jsGetScript
-        # _rcfs.getData = _jsGetData
         _rcfs.setAspectRatio = _jsSetAspectRatio
 
         sys.modules['rcfs'] = _rcfs
@@ -509,7 +624,11 @@
 
         def onReady(event):
             _jsCreateEditors()
-            # _executePythonScript('page_code')
+
+            currentSlide = Reveal.getCurrentSlide()
+            if currentSlide.hasAttribute('data-code'):
+                prefix = currentSlide.getAttribute('data-code')
+                _executePythonScript(prefix + '_page_code')
 
 
         async def onSlideChanged(event):

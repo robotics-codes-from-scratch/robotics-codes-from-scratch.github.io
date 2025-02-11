@@ -1,23 +1,23 @@
-<h3>Inverse kinematics (IK)</h3>
+<h3>Damped inverse kinematics</h3>
 
 <div style="display: inline-block; width: 49%; vertical-align: top;">
-    <editor id="editor-ik" src="ik2d_user_code"></editor>
+    <editor id="ik2d_damped_editor-ik" src="ik2d_damped_user_code"></editor>
 
     <div style="font-size: 20px; margin-top: 20px; margin-bottom: 20px;">
-        <input class="w-72" id="object_angle" max="3.14159" min="-3.14159" step="0.0001" style="vertical-align:middle;" type="range" value="0"/>
+        <input class="w-72" id="ik2d_damped_object_angle" max="3.14159" min="-3.14159" step="0.0001" style="vertical-align:middle;" type="range" value="0"/>
         <label>Object orientation</label>
     </div>
 
-    <pre id="ik2d_errors" class="py-error"></pre>
-    <pre id="ik2d_output" class="py-output"></pre>
+    <pre id="ik2d_damped_errors" class="py-error"></pre>
+    <pre id="ik2d_damped_output" class="py-output"></pre>
 </div>
 
 <div style="display: inline-block; width: 49%; vertical-align: top;">
-    <canvas height="700px" id="ik2d_canvas" style="width:100%;" width="900px"></canvas>
+    <canvas height="700px" id="ik2d_damped_canvas" style="width:100%;" width="900px"></canvas>
 </div>
 
 
-<script id="ik2d_user_code" type="python">
+<script id="ik2d_damped_user_code" type="python">
     # Initialization
     x = [-np.pi/4, np.pi/2, np.pi/4] # Initial robot state
 
@@ -26,23 +26,20 @@
         f = fkin(x, param)
         J = Jkin(x, param)
 
-        u = np.linalg.pinv(J) @ logmap(param.Mu, f) # Position & orientation tracking
-        # u = np.linalg.pinv(J[:2,:]) @ (param.Mu[:2] - f[:2]) # Position tracking
-        # u = np.linalg.pinv(J[2:,:]) @ (param.Mu[2:] - f[2:]) # Orientation tracking
-        # u = J.T @ logmap(param.Mu, f) * 1E-4 # Gradient-based tracking
-        # u = np.zeros(param.nbVarX) # Zero control commands
+        pinvJ = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E1) @ J.T # Damped pseudoinverse
+        u = pinvJ @ logmap(param.Mu, f) # Position & orientation tracking
 
         return 0.1 * u / param.dt   # Velocity in rad/s
 </script>
 
 
-<script id="ik2d_page_code" type="python">
+<script id="ik2d_damped_page_code" type="python">
     from pyodide.ffi import create_proxy
     from js import Path2D, document
     from rcfs import configure, displayError
     import numpy as np
 
-    object_angle = document.getElementById('object_angle')  # Objects angle
+    object_angle = document.getElementById('ik2d_damped_object_angle')  # Objects angle
 
     #########################################################################################
     base1_svg = Path2D.new('m -40.741975,77.319831 c -0.47247,-4.03869 7.32825,-20.1653 10.1171,-22.57617 4.71807,-4.07862 14.00201,-4.3722 15.87822,-6.89366 1.16821,-1.06725 1.19306,-2.45846 1.19136,-4.984461 -0.005,-6.836939 0.0375,-38.9164375 -0.0588,-42.62054746 C -13.757555,-5.2728275 -9.8130348,-13.34661 -0.02248483,-13.67734 7.5903552,-13.93451 13.741895,-7.1292375 13.608255,-0.84839739 13.474625,5.4324325 13.073715,50.200081 13.741895,54.075491 c 0.66817,3.8754 3.0736,26.72695 3.0736,26.72695 l -53.47684,-0.23624 c -3.68777,-0.0163 -4.0806,-3.24637 -4.0806,-3.24637 z')
@@ -200,7 +197,7 @@
 
     #########################################################################################
 
-    canvas = document.getElementById('ik2d_canvas')
+    canvas = document.getElementById('ik2d_damped_canvas')
     ctx = canvas.getContext('2d')
 
     def clear_screen():
@@ -394,7 +391,7 @@
     configure({
        'loop': loop,
        'cleanup': cleanup,
-       'output': 'ik2d_output',
-       'errors': 'ik2d_errors',
+       'output': 'ik2d_damped_output',
+       'errors': 'ik2d_damped_errors',
     })
 </script>
