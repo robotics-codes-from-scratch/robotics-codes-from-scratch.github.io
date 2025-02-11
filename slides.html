@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>reveal.js</title>
+
+    <link rel="stylesheet" href="slides/reveal/reset.css">
+    <link rel="stylesheet" href="slides/reveal/reveal.css">
+    <link rel="stylesheet" href="slides/reveal/theme/white.css">
+    <link href="https://pyscript.net/releases/2024.8.2/core.css" rel="stylesheet"/>
+
+    <!-- Theme used for syntax highlighted code -->
+    <!-- <link rel="stylesheet" href="plugin/highlight/monokai.css"> -->
+
+    <py-config type="toml">
+        packages = ['numpy']
+        terminal = false
+        [[fetch]]
+            from = 'viewer3d/'
+            files = ['viewer3d.py']
+    </py-config>
+
+    <!-- <script type="module" src="https://pyscript.net/releases/2024.8.2/core.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js-plugins@latest/loadcontent/plugin.js"></script>
+    <script src="js/editor.bundle.js"></script>
+
+    <!-- Import all the necessary JavaScript dependency modules -->
+    <script src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+                "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+                "mujoco": "./viewer3d/jsm/mujoco_wasm.js",
+                "katex": "https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.mjs",
+                "mathjs": "https://cdn.jsdelivr.net/npm/mathjs@12.0.0/+esm"
+            }
+        }
+    </script>
+
+    <style>
+        .python-editor {
+            box-sizing: border-box;
+            font-size: 12px;
+            text-align: initial;
+        }
+
+        .python-editor .cm-editor {
+            background-color: #EEEEEE;
+        }
+
+        .py-output {
+            font-size: 14px !important;
+            max-height: 100em;
+            color: rgb(33, 37, 41);
+            padding: 0.5rem;
+            overflow: auto;
+            border: 1px solid #DDDDDD;
+        }
+
+        .py-output:empty {
+            display: none;
+        }
+
+        .py-error {
+            border: 1px solid red;
+            background: rgb(255, 221, 221);
+            color: black;
+            font-family: courier, monospace;
+            font-size: 14px !important;
+            white-space: pre;
+            overflow-x: auto;
+            padding: 8px;
+            margin-top: 8px;
+        }
+
+        .py-error:empty {
+            display: none;
+        }
+    </style>
+</head>
+
+
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <section>Test of integration</section>
+            <section data-load="slides/ik2d.html" data-code="ik2d"></section>
+            <section data-load="slides/bimanual2d.html" data-code="bimanual2d"></section>
+            <section data-load="slides/ik3d.html" data-code="ik3d"></section>
+            <section>Normal slide</section>
+        </div>
+    </div>
+
+
+    <script type="module">
+        import Reveal from './slides/reveal/reveal.esm.js';
+        import { initViewer3D, initPyScript, downloadScene, downloadPandaRobot, downloadG1Robot } from './viewer3d/viewer3d.js';
+
+        let currentPageParams = null;
+
+        let mustStopLoop = false;
+        let mustCallRun = false;
+        let isLoopRunning = false;
+        let loopStartTime = null;
+        let loopPreviousTime = null;
+        let aspectRatios = {};
+
+        const tasks = [];
+        let isExecutingTasks = false;
+
+
+        Reveal.initialize({
+            hash: true,
+            plugins: [ RevealLoadContent ],
+        });
+
+
+        function configure(params)
+        {
+            currentPageParams = params;
+
+            document._setOutputTargets(
+                currentPageParams.has('output') ? currentPageParams.get('output') : null,
+                currentPageParams.has('errors') ? currentPageParams.get('errors') : null,
+            );
+
+            if (currentPageParams.has('setup'))
+            {
+                if (!Array.isArray(currentPageParams.get('setup')))
+                    currentPageParams.set('setup', new Array(currentPageParams.get('setup')));
+            }
+
+            tasks.push(async () => {
+                let runFunction = null;
+
+                if (currentPageParams.has('loop'))
+                {
+                    runFunction = () => {
+                        mustCallRun = true;
+                    };
+                }
+                else if (currentPageParams.has('run'))
+                {
+                    runFunction = async () => {
+                        await currentPageParams.get('run')();
+                    };
+                }
+            });
+
+            if (currentPageParams.has('setup'))
+            {
+                currentPageParams.get('setup').forEach((item, index) => {
+                    tasks.push(item);
+                });
+            }
+
+            if (currentPageParams.has('loop'))
+            {
+                tasks.push(async () => {
+                    mustStopLoop = false;
+                    isLoopRunning = true;
+                    window.requestAnimationFrame(executeContentLoop);
+                });
+            }
+
+            if (!isExecutingTasks)
+                executeNextTask();
+
+            // hideSplashScreen();
+        }
+
+
+        async function executeContentLoop(time)
+        {
+            if (loopStartTime === null)
+            {
+                loopStartTime = time;
+                loopPreviousTime = time;
+            }
+
+            if (mustCallRun)
+            {
+                mustCallRun = false;
+                loopStartTime = null;
+
+                if (currentPageParams.has('run'))
+                {
+                    window.requestAnimationFrame(async () => {
+                        await currentPageParams.get('run')();
+                        window.requestAnimationFrame(executeContentLoop);
+                    });
+                }
+                else
+                {
+                    window.requestAnimationFrame(executeContentLoop);
+                }
+
+                return;
+            }
+
+            await currentPageParams.get('loop')(time - loopPreviousTime, time - loopStartTime);
+
+            loopPreviousTime = time;
+
+            if (!mustStopLoop)
+                window.requestAnimationFrame(executeContentLoop);
+            else
+                isLoopRunning = false;
+        }
+
+
+        async function stopContentLoop()
+        {
+            if (currentPageParams == null)
+                return;
+
+            if (isLoopRunning)
+            {
+                mustStopLoop = true;
+
+                while (isLoopRunning)
+                    await new Promise(r => setTimeout(r, 1));
+            }
+
+            if (currentPageParams.has('cleanup'))
+                await currentPageParams.get('cleanup')();
+        }
+
+
+        function executeNextTask()
+        {
+            if (tasks.length > 0)
+            {
+                window.requestAnimationFrame(async (time) => {
+                    const task = tasks.splice(0, 1)[0];
+                    await task();
+                    executeNextTask();
+                });
+
+                isExecutingTasks = true;
+            }
+            else
+            {
+                isExecutingTasks = false;
+            }
+        }
+
+
+        function createEditors()
+        {
+            const editors = document.getElementsByTagName('editor');
+
+            // if (editors.length > 0)
+            //     displaySplashScreen('Creating editors...');
+
+            for (let i = 0; i < editors.length; ++i)
+            {
+                const element = editors[i];
+                element.className = 'python-editor';
+
+                let userCode = '';
+
+                if (element.hasAttribute('src'))
+                    userCode = document._getPythonScript(element.getAttribute('src'));
+                else if (element.hasAttribute('script'))
+                    userCode = getScript(element.getAttribute('script'));
+
+                element.editor = CodeEditor.create(
+                    element.id,
+                    userCode,
+                    (code) => {
+                        document._pushOutputTargets(
+                            element.hasAttribute('output') ? element.getAttribute('output') : null,
+                            element.hasAttribute('errors') ? element.getAttribute('errors') : null,
+                        );
+                        
+                        document._clearOutputTargets();
+                        document._executePythonCode(code);
+
+                        mustCallRun = true;
+
+                        document._popOutputTargets();
+                    }
+                )
+
+                element.editor.defaultCode = userCode;
+            }
+        }
+
+        function setAspectRatio(id, ratio)
+        {
+            aspectRatios[id] = ratio;
+
+            const element = document.getElementById(id);
+            element.style.height = '' + (element.clientWidth * ratio) + 'px';
+        }
+
+        window.onresize = (evt) => {
+            for (const [key, value] of Object.entries(aspectRatios)) {
+                const element = document.getElementById(key);
+                element.style.height = '' + (element.clientWidth * value) + 'px';
+            }
+        };
+
+        globalThis._createEditors = createEditors;
+        globalThis._configure = configure;
+        globalThis._stopContentLoop = stopContentLoop;
+        globalThis._setAspectRatio = setAspectRatio;
+        globalThis.Reveal = Reveal;
+
+        initViewer3D();
+        initPyScript();
+
+        await downloadScene('3d_sandboxes/scenes/panda.xml');
+        await downloadPandaRobot();
+    </script>
+
+
+    <script type="py">
+        # This script defines the API usable from Python scripts in individual pages,
+        # accessible by doing "from rcfs import ..."
+        from pyscript import display
+        from pyodide.ffi import to_js, create_proxy
+        from js import document, console
+        from js import _configure as _jsConfigure
+        from js import _stopContentLoop as _jsStopContentLoop
+        # from js import _getScript as _jsGetScript
+        # from js import _getData as _jsGetData
+        from js import _createEditors as _jsCreateEditors
+        from js import _setAspectRatio as _jsSetAspectRatio
+        from js import Reveal
+        import types
+        import sys
+        import traceback
+
+
+        _output = None
+        _errors = None
+        _savedOutput = None
+        _savedErrors = None
+        _errorMessageDisplayed = False
+
+        _display = display
+
+        def display(*kargs, **kwargs):
+            if ('target' not in kwargs) and (_output is not None):
+                kwargs['target'] = _output
+
+            if len(kargs) == 0:
+                kargs = ['\n']
+
+            _display(*kargs, **kwargs)
+            console.log(*[ repr(x) for x in kargs ])
+
+        print = display
+
+
+        def _displayError(exception):
+            global _errorMessageDisplayed
+
+            if _errorMessageDisplayed:
+                return
+
+            text = traceback.format_exception(exception)
+            text = ''.join(text)
+            console.log(text)
+
+            if _errors:
+                el = document.getElementById(_errors)
+                if el:
+                    el.textContent= text
+
+            _errorMessageDisplayed = True
+
+
+        def _clearOutputTargets():
+            global _errorMessageDisplayed
+
+            if _output:
+                el = document.getElementById(_output)
+                if el:
+                    el.innerText = ''
+
+            if _errors:
+                el = document.getElementById(_errors)
+                if el:
+                    el.innerText = ''
+
+            _errorMessageDisplayed = False
+
+
+        def _setOutputTargets(output, errors):
+            global _output, _errors
+
+            _output = output
+            _errors = errors
+
+
+        def _pushOutputTargets(output, errors):
+            global _output, _errors, _savedOutput, _savedErrors
+
+            if output is not None:
+                _savedOutput = _output
+                _output = output
+
+            if errors is not None:
+                _savedErrors = _errors
+                _errors = errors
+
+
+        def _popOutputTargets():
+            global _output, _errors, _savedOutput, _savedErrors
+
+            if _savedOutput is not None:
+                _output = _savedOutput
+                _savedOutput = None
+
+            if _savedErrors is not None:
+                _errors = _savedErrors
+                _savedErrors = None
+
+
+        def _configure(config):
+            _jsConfigure(to_js(config))
+
+
+        def _getPythonScript(id):
+            script = document.getElementById(id)
+            if (script is None) or (script.tagName != 'SCRIPT'):
+                return None
+
+            code = script.textContent
+
+            if code[0] == '\n':
+                code = code[1:]
+
+            if code[0] == ' ':
+                indent = 1
+                while code[indent] == ' ':
+                    indent += 1
+
+                lines = code.split('\n')
+                lines = [ l[indent:] if len(l) >= indent else l for l in lines ]
+                code = '\n'.join(lines)
+
+            if code[-1] == '\n':
+                code = code[:-1]
+
+            return code
+
+
+        def _executePythonCode(code):
+            if code is None:
+                return
+
+            try:
+                exec(code, globals())
+            except Exception as e:
+                _displayError(e)
+
+
+        def _executePythonScript(id):
+            _executePythonCode(_getPythonScript(id))
+
+
+        def _executePythonCodeAsModule(code, moduleName):
+            if code is None:
+                return
+
+            try:
+                _globals = {}
+                exec(code, _globals)
+                _module = types.ModuleType(moduleName)
+                for k in _globals.keys():
+                    setattr(_module, k, _globals[k])
+                sys.modules[moduleName] = _module
+            except Exception as e:
+                _displayError(e)
+
+
+        # Functions that must be accessible from JS
+        document._displayError = _displayError
+        document._clearOutputTargets = _clearOutputTargets
+        document._setOutputTargets = _setOutputTargets
+        document._pushOutputTargets = _pushOutputTargets
+        document._popOutputTargets = _popOutputTargets
+        document._executePythonScript = _executePythonScript
+        document._executePythonCode = _executePythonCode
+        document._getPythonScript = _getPythonScript
+
+
+        # Functions that must be accessible from Python, collected into the 'rcfs' module
+        _rcfs = types.ModuleType('rcfs')
+        _rcfs.displayError = _displayError
+        _rcfs.configure = _configure
+        _rcfs.executePythonScript = _executePythonScript
+        _rcfs.executePythonCode = _executePythonCode
+        _rcfs.executePythonCodeAsModule = _executePythonCodeAsModule
+        # _rcfs.getScript = _jsGetScript
+        # _rcfs.getData = _jsGetData
+        _rcfs.setAspectRatio = _jsSetAspectRatio
+
+        sys.modules['rcfs'] = _rcfs
+
+
+        def onReady(event):
+            _jsCreateEditors()
+            # _executePythonScript('page_code')
+
+
+        async def onSlideChanged(event):
+            if event.previousSlide.hasAttribute('data-code'):
+                await _jsStopContentLoop()
+
+            if event.currentSlide.hasAttribute('data-code'):
+                prefix = event.currentSlide.getAttribute('data-code')
+                _executePythonScript(prefix + '_page_code')
+
+
+        Reveal.on('slidechanged', create_proxy(onSlideChanged))
+
+        if Reveal.isReady():
+            onReady(None)
+        else:
+            Reveal.on('ready', create_proxy(onReady))
+    </script>
+
+</body>
+</html>

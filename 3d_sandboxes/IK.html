@@ -162,7 +162,7 @@
         u = np.linalg.pinv(J) @ logmap(mu, f)  # Position & orientation tracking
         # u = np.linalg.pinv(J[:3,:]) @ logmap(mu, f)[:3]  # Position tracking
         # u = np.linalg.pinv(J[-3:,:]) @ logmap(mu, f)[-3:]  # Orientation tracking
-        return 0.1 * u / dt  # Velocity in rad/s
+        return u / dt  # Velocity in rad/s
 </script>
 
 
@@ -178,7 +178,7 @@
         pinvJ = np.linalg.inv(J.T @ J + np.eye(7) * 1E-2) @ J.T # Damped pseudoinverse
         u = pinvJ @ logmap(mu, f)  # Position & orientation tracking
 
-        return 0.1 * u / dt  # Velocity in rad/s
+        return u / dt  # Velocity in rad/s
 </script>
 
 
@@ -204,7 +204,7 @@
         # Qr = R_aug @ Q @ R_aug.T
         # u = np.linalg.pinv(J.T @ Qr @ J) @ J.T @ Qr @ logmap(mu, f)  # Position & orientation tracking
     
-        return 0.1 * u / dt  # Velocity in rad/s
+        return u / dt  # Velocity in rad/s
 </script>
 
 
@@ -242,7 +242,7 @@
         # uo = pinvJoNp @ (e_o - Jo @ up) # Command for orientation tracking (with position tracking prioritized)
         # u = up + Np @ uo # Control commands
     
-        return 0.1 * u / dt  # Velocity in rad/s
+        return u / dt  # Velocity in rad/s
 </script>
 
 <script id="page_code" type="python">
