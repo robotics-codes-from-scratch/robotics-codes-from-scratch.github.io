@@ -18,7 +18,7 @@ section.has-dark-background, section.has-dark-background h1, section.has-dark-ba
   --r-main-color: #222;
   --r-block-margin: 20px;
   --r-heading-margin: 0 0 20px 0;
-  --r-heading-font: Source Sans Pro, Helvetica, sans-serif;
+  --r-heading-font: 'Permanent Marker', cursive;
   --r-heading-color: #222;
   --r-heading-line-height: 1.2;
   --r-heading-letter-spacing: normal;
@@ -26,7 +26,7 @@ section.has-dark-background, section.has-dark-background h1, section.has-dark-ba
   --r-heading-text-shadow: none;
   --r-heading-font-weight: 600;
   --r-heading1-text-shadow: none;
-  --r-heading1-size: 2.0em;
+  --r-heading1-size: 2.2em;
   --r-heading2-size: 1.6em;
   --r-heading3-size: 1.3em;
   --r-heading4-size: 1em;
@@ -72,9 +72,7 @@ section.has-dark-background, section.has-dark-background h1, section.has-dark-ba
 
 /*********************************************
  * HEADERS
- *********************************************/
-/*font-family: var(--r-heading-font);*/
-  
+ *********************************************/  
 .reveal h1,
 .reveal h2,
 .reveal h3,
@@ -84,7 +82,7 @@ section.has-dark-background, section.has-dark-background h1, section.has-dark-ba
   text-align: left;
   margin: var(--r-heading-margin);
   color: var(--r-heading-color);
-  font-family: 'Permanent Marker', cursive;
+  font-family: var(--r-heading-font);
   font-weight: var(--r-heading-font-weight);
   line-height: var(--r-heading-line-height);
   letter-spacing: var(--r-heading-letter-spacing);
@@ -392,3 +390,12 @@ section.top h6{
     width: 100%;
     height: 100%;
 }
+
+.hv-center{
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}  

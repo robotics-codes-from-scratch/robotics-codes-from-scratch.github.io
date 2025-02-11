@@ -95,22 +95,22 @@
     <div class="reveal">
         <div class="slides">
         
-        	<section data-background="#eee">
+        	<section data-background="images/chalkboard01.jpg">
         		<br><br><br><br>
-				<h1>Tutorial on Programming Humanoid Robots</h1>
+				<h1 style="color: #eee; opacity: 0.8;">Tutorial on Programming Humanoid Robots</h1>
 				<br>
-				<h6 style="color: #999;">International Humanoid Forum — February 21, 2025</h6>
+				<h6 style="color: #777; opacity: 0.8;">International Humanoid Forum — February 21, 2025</h6>
 				<br><br><br><br>
-				<h2>Sylvain Calinon</h2>
-				<h3>Idiap Research Institute</h3>
-            </section>
-            
-            <section>
-            	<img src="images/Idiap01.jpg" class="r-stretch">
+				<h2 style="color: #ccc; opacity: 0.8;">Sylvain Calinon</h2>
+				<h3 style="color: #ccc; opacity: 0.8;">Idiap Research Institute</h3>
             </section>
             
             <section>
             	<img src="images/RCFSwithContributors01.jpg" class="r-stretch">
+            </section>
+            
+            <section>
+            	<img src="images/Idiap01.jpg" class="r-stretch">
             </section>
             
             <section>
@@ -121,6 +121,17 @@
             <section>
             	<h2>Forward kinematics</h2>
             	<img src="images/FK01.png" class="r-stretch">
+            </section>
+            
+            <section>
+            	<h2>Inverse kinematics (IK)</h2>
+            	<div class="hv-center">
+            	<!--<p>$\bm{J}$</p>-->
+            	\begin{align*}
+					\bm{\dot{x}} &= \arg\min_{\bm{\dot{x}}} \; \|\bm{J}\bm{\dot{x}}-\bm{\dot{f}}\|^2 + {\color{red} \lambda \|\bm{\dot{x}}\|^2} \\
+					&= {(\bm{J}^\trsp \bm{J} + {\color{red} \lambda\bm{I}})}^{-1} \bm{J}^\trsp \bm{\dot{f}}
+				\end{align*}
+            	</div>
             </section>
             
             <!--
