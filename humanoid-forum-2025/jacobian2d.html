@@ -1,6 +1,6 @@
 <h3>Jacobian</h3>
 
-<div align='center' style='display: inline-block; width: 49%; font-size: 80%; margin-top: 13%;'>
+<div align='center' style='display: inline-block; width: 49%; margin-top: 13%;'>
     <div id='jacobian2d_formula0' class="ltx_Math">
         \bm{J}(\bm{x})=\begin{bmatrix}
         \frac{\color{#00AA00}\partial f_1}{\color{#CC0000}\partial x_1} &
@@ -38,7 +38,7 @@
     </div>
 </div>
 
-<div style="display: inline-block; width: 49%; vertical-align: top; font-size: 80%; position: relative;">
+<div style="display: inline-block; width: 49%; vertical-align: top; position: relative;">
     <canvas id='jacobian2d_canvas' style='width:100%;' width='900px' height='700px'></canvas>
     <span id='jacobian2d_x0' class="ltx_Math" style='position:absolute; left:9999px; bottom:0px;'>\color{#CC0000}x_1</span>
     <span id='jacobian2d_x1' class="ltx_Math" style='position:absolute; left:9999px; bottom:0px;'>\color{#CC5500}x_2</span>
@@ -293,9 +293,9 @@
         # Draw text on axes (with latex)
         xtmp = np.zeros(2)
         xtmp[0] = (fhist[0,fhist_id-1] - 15 + canvas.width * 0.2) * canvas.clientWidth / canvas.width
-        xtmp[1] = (- 80 + canvas.height * 0.1) * canvas.clientHeight / canvas.height
+        xtmp[1] = (- 60 + canvas.height * 0.1) * canvas.clientHeight / canvas.height
         f_el[0].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # Horizontal axis
-        xtmp[0] = (- 80 + canvas.width * 0.2) * canvas.clientWidth / canvas.width
+        xtmp[0] = (- 60 + canvas.width * 0.2) * canvas.clientWidth / canvas.width
         xtmp[1] = (fhist[1,fhist_id-1] - 15 + canvas.height * 0.1) * canvas.clientHeight / canvas.height
         f_el[1].setAttribute('style', 'position:absolute; left:%dpx; bottom:%dpx;' % (xtmp[0],xtmp[1])) # Vertical axis
 
