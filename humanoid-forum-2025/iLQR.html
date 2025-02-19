@@ -19,8 +19,14 @@
 
 <h3>Iterative linear quadratic regulator (iLQR)</h3>
 
-<div style="display: inline-block; width: 49%; vertical-align: top;">
+<div style="display: inline-block; width: 49%; height: 100%; vertical-align: top;">
     <editor id="ilqr_editor" src="ilqr_user_code"></editor>
+    <pre id="ilqr_errors" class="py-error"></pre>
+    <pre id="ilqr_output" class="py-output"></pre>
+</div>
+
+<div style="display: inline-block; width: 49%; height: 100%; vertical-align: top;">
+    <canvas height="700px" id="ilqr_canvas" style="width:100%;" width="900px"></canvas>
 
     <table class="ilqr" style="margin-top: 20px; font-size: 18px;">
         <tr>
@@ -45,13 +51,6 @@
             <td><label>Bounding box</label></td><td><input id="ilqr_use_boundingbox" type="checkbox"/></td>
         </tr>
     </table>
-
-    <pre id="ilqr_errors" class="py-error"></pre>
-    <pre id="ilqr_output" class="py-output"></pre>
-</div>
-
-<div style="display: inline-block; width: 49%; vertical-align: top;">
-    <canvas height="700px" id="ilqr_canvas" style="width:100%;" width="900px"></canvas>
 </div>
 
 
@@ -544,7 +543,7 @@
     configure({
         'loop': loop,
         'cleanup': cleanup,
-        'output': 'output',
-        'errors': 'errors',
+        'output': 'ilqr_output',
+        'errors': 'ilqr_errors',
     })
 </script>

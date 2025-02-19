@@ -1,13 +1,13 @@
 ﻿<h3>Impedance control in joint space</h3>
 
-<div style="display: inline-block; width: 49%; vertical-align: top;">
+<div style="display: inline-block; width: 49%; height: 100%; vertical-align: top;">
     <editor id="impedance3d_joint_editor" src="impedance3d_joint_user_code"></editor>
 
     <pre id="impedance3d_joint_errors" class="py-error"></pre>
     <pre id="impedance3d_joint_output" class="py-output"></pre>
 </div>
 
-<div style="display: inline-block; width: 49%; vertical-align: top;">
+<div style="display: inline-block; width: 49%; height: 100%; vertical-align: top;">
     <div id="impedance3d_joint_viewer3d" style="width: 100%; height: 400px;"></div>
 </div>
 
@@ -165,6 +165,7 @@
 
     async def cleanup():
         global viewer3D
+        viewer3D.dispose()
         viewer3D = None
         document.getElementById('impedance3d_joint_viewer3d').innerHTML = ''
 

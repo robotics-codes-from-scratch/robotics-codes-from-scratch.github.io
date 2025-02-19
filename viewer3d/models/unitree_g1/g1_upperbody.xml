@@ -319,18 +319,4 @@
     <gyro site="imu_in_pelvis" name="imu-pelvis-angular-velocity" cutoff="34.9" noise="0.0005"/>
     <accelerometer site="imu_in_pelvis" name="imu-pelvis-linear-acceleration" cutoff="157" noise="0.01"/>
   </sensor>
-
-  <keyframe>
-    <key name="stand"
-      qpos="
-      0 0 0
-      0.2 0.2 0 1.28 0 0 0
-      0.2 -0.2 0 1.28 0 0 0
-      "
-      ctrl="
-      0 0 0
-      0.2 0.2 0 1.28 0 0 0
-      0.2 -0.2 0 1.28 0 0 0
-      "/>
-  </keyframe>
 </mujoco>

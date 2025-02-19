@@ -104,6 +104,10 @@ class Viewer3D:
         )
 
 
+    def dispose(self):
+        self.viewer.dispose()
+
+
     @property
     def domElement(self):
         """Returns the DOM element containing the 3D viewer"""
@@ -788,14 +792,20 @@ class KinematicChain:
 
 
     @property
+    def jointPositions(self):
+        """Returns the position of the joints of the kinematic chain (as a NumPy array)"""
+        return np.array(self.chain.getJointPositions().to_py())
+
+
+    @property
     def control(self):
-        """Returns the position of the joints of the robot (as a NumPy array)"""
-        return np.array(self.chain.robot.getControl().to_py())
+        """Returns the control of the joints of the kinematic chain (as a NumPy array)"""
+        return np.array(self.chain.getControl().to_py())
 
 
     @control.setter
     def control(self, control):
-        """Sets the position of the joints of the robot
+        """Sets the control of the joints of the kinematic chain
 
         Parameters:
             positions (list/NumpPy array): the joint positions
@@ -803,7 +813,13 @@ class KinematicChain:
         if isinstance(control, np.ndarray):
             control = list(control)
 
-        self.chain.robot.setControl(to_js(control))
+        self.chain.setControl(to_js(control))
+
+
+    @property
+    def actuators(self):
+        """Returns the ids of the actuators part of this kinematic chain"""
+        return self.chain.actuators.to_py()
 
 
 
@@ -869,6 +885,20 @@ class Robot:
     def jointVelocities(self):
         """Returns the velocities of the joints of the robot (as a NumPy array)"""
         return np.array(self.robot.getJointVelocities().to_py())
+
+
+    @property
+    def com(self):
+        pos = self.robot.getCoM().to_py()
+        return np.array([pos.x, pos.y, pos.z])
+
+
+    def actuatorIndices(self, actuators):
+        """Returns the ids of the actuators part of this kinematic chain"""
+        if isinstance(actuators, np.ndarray):
+            actuators = list(actuators)
+
+        return np.array(self.robot.getActuatorIndices(to_js(actuators)).to_py())
 
 
     @property
@@ -965,13 +995,13 @@ class Robot:
         self.robot._enableTools(enabled)
 
 
-    def getKinematicChainForJoint(joint):
-        chainjs = this.robot.getKinematicChainForJoint(joint)
+    def getKinematicChainForJoint(self, joint):
+        chainjs = self.robot.getKinematicChainForJoint(joint)
         return KinematicChain(chainjs)
 
 
-    def getKinematicChainForTool(index=0):
-        chainjs = this.robot.getKinematicChainForTool(index)
+    def getKinematicChainForTool(self, index=0):
+        chainjs = self.robot.getKinematicChainForTool(index)
         return KinematicChain(chainjs)
 
 
@@ -1391,6 +1421,9 @@ class Point(Object3D):
         super().__init__(pointjs)
 
 
+    def setTexture(self, url):
+        self.object.setTexture(url)
+
 
 class Gaussian(Object3D):
     """A gaussian, that can be placed in the scene
@@ -1449,6 +1482,40 @@ class PhysicalBody:
         pos = self.body.position()
         return np.array([pos.x, pos.y, pos.z])
 
+
+    @position.setter
+    def position(self, position):
+        """Sets the position of the object
+
+        Parameters:
+            position (list/NumpPy array): the desired object position
+        """
+        pos = three.Vector3.new(position[0], position[1], position[2])
+        self.body.setPosition(pos)
+
+
+    @property
+    def orientation(self):
+        """Returns the orientation (x, y, z, w) of the object (as a NumPy array)"""
+        orient = self.body.orientation()
+
+        return np.array([
+            orient.x,
+            orient.y,
+            orient.z,
+            orient.w,
+        ])
+
+
+    @orientation.setter
+    def orientation(self, orientation):
+        """Sets the orientation of the object
+
+        Parameters:
+            orientation (list/NumpPy array): the desired object orientation (x, y, z, w)
+        """
+        quat = three.Quaternion.new(orientation[0], orientation[1], orientation[2], orientation[3])
+        self.body.setOrientation(quat)
 
 
 def q2R(q):

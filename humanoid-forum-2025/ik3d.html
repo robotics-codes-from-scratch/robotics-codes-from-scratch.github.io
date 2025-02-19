@@ -1,13 +1,13 @@
 ﻿<h3>Inverse kinematics (IK)</h3>
         
-<div style="display: inline-block; width: 49%; vertical-align: top;">
+<div style="display: inline-block; width: 49%; height: 100%; vertical-align: top;">
     <editor id="ik3d_editor" src="ik3d_user_code"></editor>
 
     <pre id="ik3d_errors" class="py-error"></pre>
     <pre id="ik3d_output" class="py-output"></pre>
 </div>
 
-<div style="display: inline-block; width: 49%; vertical-align: top;">
+<div style="display: inline-block; width: 49%; height: 100%; vertical-align: top;">
     <div id="ik3d_viewer3d" style="width: 100%; height: 400px;"></div>
 </div>
 
@@ -21,7 +21,7 @@
         J = Jkin(x)
         f = fkin(x)
         u = np.linalg.pinv(J) @ logmap(mu, f)  # Position & orientation tracking
-        # u = np.linalg.pinv(J[:3,:]) @ logmap(mu, f)[:3]  # Position tracking
+        # u = np.linalg.pinv(J[:3,:]) @ (mu[:3] - f[:3])  # Position tracking
         # u = np.linalg.pinv(J[-3:,:]) @ logmap(mu, f)[-3:]  # Orientation tracking
         return u / dt  # Velocity in rad/s
 </script>
@@ -105,6 +105,7 @@
 
     async def cleanup():
         global viewer3D
+        viewer3D.dispose()
         viewer3D = None
         document.getElementById('ik3d_viewer3d').innerHTML = ''
 

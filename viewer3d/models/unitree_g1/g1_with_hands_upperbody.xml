@@ -468,7 +468,7 @@
     <accelerometer name="imu-pelvis-linear-acceleration" site="imu_in_pelvis" noise="1e-2" cutoff="157"/>
   </sensor>
 
-  <keyframe>
+  <!-- <keyframe>
     <key name="stand"
       qpos="
       0 0 0
@@ -484,5 +484,5 @@
       0.2 -0.2 0 1.28 0 0 0
       0 -1.05 0 0 0 0 0
       "/>
-  </keyframe>
+  </keyframe> -->
 </mujoco>

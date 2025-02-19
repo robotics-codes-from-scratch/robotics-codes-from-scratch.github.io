@@ -1,26 +1,26 @@
 ﻿<h3>Impedance control in joint space</h3>
 
-<div style="display: inline-block; width: 49%; vertical-align: top;">
+<div style="display: inline-block; width: 49%; height: 100%; vertical-align: top;">
     <editor id="impedance2d_joint_editor" src="impedance2d_joint_user_code"></editor>
 
     <pre id="impedance2d_joint_errors" class="py-error"></pre>
     <pre id="impedance2d_joint_output" class="py-output"></pre>
 </div>
 
-<div style="display: inline-block; width: 49%; vertical-align: top;">
+<div style="display: inline-block; width: 49%; height: 100%; vertical-align: top;">
     <canvas id="impedance2d_joint_canvas" width="900px" height="900px" style="width:100%;"></canvas>
 </div>
 
 
 <script id="impedance2d_joint_user_code" type="python">
     # Initialization
-    #x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
+    # x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
     x_target = np.array([-np.pi/4, -np.pi/2, np.pi/4]) # Target in joint space
 
     param.damping = 20.0 # Viscous friction
 
-    #kP = 400.0 # Stiffness gain
-    #kV = 10.0 # Damping gain
+    # kP = 400.0 # Stiffness gain
+    # kV = 10.0 # Damping gain
 
     KP = np.diag([4E2, 4E2, 4E2]) # Joint space stiffness matrix
     KV = np.diag([1E1, 1E1, 1E1]) # Joint space damping matrix
@@ -28,9 +28,9 @@
     # Control loop definition
     def control(x, param):
         # Torques for gravity compensation
-        #ug = inverse_dynamics(np.append(x[:param.nbVarX], np.zeros(param.nbVarX)), np.zeros(param.nbVarX), param) 
+        # ug = inverse_dynamics(np.append(x[:param.nbVarX], np.zeros(param.nbVarX)), np.zeros(param.nbVarX), param) 
         ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
-        #u = kP * (x_target - x[:param.nbVarX]) - kV * x[param.nbVarX:] + ug # Impedance controller in joint space
+        # u = kP * (x_target - x[:param.nbVarX]) - kV * x[param.nbVarX:] + ug # Impedance controller in joint space
         u = KP @ (x_target - x[:param.nbVarX]) - KV @ x[param.nbVarX:] + ug # Impedance controller in joint space
         return u
 </script>

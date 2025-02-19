@@ -1,13 +1,13 @@
 ﻿<h3>Bimanual robot</h3>
 
-<div style="display: inline-block; width: 49%; vertical-align: top;">
+<div style="display: inline-block; width: 49%; height: 100%; vertical-align: top;">
     <editor id="bimanual2d_editor" src="bimanual2d_user_code"></editor>
 
     <pre id="bimanual2d_errors" class="py-error"></pre>
     <pre id="bimanual2d_output" class="py-output"></pre>
 </div>
 
-<div style="display: inline-block; width: 49%; vertical-align: top;">
+<div style="display: inline-block; width: 49%; height: 100%; vertical-align: top;">
     <canvas height="700px" id="bimanual2d_canvas" style="width:100%;" width="900px"></canvas>
 </div>
 
@@ -21,8 +21,8 @@
         f = fkin(x, param)
         J = Jkin(x, param)
 
-        #u = np.linalg.pinv(J) @ (param.Mu - f) # Control commands
-        #u = np.zeros(param.nbVarX) # Control commands
+        # u = np.linalg.pinv(J) @ (param.Mu - f) # Control commands
+        # u = np.zeros(param.nbVarX) # Control commands
 
         pinvJ = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E4) @ J.T # Damped pseudoinverse
         u = pinvJ @ (param.Mu - f) # Control commands

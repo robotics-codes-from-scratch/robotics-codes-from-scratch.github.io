@@ -1,19 +1,19 @@
 <h3>Weighted inverse kinematics</h3>
 
-<div style="display: inline-block; width: 49%; vertical-align: top;">
+<div style="display: inline-block; width: 49%; height: 100%; vertical-align: top;">
     <editor id="ik2d_weighted_editor-ik" src="ik2d_weighted_user_code"></editor>
-
-    <div style="font-size: 20px; margin-top: 20px; margin-bottom: 20px;">
-        <input class="w-72" id="ik2d_weighted_object_angle" max="3.14159" min="-3.14159" step="0.0001" style="vertical-align:middle;" type="range" value="0"/>
-        <label>Object orientation</label>
-    </div>
 
     <pre id="ik2d_weighted_errors" class="py-error"></pre>
     <pre id="ik2d_weighted_output" class="py-output"></pre>
 </div>
 
-<div style="display: inline-block; width: 49%; vertical-align: top;">
+<div style="display: inline-block; width: 49%; height: 100%; vertical-align: top;">
     <canvas height="700px" id="ik2d_weighted_canvas" style="width:100%;" width="900px"></canvas>
+
+    <div style="font-size: 20px; margin-top: 20px; margin-bottom: 20px;">
+        <input class="w-72" id="ik2d_weighted_object_angle" max="3.14159" min="-3.14159" step="0.0001" style="vertical-align:middle;" type="range" value="0"/>
+        <label>Object orientation</label>
+    </div>
 </div>
 
 

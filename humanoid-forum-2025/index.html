@@ -48,15 +48,19 @@
 
     <script type="module" src="../3d_sandboxes/postprocessing/sdfpass.js"></script>
 
-    <style>
+    <style title="custom">
         .python-editor {
             box-sizing: border-box;
             font-size: 12px;
             text-align: initial;
+            display: flex;
+            width: 100%;
+            max-height: 100%;
         }
 
         .python-editor .cm-editor {
             background-color: #EEEEEE;
+            width: 100%;
         }
 
         .py-output {
@@ -169,6 +173,9 @@
             <section data-load="impedance3d_task.html" data-code="impedance3d_task"></section>
             <section data-load="impedance3d_sdf.html" data-code="impedance3d_sdf"></section>
             <section data-load="iLQR.html" data-code="ilqr"></section>
+            <section data-load="humanoid3d_1.html" data-code="humanoid3d_1"></section>
+            <section data-load="humanoid3d_2.html" data-code="humanoid3d_2"></section>
+            <section data-load="humanoid3d_3.html" data-code="humanoid3d_3"></section>
         </div>
     </div>
 
@@ -334,12 +341,9 @@
         }
 
 
-        function createEditors()
+        function createEditors(parent)
         {
-            const editors = document.getElementsByTagName('editor');
-
-            // if (editors.length > 0)
-            //     displaySplashScreen('Creating editors...');
+            const editors = parent.getElementsByTagName('editor');
 
             for (let i = 0; i < editors.length; ++i)
             {
@@ -350,8 +354,10 @@
 
                 if (element.hasAttribute('src'))
                     userCode = document._getPythonScript(element.getAttribute('src'));
-                else if (element.hasAttribute('script'))
-                    userCode = getScript(element.getAttribute('script'));
+                else {
+                    userCode = element.textContent;
+                    element.textContent = '';
+                }
 
                 element.editor = CodeEditor.create(
                     element.id,
@@ -361,7 +367,7 @@
                             element.hasAttribute('output') ? element.getAttribute('output') : null,
                             element.hasAttribute('errors') ? element.getAttribute('errors') : null,
                         );
-                        
+
                         document._clearOutputTargets();
                         document._executePythonCode(code);
 
@@ -372,6 +378,25 @@
                 )
 
                 element.editor.defaultCode = userCode;
+            }
+        }
+
+
+        function disposeEditors(parent)
+        {
+            const editors = parent.getElementsByTagName('editor');
+
+            for (let i = 0; i < editors.length; ++i)
+            {
+                const element = editors[i];
+
+                if (element.editor != null) {
+                    const code = element.editor.getContent();
+                    element.editor.destroy();
+                    element.editor = null;
+                    element.removeAttribute('src');
+                    element.textContent = code;
+                }
             }
         }
 
@@ -428,12 +453,69 @@
             window.dispatchEvent(new Event('resize'));
         }
 
+
         window.onresize = (evt) => {
             for (const [key, value] of Object.entries(aspectRatios)) {
                 const element = document.getElementById(key);
                 element.style.height = '' + (element.clientWidth * value) + 'px';
             }
         };
+
+
+        window.onkeydown = (evt) => {
+            function _getStyle() {
+                const slide = Reveal.getCurrentSlide();
+                const editors = slide.getElementsByTagName('editor');
+                if (editors.length == 0)
+                    return [null, null, null];
+
+                const style = editors[0].style;
+
+                return [slide, editors[0].editor, style];
+            }
+
+            function _updateFontSize(increment) {
+                const [slide, editor, style] = _getStyle();
+                if (slide == null)
+                    return;
+
+                let size = (style.fontSize != '' ? parseInt(style.fontSize) : 12) + increment;
+
+                if (size >= 12) {
+                    disposeEditors(slide);
+                    style.fontSize = '' + size + 'px';
+                    createEditors(slide);
+                }
+            }
+
+            function _resetFontSize() {
+                const [slide, editor, style] = _getStyle();
+                if (slide == null)
+                    return;
+
+                disposeEditors(slide);
+                style.fontSize = '';
+                createEditors(slide);
+            }
+
+            if ((evt.key == 'ArrowUp') && (evt.ctrlKey || evt.metaKey)) {
+                _updateFontSize(2);
+                evt.preventDefault();
+                evt.stopPropagation();
+            }
+            else if ((evt.key == 'ArrowDown') && (evt.ctrlKey || evt.metaKey)) {
+                _updateFontSize(-2);
+                evt.preventDefault();
+                evt.stopPropagation();
+            }
+
+            else if ((evt.key == 'ArrowRight') && (evt.ctrlKey || evt.metaKey)) {
+                _resetFontSize();
+                evt.preventDefault();
+                evt.stopPropagation();
+            }
+        };
+
 
         globalThis._createEditors = createEditors;
         globalThis._configure = configure;
@@ -442,11 +524,16 @@
         globalThis.Reveal = Reveal;
 
         initViewer3D();
-        initPyScript();
 
         await downloadScene('../3d_sandboxes/scenes/panda.xml');
         await downloadScene('../3d_sandboxes/scenes/panda_ghost.xml');
+        await downloadScene('../3d_sandboxes/scenes/g1_upperbody.xml');
+        await downloadScene('../3d_sandboxes/scenes/g1.xml');
+        await downloadScene('./scenes/humanoid3d_3.xml');
         await downloadPandaRobot();
+        await downloadG1Robot();
+
+        initPyScript();
     </script>
 
 
@@ -634,7 +721,7 @@
 
 
         def onReady(event):
-            _jsCreateEditors()
+            _jsCreateEditors(document)
 
             currentSlide = Reveal.getCurrentSlide()
             if currentSlide.hasAttribute('data-code'):

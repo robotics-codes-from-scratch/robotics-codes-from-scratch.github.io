@@ -416,6 +416,11 @@ class KinematicChain {
     }
 
 
+    getJointPositions() {
+        return this.robot._simulator.getJointPositions(this.joints);
+    }
+
+
     getControl() {
         return this.robot._simulator.getControl(this.actuators);
     }
@@ -837,6 +842,12 @@ class Robot {
     }
 
 
+    getCoM() {
+        const bodyIdx = this.names.links.indexOf(this.configuration.robotRoot);
+        return this._simulator.getSubtreeCoM(this.links[bodyIdx]);
+    }
+
+
     getDefaultPose() {
         const pose = new Float32Array(this.joints.length);
         pose.fill(0.0);
@@ -850,6 +861,11 @@ class Robot {
 
     applyDefaultPose() {
         this.setJointPositions(this.getDefaultPose());
+    }
+
+
+    getActuatorIndices(actuators) {
+        return actuators.map((actuator) => this.actuators.indexOf(actuator));
     }
 
 
@@ -1193,9 +1209,13 @@ class Robot {
             // Update the internal state of the tool
             if ((tool.type == 'gripper') && (tool.state == 'closed')) {
                 const abduction = this.getGripperAbduction(i);
-                // console.log(abduction, this.tool._previousAbduction, this.tool._stateCounter);
                 if ((abduction > 0.01) && (Math.abs(abduction - tool._previousAbduction) < 1e-3)) {
                     tool._stateCounter++;
+
+                    if (tool._stateCounter == 5) {
+                        const pos = this._simulator.getJointPositions(tool.actuators);
+                        this._simulator.setControl(pos, tool.actuators);
+                    }
                 } else {
                     tool._stateCounter = 0;
                     tool._previousAbduction = abduction;
@@ -1292,9 +1312,22 @@ class Robot {
 
             // Tool-specific actions (if necessary)
             if (tool.type == 'gripper') {
+                // Initialise the internal state
+                if (this.configuration.tools[i].state != null) {
+                    tool.state = this.configuration.tools[i].state;
+                } else {
+                    if (this.getGripperAbduction(i) >= 0.99)
+                        tool.state = 'opened';
+                    else
+                        tool.state = 'closed';
+                }
+
                 // Create the button to use the tool
                 const img = document.createElement('img');
-                img.src = getURL('images/open_gripper.png');
+                if (tool.state == 'opened')
+                    img.src = getURL('images/close_gripper.png');
+                else
+                    img.src = getURL('images/open_gripper.png');
                 img.width = 24;
                 img.height = 24;
 
@@ -1314,12 +1347,6 @@ class Robot {
                 tool.button.object.layers.enable(31);
 
                 tool.visual.links[0].add(tool.button.object);
-
-                // Initialise the internal state
-                if (this.isGripperOpen(i))
-                    tool.state = 'opened';
-                else
-                    tool.state = 'closed';
 
                 tool._previousAbduction = this.getGripperAbduction(i);
                 tool._stateCounter = 0;
@@ -2403,6 +2430,37 @@ class PhysicsSimulator {
     }
 
 
+    setBodyPosition(bodyId, position) {
+        const jntadr = this.model.body_jntadr[bodyId];
+        this.simulation.qpos[jntadr] = position.x;
+        this.simulation.qpos[jntadr + 1] = position.y;
+        this.simulation.qpos[jntadr + 2] = position.z;
+    }
+
+
+    getBodyOrientation(bodyId) {
+        const quat = new THREE.Quaternion();
+        this._getQuaternion(this.simulation.xquat, bodyId, quat);
+        return quat;
+    }
+
+
+    setBodyOrientation(bodyId, orientation) {
+        const jntadr = this.model.body_jntadr[bodyId] + 3;
+        this.simulation.qpos[jntadr] = orientation.w;
+        this.simulation.qpos[jntadr + 1] = orientation.x;
+        this.simulation.qpos[jntadr + 2] = orientation.y;
+        this.simulation.qpos[jntadr + 3] = orientation.z;
+    }
+
+
+    getSubtreeCoM(bodyId) {
+        const pos = new THREE.Vector3();
+        this._getPosition(this.simulation.subtree_com, bodyId, pos);
+        return pos;
+    }
+
+
     createRobot(name, configuration, prefix=null) {
         const sim = this;
 
@@ -3146,6 +3204,17 @@ class PhysicsSimulator {
             buffer[(index * 3) + 1],
             buffer[(index * 3) + 2]
         );
+    }
+
+
+    /**
+     * @param {Float32Array|Float64Array} buffer
+     * @param {number} index
+     * @param {THREE.Vector3} src */
+    _setPosition(buffer, index, src) {
+        buffer[(index * 3) + 0] = src.x;
+        buffer[(index * 3) + 1] = src.y;
+        buffer[(index * 3) + 2] = src.z;
     }
 
 
@@ -5242,6 +5311,16 @@ class Point extends THREE.Object3D {
     }
 
 
+    setTexture(url) {
+        const texture = new THREE.TextureLoader().load(url);
+        // texture.wrapS = THREE.RepeatWrapping;
+        // texture.wrapT = THREE.RepeatWrapping;
+        // texture.repeat.set( 4, 4 );
+
+        this.mesh.material.map = texture;
+    }
+
+
     /* Frees the GPU-related resources allocated by this instance. Call this method whenever this
     instance is no longer used in your app.
     */
@@ -5733,6 +5812,21 @@ class PhysicalBody {
         return this.physicsSimulator.getBodyPosition(this.bodyId);
     }
 
+
+    setPosition(position) {
+        return this.physicsSimulator.setBodyPosition(this.bodyId, position);
+    }
+
+
+    orientation() {
+        return this.physicsSimulator.getBodyOrientation(this.bodyId);
+    }
+
+
+    setOrientation(orientation) {
+        return this.physicsSimulator.setBodyOrientation(this.bodyId, orientation);
+    }
+
 }
 
 /*
@@ -6029,13 +6123,13 @@ class G1Configuration extends RobotConfiguration {
         this.tools = [
             {
                 root: "right_hand",
-                tcpSite: "right_hand_tcp",
+                tcpSite: "right_tcp",
                 tcpSize: 0.08,
                 type: "generic",
             },
             {
                 root: "left_hand",
-                tcpSite: "left_hand_tcp",
+                tcpSite: "left_tcp",
                 tcpSize: 0.08,
                 type: "generic",
             },
@@ -6093,8 +6187,12 @@ class G1WithHandsConfiguration extends RobotConfiguration {
                 tcpSize: 0.08,
                 type: "gripper",
                 ignoredActuators: ['right_hand_thumb_0_joint'],
-                invertedActuators: ['right_hand_thumb_1_joint', 'right_hand_thumb_2_joint'],
+                invertedActuators: [
+                    'right_hand_index_0_joint', 'right_hand_index_1_joint',
+                    'right_hand_middle_0_joint', 'right_hand_middle_1_joint'
+                ],
                 buttonOffset: [0.1, -0.07, 0],
+                state: "opened",
             },
             {
                 root: "left_hand",
@@ -6102,8 +6200,9 @@ class G1WithHandsConfiguration extends RobotConfiguration {
                 tcpSize: 0.08,
                 type: "gripper",
                 ignoredActuators: ['left_hand_thumb_0_joint'],
-                invertedActuators: ['left_hand_middle_0_joint', 'left_hand_middle_1_joint', 'left_hand_index_0_joint', 'left_hand_index_1_joint'],
+                invertedActuators: ['left_hand_thumb_1_joint', 'left_hand_thumb_2_joint'],
                 buttonOffset: [0.1, 0.07, 0],
+                state: "opened",
             },
             {
                 root: "right_foot",
@@ -6135,8 +6234,12 @@ class G1WithHandsUpperBodyConfiguration extends RobotConfiguration {
                 tcpSize: 0.08,
                 type: "gripper",
                 ignoredActuators: ['right_hand_thumb_0_joint'],
-                invertedActuators: ['right_hand_thumb_1_joint', 'right_hand_thumb_2_joint'],
+                invertedActuators: [
+                    'right_hand_index_0_joint', 'right_hand_index_1_joint',
+                    'right_hand_middle_0_joint', 'right_hand_middle_1_joint'
+                ],
                 buttonOffset: [0.1, -0.07, 0],
+                state: "opened",
             },
             {
                 root: "left_hand",
@@ -6144,8 +6247,9 @@ class G1WithHandsUpperBodyConfiguration extends RobotConfiguration {
                 tcpSize: 0.08,
                 type: "gripper",
                 ignoredActuators: ['left_hand_thumb_0_joint'],
-                invertedActuators: ['left_hand_middle_0_joint', 'left_hand_middle_1_joint', 'left_hand_index_0_joint', 'left_hand_index_1_joint'],
+                invertedActuators: ['left_hand_thumb_1_joint', 'left_hand_thumb_2_joint'],
                 buttonOffset: [0.1, 0.07, 0],
+                state: "opened",
             },
         ];
     }
@@ -7549,6 +7653,11 @@ class Viewer3D {
 
         if (!this.parameters.get('external_loop'))
             this.render();
+    }
+
+
+    dispose() {
+        this.renderer.dispose();
     }
 
 
