@@ -3,6 +3,7 @@
     <include file="unitree_g1/g1.xml"/>
 
     <statistic center="0.3 0 0.6" extent="1.5"/>
+    <option noslip_iterations="3"/>
 
     <visual>
         <headlight diffuse="0 0 0" ambient="1 1 1"/>

@@ -114,6 +114,11 @@
             </section>
             
             <section>
+            	<p class="r-fit-text">https://rcfs.ch/humanoid-forum-2025/</p>
+            	<img class="r-stretch" src="images/qrcode01.png">
+            </section>
+            
+            <section>
             	<img src="images/Idiap01.jpg" class="r-stretch">
             </section>
             
@@ -125,17 +130,6 @@
             <section>
             	<h2>Forward kinematics</h2>
             	<img src="images/FK01.png" class="r-stretch">
-            </section>
-            
-            <section>
-            	<h2>Inverse kinematics (IK)</h2>
-            	<div class="hv-center">
-            	<!--<p>$\bm{J}$</p>-->
-            	\begin{align*}
-					\bm{\dot{x}} &= \arg\min_{\bm{\dot{x}}} \; \|\bm{J}\bm{\dot{x}}-\bm{\dot{f}}\|^2 + {\color{red} \lambda \|\bm{\dot{x}}\|^2} \\
-					&= {(\bm{J}^\trsp \bm{J} + {\color{red} \lambda\bm{I}})}^{-1} \bm{J}^\trsp \bm{\dot{f}}
-				\end{align*}
-            	</div>
             </section>
             
             <!--
@@ -158,6 +152,18 @@
             <section data-load="fk2d.html" data-code="fk2d"></section>
             <section data-load="jacobian2d.html" data-code="jacobian2d"></section>
             <section data-load="jacobian3d.html" data-code="jacobian3d"></section>
+            
+            <section>
+            	<h2>Inverse kinematics (IK)</h2>
+            	<div class="hv-center">
+            	<!--<p>$\bm{J}$</p>-->
+            	\begin{align*}
+					\bm{\dot{x}} &= \arg\min_{\bm{\dot{x}}} \; \|\bm{J}\bm{\dot{x}}-\bm{\dot{f}}\|^2 + {\color{red} \lambda \|\bm{\dot{x}}\|^2} \\
+					&= {(\bm{J}^\trsp \bm{J} + {\color{red} \lambda\bm{I}})}^{-1} \bm{J}^\trsp \bm{\dot{f}}
+				\end{align*}
+            	</div>
+            </section>
+            
             <section data-load="ik2d.html" data-code="ik2d"></section>
             <section data-load="ik2d_damped.html" data-code="ik2d_damped"></section>
             <section data-load="ik2d_weighted.html" data-code="ik2d_weighted"></section>

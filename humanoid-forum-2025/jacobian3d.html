@@ -2,6 +2,14 @@
 
 <div align="center" style="display: inline-block; width: 49%; font-size: 90%;">
     <div id='jacobian3d_formula' class="ltx_Math" style="margin-top: 30%;"></div>
+    <br><br>
+    <div class="ltx_Math">
+		\bm{\Delta f}=\bm{J}(\bm{x})\bm{\Delta x}
+	</div>
+	<br>
+	<div class="ltx_Math">
+		\bm{\dot{f}}=\bm{J}(\bm{x})\bm{\dot{x}}
+	</div>
 </div>
 
 <div style="display: inline-block; width: 49%; height: 100%; vertical-align: top;">
@@ -56,7 +64,7 @@
 
     # Function that update the Jacobian formula
     def generateLatex(joint):
-        text = '\\bm{J}(\\bm{x})=\\begin{bmatrix}\n'
+        text = '\\bm{J}(\\bm{x})=\\frac{1}{7}\\begin{bmatrix}\n'
 
         for i in range(1, 4):
             for j in range(1, 8):
@@ -64,9 +72,14 @@
                     text += ' & '
 
                 if j == joint + 1:
-                    text += '\\frac{\\color{' + f_colors[i-1] + '}\\partial f_' + str(i) + '}{\\color{' + joint_colors[j-1] + '}\\partial x_' + str(j) + '}\n'
+                    text += '\\frac{\\color{' + f_colors[i-1] + '}\\Delta f_' + str(i) + '}{\\color{' + joint_colors[j-1] + '}\\Delta x_' + str(j) + '}\n'
                 else:
-                    text += '{\\color{#CCCCCC}\\frac{\\partial f_' + str(i) + '}{\\partial x_' + str(j) + '}}\n'
+                    text += '{\\color{#CCCCCC}\\frac{\\Delta f_' + str(i) + '}{\\Delta x_' + str(j) + '}}\n'
+
+                # if j == joint + 1:
+                #     text += '\\frac{\\color{' + f_colors[i-1] + '}\\partial f_' + str(i) + '}{\\color{' + joint_colors[j-1] + '}\\partial x_' + str(j) + '}\n'
+                # else:
+                #    text += '{\\color{#CCCCCC}\\frac{\\partial f_' + str(i) + '}{\\partial x_' + str(j) + '}}\n'
 
             if i < 3:
                 text += '\\\\[2mm]\n'

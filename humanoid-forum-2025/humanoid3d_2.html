@@ -25,6 +25,14 @@ sequence = [
     [ -0.9, 0., 0., 0., 0.2, 0., 1.28, 0., 0., 0., 0., -0.478, -1.585, -0.22, 0., 0., 0., 0.7 ],
 ]
 
+# sequence = [
+#     [ 0., 0., 0., 0., 0.2, 0., 1.28, 0., 0., 0., 0., -0.2, 0., 1.28, 0., 0., 0., 1.0 ],
+#     [ 0., 0., 0., -1.5, 0.2, 0., 1.28, 0., 0., 0., -1.5, -0.2, 0., 1.28, 0., 0., 0., 1.0 ],
+#     [ 0., 0., 0., -1.5, 0.2, 0., 1.28, 0., 0., 0., -1.5, -0.2, 0., 1.28, 0., 0., 0., 2.0 ],
+#     [ 0., 0., 0., 0.3, 0.2, 0., 1.28, 0., 0., 0., 0.3, -0.2, 0., 1.28, 0., 0., 0., 1.0 ],
+#     [ 0., 0., 0., 0.3, 0.2, 0., 1.28, 0., 0., 0., 0.3, -0.2, 0., 1.28, 0., 0., 0., 2.0 ],
+# ]
+
 current = 1
 startTime = None
 startPositions = None
@@ -142,6 +150,23 @@ def control(time):
 
     async def run():
         try:
+            # Note: we need a proper way to do that in viewer3d.js
+            sim = viewer3D.viewer.physicsSimulator
+            sim.simulation.qpos[0] = 0.0
+            sim.simulation.qpos[1] = 0.0
+            sim.simulation.qpos[2] = 0.79
+            sim.simulation.qpos[3] = 1.0
+            sim.simulation.qpos[4] = 0.0
+            sim.simulation.qpos[5] = 0.0
+            sim.simulation.qpos[6] = 0.0
+
+            for i in range(7, sim.simulation.qpos.length):
+                sim.simulation.qpos[i] = 0.0
+
+            for i in range(sim.simulation.qvel.length):
+                sim.simulation.qvel[i] = 0.0
+                sim.simulation.qacc[i] = 0.0
+
             if sequence is not None:
                 robot.jointPositions = np.hstack([robot.jointPositions[:12], sequence[0][:-1]])
         except Exception as e:
