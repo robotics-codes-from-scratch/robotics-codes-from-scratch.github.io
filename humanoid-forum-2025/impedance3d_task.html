@@ -38,7 +38,7 @@
 <script id="impedance3d_task_page_code" type="python">
     from viewer3d import Viewer3D, configs, logmap_S3, logmap, Layers
     from js import document
-    from rcfs import configure, displayError, setAspectRatio
+    from rcfs import configure, displayError, setAspectRatio, ImpedancePlanarIKControls
     from pyodide.ffi import to_js
     import numpy as np
 
@@ -107,6 +107,10 @@
 
             u = control(x, f_target)
 
+            if viewer3D.viewer.planarIkControls.u is not None:
+                perturbation = viewer3D.viewer.planarIkControls.u.to_py()
+                u[:len(perturbation)] += perturbation
+
             ddx = u
             dx = np.copy(x[param.nbVarX:])
 
@@ -118,6 +122,7 @@
 
             robot.control = x[:param.nbVarX]
 
+            viewer3D.viewer.planarIkControls.u = None
         except Exception as e:
             displayError(e)
 
@@ -134,6 +139,8 @@
             'external_loop': True,
         }
     )
+
+    viewer3D.viewer.planarIkControls.u = None
 
 
     # Placeholder for the function to implement
@@ -199,7 +206,7 @@
     async def run():
         robot.jointPositions = x[:param.nbVarX]
         point.position = f_target[:3]
-        viewer3D.enableForceImpulses(True, 2000)
+        viewer3D.viewer.planarIkControls = ImpedancePlanarIKControls.new()
 
 
     async def cleanup():

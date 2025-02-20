@@ -26,7 +26,7 @@
         f = fkin(x, param)
         J = Jkin(x, param)
 
-        pinvJ = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E1) @ J.T # Damped pseudoinverse
+        pinvJ = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E3) @ J.T # Damped pseudoinverse
         u = pinvJ @ logmap(param.Mu, f) # Position & orientation tracking
 
         return 0.1 * u / param.dt   # Velocity in rad/s

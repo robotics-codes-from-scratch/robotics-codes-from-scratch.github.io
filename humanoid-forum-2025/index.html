@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="reveal/theme/white.css">
     <link href="../css/katex.min.css" rel="stylesheet">
     <link href="https://pyscript.net/releases/2024.8.2/core.css" rel="stylesheet">
+    <link href="../css/loader.css" rel="stylesheet"/>
 
     <!-- Theme used for syntax highlighted code -->
     <!-- <link rel="stylesheet" href="plugin/highlight/monokai.css"> -->
@@ -96,11 +97,21 @@
             top: 0 !important;
             height: 100%;
         }
+
+        #loader-container {
+            position: absolute;
+            right: 0;
+            z-index: 1000;
+        }
     </style>
 </head>
 
 
 <body>
+    <div id="loader-container">
+        <span class="loader"></span>
+    </div>
+
     <div class="reveal">
         <div class="slides">
         
@@ -108,7 +119,7 @@
                 <br><br><br><br>
                 <h1 style="color: #eee; opacity: 0.8;">Tutorial on Programming Humanoid Robots</h1>
                 <br>
-                <h6 style="color: #777; opacity: 0.8;">International Humanoid Forum — February 21, 2025</h6>
+                <h6 style="color: #999; opacity: 0.8;">International Humanoid Forum — February 21, 2025</h6>
                 <br><br><br><br>
                 <h2 style="color: #ccc; opacity: 0.8;">Sylvain Calinon</h2>
                 <h3 style="color: #ccc; opacity: 0.8;">Idiap Research Institute</h3>
@@ -204,7 +215,7 @@
 		            <div class="r-fit-text">
 		            \begin{align*}
 		                \bm{\dot{x}} &= \arg\min_{\bm{\dot{x}}} \; {\color{red}c(\bm{x})} \quad\text{s.t.}\quad \bm{\dot{f}}=\bm{J}\bm{\dot{x}} \\
-		                &= \bm{J}^\psin\!(\bm{x}) \; \bm{\dot{f}} {\color{red} \;+\; \bm{N}\!(\bm{x}) \; \frac{\partial c(\bm{x})}{\partial\bm{x}}
+		                &= \bm{J}^\psin\!(\bm{x}) \; \bm{\dot{f}} {\color{red} \;+\; \bm{N}\!(\bm{x}) \; \frac{\partial c(\bm{x})}{\partial\bm{x}}}
 		            \end{align*}
 		            </div>
 		        </section>
@@ -255,10 +266,13 @@
             <section data-load="ik3d.html" data-code="ik3d"></section>
             <section data-load="bimanual2d.html" data-code="bimanual2d"></section>
 
+			<section data-load="bimanual3d_ik.html" data-code="bimanual3d_ik"></section>
+			<!--
             <section>
                 <section data-load="bimanual3d_ik.html" data-code="bimanual3d_ik"></section>
                 <section data-load="bimanual3d_prioritized.html" data-code="bimanual3d_prioritized"></section>
             </section>
+            -->
 
             <!--<section data-load="humanoid2d_ik.html" data-code="humanoid2d_ik"></section>-->
             <section data-load="humanoid2d_com.html" data-code="humanoid2d_com"></section>
@@ -281,6 +295,8 @@
     <script type="module">
         import Reveal from './reveal/reveal.esm.js';
         import { initViewer3D, initPyScript, downloadScene, downloadPandaRobot, downloadG1Robot } from '../viewer3d/viewer3d.js';
+        import * as THREE from 'three';
+        import * as math from 'mathjs';
 
         let currentPageParams = null;
 
@@ -615,11 +631,80 @@
         };
 
 
+        class ImpedancePlanarIKControls {
+
+            constructor() {
+                this.robot = null;
+                this.offset = null;
+                this.kinematicChain = null;
+
+                this.plane = new three.Mesh(
+                    new three.PlaneGeometry(100000, 100000, 2, 2),
+                    new three.MeshBasicMaterial({ visible: false, side: three.DoubleSide})
+                );
+
+                this.u = null;
+            }
+
+
+            setup(robot, offset, kinematicChain, startPosition, planeDirection) {
+                this.robot = robot;
+                this.offset = offset;
+                this.kinematicChain = kinematicChain;
+
+                this.plane.position.copy(startPosition);
+
+                this.plane.quaternion.setFromUnitVectors(new three.Vector3(0, 0, 1), planeDirection);
+                this.plane.updateMatrixWorld(true);
+            }
+
+
+            process(raycaster) {
+                let intersects = raycaster.intersectObject(this.plane, false);
+
+                if (intersects.length > 0) {
+                    let mu = intersects[0].point;
+                    mu = math.matrix([mu.x, mu.y, mu.z]);
+
+                    const x = Array.from(this.kinematicChain.getJointPositions());
+                    const f = math.matrix(this.kinematicChain.fkin(x, this.offset));
+                    const J = this.kinematicChain.Jkin(x, this.offset).subset(math.index(math.range(0, 3), math.range(0, this.kinematicChain.joints.length)));
+
+                    let diff = math.subtract(mu, f.subset(math.index(math.range(0, 3))));
+                    diff = math.multiply(diff, 20000.0);
+
+                    let pinvJ;
+
+                    try {
+                        pinvJ = math.pinv(J);
+                    }
+                    catch(err) {
+                        const JT = math.transpose(J);
+
+                        pinvJ = math.multiply(
+                            math.inv(
+                                math.add(
+                                    math.multiply(JT, J),
+                                    math.multiply(math.identity(this.kinematicChain.joints.length), 1e-2)
+                                )
+                            ),
+                            JT
+                        );
+                    }
+
+                    this.u = math.multiply(pinvJ, diff)._data;
+                }
+            }
+        }
+
+
+
         globalThis._createEditors = createEditors;
         globalThis._configure = configure;
         globalThis._stopContentLoop = stopContentLoop;
         globalThis._setAspectRatio = setAspectRatio;
         globalThis.Reveal = Reveal;
+        globalThis.ImpedancePlanarIKControls = ImpedancePlanarIKControls;
 
         initViewer3D();
 
@@ -646,6 +731,7 @@
         from js import _createEditors as _jsCreateEditors
         from js import _setAspectRatio as _jsSetAspectRatio
         from js import Reveal
+        from js import ImpedancePlanarIKControls
         import types
         import sys
         import traceback
@@ -814,6 +900,7 @@
         _rcfs.executePythonCode = _executePythonCode
         _rcfs.executePythonCodeAsModule = _executePythonCodeAsModule
         _rcfs.setAspectRatio = _jsSetAspectRatio
+        _rcfs.ImpedancePlanarIKControls = ImpedancePlanarIKControls;
 
         sys.modules['rcfs'] = _rcfs
 
@@ -825,6 +912,8 @@
             if currentSlide.hasAttribute('data-code'):
                 prefix = currentSlide.getAttribute('data-code')
                 _executePythonScript(prefix + '_page_code')
+
+            document.getElementById('loader-container').style.display = 'none'
 
 
         async def onSlideChanged(event):

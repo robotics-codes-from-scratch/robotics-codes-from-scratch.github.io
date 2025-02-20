@@ -47,7 +47,7 @@
 <script id="impedance3d_sdf_page_code" type="python">
     from viewer3d import Viewer3D, configs, logmap_S3, logmap, Layers, Passes
     from js import document, SDFPass, three
-    from rcfs import configure, displayError, setAspectRatio
+    from rcfs import configure, displayError, setAspectRatio, ImpedancePlanarIKControls
     from pyodide.ffi import to_js
     import numpy as np
 
@@ -253,6 +253,10 @@
 
             u = control(x)
 
+            if viewer3D.viewer.planarIkControls.u is not None:
+                perturbation = viewer3D.viewer.planarIkControls.u.to_py()
+                u[:len(perturbation)] += perturbation
+
             ddx = u
             dx = np.copy(x[param.nbVarX:])
 
@@ -264,6 +268,7 @@
 
             robot.control = x[:param.nbVarX]
 
+            viewer3D.viewer.planarIkControls.u = None
         except Exception as e:
             displayError(e)
 
@@ -280,6 +285,8 @@
             'external_loop': True,
         }
     )
+
+    viewer3D.viewer.planarIkControls.u = None
 
 
     # Placeholder for the function to implement
@@ -340,7 +347,7 @@
     async def run():
         robot.jointPositions = x[:param.nbVarX]
         sdfPass.setSDF(to_js(f_target[:3]), sdf_disc_radius, to_js(sdf_box_size), to_js(sdf_box_offset), sdf_smoothing_ratio)
-        viewer3D.enableForceImpulses(True, 2000)
+        viewer3D.viewer.planarIkControls = ImpedancePlanarIKControls.new()
 
 
     async def cleanup():

@@ -30,8 +30,8 @@
         f = fkin(x, param)
         J = Jkin(x, param)
 
-        u = np.linalg.pinv(J) @ logmap(param.Mu, f) # Position & orientation tracking
-        # u = np.linalg.pinv(J[:2,:]) @ (param.Mu[:2] - f[:2]) # Position tracking
+        u = np.linalg.pinv(J[:2,:]) @ (param.Mu[:2] - f[:2]) # Position tracking
+        # u = np.linalg.pinv(J) @ logmap(param.Mu, f) # Position & orientation tracking
         # u = np.linalg.pinv(J[2:,:]) @ (param.Mu[2:] - f[2:]) # Orientation tracking
         # u = J.T @ logmap(param.Mu, f) * 1E-4 # Gradient-based tracking
         # u = np.zeros(param.nbVarX) # Zero control commands
