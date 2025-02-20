@@ -1,4 +1,4 @@
-﻿<h3>Humanoid robot</h3>
+﻿<h3>The same humanoid robot with gravity!</h3>
 
 <div style="display: inline-block; width: 49%; height: 90%; vertical-align: top;">
     <editor id="humanoid3d_2_editor" src="humanoid3d_2_user_code"></editor>
@@ -39,7 +39,7 @@ startPositions = None
 
 
 # Called once per frame
-def control(time):
+def control(x, dt, time):
     global current, startTime, startPositions
 
     if startTime is None:
@@ -78,12 +78,13 @@ def control(time):
     # The function that will be called once per frame
     def update(delta, time):
         try:
-            control(time)
+            x = robot.jointPositions
+            control(x, delta, time)
 
             pos = robot.com
 
             com.position = pos
-            comLine.position = pos #[pos[0], pos[1], 0.0]
+            comLine.position = pos
         except Exception as e:
             displayError(e)
 
@@ -136,7 +137,7 @@ def control(time):
 
 
     # Placeholder for the function to implement
-    def control(time):
+    def control(x, dt, time):
         pass
 
     # Forward kinematics function (allows to not care about 'robot' in the user code)

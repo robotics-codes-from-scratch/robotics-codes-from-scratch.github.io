@@ -31,7 +31,7 @@ startPositions = None
 
 
 # Called once per frame
-def control(time):
+def control(x, dt, time):
     global current, startTime, startPositions
 
     if startTime is None:
@@ -69,7 +69,8 @@ def control(time):
     # The function that will be called once per frame
     def update(delta, time):
         try:
-            control(time)
+            x = robot.jointPositions
+            control(x, delta, time)
         except Exception as e:
             displayError(e)
 
@@ -104,7 +105,7 @@ def control(time):
 
 
     # Placeholder for the function to implement
-    def control(time):
+    def control(x, dt, time):
         pass
 
     # Forward kinematics function (allows to not care about 'robot' in the user code)

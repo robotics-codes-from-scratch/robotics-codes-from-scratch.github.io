@@ -161,6 +161,7 @@
     async def run():
         robot.jointPositions = x[:param.nbVarX]
         ghost.jointPositions = x_target[:param.nbVarX]
+        viewer3D.enableForceImpulses(True, 2000)
 
 
     async def cleanup():

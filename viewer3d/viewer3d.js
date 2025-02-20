@@ -2218,6 +2218,15 @@ class PhysicsSimulator {
         } else {
             this.simulation.forward();
         }
+
+        for (let i = 0; i < this.model.nbody; ++i) {
+            this.simulation.xfrc_applied[i * 6] = 0.0;
+            this.simulation.xfrc_applied[i * 6 + 1] = 0.0;
+            this.simulation.xfrc_applied[i * 6 + 2] = 0.0;
+            this.simulation.xfrc_applied[i * 6 + 3] = 0.0;
+            this.simulation.xfrc_applied[i * 6 + 4] = 0.0;
+            this.simulation.xfrc_applied[i * 6 + 5] = 0.0;
+        }
     }
 
 
@@ -5313,10 +5322,6 @@ class Point extends THREE.Object3D {
 
     setTexture(url) {
         const texture = new THREE.TextureLoader().load(url);
-        // texture.wrapS = THREE.RepeatWrapping;
-        // texture.wrapT = THREE.RepeatWrapping;
-        // texture.repeat.set( 4, 4 );
-
         this.mesh.material.map = texture;
     }
 
@@ -7642,7 +7647,10 @@ class Viewer3D {
         this.jointsManipulationEnabled = true;
         this.linksManipulationEnabled = true;
         this.objectsManipulationEnabled = true;
+        this.forceImpulsesEnabled = false;
         this.toolsEnabled = true;
+
+        this.forceImpulses = 0.0;
 
         this.controlStartedCallback = null;
         this.controlEndedCallback = null;
@@ -7778,6 +7786,9 @@ class Viewer3D {
             (this.interactionState == InteractionStates.LinkDisplacement)) {
                 this._switchToInteractionState(InteractionStates.Default);
         }
+
+        if (enabled)
+            this.forceImpulsesEnabled = false;
     }
 
 
@@ -7802,6 +7813,26 @@ class Viewer3D {
     */
     enableObjectsManipulation(enabled) {
         this.objectsManipulationEnabled = enabled;
+    }
+
+
+    enableForceImpulses(enabled, amount=0.0) {
+        this.forceImpulsesEnabled = enabled && (amount > 0.0);
+        this.forceImpulses = amount;
+
+        if ((this.interactionState == InteractionStates.JointHovering) ||
+            (this.interactionState == InteractionStates.JointDisplacement) ||
+            (this.interactionState == InteractionStates.LinkDisplacement)) {
+                this._switchToInteractionState(InteractionStates.Default);
+        }
+
+        if (enabled)
+            this.linksManipulationEnabled = false;
+    }
+
+
+    areForceImpulsesEnabled() {
+        return this.forceImpulsesEnabled;
     }
 
 
@@ -8815,6 +8846,17 @@ class Viewer3D {
                             hoveredIntersection.point,
                             direction
                         );
+                    } else if (this.forceImpulsesEnabled) {
+                        const sim = this.physicsSimulator.simulation;
+                        const bodyId = this.hoveredGroup.bodyId;
+
+                        let force = hoveredIntersection.point.clone();
+                        force.sub(this.camera.position);
+                        force.multiplyScalar(this.forceImpulses);
+
+                        sim.xfrc_applied[bodyId * 6] = force.x;
+                        sim.xfrc_applied[bodyId * 6 + 1] = force.y;
+                        sim.xfrc_applied[bodyId * 6 + 2] = force.z;
                     } else {
                         this._switchToInteractionState(InteractionStates.JointDisplacement);
                     }

@@ -322,6 +322,15 @@ class Viewer3D:
 
 
     @property
+    def forceImpulsesEnabled(self):
+        return self.viewer.areForceImpulsesEnabled()
+
+
+    def enableForceImpulses(self, enabled, amount=0.0):
+        self.viewer.enableForceImpulses(enabled, amount)
+
+
+    @property
     def robotToolsEnabled(self):
         return self.viewer.areRobotToolsEnabled()
 

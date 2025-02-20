@@ -340,6 +340,7 @@
     async def run():
         robot.jointPositions = x[:param.nbVarX]
         sdfPass.setSDF(to_js(f_target[:3]), sdf_disc_radius, to_js(sdf_box_size), to_js(sdf_box_offset), sdf_smoothing_ratio)
+        viewer3D.enableForceImpulses(True, 2000)
 
 
     async def cleanup():

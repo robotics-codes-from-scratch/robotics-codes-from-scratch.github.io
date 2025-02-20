@@ -1,4 +1,4 @@
-﻿<h3>Humanoid robot - Pick-and-place challenge</h3>
+﻿<h3>Humanoid robot: Pick-and-place challenge</h3>
 
 <div style="display: inline-block; width: 49%; height: 90%; vertical-align: top;">
     <editor id="humanoid3d_3_editor" src="humanoid3d_3_user_code"></editor>
@@ -58,7 +58,7 @@ def isAtDestination(x, mu, tolerance=5e-2, pos=False):
 
 
 # Called once per frame
-def control(x, dt):
+def control(x, dt, time):
     global step, dest
 
     u = np.zeros(x.shape)
@@ -173,7 +173,7 @@ def control(x, dt):
 
         try:
             x = robot.jointPositions
-            u = control(x, delta)
+            u = control(x, delta, time)
             x += u * delta * 0.1
             robot.control = x
         except Exception as e:
@@ -250,7 +250,7 @@ def control(x, dt):
 
 
     # Placeholder for the function to implement
-    def control(x, dt):
+    def control(x, dt, time):
         return np.zeros(x.shape)
 
     # Function to open the gripper (allows to not care about 'robot' in the user code)

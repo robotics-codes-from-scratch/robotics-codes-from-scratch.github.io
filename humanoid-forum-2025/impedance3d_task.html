@@ -199,6 +199,7 @@
     async def run():
         robot.jointPositions = x[:param.nbVarX]
         point.position = f_target[:3]
+        viewer3D.enableForceImpulses(True, 2000)
 
 
     async def cleanup():
