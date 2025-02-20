@@ -30,15 +30,11 @@ STEP_GO_UP_AFTER_RELEASE = 9
 step = STEP_START
 dest = None
 
-
 def ik(x, mu, dt):
     J = chain.Jkin(x)
     f = chain.fkin(x)
-
     u = np.linalg.pinv(J) @ logmap(mu, f)
-
     return u / dt
-
 
 def adjustPosition(mu):
     # Add a small offset to 'mu' (to let the hand correctly grab the cube)
@@ -47,15 +43,12 @@ def adjustPosition(mu):
     vector.applyQuaternion(quaternion)
     mu[:3] += [vector.x, vector.y, vector.z]
 
-
 def isAtDestination(x, mu, tolerance=5e-2, pos=False):
     f = robot.fkin(x)
-
     if not pos:
         return np.linalg.norm(logmap(mu, f)[:7]) < tolerance
     else:
         return np.linalg.norm(logmap(mu, f)[:3]) < tolerance
-
 
 # Called once per frame
 def control(x, dt, time):
@@ -147,7 +140,6 @@ def control(x, dt, time):
     from rcfs import configure, displayError, setAspectRatio
     import numpy as np
     import math
-
 
     # The function that will be called once per frame
     robot = None

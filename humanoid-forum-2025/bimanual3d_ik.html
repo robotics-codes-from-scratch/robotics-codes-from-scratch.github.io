@@ -1,4 +1,4 @@
-﻿<h3>Humanoid robot</h3>
+﻿<h3>Humanoid robot with bimanual tracking task</h3>
 
 <div style="display: inline-block; width: 49%; height: 90%; vertical-align: top;">
     <editor id="bimanual3d_ik_editor" src="bimanual3d_ik_user_code"></editor>
@@ -23,22 +23,22 @@
     def control(x, mu, dt):
         J = Jkin(x)
         f = fkin(x)
-
-        # Position & orientation tracking
-        diff = np.ndarray(12)
-        diff[:6] = logmap(mu[:7], f[:7]) # Right hand correction
-        diff[6:] = logmap(mu[7:], f[7:]) # Left hand correction
-        u = np.linalg.pinv(J) @ diff
-
-        # # Position tracking
-        # diff = np.ndarray(6)
-        # diff[:3] = mu[:3] - f[:3]            # Right hand correction
-        # diff[3:] = mu[7:10] - f[7:10]        # Left hand correction
-        # J2 = np.ndarray((6, J.shape[1]))
-        # J2[:3,:] = J[:3,:]                   # Right hand Jacobian
-        # J2[3:,:] = J[6:9,:]                  # Left hand Jacobian
-        # u = np.linalg.pinv(J2) @ diff
-
+        
+        # Position tracking
+        diff = np.ndarray(6)
+        diff[:3] = mu[:3] - f[:3]            # Right hand correction
+        diff[3:] = mu[7:10] - f[7:10]        # Left hand correction
+        J2 = np.ndarray((6, J.shape[1]))
+        J2[:3,:] = J[:3,:]                   # Right hand Jacobian
+        J2[3:,:] = J[6:9,:]                  # Left hand Jacobian
+        u = np.linalg.pinv(J2) @ diff
+        
+        # # Position & orientation tracking
+        # diff = np.ndarray(12)
+        # diff[:6] = logmap(mu[:7], f[:7]) # Right hand correction
+        # diff[6:] = logmap(mu[7:], f[7:]) # Left hand correction
+        # u = np.linalg.pinv(J) @ diff
+        
         # # Orientation tracking
         # diff = np.ndarray(6)
         # diff[:3] = logmap(mu[3:7], f[3:7])   # Right hand correction
