@@ -1,0 +1,162 @@
+﻿<h3>Bimanual robot</h3>
+
+<div style="display: inline-block; width: 49%; height: 90%; vertical-align: top;">
+    <editor id="bimanual3d_ik_editor" src="bimanual3d_ik_user_code"></editor>
+
+    <pre id="bimanual3d_ik_errors" class="py-error"></pre>
+    <pre id="bimanual3d_ik_output" class="py-output"></pre>
+</div>
+
+<div style="display: inline-block; width: 50%;">
+    <div id="bimanual3d_ik_viewer3d" style="width: 100%; height: 400px;"></div>
+</div>
+
+
+<script id="bimanual3d_ik_user_code" type="python">
+    # Initialization
+    x = [
+        0., 0., 0., 0., 0., 0., 0., 0., 0.,
+        0., 0., 0., 0., 0., 0., 0., 0.
+    ]  # Initial robot state
+
+    # Control loop definition
+    def control(x, mu, dt):
+        J = Jkin(x)
+        f = fkin(x)
+
+        # Position & orientation tracking
+        diff = np.ndarray(12)
+        diff[:6] = logmap(mu[:7], f[:7]) # Right hand correction
+        diff[6:] = logmap(mu[7:], f[7:]) # Left hand correction
+        u = np.linalg.pinv(J) @ diff
+
+        # # Position tracking
+        # diff = np.ndarray(6)
+        # diff[:3] = mu[:3] - f[:3]            # Right hand correction
+        # diff[3:] = mu[7:10] - f[7:10]        # Left hand correction
+        # J2 = np.ndarray((6, J.shape[1]))
+        # J2[:3,:] = J[:3,:]                   # Right hand Jacobian
+        # J2[3:,:] = J[6:9,:]                  # Left hand Jacobian
+        # u = np.linalg.pinv(J2) @ diff
+
+        # # Orientation tracking
+        # diff = np.ndarray(6)
+        # diff[:3] = logmap(mu[3:7], f[3:7])   # Right hand correction
+        # diff[3:] = logmap(mu[10:], f[10:])   # Left hand correction
+        # J2 = np.ndarray((6, J.shape[1]))
+        # J2[:3,:] = J[3:6,:]                  # Right hand Jacobian
+        # J2[3:,:] = J[9:,:]                   # Left hand Jacobian
+        # u = np.linalg.pinv(J2) @ diff
+
+        return u / dt  # Velocity in rad/s
+</script>
+
+
+<script id="bimanual3d_ik_page_code" type="python">
+    from viewer3d import Viewer3D, configs, logmap_S3, logmap, q2R, Shapes
+    from js import document, three
+    from rcfs import configure, displayError, setAspectRatio
+    import numpy as np
+
+    # The function that will be called once per frame
+    x = None
+
+    def ikUpdate(delta, time):
+        try:
+            x = robot.jointPositions
+
+            mu = np.ndarray((14,))
+            mu[:7] = leftTarget.transforms
+            mu[7:] = rightTarget.transforms
+
+            quaternion = three.Quaternion.new(mu[3], mu[4], mu[5], mu[6])
+            vector = three.Vector3.new(0, 0, -0.02)
+            vector.applyQuaternion(quaternion)
+            mu[:3] += [vector.x, vector.y, vector.z]
+
+            quaternion = three.Quaternion.new(mu[10], mu[11], mu[12], mu[13])
+            vector = three.Vector3.new(0, 0, -0.02)
+            vector.applyQuaternion(quaternion)
+            mu[7:10] += [vector.x, vector.y, vector.z]
+
+            u = control(x, mu, delta)
+            x += u * delta
+
+            robot.control = x
+        except Exception as e:
+            displayError(e)
+
+
+    # Resize the container of the Viewer3D to have a 1:1 aspect ratio
+    setAspectRatio('bimanual3d_ik_viewer3d', 1.0)
+
+    # Create the Viewer3D
+    element = document.getElementById('bimanual3d_ik_viewer3d')
+
+    viewer3D = Viewer3D(
+        element,
+        {
+            'external_loop': True,
+        }
+    )
+
+    viewer3D.setRenderingCallback(ikUpdate, 0.01)
+
+    # Load the scene and retrieve the robot
+    viewer3D.loadScene('/scenes/g1_upperbody.xml')
+    viewer3D.translateCamera([0.0, 0.0, 0.3])
+
+    robot = viewer3D.createRobot('panda', configs.G1UpperBody.new())
+
+    # Disable the manipulation of the joints
+    viewer3D.jointsManipulationEnabled = False
+    viewer3D.endEffectorManipulationEnabled = False
+
+    viewer3D.physicsSimulatorPaused = False
+
+    # Add the targets
+    parameters = {
+        'width': 0.05,
+        'height': 0.05,
+        'depth': 0.05,
+    }
+    leftTarget = viewer3D.addTarget('leftTarget', [0.3, -0.25,  1.0], [0.76, 0.1, 0.5, -0.4], '#FF3399', shape=Shapes.Cube, parameters=parameters)
+    rightTarget = viewer3D.addTarget('rightTarget', [0.3, 0.3, 0.9], [0.67, 0.22, 0.016, 0.7], '#FF9933', shape=Shapes.Cube, parameters=parameters)
+
+
+    # Placeholder for the function to implement
+    def control(x, mu, dt):
+        return np.zeros(x.shape)
+
+    # Forward kinematics function (allows to not care about 'robot' in the user code)
+    def fkin(x):
+        return robot.fkin(x)
+
+    # Jacobian function (allows to not care about 'robot' in the user code)
+    def Jkin(x):
+        return robot.Jkin(x)
+
+
+    async def loop(delta, time):
+        viewer3D.render()
+
+
+    async def run():
+        robot.jointPositions = x
+
+
+    async def cleanup():
+        global viewer3D
+        viewer3D.dispose()
+        viewer3D = None
+        document.getElementById('bimanual3d_ik_viewer3d').innerHTML = ''
+
+
+    configure({
+        'loop': loop,
+        'run': run,
+        'cleanup': cleanup,
+        'output': 'bimanual3d_ik_output',
+        'errors': 'bimanual3d_ik_errors',
+    })
+</script>
