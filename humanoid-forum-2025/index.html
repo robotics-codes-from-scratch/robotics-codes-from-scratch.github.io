@@ -7,7 +7,7 @@
 
     <title>Tutorial at International Humanoid Forum 2025</title>
 
-	<link href="../css/permanent_marker.css" rel="stylesheet">
+    <link href="../css/permanent_marker.css" rel="stylesheet">
     <link rel="stylesheet" href="reveal/reset.css">
     <link rel="stylesheet" href="reveal/reveal.css">
     <link rel="stylesheet" href="reveal/theme/white.css">
@@ -91,6 +91,11 @@
         .py-error:empty {
             display: none;
         }
+
+        .reveal .slides section > section {
+            top: 0 !important;
+            height: 100%;
+        }
     </style>
 </head>
 
@@ -99,151 +104,174 @@
     <div class="reveal">
         <div class="slides">
         
-        	<section data-background="images/chalkboard01.jpg">
-        		<br><br><br><br>
-				<h1 style="color: #eee; opacity: 0.8;">Tutorial on Programming Humanoid Robots</h1>
-				<br>
-				<h6 style="color: #777; opacity: 0.8;">International Humanoid Forum — February 21, 2025</h6>
-				<br><br><br><br>
-				<h2 style="color: #ccc; opacity: 0.8;">Sylvain Calinon</h2>
-				<h3 style="color: #ccc; opacity: 0.8;">Idiap Research Institute</h3>
+            <section data-background="images/chalkboard01.jpg">
+                <br><br><br><br>
+                <h1 style="color: #eee; opacity: 0.8;">Tutorial on Programming Humanoid Robots</h1>
+                <br>
+                <h6 style="color: #777; opacity: 0.8;">International Humanoid Forum — February 21, 2025</h6>
+                <br><br><br><br>
+                <h2 style="color: #ccc; opacity: 0.8;">Sylvain Calinon</h2>
+                <h3 style="color: #ccc; opacity: 0.8;">Idiap Research Institute</h3>
             </section>
             
             <section data-transition="zoom">
-            	<img src="images/RCFSwithContributors01.jpg" class="r-stretch">
+                <img src="images/RCFSwithContributors01.jpg" class="r-stretch">
             </section>
             
+            <!--
             <section data-transition="convex">
-            	<p class="r-fit-text">https://rcfs.ch/humanoid-forum-2025/</p>
-            	<img class="r-stretch" src="images/qrcode01.png">
+                <p class="r-fit-text">https://rcfs.ch/humanoid-forum-2025/</p>
+                <img class="r-stretch" src="images/qrcode01.png">
             </section>
+            -->
             
             <section data-transition="convex">
-            	<img src="images/Idiap01.jpg" class="r-stretch">
+                <img src="images/Idiap01.jpg" class="r-stretch">
             </section>
             
             <section data-load="humanoid3d_1.html" data-code="humanoid3d_1"></section>
             <section data-load="humanoid3d_2.html" data-code="humanoid3d_2"></section>
             
             <section data-transition="convex">
-            	<h2>Why is it hard to program a humanoid robot?</h2>
-            	<img src="images/whyisroboticshard01.jpg" class="r-stretch">
+                <h2>Why is it hard to program a humanoid robot?</h2>
+                <img src="images/whyisroboticshard01.jpg" class="r-stretch">
             </section>
             
             <section>
-            	<h2>Forward kinematics</h2>
-            	<img src="images/FK01.png" class="r-stretch">
+                <h2>Forward kinematics</h2>
+                <img src="images/FK01.png" class="r-stretch">
             </section>
             
             <!--
-			<section>
-				<h6>Stack Example</h6>
-				<div class="r-stack">
-					<p class="fragment fade-in-then-out">One</p>
-					<p class="fragment fade-in-then-out">Two</p>
-					<p class="fragment fade-in-then-out">Three</p>
-					<p class="fragment fade-in-then-out">Four</p>
-				</div>
-				<div class="r-stack">
-					<img src="https://placekittens.com/g/450/300" width="450" height="300" class="fragment">
-					<img src="https://placekittens.com/g/300/450" width="300" height="450" class="fragment">
-					<img src="https://placekittens.com/g/400/400" width="400" height="400" class="fragment">
-				</div>
-			</section>
-			-->
-			
+            <section>
+                <h6>Stack Example</h6>
+                <div class="r-stack">
+                    <p class="fragment fade-in-then-out">One</p>
+                    <p class="fragment fade-in-then-out">Two</p>
+                    <p class="fragment fade-in-then-out">Three</p>
+                    <p class="fragment fade-in-then-out">Four</p>
+                </div>
+                <div class="r-stack">
+                    <img src="https://placekittens.com/g/450/300" width="450" height="300" class="fragment">
+                    <img src="https://placekittens.com/g/300/450" width="300" height="450" class="fragment">
+                    <img src="https://placekittens.com/g/400/400" width="400" height="400" class="fragment">
+                </div>
+            </section>
+            -->
+            
             <section data-load="fk2d.html" data-code="fk2d"></section>
             <section data-load="jacobian2d.html" data-code="jacobian2d"></section>
             <section data-load="jacobian3d.html" data-code="jacobian3d"></section>
             
             <section>
-	        	<h2>Inverse kinematics (IK)</h2>
-	        	<div class="r-fit-text">
-	        	\begin{align*}
-					\qquad \bm{\dot{x}} &= \arg\min_{\bm{\dot{x}}} \; \|\bm{J}\bm{\dot{x}}-\bm{\dot{f}}\|^2 \qquad \\
-					&= \underbrace{{(\bm{J}^\trsp \bm{J})}^{-1} \bm{J}^\trsp}_{\color{red}\bm{J}^\psin} \; \bm{\dot{f}}
-				\end{align*}
-	        	</div>
-	        	<!--<div class="r-fit-text">aadds&nbsp;</div>-->
-	        </section>
-	        
-	        <section data-transition="zoom-in fade-out">
-	        	<h2><span style="color:red">Damped</span> inverse kinematics</h2>
-	        	<div class="r-fit-text">
-				\begin{align*}
-					\bm{\dot{x}} &= \arg\min_{\bm{\dot{x}}} \; \|\bm{J}\bm{\dot{x}}-\bm{\dot{f}}\|^2 + {\color{red} \lambda \|\bm{\dot{x}}\|^2} \\
-					&= {(\bm{J}^\trsp \bm{J} + {\color{red} \lambda\bm{I}})}^{-1} \bm{J}^\trsp \; \bm{\dot{f}}
-				\end{align*}
-	        	</div>
-	        </section>
-	        
-	        <section data-transition="zoom-in fade-out">
-	        	<h2><span style="color:red">Weighted</span> inverse kinematics</h2>
-	        	<div class="r-fit-text">
-				\begin{align*}
-					\bm{\dot{x}} &= \arg\min_{\bm{\dot{x}}} \; \|\bm{J}\bm{\dot{x}}-\bm{\dot{f}}\|^2_{{\color{red}\bm{W}}} \\
-					&= (\bm{J}^\trsp {\color{red}\bm{W}} \bm{J})^{-1} \bm{J}^\trsp {\color{red}\bm{W}} \; \bm{\dot{f}}
-				\end{align*}
-	        	</div>
-	        </section>
-	        
-	        <section data-transition="zoom-in fade-out">
-	        	<h2><span style="color:red">Prioritized</span> inverse kinematics</h2>
-	        	<div class="r-fit-text">
-				\begin{align*}
-					\bm{\dot{x}} &= \arg\min_{\bm{\dot{x}}} \; {\color{red}c(\bm{x})} \quad\text{s.t.}\quad \bm{\dot{f}}=\bm{J}\bm{\dot{x}} \\
-					&= \bm{J}^\psin\!(\bm{x}) \; \bm{\dot{f}} {\color{red} \;+\; \bm{N}\!(\bm{x}) \; \frac{\partial c(\bm{x})}{\partial x}}
-				\end{align*}
-	        	</div>
-	        </section>
-		    
-		    <!--
-            <section>
 		        <section>
-			    	<h2>Inverse kinematics (IK)</h2>
-					<div>
-			    	<div class="hv-center">
-			    	\begin{align*}
-						\bm{\dot{x}} &= \arg\min_{\bm{\dot{x}}} \; \|\bm{J}\bm{\dot{x}}-\bm{\dot{f}}\|^2 \\
-						&= {(\bm{J}^\trsp \bm{J})}^{-1} \bm{J}^\trsp \bm{\dot{f}}
-					\end{align*}
-			    	</div>
-					</div>
-			    </section>        	
-		        <section>
-		        	<h2>Damped inverse kinematics</h2>
-		        	<br>
-		        	<div class="r-fit-text">
-		        	\begin{align*}
-						\bm{\dot{x}} &= \arg\min_{\bm{\dot{x}}} \; \|\bm{J}\bm{\dot{x}}-\bm{\dot{f}}\|^2 + {\color{red} \lambda \|\bm{\dot{x}}\|^2} \\
-						&= {(\bm{J}^\trsp \bm{J} + {\color{red} \lambda\bm{I}})}^{-1} \bm{J}^\trsp \bm{\dot{f}}
-					\end{align*}
-		        	</div>
+		            <h2>Inverse kinematics (IK)</h2>
+		            <div style="display: inline-block; width: 69%; vertical-align: top;">
+				        <div class="r-fit-text">
+				        \begin{align*}
+				            \qquad \bm{\dot{x}} &= \arg\min_{\bm{\dot{x}}} \; \|\bm{J}\bm{\dot{x}}-\bm{\dot{f}}\|^2 \qquad \\
+				            &= \underbrace{{(\bm{J}^\trsp \bm{J})}^{-1} \bm{J}^\trsp}_{\color{red}\bm{J}^\psin} \; \bm{\dot{f}}
+				        \end{align*}
+				        </div>
+		            </div>
+		            <div style="display: inline-block; width: 29%;">
+		            	<img src="images/FK_dF01.png">
+		            </div>
+		        </section>
+		        
+		        <section data-transition="zoom-in fade-out">
+		            <h2><span style="color:red">Damped</span> inverse kinematics</h2>
+		            <div class="r-fit-text">
+		            \begin{align*}
+		                \bm{\dot{x}} &= \arg\min_{\bm{\dot{x}}} \; \|\bm{J}\bm{\dot{x}}-\bm{\dot{f}}\|^2 + {\color{red} \lambda \|\bm{\dot{x}}\|^2} \\
+		                &= {(\bm{J}^\trsp \bm{J} + {\color{red} \lambda\bm{I}})}^{-1} \bm{J}^\trsp \; \bm{\dot{f}}
+		            \end{align*}
+		            </div>
+		        </section>
+		        
+		        <section data-transition="zoom-in fade-out">
+		            <h2><span style="color:red">Weighted</span> inverse kinematics</h2>
+		            <div class="r-fit-text">
+		            \begin{align*}
+		                \bm{\dot{x}} &= \arg\min_{\bm{\dot{x}}} \; \|\bm{J}\bm{\dot{x}}-\bm{\dot{f}}\|^2_{{\color{red}\bm{W}}} \\
+		                &= (\bm{J}^\trsp {\color{red}\bm{W}} \bm{J})^{-1} \bm{J}^\trsp {\color{red}\bm{W}} \; \bm{\dot{f}}
+		            \end{align*}
+		            </div>
+		        </section>
+		        
+		        <section data-transition="zoom-in fade-out">
+		            <h2><span style="color:red">Prioritized</span> inverse kinematics</h2>
+		            <div class="r-fit-text">
+		            \begin{align*}
+		                \bm{\dot{x}} &= \arg\min_{\bm{\dot{x}}} \; {\color{red}c(\bm{x})} \quad\text{s.t.}\quad \bm{\dot{f}}=\bm{J}\bm{\dot{x}} \\
+		                &= \bm{J}^\psin\!(\bm{x}) \; \bm{\dot{f}} {\color{red} \;+\; \bm{N}\!(\bm{x}) \; \frac{\partial c(\bm{x})}{\partial x}}
+		            \end{align*}
+		            </div>
 		        </section>
             </section>
-			-->
+            
+            <!--
+            <section>
+                <section>
+                    <h2>Inverse kinematics (IK)</h2>
+                    <div>
+                    <div class="hv-center">
+                    \begin{align*}
+                        \bm{\dot{x}} &= \arg\min_{\bm{\dot{x}}} \; \|\bm{J}\bm{\dot{x}}-\bm{\dot{f}}\|^2 \\
+                        &= {(\bm{J}^\trsp \bm{J})}^{-1} \bm{J}^\trsp \bm{\dot{f}}
+                    \end{align*}
+                    </div>
+                    </div>
+                </section>          
+                <section>
+                    <h2>Damped inverse kinematics</h2>
+                    <br>
+                    <div class="r-fit-text">
+                    \begin{align*}
+                        \bm{\dot{x}} &= \arg\min_{\bm{\dot{x}}} \; \|\bm{J}\bm{\dot{x}}-\bm{\dot{f}}\|^2 + {\color{red} \lambda \|\bm{\dot{x}}\|^2} \\
+                        &= {(\bm{J}^\trsp \bm{J} + {\color{red} \lambda\bm{I}})}^{-1} \bm{J}^\trsp \bm{\dot{f}}
+                    \end{align*}
+                    </div>
+                </section>
+            </section>
+            -->
+            <section>
+		        <section data-background-image="images/robotics-richGeomStruct01.jpg" data-transition="convex">
+		        </section>
+		        
+		        <section data-transition="convex">
+		            <h2>Orientation error as a geodesic distance</h2>
+		            <img src="images/ExpLog01.jpg" class="r-stretch">
+		        </section>
+		    </section>
             
             <section>
-		        <section data-load="ik2d.html" data-code="ik2d"></section>
-		        <section data-load="ik2d_damped.html" data-code="ik2d_damped"></section>
-		        <section data-load="ik2d_weighted.html" data-code="ik2d_weighted"></section>
-		        <section data-load="ik2d_prioritized.html" data-code="ik2d_prioritized"></section>
+                <section data-load="ik2d.html" data-code="ik2d"></section>
+                <section data-load="ik2d_damped.html" data-code="ik2d_damped"></section>
+                <section data-load="ik2d_weighted.html" data-code="ik2d_weighted"></section>
+                <section data-load="ik2d_prioritized.html" data-code="ik2d_prioritized"></section>
             </section>
             
             <section data-load="ik3d.html" data-code="ik3d"></section>
             <section data-load="bimanual2d.html" data-code="bimanual2d"></section>
+
+            <section>
+                <section data-load="bimanual3d_ik.html" data-code="bimanual3d_ik"></section>
+                <section data-load="bimanual3d_prioritized.html" data-code="bimanual3d_prioritized"></section>
+            </section>
+
             <!--<section data-load="humanoid2d_ik.html" data-code="humanoid2d_ik"></section>-->
             <section data-load="humanoid2d_com.html" data-code="humanoid2d_com"></section>
             <section>
-            	<section data-load="impedance2d_joint.html" data-code="impedance2d_joint"></section>
-            	<section data-load="impedance2d_task.html" data-code="impedance2d_task"></section>
-            	<section data-load="impedance2d_sdf.html" data-code="impedance2d_sdf"></section>
+                <section data-load="impedance2d_joint.html" data-code="impedance2d_joint"></section>
+                <section data-load="impedance2d_task.html" data-code="impedance2d_task"></section>
+                <section data-load="impedance2d_sdf.html" data-code="impedance2d_sdf"></section>
             </section>
             <section>
-		        <section data-load="impedance3d_joint.html" data-code="impedance3d_joint"></section>
-		        <section data-load="impedance3d_task.html" data-code="impedance3d_task"></section>
-		        <section data-load="impedance3d_sdf.html" data-code="impedance3d_sdf"></section>
-		    </section>
+                <section data-load="impedance3d_joint.html" data-code="impedance3d_joint"></section>
+                <section data-load="impedance3d_task.html" data-code="impedance3d_task"></section>
+                <section data-load="impedance3d_sdf.html" data-code="impedance3d_sdf"></section>
+            </section>
             <!--<section data-load="iLQR.html" data-code="ilqr"></section>-->
             <section data-load="humanoid3d_3.html" data-code="humanoid3d_3"></section>
         </div>
@@ -271,7 +299,7 @@
             hash: true,
             plugins: [ RevealLoadContent ],
             width: 1600, 
-			height: 900,
+            height: 900,
         });
 
 
