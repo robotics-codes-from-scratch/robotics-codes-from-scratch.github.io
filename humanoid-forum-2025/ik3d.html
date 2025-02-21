@@ -22,7 +22,7 @@
         f = fkin(x)
         u = np.linalg.pinv(J[:3,:]) @ (mu[:3] - f[:3])  # Position tracking
         # u = np.linalg.pinv(J) @ logmap(mu, f)  # Position & orientation tracking
-        # u = np.linalg.pinv(J[-3:,:]) @ logmap(mu, f)[-3:]  # Orientation tracking
+        # u = np.linalg.pinv(J[3:,:]) @ logmap(mu, f)[3:]  # Orientation tracking
         return u / dt  # Velocity in rad/s
 </script>
 
