@@ -25,6 +25,26 @@ sequence = [
     [ -0.9, 0., 0., 0., 0.2, 0., 1.28, 0., 0., 0., 0., -0.478, -1.585, -0.22, 0., 0., 0., 0.7 ],
 ]
 
+# Sequence column structure:
+# 1) Torso Turn: Axial Rotation - Rotation around the vertical axis of the spine. (Positive values make it turn left)
+# 2) Torso Bend Sideways: Lateral Flexion - Bending the torso to the side. (Positive values make it bend to the right)
+# 3) Torso Bend Forwards: Flexion - Bending the torso forward. (Positive values make it bend forwards)
+# 4) Left Shoulder Turn Backwards: Extension - Moving the shoulder backward. (Positive values make the upper arm move backwards)
+# 5) Left Shoulder Bend Outwards: Abduction - Moving the shoulder away from the body. (Positive values make the arm move away from the body)
+# 6) Left Arm Turn Outwards: External Rotation - Rotating the arm outward. (Positive values make the arm go left or turn outwards)
+# 7) Left Under Arm Bend Downwards/Stretch: Extension - Straightening the arm downward. (Positive values stretch the arm)
+# 8) Left Under Arm Turn Inwards: Internal Rotation - Rotating the arm inward. (Positive values make the thumb on the left hand turn towards the body)
+# 9) Left Hand Bend Left: Ulnar Deviation - Moving the hand towards the little finger side. (Positive values tilt the hand towards the little finger)
+# 10) Left Wrist Extension: The back of the hand moves closer to the forearm. (Positive values bend the wrist outward)
+# 11) Right Shoulder Turn Backwards: Extension - Moving the shoulder backward. (Positive values make the upper arm move backwards)
+# 12) Right Shoulder Bend Outwards: Abduction - Moving the shoulder away from the body. (Positive values make the arm move towards the body. Attention: Negative values are needed to move the arm away from the body)
+# 13) Right Arm Turn Inwards: Internal Rotation - Rotating the arm inward. (Positive values make the arm go left or turn inwards)
+# 14) Right Under Arm Bend Downwards/Stretch: Extension - Straightening the arm downward. (Positive values stretch the arm)
+# 15) Right Under Arm Turn Outwards: External Rotation - Rotating the arm outward. (Positive values make the thumb on the right hand turn away from the body)
+# 16) Right Hand Bend Right: Ulnar Deviation - Moving the hand towards the little finger side. (Positive values tilt the hand towards the little finger)
+# 17) Right Wrist Flexion: The palm of the hand moves closer to the forearm. (Positive values bend the wrist inward)
+# 18) Duration of the move 
+
 current = 1
 startTime = None
 startPositions = None
