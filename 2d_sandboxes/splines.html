@@ -77,6 +77,11 @@
     def onMouseDown(event):
         global mousedown, selected_obj
         mousedown = True
+        if np.linalg.norm(param.Mu[:2] - mouse) < 22.0:
+            selected_obj = 0
+        elif np.linalg.norm(param.Mu[2:] - mouse) < 22.0:
+            selected_obj = 1
+        
         if selected_obj >= 0:
             event.preventDefault()
 
