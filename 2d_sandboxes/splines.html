@@ -6,13 +6,13 @@
 
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
-                <button aria-controls="IK-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#IK-tab-pane" data-bs-toggle="tab" id="spline2D-tab" role="tab" type="button">Spline 2D</button>
+                <button aria-controls="spline2D-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#spline2D-tab-pane" data-bs-toggle="tab" id="spline2D-tab" role="tab" type="button">Spline 2D</button>
             </li>
         </ul>
 
         <div class="tab-content" id="myTabContent">
             <div aria-labelledby="spline2D-tab" class="tab-pane fade show active" id="spline2D-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-ik" src="user_code_ik"></editor>
+                <editor id="editor-spline2D" src="user_code_spline2D"></editor>
             </div>
         </div>
 
@@ -33,8 +33,9 @@
 </div>
 
 
-<script id="user_code_ik" type="python">
+<script id="user_code_spline2D" type="python">
     param.Mu = np.array([-200, 100, 200, 100]) # Objects position
+    
 </script>
 
 <script id="page_code" type="python">
@@ -144,8 +145,16 @@
             param.Mu[2] = max(min(param.Mu[2],450), -450)
             param.Mu[3] = max(min(param.Mu[3],630), -70)
 
+    async def reset(tab_id, editor):
+        
+
+    async def run():
+        
+        
     configure({
         'loop': loop,
+        'reset': reset,
+        'run': run,
         'cleanup': cleanup,
         'output': 'output',
         'errors': 'errors',
