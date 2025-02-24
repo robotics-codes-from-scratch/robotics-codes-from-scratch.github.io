@@ -1,0 +1,153 @@
+﻿<div class="row">
+    <div class="col-sm-1"></div>
+
+    <div class="col-sm-7">
+        <h3>Splines</h3>
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button aria-controls="IK-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#IK-tab-pane" data-bs-toggle="tab" id="spline2D-tab" role="tab" type="button">Spline 2D</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <div aria-labelledby="spline2D-tab" class="tab-pane fade show active" id="spline2D-tab-pane" role="tabpanel" tabindex="0">
+                <editor id="editor-ik" src="user_code_ik"></editor>
+            </div>
+        </div>
+
+        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
+            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        </div>
+
+        <pre id="errors" class="py-error"></pre>
+        <pre id="output" class="py-output"></pre>
+    </div>
+
+    <div class="col-sm-4">
+        <div class="sticky-sm-top" style="padding-top: 2rem;">
+            <canvas height="700px" id="canvas" style="width:100%;" width="900px"></canvas>
+        </div>
+    </div>
+</div>
+
+
+<script id="user_code_ik" type="python">
+    param.Mu = np.array([-200, 100, 200, 100]) # Objects position
+</script>
+
+<script id="page_code" type="python">
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document
+    from rcfs import configure, displayError
+    import numpy as np
+
+    ## Parameters
+    # ===============================
+
+    param = lambda: None # Lazy way to define an empty class in python
+    param.Mu = np.array([-200, 100, 200, 100]) # Objects position
+
+    #########################################################################################
+
+    # Mouse events
+    mouse0 = np.zeros(2)
+    mouse = np.zeros(2)
+    mousedown = False
+    selected_obj = -1
+    
+    def onMouseMove(event):
+        global mouse, mouse0
+        offset = canvas.getBoundingClientRect()
+        mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
+        mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
+        mouse[0] = (mouse0[0] - canvas.width * 0.5)
+        mouse[1] = -(mouse0[1] - canvas.height * 0.9)
+
+    def onTouchMove(event):
+        global mouse, mouse0
+        offset = event.target.getBoundingClientRect()
+        mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
+        mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
+        mouse[0] = (mouse0[0] - canvas.width * 0.5)
+        mouse[1] = -(mouse0[1] - canvas.height * 0.9)
+
+    def onMouseDown(event):
+        global mousedown, selected_obj
+        mousedown = True
+        if selected_obj >= 0:
+            event.preventDefault()
+
+    def onMouseUp(event):
+        global mousedown, selected_obj
+        mousedown = False
+        selected_obj = -1
+
+    onMouseMoveProxy = create_proxy(onMouseMove)
+    onTouchMoveProxy = create_proxy(onTouchMove)
+    onMouseDownProxy = create_proxy(onMouseDown)
+    onMouseUpProxy = create_proxy(onMouseUp)
+
+    #########################################################################################
+
+    canvas = document.getElementById('canvas')
+    ctx = canvas.getContext('2d')
+
+    def clear_screen():
+        ctx.setTransform(1, 0, 0, 1, 0, 0)
+        ctx.fillStyle = 'white'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    def draw_object(xobj, id, color):
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
+        # Draw object
+        obj = Path2D.new()
+        obj.arc(0, 0, 22, 0, 2*np.pi)
+        ctx.translate(xobj[0], xobj[1])
+        ctx.fillStyle = color
+        ctx.fill(obj)
+
+    #########################################################################################
+
+    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+    canvas.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
+    canvas.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+    async def cleanup():
+        document.removeEventListener('mousemove', onMouseMoveProxy)
+        document.removeEventListener('touchmove', onTouchMoveProxy)
+
+        document.removeEventListener('mouseup', onMouseUpProxy)
+        document.removeEventListener('touchend', onMouseUpProxy)
+
+    #########################################################################################
+
+    async def loop(delta, time):
+        # Rendering
+        clear_screen()
+        draw_object(param.Mu[:2], 0, '#FF3399')
+        draw_object(param.Mu[2:], 1, '#FF9933')
+
+        # Object selection
+        if selected_obj==0:
+            param.Mu[:2] = mouse[:2]
+            param.Mu[0] = max(min(param.Mu[0],450), -450)
+            param.Mu[1] = max(min(param.Mu[1],630), -70)
+        if selected_obj==1:
+            param.Mu[2:] = mouse[:2]
+            param.Mu[2] = max(min(param.Mu[2],450), -450)
+            param.Mu[3] = max(min(param.Mu[3],630), -70)
+
+    configure({
+        'loop': loop,
+        'cleanup': cleanup,
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

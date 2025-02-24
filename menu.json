@@ -95,6 +95,11 @@
                         "sdf/mwb01.npy"
                     ]
                 }
+            },
+            {
+                "title": "Splines",
+                "hash": "splines",
+                "page": "splines.html"
             }
         ]
     },
@@ -119,7 +124,7 @@
                 }
             },
             {
-                "title": "Bimanual robot",
+                "title": "Humanoid robot",
                 "hash": "3d_bimanual",
                 "page": "bimanual.html",
                 "assets": {

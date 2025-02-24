@@ -1,7 +1,6 @@
 import numpy as np
 from pyodide.ffi import create_proxy
 
-
 ## Variables
 # ===============================
 
@@ -10,7 +9,6 @@ mouse_pos = None
 manipulated_point = None
 paths = None
 listeners = {}
-
 
 ## Gaussians handling (using the mouse)
 # =====================================
@@ -242,5 +240,3 @@ def draw_scene(param):
     # Draw the controls allowing to manipulate the gaussians
     draw_Gaussian_controls(controls, '#AA1166', '#FFFF00')
 
-    # Draw histograms (if applicable)
-    draw_histograms()
