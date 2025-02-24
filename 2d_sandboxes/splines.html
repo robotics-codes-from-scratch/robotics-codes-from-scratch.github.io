@@ -48,7 +48,7 @@
     # ===============================
 
     param = lambda: None # Lazy way to define an empty class in python
-    param.Mu = np.array([-200, 100, 200, 100]) # Objects position
+    param.Mu = np.array([-200, 100, 200, 100]) # Keypoints location
 
     #########################################################################################
 
@@ -77,9 +77,9 @@
     def onMouseDown(event):
         global mousedown, selected_obj
         mousedown = True
-        if np.linalg.norm(param.Mu[:2] - mouse) < 22.0:
+        if np.linalg.norm(param.Mu[:2] - mouse) < 12.0:
             selected_obj = 0
-        elif np.linalg.norm(param.Mu[2:] - mouse) < 22.0:
+        elif np.linalg.norm(param.Mu[2:] - mouse) < 12.0:
             selected_obj = 1
         
         if selected_obj >= 0:
@@ -105,11 +105,11 @@
         ctx.fillStyle = 'white'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-    def draw_object(xobj, id, color):
+    def draw_keypoint(xobj, id, color):
         ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
         # Draw object
         obj = Path2D.new()
-        obj.arc(0, 0, 22, 0, 2*np.pi)
+        obj.arc(0, 0, 12, 0, 2*np.pi)
         ctx.translate(xobj[0], xobj[1])
         ctx.fillStyle = color
         ctx.fill(obj)
@@ -132,7 +132,6 @@
         document.removeEventListener('mouseup', onMouseUpProxy)
         document.removeEventListener('touchend', onMouseUpProxy)
 
-
     #########################################################################################
     
     x0 = np.array([np.pi/2, np.pi/2, np.pi/4, -np.pi/2, -np.pi/4]) # Initial state
@@ -141,9 +140,9 @@
     async def loop(delta, time):
         # Rendering
         clear_screen()
-        draw_object(param.Mu[:2], 0, '#FF3399')
-        draw_object(param.Mu[2:], 1, '#FF9933')
-        # Object selection
+        draw_keypoint(param.Mu[:2], 0, '#999999')
+        draw_keypoint(param.Mu[2:], 1, '#999999')
+        # Keypoint selection
         if selected_obj==0:
             param.Mu[:2] = mouse[:2]
             param.Mu[0] = max(min(param.Mu[0],450), -450)
@@ -153,16 +152,13 @@
             param.Mu[2] = max(min(param.Mu[2],450), -450)
             param.Mu[3] = max(min(param.Mu[3],630), -70)
 
-
     async def reset(tab_id, editor):
         global x
         x = np.copy(x0)
 
-
     async def run():
         global x
         x = np.copy(x0)
-
 
     configure({
         'loop': loop,
