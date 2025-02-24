@@ -133,6 +133,9 @@
         document.removeEventListener('touchend', onMouseUpProxy)
 
     #########################################################################################
+    
+    x0 = np.array([np.pi/2, np.pi/2, np.pi/4, -np.pi/2, -np.pi/4]) # Initial state
+    x = np.copy(x0)
 
     async def loop(delta, time):
         # Rendering
@@ -151,10 +154,12 @@
             param.Mu[3] = max(min(param.Mu[3],630), -70)
 
     async def reset(tab_id, editor):
-        
+        global x
+        x = np.copy(x0)
 
     async def run():
-        
+        global x
+        x = np.copy(x0)
         
     configure({
         'loop': loop,
