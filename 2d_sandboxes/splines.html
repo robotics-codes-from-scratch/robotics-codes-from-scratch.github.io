@@ -128,9 +128,10 @@
     async def cleanup():
         document.removeEventListener('mousemove', onMouseMoveProxy)
         document.removeEventListener('touchmove', onTouchMoveProxy)
-
+        
         document.removeEventListener('mouseup', onMouseUpProxy)
         document.removeEventListener('touchend', onMouseUpProxy)
+
 
     #########################################################################################
     
