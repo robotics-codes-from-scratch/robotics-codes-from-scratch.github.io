@@ -99,7 +99,12 @@
             {
                 "title": "Splines",
                 "hash": "splines",
-                "page": "splines.html"
+                "page": "splines/splines.html",
+                "assets": {
+                    "scripts": [
+                        "splines/bezier_polycurves.py"
+                    ]
+                }
             }
         ]
     },

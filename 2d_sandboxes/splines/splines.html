@@ -1,0 +1,309 @@
+﻿<div class="row">
+    <div class="col-sm-1"></div>
+    <div class="col-sm-5">
+        <h3>Splines</h3>
+        <div class="card block" id="instructionBlock">
+
+            <div class="card-header">
+                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
+                    Instructions
+                </button>
+            </div>
+
+            <div id="instructions" class="collapse card-body instructions">
+                <h5>General information</h5>
+                <p>
+                    2D concatenated quadratic and cubic bezier curve examples.
+                </p>
+
+                <p>See <a href="#S6">Encoding with basis functions</a> for more information.</p>
+
+            </div>
+
+        </div>
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button aria-controls="Quadratic-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#Quadratic-tab-pane" data-bs-toggle="tab" id="Quadratic-tab" role="tab" type="button">Concatenated quadratic Bezier curves</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button aria-controls="Cubic-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#Cubic-tab-pane" data-bs-toggle="tab" id="Cubic-tab" role="tab" type="button">Concatenated cubic Bezier curves</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <div aria-labelledby="Quadratic-tab" class="tab-pane fade" id="Quadratic-tab-pane" role="tabpanel" tabindex="0">
+                <editor id="editor-spline2D_Quadratic" src="user_code_spline2D_Quadratic"></editor>
+            </div>
+            <div aria-labelledby="Cubic-tab" class="tab-pane fade show active" id="Cubic-tab-pane" role="tabpanel" tabindex="0">
+                <editor id="editor-spline2D_Cubic" src="user_code_spline2D_Cubic"></editor>
+            </div>
+        </div>
+
+        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
+            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        </div>
+
+        <pre id="errors" class="py-error"></pre>
+        <pre id="output" class="py-output"></pre>
+    </div>
+
+    <div class="col-sm-5">
+        <div class="sticky-sm-top" style="padding-top: 2rem;">
+            <canvas height="1000px" id="canvas" style="height:90%;width:90%;border:1px solid black;" width="1000px"></canvas>
+            <div id="legend" style="margin-top: 0px; font-size: 70%; color: #777777;"></div>
+        </div>
+    </div>
+</div>
+
+<script id="user_code_spline2D_Quadratic" type="python">
+    spline = BezierPolycurve(nbFct=3)
+    print("Quadratic bezier matrix B: ", spline.B)
+    print("Constraint matrix C: ", spline.C)
+</script>
+
+<script id="user_code_spline2D_Cubic" type="python">
+    spline = BezierPolycurve(nbFct=4)
+    print("Cubic bezier matrix", spline.B)
+    print("Constraint matrix: ", spline.C)
+</script>
+
+<script id="page_code" type="python">
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document
+    from rcfs import configure, getScript, displayError, executePythonCode
+    import numpy as np
+
+    #########################################################################################
+
+    # Mouse events
+    mouse0 = np.zeros(2)
+    mouse = np.zeros(2)
+    mousedown = False
+    new_point = False
+    selected_obj = -1
+    spline = None
+
+    def onMouseMove(event):
+        global mouse, mouse0
+        offset = canvas.getBoundingClientRect()
+        mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
+        mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
+        mouse[0] = (mouse0[0] - canvas.width * 0.5)
+        mouse[1] = -(mouse0[1] - canvas.height * 1.0)
+
+    def onTouchMove(event):
+        global mouse, mouse0
+        offset = event.target.getBoundingClientRect()
+        mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
+        mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
+        mouse[0] = (mouse0[0] - canvas.width * 0.5)
+        mouse[1] = -(mouse0[1] - canvas.height * 1.0) # 0.9
+
+    def onMouseDown(event):
+        global mousedown, selected_obj, new_point
+        mousedown = True
+
+        # Check if distance is close from a point
+        dist = np.linalg.norm(spline.ctr_pts - mouse, axis=1)
+        dist_idx_min = np.argmin(dist)
+        if dist[dist_idx_min] < 12.0:
+            selected_obj = dist_idx_min
+        else:
+            new_point = True
+
+        if selected_obj >= 0:
+            event.preventDefault()
+
+    def onMouseUp(event):
+        global mousedown, selected_obj
+        mousedown = False
+        selected_obj = -1
+
+    onMouseMoveProxy = create_proxy(onMouseMove)
+    onTouchMoveProxy = create_proxy(onTouchMove)
+    onMouseDownProxy = create_proxy(onMouseDown)
+    onMouseUpProxy = create_proxy(onMouseUp)
+
+    #########################################################################################
+
+    canvas = document.getElementById('canvas')
+    ctx = canvas.getContext('2d')
+    legend = document.getElementById('legend')
+
+    def clear_screen():
+        ctx.setTransform(1, 0, 0, 1, 0, 0)
+        ctx.fillStyle = 'white'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    def draw_keypoint(xobj, id, color):
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*1.0)
+        # Draw object
+        obj = Path2D.new()
+        obj.arc(0, 0, 12, 0, 2*np.pi)
+        ctx.translate(xobj[0], xobj[1])
+        ctx.fillStyle = color
+        ctx.fill(obj)
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*1.0)
+
+    def draw_spline(spline):
+        ctx.setLineDash([])
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*1.0)
+        path = Path2D.new()
+        path.lineWidth = 0.005
+        path.strokeStyle = '#FFA50066'#'rgba(1, 0, 0, 0.3)'
+        p = np.copy(spline.x.reshape((-1, 2)))
+        path.moveTo(p[0, 0], p[0,1])
+        for idx in range(1, spline.nbDim):
+            path.lineTo(p[idx, 0], p[idx,1]);
+        ctx.stroke(path)
+
+    def draw_ctr_pts(spline):
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*1.0)
+        # Draw control points
+        try:
+            ctx.setLineDash([2, 6])
+            w_path = Path2D.new()
+            w_path.strokeStyle = '#FFA50066'
+            w = np.kron(spline.C, np.eye(spline.nbOut)) @ spline.w.reshape((-1, 1))
+            w = w.reshape((-1, 2))
+            draw_keypoint(w[0], 0, 'rgba(0, 200, 0, 1.0)')
+            w_path.moveTo(w[0, 0], w[0,1])
+            for idx in range(1, w.shape[0]):
+                p = np.copy(w[idx, :])
+                w_path.lineTo(p[0], p[1]);
+
+                if np.mod(idx, spline.nbFct) in [0, spline.nbFct-1]:
+                    draw_keypoint(p, 0, 'rgba(0, 200, 0, 1.0)')
+                else:
+                    draw_keypoint(p, 0, 'rgba(200, 200, 0, 1.0)')
+            ctx.stroke(w_path)
+            ctx.setLineDash([])
+        except Exception as e:
+            print(e)
+
+
+    #########################################################################################
+
+    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+    canvas.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
+    canvas.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+    async def cleanup():
+        document.removeEventListener('mousemove', onMouseMoveProxy)
+        document.removeEventListener('touchmove', onTouchMoveProxy)
+
+        document.removeEventListener('mouseup', onMouseUpProxy)
+        document.removeEventListener('touchend', onMouseUpProxy)
+
+    #########################################################################################
+
+    def switch_to_tab(id, editor=None):
+        global spline
+        legend.innerHTML = '<br>Click on a control point to move it or beside to create a new segment.<br>Drag to move the intermediate control point.'
+
+        if id == "Quadratic-tab":
+            spline = BezierPolycurve(nbFct=3)
+        else:
+            spline = BezierPolycurve(nbFct=4)
+
+        if editor is not None:
+            executePythonCode(editor.getContent())
+            # reset()
+
+    async def loop(delta, time):
+        global x, selected_obj, new_point, spline
+        # Rendering
+        clear_screen()
+        if new_point:
+            try:
+                # Add w and delta_w
+                spline.add_segment(np.copy(mouse[:2]))
+                selected_obj = spline.ctr_pts.shape[0] - 2
+                new_point = False
+            except Exception as e:
+                print("New point exception: ", e)
+
+        if selected_obj>= 0:
+            spline.ctr_pts[selected_obj, :] = mouse[:2]
+            spline.ctr_pts[selected_obj, 0] = max(min(spline.ctr_pts[selected_obj,0],450), -450)
+            spline.ctr_pts[selected_obj, 1] = max(min(spline.ctr_pts[selected_obj,1],950), 50)
+
+            # For G1 continuity
+            if spline.nbFct == 4:
+                # Detect which segment:
+                seg = int(selected_obj/ 4)
+                if selected_obj in [0, 1]:
+                    spline.w[selected_obj] = spline.ctr_pts[selected_obj]
+
+                # if modif w2, w6, ... : -> modif w2 (no need w4, it does not exist in spline.w)
+                elif selected_obj in [i * spline.nbFct + 2 for i in range(spline.nbSeg)]: #[2, 6, 10] -> [2, 4, 6]
+                    delta_w = spline.ctr_pts[selected_obj + 1] - spline.ctr_pts[selected_obj]
+                    spline.w[2 + (spline.nbFct - 2)*seg] = delta_w
+
+                elif selected_obj in [i * spline.nbFct + 3 for i in range(spline.nbSeg)]: #[3, 7, 11] -> [3, 5, 7]
+                    spline.w[3 + (spline.nbFct - 2)*seg] = spline.ctr_pts[selected_obj]
+
+                # if modif w4, w8, ... : modify w3 or w5, thus previous segment
+                elif selected_obj in [i * spline.nbFct + 4 for i in range(spline.nbSeg - 1)]: #[4, 8] -> [3, 5]
+                    spline.w[3 + (spline.nbFct - 2)*(seg - 1)] = spline.ctr_pts[selected_obj]
+
+                # if modif w5, w9, ... : modify w2 or w6, thus previous segment
+                elif selected_obj in [i * spline.nbFct + 5 for i in range(spline.nbSeg - 1)]: #[5, 9] -> [2, 6]
+                    delta_w = spline.ctr_pts[selected_obj] - spline.ctr_pts[selected_obj -1]
+                    spline.w[2 + (spline.nbFct - 2)*(seg - 1)] = delta_w
+                else:
+                    pass
+            else:
+                if np.mod(selected_obj, 3) == 0 or np.mod(selected_obj, 3) == 2:
+                    # Control points at segment extremities. Only dependent of 1 element in w
+                    idx = np.where(spline.C[selected_obj, :] != 0)[0]
+                    spline.w[idx] = spline.ctr_pts[selected_obj]
+                else:
+                    # For quadratic curve, with G1 continuity, all intermediate control points depends on the ones at
+                    # segment extremity and from w[1]. When moving an intermediate control point, if we want to maintain
+                    # fixed the control points at segment extremities, only w[1] should be modified with G1 continuity
+                    C = spline.C[selected_obj, :]
+                    w = spline.ctr_pts[selected_obj] - C[2:].T @ spline.w[2:]
+                    spline.w[1] = w / C[1]
+
+            spline.update_ctr_pts()
+
+        draw_spline(spline)
+        draw_ctr_pts(spline)
+
+    async def setup():
+        try:
+            executePythonCode(getScript('2d_sandboxes/splines/bezier_polycurves.py'))
+            switch_to_tab('Cubic-tab', None)
+            # reset()
+        except Exception as e:
+            displayError(e)
+
+    async def reset(tab_id, editor):
+        try:
+            # unregister_listeners()
+            switch_to_tab(tab_id, editor)
+            # register_listeners()
+        except Exception as e:
+            displayError(e)
+
+    async def run():
+        pass
+
+    configure({
+        'setup': setup,
+        'loop': loop,
+        'reset': reset,
+        'run': run,
+        'cleanup': cleanup,
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>
