@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<mujoco model="g1 scene">
+    <include file="unitree_g1/g1_upperbody.xml"/>
+
+    <statistic center="0.3 0 0.4" extent="1.5"/>
+
+    <visual>
+        <headlight diffuse="0 0 0" ambient="1 1 1"/>
+        <rgba fog="1.0 1.0 1.0 1.0"/>
+        <global azimuth="120" elevation="-20"/>
+    </visual>
+
+    <asset>
+        <material name="groundplane" rgba="0.9 0.9 0.9 1"/>
+    </asset>
+
+    <worldbody>
+    	<light pos="0 0 3" diffuse="1 1 1" castshadow="false" directional="true" intensity="2"/>
+        <light pos="2 -3 3" dir="-2 3 -3" diffuse="1 1 1" directional="false" intensity="30"/>
+        <geom name="floor" size="5 5 0.1" type="plane" material="groundplane"/>
+        
+    	<body name="bed" pos=".5 .0 .0">
+            <geom type="box" size=".3 .6 .65" rgba=".8 .8 .8 1" mass="0.1"/>
+        </body>
+
+        <body name="leg" pos=".4 -.3 .7">
+            <geom type="capsule" size=".05" fromto="0 -.2 0  0 .2 0" rgba=".8 .2 .2 1" mass="0.1"/>
+            <geom type="capsule" size=".05" fromto="0 .2 0  0 .2 .2" rgba=".8 .2 .2 1" mass="0.1"/>
+            <geom type="capsule" size=".05" fromto="0 .2 .2  0 .6 .2" rgba=".8 .2 .2 1" mass="0.1"/>
+        </body>
+        
+<!--		<body pos="0 0 1">-->
+<!--			<joint type="ball"/>-->
+<!--			<geom type="capsule" size="0.06" fromto="0 0 0  0 0 -.4"/>-->
+<!--			<body pos="0 0 -0.4">-->
+<!--				<joint axis="0 1 0"/>-->
+<!--				<joint axis="1 0 0"/>-->
+<!--				<geom type="capsule" size="0.04" fromto="0 0 0  .3 0 0"/>-->
+<!--				<body pos=".3 0 0">-->
+<!--					<joint axis="0 1 0"/>-->
+<!--					<joint axis="0 0 1"/>-->
+<!--					<geom pos=".1 0 0" size="0.1 0.08 0.02" type="ellipsoid"/>-->
+<!--					<site name="endleg1" pos="0.2 0 0" size="0.01"/>-->
+<!--				</body>-->
+<!--			</body>-->
+<!--		</body>-->
+        
+    </worldbody>
+</mujoco>
