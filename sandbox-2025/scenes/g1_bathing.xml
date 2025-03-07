@@ -24,12 +24,19 @@
         </body>
 
         <body name="leg" pos=".4 -.3 .7">
-            <geom type="capsule" size=".05" fromto="0 -.2 0  0 .2 0" rgba=".8 .2 .2 1" mass="0.1"/>
-            <geom type="capsule" size=".05" fromto="0 .2 0  0 .2 .2" rgba=".8 .2 .2 1" mass="0.1"/>
-            <geom type="capsule" size=".05" fromto="0 .2 .2  0 .6 .2" rgba=".8 .2 .2 1" mass="0.1"/>
+            <geom type="capsule" size=".05" fromto="0 -.2 0  0 .1 0" rgba="1.0 .8 .8 1" mass="0.1"/>
+            <geom type="capsule" size=".04" fromto="0 .1 0  0 .3 .2" rgba="1.0 .8 .8 1" mass="0.1"/>
+            <geom type="capsule" size=".04" fromto="0 .3 .2  0 .5 -0.01" rgba="1.0 .8 .8 1" mass="0.1"/>
+            <geom type="capsule" size=".035" fromto="0 .5 -0.02  0 .6 -0.02" rgba="1.0 .8 .8 1" mass="0.1"/>
         </body>
         
-<!--		<body pos="0 0 1">-->
+<!--        <body name="leg" pos=".4 -.3 .7">-->
+<!--            <geom type="capsule" size=".05" fromto="0 -.2 0  0 .2 0" rgba=".8 .2 .2 1" mass="0.1"/>-->
+<!--            <geom type="capsule" size=".05" fromto="0 .2 0  0 .2 .2" rgba=".8 .2 .2 1" mass="0.1"/>-->
+<!--            <geom type="capsule" size=".05" fromto="0 .2 .2  0 .6 .2" rgba=".8 .2 .2 1" mass="0.1"/>-->
+<!--        </body>-->
+        
+<!--		<body name="leg2" pos="0 0 1">-->
 <!--			<joint type="ball"/>-->
 <!--			<geom type="capsule" size="0.06" fromto="0 0 0  0 0 -.4"/>-->
 <!--			<body pos="0 0 -0.4">-->
@@ -40,7 +47,7 @@
 <!--					<joint axis="0 1 0"/>-->
 <!--					<joint axis="0 0 1"/>-->
 <!--					<geom pos=".1 0 0" size="0.1 0.08 0.02" type="ellipsoid"/>-->
-<!--					<site name="endleg1" pos="0.2 0 0" size="0.01"/>-->
+<!--					<site name="end1" pos="0.2 0 0" size="0.01"/>-->
 <!--				</body>-->
 <!--			</body>-->
 <!--		</body>-->
