@@ -287,6 +287,20 @@ const SDFShader = {
         }
 
 
+        vec3 render_wave(ray_t ray, float distance, vec3 color, float t)
+        { 
+            // Raymarching into the scene
+            raycast_result_t result = raycast(ray, distance);
+            if (result.hit)
+            {
+                vec3 position = evaluateRay(ray, result.distance);
+                color = (0.1 - t * 0.1) * result.color + (0.9 + t * 0.1) * color;
+            }
+
+            return vec3(clamp(color, 0.0, 1.0));
+        }
+
+
         void main()
         {
             // Setup the camera
@@ -317,10 +331,21 @@ const SDFShader = {
             float depth;
             vec3 color = render(ray, camera, hit, depth);
 
-            if (hit)
-                outColor = vec4(color, 1.0);
-            else
-                outColor = texture(tDiffuse, vUv);
+            if (!hit) {
+                float t = float(iFrame) / 60.0;
+                t = t - floor(t);
+
+                color = texture(tDiffuse, vUv).xyz;
+
+                color = render_wave(ray, 0.05 * t, color, 0.0);
+                color = render_wave(ray, 0.05 + 0.05 * t, color, 0.0);
+                color = render_wave(ray, 0.1 + 0.05 * t, color, 0.0);
+                color = render_wave(ray, 0.15 + 0.05 * t, color, 0.0);
+                color = render_wave(ray, 0.2 + 0.05 * t, color, 0.0);
+                color = render_wave(ray, 0.25 + 0.05 * t, color, t);
+            }
+
+            outColor = vec4(color, 1.0);
 
             gl_FragDepth = hit ? depth : readDepth(tDepth, vUv);
         }`
@@ -375,9 +400,7 @@ class SDFPass extends Pass {
         this.uniforms[ 'iResolution' ].value = [this.domElement.clientWidth, this.domElement.clientHeight];
         this.uniforms[ 'iFrame' ].value = this.counter;
 
-        // if (this.counter % 1000 == 0)
-        // if (this.counter == 0)
-        //     this.debug();
+        this.counter++;
 
         renderer.setRenderTarget(writeBuffer);
         this.fsQuad.render(renderer);
@@ -390,195 +413,6 @@ class SDFPass extends Pass {
         this.fsQuad.dispose();
     }
 
-    // debug() {
-    //     console.log('-----------------');
-    //
-    //     const iResolution_x = 700;
-    //     const iResolution_y = 700;
-    //
-    //     const cameraPosition = new three.Vector3();
-    //     this.camera.getWorldPosition(cameraPosition);
-    //
-    //     const camera = {
-    //         fovy: this.camera.fov,
-    //         position: cameraPosition,
-    //         target: new three.Vector3(0.0, 0.0, 0.4),
-    //         up: new three.Vector3(0.0, 0.0, 1.0),
-    //     };
-    //
-    //     const viewport = this.createViewport(camera);
-    //
-    //     console.log('camera = ', camera);
-    //     console.log('viewport = ', viewport);
-    //
-    //     // Calculate the horizontal and vertical delta vectors from pixel to pixel
-    //     const dU = viewport.u.clone();
-    //     dU.divideScalar(iResolution_x);
-    //
-    //     const dV = viewport.v.clone();
-    //     dV.divideScalar(iResolution_y);
-    //
-    //     // Calculate the location of the lower left pixel, which is at vUv = (0, 0)
-    //     const viewportLowerLeft = camera.target.clone();
-    //
-    //     const diffU = viewport.u.clone();
-    //     diffU.divideScalar(2.0);
-    //
-    //     const diffV = viewport.v.clone();
-    //     diffV.divideScalar(2.0);
-    //
-    //     viewportLowerLeft.sub(diffU);
-    //     viewportLowerLeft.sub(diffV);
-    //
-    //     const pixel00 = dU.clone();
-    //     pixel00.add(dV);
-    //     pixel00.multiplyScalar(0.5);
-    //     pixel00.add(viewportLowerLeft);
-    //
-    //     console.log('viewportLowerLeft = ', viewportLowerLeft);
-    //     console.log('pixel00 = ', pixel00);
-    //
-    //     const uvs = [
-    //         new three.Vector2(0.0, 0.0),
-    //         new three.Vector2(1.0, 0.0),
-    //         new three.Vector2(0.0, 1.0),
-    //         new three.Vector2(1.0, 1.0),
-    //         new three.Vector2(0.5, 0.5),
-    //     ];
-    //
-    //     for (let i = 0; i < uvs.length; ++i)
-    //     {
-    //         console.log('UV #', i, ' = ', uvs[i]);
-    //
-    //         // Create the ray
-    //         // const dU2 = dU.clone();
-    //         const dU2 = viewport.u.clone();
-    //         dU2.multiplyScalar(uvs[i].x);
-    //
-    //         // const dV2 = dV.clone();
-    //         const dV2 = viewport.v.clone();
-    //         dV2.multiplyScalar(uvs[i].y);
-    //
-    //         const pixelCenter = pixel00.clone();
-    //         pixelCenter.add(dU2);
-    //         pixelCenter.add(dV2);
-    //
-    //         console.log('    pixelCenter = ', pixelCenter);
-    //
-    //         const ray = {
-    //             origin: camera.position.clone(),
-    //             direction: null
-    //         };
-    //
-    //         ray.direction = pixelCenter.clone();
-    //         ray.direction.sub(camera.position);
-    //         ray.direction.normalize();
-    //
-    //         console.log('    ray = ', ray);
-    //
-    //         const raycast_result = this.raycast(ray);
-    //
-    //         console.log('    raycast_result = ', raycast_result);
-    //     }
-    // }
-    //
-    // createViewport(camera) {
-    //     const viewport = {
-    //         size: new three.Vector2(),
-    //         u: new three.Vector3(),
-    //         v: new three.Vector3(),
-    //     };
-    //
-    //     const iResolution_x = 700;
-    //     const iResolution_y = 700;
-    //
-    //     const aspectRatio = iResolution_x / iResolution_y;
-    //     const h = Math.tan(camera.fovy * Math.PI / 180.0 / 2.0);
-    //
-    //     const focalLength = camera.position.distanceTo(camera.target);
-    //
-    //     viewport.size.y = 2.0 * h * focalLength;
-    //     viewport.size.x = viewport.size.y * aspectRatio;
-    //
-    //     const w = new three.Vector3();
-    //     w.subVectors(camera.position, camera.target);
-    //     w.normalize();
-    //
-    //     const u = new three.Vector3();
-    //     u.crossVectors(camera.up, w);
-    //     u.normalize();
-    //
-    //     const v = new three.Vector3();
-    //     v.crossVectors(w, u);
-    //
-    //     // Calculate the vectors across the horizontal and down the vertical viewport edges
-    //     viewport.u.copy(u);
-    //     viewport.u.multiplyScalar(viewport.size.x);
-    //
-    //     viewport.v.copy(v);
-    //     viewport.v.multiplyScalar(viewport.size.y);
-    //
-    //     return viewport;
-    // }
-    //
-    // evaluateRay(ray, t) {
-    //     const res = ray.direction.clone();
-    //     res.multiplyScalar(t);
-    //     res.add(ray.origin);
-    //     return res;
-    // }
-    //
-    //
-    // // Performs raymarching through the scene, using the given ray
-    // raycast(ray) {
-    //     const raycast_result = {
-    //         hit: false,
-    //         distance: 0.0,
-    //         color: new three.Vector3(0.0, 0.0, 0.0)
-    //     };
-    //
-    //     const tmin = 0.1;
-    //     const tmax = 4.0;
-    //
-    //     let t = tmin;
-    //     for (let i = 0; (i < 70) && (t < tmax); ++i)
-    //     {
-    //         const h = this.map(this.evaluateRay(ray, t));
-    //         console.log('    t = ', t);
-    //         console.log('    h = ', h);
-    //         if (Math.abs(h.distance) < (0.0001 * t))
-    //         {
-    //             raycast_result.hit = true;
-    //             raycast_result.distance = t;
-    //             raycast_result.color = h.color;
-    //             break;
-    //         }
-    //
-    //         t += h.distance;
-    //     }
-    //
-    //     return raycast_result;
-    // }
-    //
-    // sdf_circle(point, center, radius) {
-    //     const diff = center.clone();
-    //     diff.sub(point);
-    //     return diff.length() - radius;
-    // }
-    //
-    // computeDistance(position) {
-    //     const p1 = new three.Vector3(0.0, 0.0, 0.4);
-    //     return this.sdf_circle(position, p1, 0.04);
-    // }
-    //
-    // // Returns the distance of a point to the nearest object, with the color of said object
-    // map(position) {
-    //     const dist = this.computeDistance(position);
-    //     return {
-    //         distance: dist,
-    //         color: new three.Vector3(0.5, 0.0, 0.0)
-    //     };
-    // }
 };
 
 globalThis.SDFPass = SDFPass;
