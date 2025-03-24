@@ -1,0 +1,227 @@
+﻿<h3>Impedance control in task space</h3>
+
+<div style="display: inline-block; width: 49%; height: 90%; vertical-align: top;">
+    <editor id="impedance3d_task_editor" src="impedance3d_task_user_code"></editor>
+
+    <pre id="impedance3d_task_errors" class="py-error"></pre>
+    <pre id="impedance3d_task_output" class="py-output"></pre>
+</div>
+
+<div style="display: inline-block; width: 49%; height: 90%; vertical-align: top;">
+    <div id="impedance3d_task_viewer3d" style="width: 100%; height: 400px;"></div>
+</div>
+
+
+<script id="impedance3d_task_user_code" type="python">
+    # Initial robot state
+    x = [
+        0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0,    # joint positions
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0       # joint velocities
+    ]
+
+    f_target = fkin([0.5, 0.3, 0.0, -1.8, 0.0, 1.5, 1.0]) # Target in task space
+
+    KP = np.diag([20000, 20000, 20000, 20000, 20000, 20000])  # Task space stiffness (position and orientation)
+    KV = np.diag([2000, 2000, 2000, 1000, 1000, 1000])     # Task space damping (position and orientation)
+
+    # Control loop definition
+    def control(x, mu):
+        f = fkin(x[:param.nbVarX]) # Forward kinematics
+        J = Jkin(x[:param.nbVarX]) # Corresponding Jacobian matrix
+        df = J @ x[param.nbVarX:]  # End-effector velocity
+        rf = logmap(mu, f)         # Residual vector
+        u = J.T @ (KP @ rf - KV @ df)
+        return u
+</script>
+
+
+<script id="impedance3d_task_page_code" type="python">
+    from viewer3d import Viewer3D, configs, logmap_S3, logmap, Layers
+    from js import document
+    from rcfs import configure, displayError, setAspectRatio, ImpedancePlanarIKControls
+    from pyodide.ffi import to_js
+    import numpy as np
+
+    param = lambda: None # Lazy way to define an empty class in python
+    param.nbVarX = 7 # State space dimension
+    param.dt = 0.01
+
+    robot = None
+    point = None    # for 'task space'
+    arrow = None    # for 'task space'
+
+
+    def update_arrow(pos, direction, length):
+        global arrow
+
+        if arrow is None:
+            arrow = viewer3D.addArrow(
+                'arrow',
+                pos,
+                direction,
+                length,
+                '#3333FF',
+                True,
+                0.04,
+                0.04
+            )
+        else:
+            arrow.origin = pos
+            arrow.direction = direction
+            headLength = max(min(length * 0.2, 0.1), min(length * 0.5, 0.05))
+            arrow.setDimensions(length, headLength=headLength, headWidth=headLength*0.4)
+
+
+    # The function that will be called once per frame
+    x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    x_target = [0.5, 0.3, 0.0, -1.8, 0.0, 1.5, 1.0]
+    f_target = None
+
+
+    def update(delta, time):
+        global x, x_target, f_target, arrow
+
+        try:
+            if not isinstance(x, np.ndarray):
+                x = np.array(x)
+
+            if not isinstance(x_target, np.ndarray):
+                x_target = np.array(x_target)
+
+            if (f_target is not None) and (not isinstance(f_target, np.ndarray)):
+                f_target = np.array(f_target)
+
+            x[:param.nbVarX] = robot.jointPositions
+            x[param.nbVarX:] = robot.jointVelocities
+
+            f = fkin(x[:param.nbVarX])
+            if np.linalg.norm(f_target[:3] - f[:3]) > 1e-2:
+                direction = f_target[:3] - f[:3]
+                length = np.linalg.norm(direction)
+                direction /= length
+
+                update_arrow(f[:3], direction, length)
+            else:
+                viewer3D.removeArrow('arrow')
+                arrow = None
+
+            u = control(x, f_target)
+
+            if viewer3D.viewer.planarIkControls.u is not None:
+                perturbation = viewer3D.viewer.planarIkControls.u.to_py()
+                u[:len(perturbation)] += perturbation
+
+            ddx = u
+            dx = np.copy(x[param.nbVarX:])
+
+            dx = dx + 0.5 * ddx * param.dt
+
+            x[:param.nbVarX] = x[:param.nbVarX] + dx * param.dt
+
+            x[param.nbVarX:] = dx
+
+            robot.control = x[:param.nbVarX]
+
+            viewer3D.viewer.planarIkControls.u = None
+        except Exception as e:
+            displayError(e)
+
+
+    # Resize the container of the Viewer3D to have a 1:1 aspect ratio
+    setAspectRatio('impedance3d_task_viewer3d', 1.0)
+
+    # Create the Viewer3D
+    element = document.getElementById('impedance3d_task_viewer3d')
+
+    viewer3D = Viewer3D(
+        element,
+        {
+            'external_loop': True,
+        }
+    )
+
+    viewer3D.viewer.planarIkControls.u = None
+
+
+    # Placeholder for the function to implement
+    def defaultcontrol(x, mu=None):
+        x[param.nbVarX:] = 0
+        return np.zeros(param.nbVarX)
+
+    control = defaultcontrol
+
+
+    # Forward kinematics function (allows to not care about 'robot' in the user code)
+    def fkin(x):
+        return robot.fkin(x)
+
+    # Jacobian function (allows to not care about 'robot' in the user code)
+    def Jkin(x):
+        return robot.Jkin(x)
+
+
+    # Load the scene and retrieve the robot
+    async def setup():
+        global robot, point, arrow, f_target
+
+        viewer3D.setRenderingCallback(None)
+        viewer3D.removePoint('point')
+        viewer3D.removeArrow('arrow')
+
+        # Load the scene and retrieve the robot
+        viewer3D.loadScene('/scenes/panda.xml')
+        viewer3D.translateCamera([0.0, 0.0, 0.3])
+
+        robot = viewer3D.createRobot('panda', configs.Panda.new())
+
+        f_target = fkin(x_target)
+
+        viewer3D.activateLayer(Layers.NoShadows)
+
+        point = viewer3D.addPoint(
+            'point',
+            f_target[:3],
+            radius=0.02,
+            color='#ff3399',
+            shading=False,
+        )
+
+        viewer3D.activateLayer(Layers.Base)
+
+        # Disable the manipulation of the end-effector
+        viewer3D.endEffectorManipulationEnabled = False
+
+        robot.jointPositions = x[:param.nbVarX]
+
+        viewer3D.setRenderingCallback(update, 0.01)
+
+        # Start the physics simulation
+        viewer3D.physicsSimulatorPaused = False
+
+
+    async def loop(delta, time):
+        viewer3D.render()
+
+
+    async def run():
+        robot.jointPositions = x[:param.nbVarX]
+        point.position = f_target[:3]
+        viewer3D.viewer.planarIkControls = ImpedancePlanarIKControls.new()
+
+
+    async def cleanup():
+        global viewer3D
+        viewer3D.dispose()
+        viewer3D = None
+        document.getElementById('impedance3d_task_viewer3d').innerHTML = ''
+
+
+    configure({
+        'setup': setup,
+        'loop': loop,
+        'run': run,
+        'cleanup': cleanup,
+        'output': 'impedance3d_task_output',
+        'errors': 'impedance3d_task_errors',
+    })
+</script>

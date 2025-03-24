@@ -1,0 +1,294 @@
+﻿<h3>Humanoid robot: Pick-and-place challenge</h3>
+
+<div style="display: inline-block; width: 49%; height: 90%; vertical-align: top;">
+    <editor id="humanoid3d_3_editor" src="humanoid3d_3_user_code"></editor>
+
+    <pre id="humanoid3d_3_errors" class="py-error"></pre>
+    <pre id="humanoid3d_3_output" class="py-output"></pre>
+</div>
+
+<div style="display: inline-block; width: 49%; height: 90%; vertical-align: top;">
+    <div id="humanoid3d_3_viewer3d" style="width: 100%; height: 400px;"></div>
+    <div id="success" style="display:none; position: absolute; top: 6rem; text-align: center; width: 49%; color: limegreen; font-size: 100px; font-weight: bold;">
+        &#x2714;
+    </div>
+</div>
+
+
+<script id="humanoid3d_3_user_code" type="python">
+STEP_START = 0
+STEP_RAISE_ARM = 1
+STEP_GO_ON_TOP_OF_CUBE = 2
+STEP_GO_DOWN = 3
+STEP_CLOSE_GRIPPER = 4
+STEP_GO_UP = 5
+STEP_GO_ON_TOP_OF_TARGET = 6
+STEP_GO_DOWN_ON_TARGET = 7
+STEP_RELEASE_CUBE = 8
+STEP_GO_UP_AFTER_RELEASE = 9
+
+step = STEP_START
+dest = None
+
+def ik(x, mu, dt):
+    J = chain.Jkin(x)
+    f = chain.fkin(x)
+    u = np.linalg.pinv(J) @ logmap(mu, f)
+    return u / dt
+
+def adjustPosition(mu):
+    # Add a small offset to 'mu' (to let the hand correctly grab the cube)
+    quaternion = three.Quaternion.new(mu[3], mu[4], mu[5], mu[6])
+    vector = three.Vector3.new(-0.03, 0., -0.02)
+    vector.applyQuaternion(quaternion)
+    mu[:3] += [vector.x, vector.y, vector.z]
+
+def isAtDestination(x, mu, tolerance=5e-2, pos=False):
+    f = robot.fkin(x)
+    if not pos:
+        return np.linalg.norm(logmap(mu, f)[:7]) < tolerance
+    else:
+        return np.linalg.norm(logmap(mu, f)[:3]) < tolerance
+
+# Called once per frame
+def control(x, dt, time):
+    global step, dest
+
+    u = np.zeros(x.shape)
+
+    # Retrieve the indices of the actuators belonging to the right hand kinematic chain
+    idx = robot.actuatorIndices(chain.actuators)
+
+    if step == STEP_START:
+        x2 = np.copy(startJointPositions)
+        x2[11] = -1.0
+        dest = robot.fkin(x2)[:7]
+        u[idx] = ik(x[idx], dest, dt)
+        step = STEP_RAISE_ARM
+
+    elif step == STEP_RAISE_ARM:
+        if isAtDestination(x, dest, 1e-1):
+            dest = cube_start
+            dest[2] += 0.15
+            adjustPosition(dest)
+            step = STEP_GO_ON_TOP_OF_CUBE
+
+        u[idx] = ik(x[idx], dest, dt)
+
+    elif step == STEP_GO_ON_TOP_OF_CUBE:
+        if isAtDestination(x, dest, 5e-2):
+            dest[2] -= 0.17
+            step = STEP_GO_DOWN
+
+        u[idx] = ik(x[idx], dest, dt)
+
+    elif step == STEP_GO_DOWN:
+        if isAtDestination(x, dest):
+            closeGripper(0)
+            step = STEP_CLOSE_GRIPPER
+        else:
+            u[idx] = ik(x[idx], dest, dt)
+    
+    elif step == STEP_CLOSE_GRIPPER:
+        if isGripperHoldingSomeObject(0):
+            dest[2] += 0.15
+            u[idx] = ik(x[idx], dest, dt)
+            step = STEP_GO_UP
+    
+    elif step == STEP_GO_UP:
+        if isAtDestination(x, dest, 1e-1):
+            dest = target
+            dest[2] += 0.15
+            adjustPosition(dest)
+            step = STEP_GO_ON_TOP_OF_TARGET
+    
+        u[idx] = ik(x[idx], dest, dt)
+    
+    elif step == STEP_GO_ON_TOP_OF_TARGET:
+        if isAtDestination(x, dest, 2e-2, pos=True):
+            dest[2] -= 0.15
+            step = STEP_GO_DOWN_ON_TARGET
+    
+        u[idx] = ik(x[idx], dest, dt)
+    
+    elif step == STEP_GO_DOWN_ON_TARGET:
+        if isAtDestination(x, dest, 1e-2, pos=True):
+            openGripper(0)
+            step = STEP_RELEASE_CUBE
+        else:
+            u[idx] = ik(x[idx], dest, dt)
+    
+    elif step == STEP_RELEASE_CUBE:
+        if isGripperOpen(0):
+            dest[2] += 0.2
+            u[idx] = ik(x[idx], dest, dt)
+            step = STEP_GO_UP_AFTER_RELEASE
+    
+    elif step == STEP_GO_UP_AFTER_RELEASE:
+        if isAtDestination(x, dest, pos=True):
+            step = None
+        else:
+            u[idx] = ik(x[idx], dest, dt)
+
+    return u
+</script>
+
+
+<script id="humanoid3d_3_page_code" type="python">
+    from viewer3d import Viewer3D, configs, logmap_S3, logmap, readFile, writeFile
+    from js import document, three
+    from rcfs import configure, displayError, setAspectRatio
+    import numpy as np
+    import math
+
+    # The function that will be called once per frame
+    robot = None
+    chain = None
+    cube = None
+
+    startJointPositions = [ 0., 0., 0., 0., 0.2, 0., 1.28, 0., 0., 0., 0., -0.2, 0., 1.28, 0., 0., 0. ]
+
+    cube_start0 = None
+    target0 = None
+
+    cube_start = None
+    target = None
+
+    targetReached = False
+    targetReachedStartTime = None
+
+    def callback(delta, time):
+        global cube_start, target, targetReached, targetReachedStartTime
+
+        cube_start = np.copy(cube_start0)
+        target = np.copy(target0)
+
+        try:
+            x = robot.jointPositions
+            u = control(x, delta, time)
+            x += u * delta * 0.1
+            robot.control = x
+        except Exception as e:
+            displayError(e)
+
+        pos = cube.position
+        reached = robot.isGripperOpen(0) and \
+                  (pos[0] > target0[0] - 0.1) and (pos[0] < target0[0] + 0.1) and \
+                  (pos[1] > target0[1] - 0.1) and (pos[1] < target0[1] + 0.1) and \
+                  (pos[2] > target0[2] - 0.07) and (pos[2] < target0[2] + 0.07)
+
+        if reached:
+            if not targetReached:
+                targetReached = True
+                targetReachedStartTime = time
+            elif time - targetReachedStartTime > 5.0:
+                viewer3D.setRenderingCallback(None)
+                document.getElementById('success').style.display = 'block'
+        else:
+            targetReached = False
+            targetReachedStartTime = None
+
+
+    # Load the scene and retrieve the robot
+    def reset():
+        global robot, chain, cube, cube_start0, target0, targetReached, targetReachedStartTime
+
+        viewer3D.physicsSimulatorPaused = True
+
+        targetReached = False
+        targetReachedStartTime = None
+
+        cube_start0 = np.array([0.4, -0.3, 0.86, 0.707, 0., 0., -0.707])
+        target0 = np.array([0.4, 0.3, 0.86, 0.66830098,  0.25598009, -0.26776774, -0.64509567])
+
+        robot.jointPositions = startJointPositions
+
+        if not robot.isGripperOpen(0):
+            robot.openGripper(0)
+
+        cube = viewer3D.getPhysicalBody('redcube')
+
+        cube.position = cube_start0[:3]
+        cube.orientation = [0., 0., 0., 1.]
+
+        viewer3D.physicsSimulatorPaused = False
+        viewer3D.setRenderingCallback(callback)
+
+        document.getElementById('success').style.display = 'none'
+
+
+    # Resize the container of the Viewer3D to have a 1:1 aspect ratio
+    setAspectRatio('humanoid3d_3_viewer3d', 1.0)
+
+    # Create the Viewer3D
+    element = document.getElementById('humanoid3d_3_viewer3d')
+
+    viewer3D = Viewer3D(
+        element,
+        {
+            'external_loop': True,
+        }
+    )
+
+    viewer3D.loadScene('/scenes/humanoid3d_3.xml')
+    viewer3D.translateCamera([0.0, 0.0, 0.3])
+    
+    robot = viewer3D.createRobot('g1', configs.G1WithHandsUpperBody.new())
+    chain = robot.getKinematicChainForTool(0)
+
+    viewer3D.controlsEnabled = False
+
+    reset()
+
+
+    # Placeholder for the function to implement
+    def control(x, dt, time):
+        return np.zeros(x.shape)
+
+    # Function to open the gripper (allows to not care about 'robot' in the user code)
+    def openGripper(index):
+        robot.openGripper(index)
+
+    # Function to close the gripper (allows to not care about 'robot' in the user code)
+    def closeGripper(index):
+        robot.closeGripper(index)
+
+    # Function that indicates if the gripper is fully open (allows to not care about 'robot' in the user code)
+    def isGripperOpen(index):
+        return robot.isGripperOpen(index)
+
+    # Function that indicates if the gripper is fully closed (allows to not care about 'robot' in the user code)
+    def isGripperClosed(index):
+        return robot.isGripperClosed(index)
+
+    # Function that indicates if the gripper is holding an object (allows to not care about 'robot' in the user code)
+    def isGripperHoldingSomeObject(index):
+        return robot.isGripperHoldingSomeObject(index)
+
+
+    async def run():
+        try:
+            reset()
+        except Exception as e:
+            displayError(e)
+
+
+    async def loop(delta, time):
+        viewer3D.render()
+
+
+    async def cleanup():
+        global viewer3D
+        viewer3D.dispose()
+        viewer3D = None
+        document.getElementById('humanoid3d_3_viewer3d').innerHTML = ''
+
+
+    configure({
+        'loop': loop,
+        'run': run,
+        'cleanup': cleanup,
+        'output': 'humanoid3d_3_output',
+        'errors': 'humanoid3d_3_errors',
+    })
+</script>
