@@ -103,11 +103,28 @@
             right: 0;
             z-index: 1000;
         }
+
+        #logo {
+            position: absolute;
+            right: 0;
+            padding-top: 10px;
+            padding-right: 10px;
+            z-index: 1000;
+            display: none;
+        }
+
+        #logo img {
+            width: 14em;
+        }
     </style>
 </head>
 
 
 <body>
+    <div id="logo">
+        <img src="images/idiap.png" />
+    </div>
+
     <div id="loader-container">
         <span class="loader"></span>
     </div>
@@ -118,13 +135,14 @@
                 <img src="../static_images/logo-RCFS.png" style="margin-bottom: 0;">
                 <p style="font-size: 1.5em; margin-top: 0; margin-bottom: 2em;">https://rcfs.ch</p>
 
-                <ul>
+                <ul style="margin-bottom: 2em;">
                     <li><span style="display: inline-block; width: 5em; font-size: 1.1em;">PyScript</span> <span style="color: gray;">(WebAssembly)</span></li>
                     <li><span style="display: inline-block; width: 5em; font-size: 1.1em;">three.js</span> <span style="color: gray;">3D rendering (JavaScript)</span></li>
                     <li><span style="display: inline-block; width: 5em; font-size: 1.1em;">MuJoCo</span> <span style="color: gray;">Physics engine (WebAssembly)</span></li>
                     <li><span style="display: inline-block; width: 5em; font-size: 1.1em;">CodeMirror</span> <span style="color: gray;">Code edition (JavaScript)</span></li>
-                    <li style="font-size: 1.1em;">Everything runs in the browser</li>
                 </ul>
+
+                <p style="font-size: 1.1em;">Client-based: entirely runs in the browser, no processing on the server</p>
             </section>
 
             <section>
@@ -533,7 +551,7 @@
                     const J = this.kinematicChain.Jkin(x, this.offset).subset(math.index(math.range(0, 3), math.range(0, this.kinematicChain.joints.length)));
 
                     let diff = math.subtract(mu, f.subset(math.index(math.range(0, 3))));
-                    diff = math.multiply(diff, 20000.0);
+                    diff = math.multiply(diff, 10000.0);
 
                     let pinvJ;
 
@@ -776,6 +794,7 @@
                 _executePythonScript(prefix + '_page_code')
 
             document.getElementById('loader-container').style.display = 'none'
+            document.getElementById('logo').style.display = 'block'
 
 
         async def onSlideChanged(event):

@@ -33,9 +33,9 @@
     # sdf_box_offset = np.array([0.0, 0.0, 0.0]) # Box position wrt the disc
     # sdf_smoothing_ratio = 0.05 # Smoothing factor for softmax composition of SDF shapes
 
-    KP = np.diag([20000, 20000, 20000, 0, 0, 0])  # Task space stiffness (position and orientation)
+    KP = np.diag([10000, 10000, 10000, 0, 0, 0])  # Task space stiffness (position and orientation)
     KP0 = np.copy(KP)
-    KV = np.diag([200, 200, 200, 200, 200, 200])     # Task space damping (position and orientation)
+    KV = np.diag([100, 100, 100, 100, 100, 100])  # Task space damping (position and orientation)
 
     def control(x):
         global KP
@@ -274,8 +274,6 @@
             x[param.nbVarX:] = dx
 
             robot.control = x[:param.nbVarX]
-
-            viewer3D.viewer.planarIkControls.u = None
         except Exception as e:
             displayError(e)
 

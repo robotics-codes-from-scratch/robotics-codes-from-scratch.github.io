@@ -8889,6 +8889,9 @@ class Viewer3D {
             }
 
             this.didClick = false;
+
+            this.planarIkControls.u = null;
+
             return;
 
         } else if (this.interactionState == InteractionStates.Manipulation) {

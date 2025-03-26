@@ -21,8 +21,8 @@
 
     x_target = [-0.5, 0.3, 0.0, -1.8, 0.0, 1.5, 1.0] # Target in joint space
 
-    KP = np.diag([20000, 20000, 20000, 20000, 20000, 20000, 20000]) # Joint space stiffness matrix
-    KV = np.diag([2000, 2000, 2000, 2000, 2000, 2000, 2000])        # Joint space damping matrix
+    KP = np.diag([10000, 10000, 10000, 10000, 10000, 10000, 10000]) # Joint space stiffness matrix
+    KV = np.diag([1000, 1000, 1000, 1000, 1000, 1000, 1000])        # Joint space damping matrix
 
     # Control loop definition
     def control(x, mu):
@@ -84,8 +84,6 @@
             x[param.nbVarX:] = dx
 
             robot.control = x[:param.nbVarX]
-
-            viewer3D.viewer.planarIkControls.u = None
         except Exception as e:
             displayError(e)
 
