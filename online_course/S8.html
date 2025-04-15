@@ -6,19 +6,19 @@
 <p class="ltx_p">Iterative LQR (iLQR) <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib8" title="Iterative linear quadratic regulator design for nonlinear biological movement systems">8</a>]</cite> solves such constrained nonlinear models by carrying out Taylor expansions on the cost and on the dynamical system so that a solution can be found iteratively by solving a LQR problem at each iteration, similarly to differential dynamic programming approaches <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib9" title="A second-order gradient method for determining optimal trajectories of non-linear discrete-time systems">11</a>, <a class="ltx_ref" href="#bib-bib:bib10" title="Differential dynamic programming">17</a>]</cite>.</p>
 </div><div class="ltx_para" id="S8-para:p3">
 <p class="ltx_p">iLQR employs a first order Taylor expansion of the dynamical system <span class="ltx_Math" id="p3.m1">\bm{x}_{t+1}=\bm{d}(\bm{x}_{t},\bm{u}_{t})</span> around the point <span class="ltx_Math" id="p3.m2">(\bm{\hat{x}}_{t},\bm{\hat{u}}_{t})</span>, namely</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S8-eq:A5.EGx26">
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S8-eq:A5.EGx27">
 <tbody id="S8-eq:Ex71"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
 <td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex71.m1">\displaystyle\bm{x}_{t+1}</span></td>
 <td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex71.m2">\displaystyle\approx\bm{d}(\bm{\hat{x}}_{t},\bm{\hat{u}}_{t})+\frac{\partial\bm{d}}{\partial\bm{x}_{t}}(\bm{x}_{t}-\bm{\hat{x}}_{t})+\frac{\partial\bm{d}}{\partial\bm{u}_{t}}(\bm{u}_{t}-\bm{\hat{u}}_{t})</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="S8-eq:E82"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S8-eq:E91"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E82.m1">\displaystyle\iff\Delta\bm{x}_{t+1}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E82.m2">\displaystyle\approx\bm{A}_{t}\Delta\bm{x}_{t}+\bm{B}_{t}\Delta\bm{u}_{t},</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E91.m1">\displaystyle\iff\Delta\bm{x}_{t+1}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E91.m2">\displaystyle\approx\bm{A}_{t}\Delta\bm{x}_{t}+\bm{B}_{t}\Delta\bm{u}_{t},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(82)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(91)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">with residual vectors</p>
@@ -39,19 +39,19 @@
 </table>
 </div><div class="ltx_para" id="S8-para:p4">
 <p class="ltx_p">The cost function <span class="ltx_Math" id="p4.m1">c(\bm{x}_{t},\bm{u}_{t})</span> for time step <span class="ltx_Math" id="p4.m2">t</span> can similarly be approximated by a second order Taylor expansion around the point <span class="ltx_Math" id="p4.m3">(\bm{\hat{x}}_{t},\bm{\hat{u}}_{t})</span>, namely</p>
-<table class="ltx_equationgroup ltx_eqn_table" id="S8-eq:E83">
+<table class="ltx_equationgroup ltx_eqn_table" id="S8-eq:E92">
 <tbody>
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline" id="E83X">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline" id="E92X">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E83X.m2">\displaystyle c(\bm{x}_{t},\bm{u}_{t})</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E83X.m3">\displaystyle\approx c(\bm{\hat{x}}_{t},\bm{\hat{u}}_{t})+\Delta\bm{x}_{t}^{\scriptscriptstyle\top}\frac{\partial c}{\partial\bm{x}_{t}}+\Delta\bm{u}_{t}^{\scriptscriptstyle\top}\frac{\partial c}{\partial\bm{u}_{t}}+\frac{1}{2}\Delta\bm{x}_{t}^{\scriptscriptstyle\top}\frac{\partial^{2}c}{\partial\bm{x}_{t}^{2}}\Delta\bm{x}_{t}+\Delta\bm{x}_{t}^{\scriptscriptstyle\top}\frac{\partial^{2}c}{\partial\bm{x}_{t}\bm{u}_{t}}\Delta\bm{u}_{t}+\frac{1}{2}\Delta\bm{u}_{t}^{\scriptscriptstyle\top}\frac{\partial^{2}c}{\partial\bm{u}_{t}^{2}}\Delta\bm{u}_{t},</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E92X.m2">\displaystyle c(\bm{x}_{t},\bm{u}_{t})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E92X.m3">\displaystyle\approx c(\bm{\hat{x}}_{t},\bm{\hat{u}}_{t})+\Delta\bm{x}_{t}^{\scriptscriptstyle\top}\frac{\partial c}{\partial\bm{x}_{t}}+\Delta\bm{u}_{t}^{\scriptscriptstyle\top}\frac{\partial c}{\partial\bm{u}_{t}}+\frac{1}{2}\Delta\bm{x}_{t}^{\scriptscriptstyle\top}\frac{\partial^{2}c}{\partial\bm{x}_{t}^{2}}\Delta\bm{x}_{t}+\Delta\bm{x}_{t}^{\scriptscriptstyle\top}\frac{\partial^{2}c}{\partial\bm{x}_{t}\bm{u}_{t}}\Delta\bm{u}_{t}+\frac{1}{2}\Delta\bm{u}_{t}^{\scriptscriptstyle\top}\frac{\partial^{2}c}{\partial\bm{u}_{t}^{2}}\Delta\bm{u}_{t},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="2"><span class="ltx_tag ltx_tag_equationgroup ltx_align_right">(83)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="2"><span class="ltx_tag ltx_tag_equationgroup ltx_align_right">(92)</span></td>
 </tr>
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline" id="E83Xa">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline" id="E92Xa">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E83Xa.m2">\displaystyle\iff c(\bm{x}_{t},\bm{u}_{t})</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E83Xa.m3">\displaystyle\approx c(\bm{\hat{x}}_{t},\bm{\hat{u}}_{t})+\frac{1}{2}\begin{bmatrix}1\\
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E92Xa.m2">\displaystyle\iff c(\bm{x}_{t},\bm{u}_{t})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E92Xa.m3">\displaystyle\approx c(\bm{\hat{x}}_{t},\bm{\hat{u}}_{t})+\frac{1}{2}\begin{bmatrix}1\\
 \Delta\bm{x}_{t}\\
 \Delta\bm{u}_{t}\end{bmatrix}^{\!{\scriptscriptstyle\top}}\begin{bmatrix}0&amp;\bm{g}_{\bm{x},t}^{\scriptscriptstyle\top}&amp;\bm{g}_{\bm{u},t}^{\scriptscriptstyle\top}\\
 \bm{g}_{\bm{x},t}&amp;\bm{H}_{\bm{x}\bm{x},t}&amp;\bm{H}_{\bm{u}\bm{x},t}^{\scriptscriptstyle\top}\\
@@ -88,14 +88,14 @@
 </div>
 <div class="ltx_para" id="S8-para:SS1.p2">
 <p class="ltx_p">At a trajectory level, we denote <span class="ltx_Math" id="SS1.p2.m1">\bm{x}\!=\!{\begin{bmatrix}\bm{x}_{1}^{\scriptscriptstyle\top},\bm{x}_{2}^{\scriptscriptstyle\top},\ldots,\bm{x}_{T}^{\scriptscriptstyle\top}\end{bmatrix}}^{\scriptscriptstyle\top}</span> the evolution of the state and <span class="ltx_Math" id="SS1.p2.m2">\bm{u}\!=\!{\begin{bmatrix}\bm{u}_{1}^{\scriptscriptstyle\top},\bm{u}_{2}^{\scriptscriptstyle\top},\ldots,\bm{u}_{T-1}^{\scriptscriptstyle\top}\end{bmatrix}}^{\scriptscriptstyle\top}</span> the evolution of the control commands.
-The evolution of the state in (<a class="ltx_ref" href="#S8-eq:E82" title="In 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">82</span></a>) becomes <span class="ltx_Math" id="SS1.p2.m3">\Delta\bm{x}=\bm{S}_{\bm{u}}\Delta\bm{u}</span>, see Appendix <a class="ltx_ref" href="#A1" title="Appendix A System dynamics at trajectory level ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">A</span></a> for details.<span class="ltx_note ltx_role_footnote" id="footnote1"><sup class="ltx_note_mark">1</sup><span class="ltx_note_outer"><span class="ltx_note_content"><sup class="ltx_note_mark">1</sup><span class="ltx_tag ltx_tag_note">1</span>Note that <span class="ltx_Math" id="footnote1.m1">\bm{S}_{\bm{x}}\Delta\bm{x}_{1}\!=\!\bm{0}</span> because <span class="ltx_Math" id="footnote1.m2">\Delta\bm{x}_{1}\!=\!\bm{0}</span> (as we want our motion to start from <span class="ltx_Math" id="footnote1.m3">\bm{x}_{1}</span>).</span></span></span></p>
+The evolution of the state in (<a class="ltx_ref" href="#S8-eq:E91" title="In 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">91</span></a>) becomes <span class="ltx_Math" id="SS1.p2.m3">\Delta\bm{x}=\bm{S}_{\bm{u}}\Delta\bm{u}+\bm{S}_{\bm{x}}\Delta\bm{x}_{1}</span>, see Appendix <a class="ltx_ref" href="#A1" title="Appendix A System dynamics at trajectory level ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">A</span></a> for details.</p>
 </div>
 <div class="ltx_para" id="S8-para:SS1.p3">
 <p class="ltx_p">The minimization problem can then be rewritten in batch form as</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:E84">
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:E93">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E84.m1">\min_{\Delta\bm{u}}\Delta c(\Delta\bm{x},\Delta\bm{u}),\quad\text{s.t.}\quad\Delta\bm{x}=\bm{S}_{\bm{u}}\Delta\bm{u},\quad\text{where}\quad\Delta c(\Delta\bm{x},\Delta\bm{u})=\frac{1}{2}\begin{bmatrix}1\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E93.m1">\min_{\Delta\bm{u}}\Delta c(\Delta\bm{x},\Delta\bm{u}),\quad\text{s.t.}\quad\Delta\bm{x}=\bm{S}_{\bm{u}}\Delta\bm{u},\quad\text{where}\quad\Delta c(\Delta\bm{x},\Delta\bm{u})=\frac{1}{2}\begin{bmatrix}1\\
 \Delta\bm{x}\\
 \Delta\bm{u}\end{bmatrix}^{\!{\scriptscriptstyle\top}}\begin{bmatrix}0&amp;\bm{g}_{\bm{x}}^{\scriptscriptstyle\top}&amp;\bm{g}_{\bm{u}}^{\scriptscriptstyle\top}\\
 \bm{g}_{\bm{x}}&amp;\bm{H}_{\bm{x}\bm{x}}&amp;\bm{H}_{\bm{u}\bm{x}}^{\scriptscriptstyle\top}\\
@@ -104,37 +104,55 @@ The evolution of the state in (<a class="ltx_ref" href="#S8-eq:E82" title="In 8 
 \Delta\bm{x}\\
 \Delta\bm{u}\end{bmatrix}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(84)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(93)</span></td>
 </tr></tbody>
 </table>
 </div>
 <div class="ltx_para" id="S8-para:SS1.p4">
 <p class="ltx_p">By inserting the constraint into the cost, we obtain the optimization problem</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:E85">
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:E94">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E85.m1">\min_{\Delta\bm{u}}\quad\Delta\bm{u}^{\scriptscriptstyle\top}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{g}_{\bm{x}}+\Delta\bm{u}^{\scriptscriptstyle\top}\bm{g}_{\bm{u}}+\frac{1}{2}\Delta\bm{u}^{\scriptscriptstyle\top}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{H}_{\bm{x}\bm{x}}\bm{S}_{\bm{u}}\Delta\bm{u}+\Delta\bm{u}^{\scriptscriptstyle\top}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{H}_{\bm{u}\bm{x}}^{\scriptscriptstyle\top}\Delta\bm{u}+\frac{1}{2}\Delta\bm{u}^{\scriptscriptstyle\top}\bm{H}_{\bm{u}\bm{u}}\Delta\bm{u},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E94.m1">\min_{\Delta\bm{u}}\quad\Delta\bm{u}^{\scriptscriptstyle\top}\big(\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{g}_{\bm{x}}+\bm{g}_{\bm{u}}\big)+\frac{1}{2}\Delta\bm{u}^{\scriptscriptstyle\top}\big(\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{H}_{\bm{xx}}\bm{S}_{\bm{u}}+\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{H}_{\bm{ux}}^{\scriptscriptstyle\top}+\bm{H}_{\bm{uu}}\big)\Delta\bm{u}+\Delta\bm{u}^{\scriptscriptstyle\top}\big(\bm{H}_{\bm{ux}}\bm{S}_{\bm{x}}+\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{H}_{\bm{xx}}\bm{S}_{\bm{x}}\big)\Delta\bm{x}_{1}\\
++\frac{1}{2}\Delta\bm{x}_{1}^{\scriptscriptstyle\top}\bm{S}_{\bm{x}}^{\scriptscriptstyle\top}\bm{H}_{\bm{xx}}\bm{S}_{\bm{x}}\Delta\bm{x}_{1}+\Delta\bm{x}_{1}^{\scriptscriptstyle\top}\bm{S}_{\bm{x}}^{\scriptscriptstyle\top}\bm{g}_{\bm{x}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(85)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(94)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">which can be solved analytically by differentiating with respect to <span class="ltx_Math" id="SS1.p4.m1">\Delta\bm{u}</span> and equating to zero, namely,</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:E86">
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:E95">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E86.m1">\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{g}_{\bm{x}}+\bm{g}_{\bm{u}}+\\
-\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{H}_{\bm{x}\bm{x}}\bm{S}_{\bm{u}}\Delta\bm{u}+2\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{H}_{\bm{u}\bm{x}}^{\scriptscriptstyle\top}\Delta\bm{u}+\bm{H}_{\bm{u}\bm{u}}\Delta\bm{u}=0,</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E95.m1">\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{g}_{\bm{x}}+\bm{g}_{\bm{u}}+\big(\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{H}_{\bm{xx}}\bm{S}_{\bm{u}}+\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{H}_{\bm{ux}}^{\scriptscriptstyle\top}+\bm{H}_{\bm{uu}}\big)\Delta\bm{u}+\big(\bm{H}_{\bm{ux}}\bm{S}_{\bm{x}}+\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{H}_{\bm{xx}}\bm{S}_{\bm{x}}\big)\Delta\bm{x}_{1}=0,</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(86)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(95)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">providing the least squares solution</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:E87">
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S8-eq:A5.EGx28">
+<tbody id="S8-eq:Ex76"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex76.m1">\displaystyle\Delta\bm{\hat{u}}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex76.m2">\displaystyle=-{\Big(\underbrace{\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{H}_{\bm{x}\bm{x}}\bm{S}_{\bm{u}}+\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{H}_{\bm{u}\bm{x}}^{\scriptscriptstyle\top}+\bm{H}_{\bm{u}\bm{u}}}_{\bm{Q}_{\bm{u}\bm{u}}}\Big)}^{-1}\Big(\big(\underbrace{\bm{H}_{\bm{ux}}\bm{S}_{\bm{x}}+\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{H}_{\bm{xx}}\bm{S}_{\bm{x}}}_{\bm{Q}_{\bm{u}\bm{x}}}\big)\Delta\bm{x}_{1}+\underbrace{\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{g}_{\bm{x}}+\bm{g}_{\bm{u}}}_{\bm{q}_{\bm{u}}}\Big)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="S8-eq:E96"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_eqn_cell"></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E96.m1">\displaystyle=-\;\bm{Q}_{\bm{u}\bm{u}}^{-1}\;(\bm{Q}_{\bm{u}\bm{x}}\Delta\bm{x}_{1}+\bm{q}_{\bm{u}}).</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(96)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div class="ltx_para" id="S8-para:SS1.p5">
+<p class="ltx_p">As a batch formulation, we seek for a motion to starting from <span class="ltx_Math" id="SS1.p5.m1">\bm{x}_{1}</span>, meaning that <span class="ltx_Math" id="SS1.p5.m2">\Delta\bm{x}_{1}\!=\!\bm{0}</span>, which further simplifies the above equation to</p>
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:E97">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E87.m1">\Delta\bm{\hat{u}}={\left(\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{H}_{\bm{x}\bm{x}}\bm{S}_{\bm{u}}+2\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{H}_{\bm{u}\bm{x}}^{\scriptscriptstyle\top}+\bm{H}_{\bm{u}\bm{u}}\right)}^{-1}\left(-\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{g}_{\bm{x}}-\bm{g}_{\bm{u}}\right),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E97.m1">\Delta\bm{\hat{u}}=-\;\bm{Q}_{\bm{u}\bm{u}}^{-1}\;\bm{q}_{\bm{u}}</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(87)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(97)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">which can be used to update the control commands estimate at each iteration step of the iLQR algorithm.</p>
@@ -143,7 +161,7 @@ The evolution of the state in (<a class="ltx_ref" href="#S8-eq:E82" title="In 8 
 <figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure"><span class="ltx_text">Figure 21</span>: </span><span class="ltx_text">Summary of the iLQR optimization procedure in batch form.
 </span></figcaption>
 </figure>
-<div class="ltx_para" id="S8-para:SS1.p5">
+<div class="ltx_para" id="S8-para:SS1.p6">
 <p class="ltx_p">The complete iLQR procedure is described in Algorithm <a class="ltx_ref" href="#S8-alg:algorithm4" title="In 8.4 Updates by considering step sizes ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">4</span></a> (including backtracking line search). Figure <a class="ltx_ref" href="#S8-fig:F21" title="Figure 21 ‣ 8.1 Batch formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">21</span></a> also presents an illustrative summary of the iLQR optimization procedure in batch form.</p>
 </div>
 </div><div class="ltx_subsection" id="S8-sec:SS2">
@@ -155,13 +173,13 @@ The evolution of the state in (<a class="ltx_ref" href="#S8-eq:E82" title="In 8 
 </div>
 <div class="ltx_para" id="S8-para:SS2.p2">
 <p class="ltx_p">Similarly to (<a class="ltx_ref" href="#S7-eq:E70" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">70</span></a>), we have here</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S8-eq:A5.EGx27">
-<tbody id="S8-eq:E88"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S8-eq:A5.EGx29">
+<tbody id="S8-eq:E98"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E88.m1">\displaystyle\hat{v}_{t}(\Delta\bm{x}_{t})</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E88.m2">\displaystyle=\min_{\Delta\bm{u}_{t}}\,\underbrace{c_{t}(\Delta\bm{x}_{t},\Delta\bm{u}_{t})+\hat{v}_{t+1}(\Delta\bm{x}_{t+1})}_{q_{t}(\Delta\bm{x}_{t},\Delta\bm{u}_{t})},</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E98.m1">\displaystyle\hat{v}_{t}(\Delta\bm{x}_{t})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E98.m2">\displaystyle=\min_{\Delta\bm{u}_{t}}\,\underbrace{c_{t}(\Delta\bm{x}_{t},\Delta\bm{u}_{t})+\hat{v}_{t+1}(\Delta\bm{x}_{t+1})}_{q_{t}(\Delta\bm{x}_{t},\Delta\bm{u}_{t})},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(88)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(98)</span></td>
 </tr></tbody>
 </table>
 </div>
@@ -170,22 +188,22 @@ The evolution of the state in (<a class="ltx_ref" href="#S8-eq:E82" title="In 8 
 </div>
 <div class="ltx_para" id="S8-para:SS2.p4">
 <p class="ltx_p">This dynamic programming recursion takes the form</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:E89">
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:E99">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E89.m1">\hat{v}_{t+1}=\begin{bmatrix}1\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E99.m1">\hat{v}_{t+1}=\begin{bmatrix}1\\
 \Delta\bm{x}_{t+1}\end{bmatrix}^{\!{\scriptscriptstyle\top}}\begin{bmatrix}0&amp;\bm{v}_{\bm{x},{t+1}}^{\scriptscriptstyle\top}\\
 \bm{v}_{\bm{x},{t+1}}&amp;\bm{V}_{\bm{x}\bm{x},{t+1}}\end{bmatrix}\begin{bmatrix}1\\
 \Delta\bm{x}_{t+1}\end{bmatrix},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(89)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(99)</span></td>
 </tr></tbody>
 </table>
-<p class="ltx_p">and we then have with (<a class="ltx_ref" href="#S8-eq:E88" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">88</span></a>) that</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:E90">
+<p class="ltx_p">and we then have with (<a class="ltx_ref" href="#S8-eq:E98" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">98</span></a>) that</p>
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:E100">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E90.m1">\hat{v}_{t}=\min_{\Delta\bm{u}_{t}}\begin{bmatrix}1\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E100.m1">\hat{v}_{t}=\min_{\Delta\bm{u}_{t}}\begin{bmatrix}1\\
 \Delta\bm{x}_{t}\\
 \Delta\bm{u}_{t}\end{bmatrix}^{\!{\scriptscriptstyle\top}}\begin{bmatrix}0&amp;\bm{g}_{\bm{x},{t}}^{\scriptscriptstyle\top}&amp;\bm{g}_{\bm{u},{t}}^{\scriptscriptstyle\top}\\
 \bm{g}_{\bm{x},{t}}&amp;\bm{H}_{\bm{x}\bm{x},{t}}&amp;\bm{H}_{\bm{u}\bm{x},{t}}^{\scriptscriptstyle\top}\\
@@ -197,16 +215,16 @@ The evolution of the state in (<a class="ltx_ref" href="#S8-eq:E82" title="In 8 
 \bm{v}_{\bm{x},{t+1}}&amp;\bm{V}_{\bm{x}\bm{x},{t+1}}\end{bmatrix}\begin{bmatrix}1\\
 \Delta\bm{x}_{t+1}\end{bmatrix}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(90)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(100)</span></td>
 </tr></tbody>
 </table>
 </div>
 <div class="ltx_para" id="S8-para:SS2.p5">
-<p class="ltx_p">By substituting <span class="ltx_Math" id="SS2.p5.m1">\Delta\bm{x}_{t+1}=\bm{A}_{t}\Delta\bm{x}_{t}+\bm{B}_{t}\Delta\bm{u}_{t}</span> into (<a class="ltx_ref" href="#S8-eq:E90" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">90</span></a>), <span class="ltx_Math" id="SS2.p5.m2">\hat{v}_{t}</span> can be rewritten as</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:E91">
+<p class="ltx_p">By substituting <span class="ltx_Math" id="SS2.p5.m1">\Delta\bm{x}_{t+1}=\bm{A}_{t}\Delta\bm{x}_{t}+\bm{B}_{t}\Delta\bm{u}_{t}</span> into (<a class="ltx_ref" href="#S8-eq:E100" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">100</span></a>), <span class="ltx_Math" id="SS2.p5.m2">\hat{v}_{t}</span> can be rewritten as</p>
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:E101">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E91.m1">\hat{v}_{t}=\min_{\Delta\bm{u}_{t}}\begin{bmatrix}1\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E101.m1">\hat{v}_{t}=\min_{\Delta\bm{u}_{t}}\begin{bmatrix}1\\
 \Delta\bm{x}_{t}\\
 \Delta\bm{u}_{t}\end{bmatrix}^{\!\!{\scriptscriptstyle\top}}\!\!\begin{bmatrix}0&amp;\bm{q}_{\bm{x},t}^{\scriptscriptstyle\top}&amp;\bm{q}_{\bm{u},t}^{\scriptscriptstyle\top}\\
 \bm{q}_{\bm{x},t}&amp;\bm{Q}_{\bm{x}\bm{x},t}&amp;\bm{Q}_{\bm{u}\bm{x},t}^{\scriptscriptstyle\top}\\
@@ -219,69 +237,69 @@ The evolution of the state in (<a class="ltx_ref" href="#S8-eq:E82" title="In 8 
 \bm{Q}_{\bm{u}\bm{u},t}&amp;\approx\bm{H}_{\bm{u}\bm{u},t}+\bm{B}_{t}^{\scriptscriptstyle\top}\,\bm{V}_{\bm{x}\bm{x},t+1}\,\bm{B}_{t},\\
 \bm{Q}_{\bm{u}\bm{x},t}&amp;\approx\bm{H}_{\bm{u}\bm{x},t}+\bm{B}_{t}^{\scriptscriptstyle\top}\,\bm{V}_{\bm{x}\bm{x},t+1}\,\bm{A}_{t},\end{aligned}\right.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(91)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(101)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">with gradients</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:Ex76">
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:Ex77">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex76.m1">\bm{g}_{\bm{x},t}=\frac{\partial c}{\partial\bm{x}_{t}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},\quad\bm{g}_{\bm{u},t}=\frac{\partial c}{\partial\bm{u}_{t}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},\quad\bm{v}_{\bm{x},t}=\frac{\partial\hat{v}}{\partial\bm{x}_{t}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},\quad\bm{q}_{\bm{x},t}=\frac{\partial q}{\partial\bm{x}_{t}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},\quad\bm{q}_{\bm{u},t}=\frac{\partial q}{\partial\bm{u}_{t}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex77.m1">\bm{g}_{\bm{x},t}=\frac{\partial c}{\partial\bm{x}_{t}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},\quad\bm{g}_{\bm{u},t}=\frac{\partial c}{\partial\bm{u}_{t}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},\quad\bm{v}_{\bm{x},t}=\frac{\partial\hat{v}}{\partial\bm{x}_{t}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},\quad\bm{q}_{\bm{x},t}=\frac{\partial q}{\partial\bm{x}_{t}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},\quad\bm{q}_{\bm{u},t}=\frac{\partial q}{\partial\bm{u}_{t}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">Jacobian matrices</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:Ex77">
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:Ex78">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex77.m1">\bm{A}_{t}=\frac{\partial\bm{d}}{\partial\bm{x}_{t}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},\quad\bm{B}_{t}=\frac{\partial\bm{d}}{\partial\bm{u}_{t}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex78.m1">\bm{A}_{t}=\frac{\partial\bm{d}}{\partial\bm{x}_{t}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},\quad\bm{B}_{t}=\frac{\partial\bm{d}}{\partial\bm{u}_{t}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">and Hessian matrices</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:Ex78">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex78.m1">\bm{H}_{\bm{x}\bm{x},t}\!=\!\frac{\partial^{2}c}{\partial\bm{x}_{t}^{2}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},\quad\bm{H}_{\bm{u}\bm{u},t}\!=\!\frac{\partial^{2}c}{\partial\bm{u}_{t}^{2}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},\quad\bm{H}_{\bm{u}\bm{x},t}\!=\!\frac{\partial^{2}c}{\partial\bm{u}_{t}\partial\bm{x}_{t}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},\quad\bm{V}_{\bm{x}\bm{x},t}\!=\!\frac{\partial^{2}\hat{v}}{\partial\bm{x}_{t}^{2}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr></tbody>
-</table>
 <table class="ltx_equation ltx_eqn_table" id="S8-eq:Ex79">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex79.m1">\bm{Q}_{\bm{x}\bm{x},t}=\frac{\partial^{2}q}{\partial\bm{x}_{t}^{2}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},\quad\bm{Q}_{\bm{u}\bm{u},t}=\frac{\partial^{2}q}{\partial\bm{u}_{t}^{2}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},\quad\bm{Q}_{\bm{u}\bm{x},t}=\frac{\partial^{2}q}{\partial\bm{u}_{t}\partial\bm{x}_{t}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}}.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex79.m1">\bm{H}_{\bm{x}\bm{x},t}\!=\!\frac{\partial^{2}c}{\partial\bm{x}_{t}^{2}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},\quad\bm{H}_{\bm{u}\bm{u},t}\!=\!\frac{\partial^{2}c}{\partial\bm{u}_{t}^{2}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},\quad\bm{H}_{\bm{u}\bm{x},t}\!=\!\frac{\partial^{2}c}{\partial\bm{u}_{t}\partial\bm{x}_{t}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},\quad\bm{V}_{\bm{x}\bm{x},t}\!=\!\frac{\partial^{2}\hat{v}}{\partial\bm{x}_{t}^{2}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:Ex80">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex80.m1">\bm{Q}_{\bm{x}\bm{x},t}=\frac{\partial^{2}q}{\partial\bm{x}_{t}^{2}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},\quad\bm{Q}_{\bm{u}\bm{u},t}=\frac{\partial^{2}q}{\partial\bm{u}_{t}^{2}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}},\quad\bm{Q}_{\bm{u}\bm{x},t}=\frac{\partial^{2}q}{\partial\bm{u}_{t}\partial\bm{x}_{t}}\Big|_{\bm{\hat{x}}_{t},\bm{\hat{u}}_{t}}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 </div>
 <div class="ltx_para" id="S8-para:SS2.p6">
-<p class="ltx_p">Minimizing (<a class="ltx_ref" href="#S8-eq:E91" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">91</span></a>) w.r.t. <span class="ltx_Math" id="SS2.p6.m1">\Delta\bm{u}_{t}</span> can be achieved by differentiating the equation and equating to zero, yielding the controller</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:E92">
+<p class="ltx_p">Minimizing (<a class="ltx_ref" href="#S8-eq:E101" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">101</span></a>) w.r.t. <span class="ltx_Math" id="SS2.p6.m1">\Delta\bm{u}_{t}</span> can be achieved by differentiating the equation and equating to zero, yielding the controller</p>
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:E102">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E92.m1">\Delta\bm{\hat{u}}_{t}=\bm{k}_{t}+\bm{K}_{t}\,\Delta\bm{x}_{t},\;\text{with}\quad\left\{\begin{aligned} \bm{k}_{t}&amp;=-\bm{Q}_{\bm{u}\bm{u},t}^{-1}\,\bm{q}_{\bm{u},t},\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E102.m1">\Delta\bm{\hat{u}}_{t}=\bm{k}_{t}+\bm{K}_{t}\,\Delta\bm{x}_{t},\;\text{with}\quad\left\{\begin{aligned} \bm{k}_{t}&amp;=-\bm{Q}_{\bm{u}\bm{u},t}^{-1}\,\bm{q}_{\bm{u},t},\\
 \bm{K}_{t}&amp;=-\bm{Q}_{\bm{u}\bm{u},t}^{-1}\,\bm{Q}_{\bm{u}\bm{x},t},\end{aligned}\right.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(92)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(102)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="SS2.p6.m2">\bm{k}_{t}</span> is a feedforward command and <span class="ltx_Math" id="SS2.p6.m3">\bm{K}_{t}</span> is a feedback gain matrix.</p>
 </div>
 <div class="ltx_para" id="S8-para:SS2.p7">
-<p class="ltx_p">By inserting (<a class="ltx_ref" href="#S8-eq:E92" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">92</span></a>) into (<a class="ltx_ref" href="#S8-eq:E91" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">91</span></a>), we get the recursive updates</p>
-<table class="ltx_equationgroup ltx_eqn_table" id="S8-eq:E93">
+<p class="ltx_p">By inserting (<a class="ltx_ref" href="#S8-eq:E102" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">102</span></a>) into (<a class="ltx_ref" href="#S8-eq:E101" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">101</span></a>), we get the recursive updates</p>
+<table class="ltx_equationgroup ltx_eqn_table" id="S8-eq:E103">
 <tbody>
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline" id="E93X">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline" id="E103X">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E93X.m2">\displaystyle\bm{v}_{\bm{x},t}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E93X.m3">\displaystyle=\bm{q}_{\bm{x},t}-\bm{Q}_{\bm{u}\bm{x},t}^{\scriptscriptstyle\top}\,\bm{Q}_{\bm{u}\bm{u},t}^{-1}\,\bm{q}_{\bm{u},t},</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E103X.m2">\displaystyle\bm{v}_{\bm{x},t}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E103X.m3">\displaystyle=\bm{q}_{\bm{x},t}-\bm{Q}_{\bm{u}\bm{x},t}^{\scriptscriptstyle\top}\,\bm{Q}_{\bm{u}\bm{u},t}^{-1}\,\bm{q}_{\bm{u},t},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="2"><span class="ltx_tag ltx_tag_equationgroup ltx_align_right">(93)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="2"><span class="ltx_tag ltx_tag_equationgroup ltx_align_right">(103)</span></td>
 </tr>
-<tr class="ltx_equation ltx_eqn_row ltx_align_baseline" id="E93Xa">
+<tr class="ltx_equation ltx_eqn_row ltx_align_baseline" id="E103Xa">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E93Xa.m2">\displaystyle\bm{V}_{\bm{x}\bm{x},t}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E93Xa.m3">\displaystyle=\bm{Q}_{\bm{x}\bm{x},t}-\bm{Q}_{\bm{u}\bm{x},t}^{\scriptscriptstyle\top}\,\bm{Q}_{\bm{u}\bm{u},t}^{-1}\,\bm{Q}_{\bm{u}\bm{x},t}.</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E103Xa.m2">\displaystyle\bm{V}_{\bm{x}\bm{x},t}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E103Xa.m3">\displaystyle=\bm{Q}_{\bm{x}\bm{x},t}-\bm{Q}_{\bm{u}\bm{x},t}^{\scriptscriptstyle\top}\,\bm{Q}_{\bm{u}\bm{u},t}^{-1}\,\bm{Q}_{\bm{u}\bm{x},t}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr>
 </tbody>
@@ -291,13 +309,13 @@ The evolution of the state in (<a class="ltx_ref" href="#S8-eq:E82" title="In 8 
 <p class="ltx_p">In this recursive iLQR formulation, at each iteration step of the optimization algorithm, the nominal trajectories <span class="ltx_Math" id="SS2.p8.m1">(\bm{\hat{x}}_{t},\bm{\hat{u}}_{t})</span> are refined, together with feedback matrices <span class="ltx_Math" id="SS2.p8.m2">\bm{K}_{t}</span>. Thus, at each iteration step of the optimization algorithm, a backward and forward recursion is performed to evaluate these vectors and matrices. There is thus two types of iterations: one for the optimization algorithm, and one for the dynamic programming recursion performed at each given iteration.</p>
 </div>
 <div class="ltx_para" id="S8-para:SS2.p9">
-<p class="ltx_p">After convergence, by using (<a class="ltx_ref" href="#S8-eq:E92" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">92</span></a>) and the nominal trajectories in the state and control spaces <span class="ltx_Math" id="SS2.p9.m1">(\bm{\hat{x}}_{t},\bm{\hat{u}}_{t})</span>, the resulting controller at each time step <span class="ltx_Math" id="SS2.p9.m2">t</span> is</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:E94">
+<p class="ltx_p">After convergence, by using (<a class="ltx_ref" href="#S8-eq:E102" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">102</span></a>) and the nominal trajectories in the state and control spaces <span class="ltx_Math" id="SS2.p9.m1">(\bm{\hat{x}}_{t},\bm{\hat{u}}_{t})</span>, the resulting controller at each time step <span class="ltx_Math" id="SS2.p9.m2">t</span> is</p>
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:E104">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E94.m1">\bm{u}_{t}=\bm{\hat{u}}_{t}+\bm{K}_{t}\,(\bm{\hat{x}}_{t}-\bm{x}_{t}),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E104.m1">\bm{u}_{t}=\bm{\hat{u}}_{t}+\bm{K}_{t}\,(\bm{\hat{x}}_{t}-\bm{x}_{t}),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(94)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(104)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">where the evolution of the state is described by <span class="ltx_Math" id="SS2.p9.m3">\bm{x}_{t+1}=\bm{d}(\bm{x}_{t},\bm{u}_{t})</span>.</p>
@@ -310,75 +328,55 @@ The evolution of the state in (<a class="ltx_ref" href="#S8-eq:E82" title="In 8 
 <span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">8.3</span> </span><span class="ltx_text">Least squares formulation of recursive iLQR</span>
 </h2>
 <div class="ltx_para" id="S8-para:SS3.p1">
-<p class="ltx_p">First, note that (<a class="ltx_ref" href="#S8-eq:E92" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">92</span></a>) can be rewritten as</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:E95">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<p class="ltx_p">First, we rewrite the batch solution of (<a class="ltx_ref" href="#S8-eq:E96" title="In 8.1 Batch formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">96</span></a>) as</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S8-eq:A5.EGx30">
+<tbody id="S8-eq:E105"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E95.m1">\Delta\bm{\hat{u}}_{t}=\bm{\tilde{K}}_{t}\,\begin{bmatrix}\Delta\bm{x}_{t}\\
-1\end{bmatrix},\;\text{with}\quad\bm{\tilde{K}}_{t}=-\bm{Q}_{\bm{u}\bm{u},t}^{-1}\Big[\bm{Q}_{\bm{u}\bm{x},t},\;\bm{q}_{\bm{u},t}\Big].</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E105.m1">\displaystyle\Delta\bm{\hat{u}}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E105.m2">\displaystyle=-\;\bm{Q}_{\bm{u}\bm{u}}^{-1}\;(\bm{Q}_{\bm{u}\bm{x}}\Delta\bm{x}_{1}+\bm{q}_{\bm{u}})</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(95)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(105)</span></td>
+</tr></tbody>
+<tbody id="S8-eq:E106"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_eqn_cell"></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E106.m1">\displaystyle=\bm{F}\;\Delta\bm{\tilde{x}}_{1}\quad\text{with}\quad\bm{F}=-\;\bm{Q}_{\bm{u}\bm{u}}^{-1}\big[\;\bm{Q}_{\bm{u}\bm{x}},\;\bm{q}_{\bm{u}}\big]\;,\quad\Delta\bm{\tilde{x}}_{1}=\begin{bmatrix}\Delta\bm{x}_{1}\\
+1\end{bmatrix}.</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(106)</span></td>
 </tr></tbody>
 </table>
 </div>
 <div class="ltx_para" id="S8-para:SS3.p2">
-<p class="ltx_p">Also, (<a class="ltx_ref" href="#S8-eq:E85" title="In 8.1 Batch formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">85</span></a>) can be rewritten as</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:Ex80">
+<p class="ltx_p">As in Section <a class="ltx_ref" href="#S7-sec:SS6" title="7.6 Least squares formulation of recursive LQR ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">7.6</span></a>, we then decompose <span class="ltx_Math" id="SS3.p2.m1">\bm{F}</span> as block matrices <span class="ltx_Math" id="SS3.p2.m2">\bm{F}_{t}</span> with <span class="ltx_Math" id="SS3.p2.m3">t\in\{1,\ldots,T-1\}</span>. <span class="ltx_Math" id="SS3.p2.m4">\bm{F}</span> can then be used to iteratively reconstruct regulation gains <span class="ltx_Math" id="SS3.p2.m5">\bm{\tilde{K}}_{t}</span>, by starting from <span class="ltx_Math" id="SS3.p2.m6">\bm{\tilde{K}}_{1}=\bm{F}_{1}</span>, <span class="ltx_Math" id="SS3.p2.m7">\bm{P}_{1}=\bm{I}</span>, and by computing with forward recursion</p>
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:Ex81">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex80.m1">\min_{\Delta\bm{u}}\quad\underbrace{\frac{1}{2}\begin{bmatrix}\Delta\bm{u}\\
-1\end{bmatrix}^{\scriptscriptstyle\top}\begin{bmatrix}\bm{C}&amp;\bm{c}\\
-\bm{c}^{\scriptscriptstyle\top}&amp;0\end{bmatrix}\begin{bmatrix}\Delta\bm{u}\\
-1\end{bmatrix}}_{\frac{1}{2}\Delta\bm{u}^{\scriptscriptstyle\top}\bm{C}\Delta\bm{u}+\Delta\bm{u}^{\scriptscriptstyle\top}\bm{c}},\quad\text{where}\quad\left\{\begin{aligned} \bm{c}&amp;=\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{g}_{\bm{x}}+\bm{g}_{\bm{u}},\\
-\bm{C}&amp;=\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{H}_{\bm{x}\bm{x}}\bm{S}_{\bm{u}}+2\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{H}_{\bm{u}\bm{x}}^{\scriptscriptstyle\top}+\bm{H}_{\bm{u}\bm{u}}.\end{aligned}\right.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex81.m1">\bm{P}_{t}=\bm{P}_{t-1}{(\bm{A}_{t-1}+\bm{B}_{t-1}\bm{\tilde{K}}_{t-1})}^{-1},\quad\bm{\tilde{K}}_{t}=\bm{F}_{t}\;\bm{P}_{t},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
+<p class="ltx_p">from <span class="ltx_Math" id="SS3.p2.m8">t=2</span> to <span class="ltx_Math" id="SS3.p2.m9">t=T-1</span>.</p>
 </div>
 <div class="ltx_para" id="S8-para:SS3.p3">
-<p class="ltx_p">Similarly to Section <a class="ltx_ref" href="#S7-sec:SS6" title="7.6 Least squares formulation of recursive LQR ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">7.6</span></a>, we set</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:E96">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<p class="ltx_p">These gains provide the controller</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S8-eq:A5.EGx31">
+<tbody id="S8-eq:Ex82"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E96.m1">\Delta\bm{u}=-\bm{F}\begin{bmatrix}\Delta\bm{x}_{1}\\
-1\end{bmatrix}=-\bm{F}\begin{bmatrix}\bm{0}\\
-1\end{bmatrix}=-\bm{F}\Delta\bm{\tilde{x}}_{1},</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex82.m1">\displaystyle\Delta\bm{\hat{u}}_{t}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex82.m2">\displaystyle=\bm{\tilde{K}}_{t}\,\begin{bmatrix}\Delta\bm{x}_{t}\\
+1\end{bmatrix}</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(96)</span></td>
+</tr></tbody>
+<tbody id="S8-eq:E107"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_eqn_cell"></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E107.m1">\displaystyle=\bm{k}_{t}+\bm{K}_{t}\,\Delta\bm{x}_{t},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(107)</span></td>
 </tr></tbody>
 </table>
-<p class="ltx_p">and redefine the optimization problem as</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:E97">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E97.m1">\min_{\bm{F}}\quad\frac{1}{2}\Delta\bm{\tilde{x}}_{1}^{\scriptscriptstyle\top}\bm{F}^{\scriptscriptstyle\top}\bm{C}\bm{F}\Delta\bm{\tilde{x}}_{1}-\Delta\bm{\tilde{x}}_{1}^{\scriptscriptstyle\top}\bm{F}^{\scriptscriptstyle\top}\bm{c}.</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(97)</span></td>
-</tr></tbody>
-</table>
-</div>
-<div class="ltx_para" id="S8-para:SS3.p4">
-<p class="ltx_p">By differentiating w.r.t. <span class="ltx_Math" id="SS3.p4.m1">\bm{F}</span> and equating to zero, we get</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:E98">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E98.m1">\bm{F}\Delta\bm{\tilde{x}}_{1}=\bm{C}^{-1}\bm{c}.</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(98)</span></td>
-</tr></tbody>
-</table>
-</div>
-<div class="ltx_para" id="S8-para:SS3.p5">
-<p class="ltx_p">Similarly to Section <a class="ltx_ref" href="#S7-sec:SS6" title="7.6 Least squares formulation of recursive LQR ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">7.6</span></a>, we decompose <span class="ltx_Math" id="SS3.p5.m1">\bm{F}</span> as block matrices <span class="ltx_Math" id="SS3.p5.m2">\bm{F}_{t}</span> with <span class="ltx_Math" id="SS3.p5.m3">t\in\{1,\ldots,T-1\}</span>. <span class="ltx_Math" id="SS3.p5.m4">\bm{F}</span> can then be used to iteratively reconstruct regulation gains <span class="ltx_Math" id="SS3.p5.m5">\bm{K}_{t}</span>, by starting from <span class="ltx_Math" id="SS3.p5.m6">\bm{K}_{1}=\bm{F}_{1}</span>, <span class="ltx_Math" id="SS3.p5.m7">\bm{P}_{1}=\bm{I}</span>, and by computing with forward recursion</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:E99">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E99.m1">\bm{P}_{t}=\bm{P}_{t-1}{(\bm{A}_{t-1}-\bm{B}_{t-1}\bm{K}_{t-1})}^{-1},\quad\bm{K}_{t}=\bm{F}_{t}\;\bm{P}_{t},</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(99)</span></td>
-</tr></tbody>
-</table>
-<p class="ltx_p">from <span class="ltx_Math" id="SS3.p5.m8">t=2</span> to <span class="ltx_Math" id="SS3.p5.m9">t=T-1</span>.</p>
+<p class="ltx_p">with a formulation as in (<a class="ltx_ref" href="#S8-eq:E102" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">102</span></a>), where <span class="ltx_Math" id="SS3.p3.m1">\bm{k}_{t}</span> is a feedforward command and <span class="ltx_Math" id="SS3.p3.m2">\bm{K}_{t}</span> is a feedback gain matrix.</p>
 </div>
 </div><div class="ltx_subsection" id="S8-sec:SS4">
 <h2 class="ltx_title ltx_title_subsection">
@@ -399,22 +397,22 @@ Initialize <span class="ltx_Math" id="algorithm4.m6">\bm{\hat{u}}</span>
 Compute <span class="ltx_Math" id="algorithm4.m7">\bm{\hat{x}}</span> using <span class="ltx_Math" id="algorithm4.m8">\bm{\hat{u}}</span>, <span class="ltx_Math" id="algorithm4.m9">\bm{d}(\cdot)</span>, and <span class="ltx_Math" id="algorithm4.m10">\bm{x}_{1}</span>
 </div>
 <div class="ltx_listingline">  <span class="ltx_rule"> </span>   
-Compute <span class="ltx_Math" id="algorithm4.m11">\bm{A}_{t},\bm{B}_{t}</span> in (<a class="ltx_ref" href="#S8-eq:E82" title="In 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">82</span></a>) 
+Compute <span class="ltx_Math" id="algorithm4.m11">\bm{A}_{t},\bm{B}_{t}</span> in (<a class="ltx_ref" href="#S8-eq:E91" title="In 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">91</span></a>) 
 </div>
 <div class="ltx_listingline">  <span class="ltx_rule"> </span>   
-Compute <span class="ltx_Math" id="algorithm4.m12">\bm{S}_{\bm{u}}</span> with (<a class="ltx_ref" href="#A1-eq:E188" title="In Appendix A System dynamics at trajectory level ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">188</span></a>) 
+Compute <span class="ltx_Math" id="algorithm4.m12">\bm{S}_{\bm{u}}</span> with (<a class="ltx_ref" href="#A1-eq:E195" title="In Appendix A System dynamics at trajectory level ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">195</span></a>) 
 </div>
 <div class="ltx_listingline">  <span class="ltx_rule"> </span>   
-Compute <span class="ltx_Math" id="algorithm4.m13">\bm{g}_{\bm{\cdot}}</span> and <span class="ltx_Math" id="algorithm4.m14">\bm{H}_{\bm{\cdot}}</span> in (<a class="ltx_ref" href="#S8-eq:E84" title="In 8.1 Batch formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">84</span></a>), using (<a class="ltx_ref" href="#S8-eq:E83" title="In 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">83</span></a>) 
+Compute <span class="ltx_Math" id="algorithm4.m13">\bm{g}_{\bm{\cdot}}</span> and <span class="ltx_Math" id="algorithm4.m14">\bm{H}_{\bm{\cdot}}</span> in (<a class="ltx_ref" href="#S8-eq:E93" title="In 8.1 Batch formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">93</span></a>), using (<a class="ltx_ref" href="#S8-eq:E92" title="In 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">92</span></a>) 
 </div>
 <div class="ltx_listingline">  <span class="ltx_rule"> </span>   
-Compute <span class="ltx_Math" id="algorithm4.m15">\Delta\bm{\hat{u}}</span> with (<a class="ltx_ref" href="#S8-eq:E87" title="In 8.1 Batch formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">87</span></a>) 
+Compute <span class="ltx_Math" id="algorithm4.m15">\Delta\bm{\hat{u}}</span> with (<a class="ltx_ref" href="#S8-eq:E97" title="In 8.1 Batch formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">97</span></a>) 
 </div>
 <div class="ltx_listingline">  <span class="ltx_rule"> </span>   
 Compute <span class="ltx_Math" id="algorithm4.m16">\alpha</span> with Algorithm <a class="ltx_ref" href="#S3-alg:algorithm1" title="In 3.1 Gradient descent ‣ 3 Cost function minimization problems ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">1</span></a>
 </div>
 <div class="ltx_listingline">  <span class="ltx_rule"> </span>   
-Update <span class="ltx_Math" id="algorithm4.m17">\bm{\hat{u}}</span> with (<a class="ltx_ref" href="#S8-eq:E100" title="In 8.4 Updates by considering step sizes ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">100</span></a>)
+Update <span class="ltx_Math" id="algorithm4.m17">\bm{\hat{u}}</span> with (<a class="ltx_ref" href="#S8-eq:E108" title="In 8.4 Updates by considering step sizes ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">108</span></a>)
 
 </div>
 <div class="ltx_listingline">
@@ -443,10 +441,10 @@ Compute <span class="ltx_Math" id="algorithm5.m7">\bm{\hat{x}}</span> using <spa
 <span class="ltx_text ltx_font_typewriter">// </span><span class="ltx_text ltx_font_typewriter">Evaluating derivatives </span>
 </div>
 <div class="ltx_listingline">  <span class="ltx_rule"> </span>   
-Compute all <span class="ltx_Math" id="algorithm5.m11">\bm{A}_{t},\bm{B}_{t}</span> in (<a class="ltx_ref" href="#S8-eq:E82" title="In 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">82</span></a>) 
+Compute all <span class="ltx_Math" id="algorithm5.m11">\bm{A}_{t},\bm{B}_{t}</span> in (<a class="ltx_ref" href="#S8-eq:E91" title="In 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">91</span></a>) 
 </div>
 <div class="ltx_listingline">  <span class="ltx_rule"> </span>   
-Compute all <span class="ltx_Math" id="algorithm5.m12">\bm{g}_{\bm{\cdot},t}</span> and <span class="ltx_Math" id="algorithm5.m13">\bm{H}_{\bm{\cdot},t}</span> in (<a class="ltx_ref" href="#S8-eq:E83" title="In 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">83</span></a>) 
+Compute all <span class="ltx_Math" id="algorithm5.m12">\bm{g}_{\bm{\cdot},t}</span> and <span class="ltx_Math" id="algorithm5.m13">\bm{H}_{\bm{\cdot},t}</span> in (<a class="ltx_ref" href="#S8-eq:E92" title="In 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">92</span></a>) 
 </div>
 <div class="ltx_listingline">  <span class="ltx_rule"> </span>   
 <span class="ltx_text ltx_font_typewriter">// </span><span class="ltx_text ltx_font_typewriter">Backward pass </span>
@@ -458,13 +456,13 @@ Set <span class="ltx_Math" id="algorithm5.m14">\bm{v}_{\bm{x},T}=\bm{g}_{\bm{x},
 <span class="ltx_text ltx_font_bold">for</span> <em class="ltx_emph ltx_font_italic"><span class="ltx_Math" id="algorithm5.m16">t\leftarrow T-1</span> to <span class="ltx_Math" id="algorithm5.m17">1</span></em> <span class="ltx_text ltx_font_bold">do</span>
 </div>
 <div class="ltx_listingline">  <span class="ltx_rule"> </span>     <span class="ltx_rule"> </span>   
-Compute <span class="ltx_Math" id="algorithm5.m18">\bm{q}_{\bm{\cdot},t}</span> and <span class="ltx_Math" id="algorithm5.m19">\bm{Q}_{\bm{\cdot},t}</span> with (<a class="ltx_ref" href="#S8-eq:E91" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">91</span></a>) 
+Compute <span class="ltx_Math" id="algorithm5.m18">\bm{q}_{\bm{\cdot},t}</span> and <span class="ltx_Math" id="algorithm5.m19">\bm{Q}_{\bm{\cdot},t}</span> with (<a class="ltx_ref" href="#S8-eq:E101" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">101</span></a>) 
 </div>
 <div class="ltx_listingline">  <span class="ltx_rule"> </span>     <span class="ltx_rule"> </span>   
-Compute <span class="ltx_Math" id="algorithm5.m20">\bm{k}_{t}</span> and <span class="ltx_Math" id="algorithm5.m21">\bm{K}_{t}</span> with (<a class="ltx_ref" href="#S8-eq:E92" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">92</span></a>) 
+Compute <span class="ltx_Math" id="algorithm5.m20">\bm{k}_{t}</span> and <span class="ltx_Math" id="algorithm5.m21">\bm{K}_{t}</span> with (<a class="ltx_ref" href="#S8-eq:E102" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">102</span></a>) 
 </div>
 <div class="ltx_listingline">  <span class="ltx_rule"> </span>     <span class="ltx_rule"> </span>   
-Compute <span class="ltx_Math" id="algorithm5.m22">\bm{v}_{\bm{x},t}</span> and <span class="ltx_Math" id="algorithm5.m23">\bm{V}_{\bm{x}\bm{x},t}</span> with (<a class="ltx_ref" href="#S8-eq:E93" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">93</span></a>)
+Compute <span class="ltx_Math" id="algorithm5.m22">\bm{v}_{\bm{x},t}</span> and <span class="ltx_Math" id="algorithm5.m23">\bm{V}_{\bm{x}\bm{x},t}</span> with (<a class="ltx_ref" href="#S8-eq:E103" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">103</span></a>)
 
 </div>
 <div class="ltx_listingline">  <span class="ltx_rule"> </span>    end for
@@ -484,7 +482,7 @@ Compute <span class="ltx_Math" id="algorithm5.m22">\bm{v}_{\bm{x},t}</span> and 
 <span class="ltx_text ltx_font_bold">for</span> <em class="ltx_emph ltx_font_italic"><span class="ltx_Math" id="algorithm5.m27">t\leftarrow 1</span> to <span class="ltx_Math" id="algorithm5.m28">T-1</span></em> <span class="ltx_text ltx_font_bold">do</span>
 </div>
 <div class="ltx_listingline">  <span class="ltx_rule"> </span>     <span class="ltx_rule"> </span>     <span class="ltx_rule"> </span>   
-Update <span class="ltx_Math" id="algorithm5.m29">\bm{\hat{u}}_{t}</span> with (<a class="ltx_ref" href="#S8-eq:E101" title="In 8.4 Updates by considering step sizes ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">101</span></a>) 
+Update <span class="ltx_Math" id="algorithm5.m29">\bm{\hat{u}}_{t}</span> with (<a class="ltx_ref" href="#S8-eq:E109" title="In 8.4 Updates by considering step sizes ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">109</span></a>) 
 </div>
 <div class="ltx_listingline">  <span class="ltx_rule"> </span>     <span class="ltx_rule"> </span>     <span class="ltx_rule"> </span>   
 Compute <span class="ltx_Math" id="algorithm5.m30">\bm{\hat{x}}_{t+1}</span> with <span class="ltx_Math" id="algorithm5.m31">\bm{d}(\cdot)</span>
@@ -500,7 +498,7 @@ Compute <span class="ltx_Math" id="algorithm5.m30">\bm{\hat{x}}_{t+1}</span> wit
 <div class="ltx_listingline">
 <span class="ltx_text ltx_font_bold">until</span> <em class="ltx_emph ltx_font_italic"><span class="ltx_Math" id="algorithm5.m32">\|\Delta\bm{\hat{u}}\|&lt;\Delta_{\min}</span></em>;
 </div>
-<div class="ltx_listingline">Use (<a class="ltx_ref" href="#S8-eq:E94" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">94</span></a>) and <span class="ltx_Math" id="algorithm5.m33">\bm{d}(\cdot)</span> for reproduction 
+<div class="ltx_listingline">Use (<a class="ltx_ref" href="#S8-eq:E104" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">104</span></a>) and <span class="ltx_Math" id="algorithm5.m33">\bm{d}(\cdot)</span> for reproduction 
 </div>
 <div class="ltx_listingline">
 </div>
@@ -509,25 +507,25 @@ Compute <span class="ltx_Math" id="algorithm5.m30">\bm{\hat{x}}_{t+1}</span> wit
 </figure>
 <div class="ltx_para" id="S8-para:SS4.p1">
 <p class="ltx_p">iLQR typically requires to estimate a step size <span class="ltx_Math" id="SS4.p1.m1">\alpha</span> at each iteration to scale the control command updates.
-For the batch formulation in Section <a class="ltx_ref" href="#S8-sec:SS1" title="8.1 Batch formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">8.1</span></a>, this can be achieved by setting the update (<a class="ltx_ref" href="#S8-eq:E87" title="In 8.1 Batch formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">87</span></a>) as</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:E100">
+For the batch formulation in Section <a class="ltx_ref" href="#S8-sec:SS1" title="8.1 Batch formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">8.1</span></a>, this can be achieved by setting the update (<a class="ltx_ref" href="#S8-eq:E97" title="In 8.1 Batch formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">97</span></a>) as</p>
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:E108">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E100.m1">\bm{\hat{u}}\leftarrow\bm{\hat{u}}+\alpha\;\Delta\bm{\hat{u}},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E108.m1">\bm{\hat{u}}\leftarrow\bm{\hat{u}}+\alpha\;\Delta\bm{\hat{u}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(100)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(108)</span></td>
 </tr></tbody>
 </table>
-<p class="ltx_p">where the resulting procedure consists of estimating a descent direction with (<a class="ltx_ref" href="#S8-eq:E87" title="In 8.1 Batch formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">87</span></a>) along which the objective function will be reduced, and then estimating with (<a class="ltx_ref" href="#S8-eq:E100" title="In 8.4 Updates by considering step sizes ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">100</span></a>) a step size that determines how far one can move along this direction.</p>
+<p class="ltx_p">where the resulting procedure consists of estimating a descent direction with (<a class="ltx_ref" href="#S8-eq:E97" title="In 8.1 Batch formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">97</span></a>) along which the objective function will be reduced, and then estimating with (<a class="ltx_ref" href="#S8-eq:E108" title="In 8.4 Updates by considering step sizes ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">108</span></a>) a step size that determines how far one can move along this direction.</p>
 </div>
 <div class="ltx_para" id="S8-para:SS4.p2">
-<p class="ltx_p">For the recursive formulation in Section <a class="ltx_ref" href="#S8-sec:SS2" title="8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">8.2</span></a>, this can be achieved by setting the update (<a class="ltx_ref" href="#S8-eq:E92" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">92</span></a>) as</p>
-<table class="ltx_equation ltx_eqn_table" id="S8-eq:E101">
+<p class="ltx_p">For the recursive formulation in Section <a class="ltx_ref" href="#S8-sec:SS2" title="8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">8.2</span></a>, this can be achieved by setting the update (<a class="ltx_ref" href="#S8-eq:E102" title="In 8.2 Recursive formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">102</span></a>) as</p>
+<table class="ltx_equation ltx_eqn_table" id="S8-eq:E109">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E101.m1">\bm{\hat{u}}_{t}\leftarrow\bm{\hat{u}}_{t}+\alpha\;\bm{k}_{t}+\bm{K}_{t}\,\Delta\bm{x}_{t}.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E109.m1">\bm{\hat{u}}_{t}\leftarrow\bm{\hat{u}}_{t}+\alpha\;\bm{k}_{t}+\bm{K}_{t}\,\Delta\bm{x}_{t}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(101)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(109)</span></td>
 </tr></tbody>
 </table>
 </div>

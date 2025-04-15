@@ -34,12 +34,12 @@ can be directly computed with standard linear algebra, by multiplying matrices w
 <div class="ltx_para" id="S12-para:SSx4.p1">
 <p class="ltx_p">The unit quaternion is a nonminimal representation of rotations which shares some similarities with the axis-angle representation but that overcomes its limitations.
 A unit quaternion can be stored as a vector of 4 elements, but it can also be interpreted as a single number, in the same way as a complex number can be stored as a vector of two elements with the real and imaginary part. Indeed, the quaternion is an extension of complex numbers (with <span class="ltx_Math" id="SSx4.p1.m1">i^{2}=-1</span>) to additional abstract symbols <span class="ltx_Math" id="SSx4.p1.m2">i</span>, <span class="ltx_Math" id="SSx4.p1.m3">j</span>, <span class="ltx_Math" id="SSx4.p1.m4">k</span> satisfying the rules</p>
-<table class="ltx_equation ltx_eqn_table" id="S12-eq:E174">
+<table class="ltx_equation ltx_eqn_table" id="S12-eq:E181">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E174.m1">i^{2}=j^{2}=k^{2}=ijk=-1.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E181.m1">i^{2}=j^{2}=k^{2}=ijk=-1.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(174)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(181)</span></td>
 </tr></tbody>
 </table>
 </div>
@@ -48,27 +48,27 @@ A unit quaternion can be stored as a vector of 4 elements, but it can also be in
 </div>
 <div class="ltx_para" id="S12-para:SSx4.p3">
 <p class="ltx_p">While the quaternion describes a number, it is convenient in practice to store the parameters of the quaternion number <span class="ltx_Math" id="SSx4.p3.m1">q_{1}+q_{2}i+q_{3}j+q_{4}k</span> as a vector</p>
-<table class="ltx_equation ltx_eqn_table" id="S12-eq:E175">
+<table class="ltx_equation ltx_eqn_table" id="S12-eq:E182">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E175.m1">\bm{q}=\begin{bmatrix}q_{1}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E182.m1">\bm{q}=\begin{bmatrix}q_{1}\\
 q_{2}\\
 q_{3}\\
 q_{4}\end{bmatrix}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(175)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(182)</span></td>
 </tr></tbody>
 </table>
 </div>
 <div class="ltx_para" id="S12-para:SSx4.p4">
 <p class="ltx_p">The conversion from an axis-angle representation is simple and shows the connections between the two representations. For a unit axis <span class="ltx_Math" id="SSx4.p4.m1">\bm{u}</span> and a rotation angle <span class="ltx_Math" id="SSx4.p4.m2">\theta</span>, we have</p>
-<table class="ltx_equation ltx_eqn_table" id="S12-eq:E176">
+<table class="ltx_equation ltx_eqn_table" id="S12-eq:E183">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E176.m1">\bm{q}=\begin{bmatrix}\cos{\frac{\theta}{2}}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E183.m1">\bm{q}=\begin{bmatrix}\cos{\frac{\theta}{2}}\\
 {\bm{u}}\sin{\frac{\theta}{2}}\end{bmatrix}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(176)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(183)</span></td>
 </tr></tbody>
 </table>
 </div>
@@ -77,28 +77,28 @@ q_{4}\end{bmatrix}.</span></td>
 </div>
 <div class="ltx_para" id="S12-para:SSx4.p6">
 <p class="ltx_p">Conversions between quaternion algebra and linear algebra are possible. For example, the above quaternion rotation corresponds to the matrix rotation <span class="ltx_Math" id="SSx4.p6.m1">\bm{p}^{\prime}=\bm{R}\,\bm{p}</span> in standard linear algebra, where <span class="ltx_Math" id="SSx4.p6.m2">\bm{R}</span> is a rotation matrix given by</p>
-<table class="ltx_equation ltx_eqn_table" id="S12-eq:E177">
+<table class="ltx_equation ltx_eqn_table" id="S12-eq:E184">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E177.m1">\bm{R}=\begin{bmatrix}1-2q_{3}^{2}-2q_{4}^{2}&amp;2q_{2}q_{3}-2q_{4}q_{1}&amp;2q_{2}q_{4}+2q_{3}q_{1}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E184.m1">\bm{R}=\begin{bmatrix}1-2q_{3}^{2}-2q_{4}^{2}&amp;2q_{2}q_{3}-2q_{4}q_{1}&amp;2q_{2}q_{4}+2q_{3}q_{1}\\
 2q_{2}q_{3}+2q_{4}q_{1}&amp;1-2q_{2}^{2}-2q_{4}^{2}&amp;2q_{3}q_{4}-2q_{2}q_{1}\\
 2q_{2}q_{4}-2q_{3}q_{1}&amp;2q_{3}q_{4}+2q_{2}q_{1}&amp;1-2q_{2}^{2}-2q_{3}^{2}\end{bmatrix}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(177)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(184)</span></td>
 </tr></tbody>
 </table>
 </div>
 <div class="ltx_para" id="S12-para:SSx4.p7">
 <p class="ltx_p">A rotation matrix <span class="ltx_Math" id="SSx4.p7.m1">\bm{R}</span> can reversely be converted to a quaternion <span class="ltx_Math" id="SSx4.p7.m2">\bm{q}</span> by constructing a symmetric <span class="ltx_Math" id="SSx4.p7.m3">4\times 4</span> matrix</p>
-<table class="ltx_equation ltx_eqn_table" id="S12-eq:E178">
+<table class="ltx_equation ltx_eqn_table" id="S12-eq:E185">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E178.m1">K={\frac{1}{3}}{\begin{bmatrix}R_{11}\!-\!R_{22}\!-\!R_{33}&amp;R_{21}\!+\!R_{12}&amp;R_{31}\!+\!R_{13}&amp;R_{23}\!-\!R_{32}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E185.m1">K={\frac{1}{3}}{\begin{bmatrix}R_{11}\!-\!R_{22}\!-\!R_{33}&amp;R_{21}\!+\!R_{12}&amp;R_{31}\!+\!R_{13}&amp;R_{23}\!-\!R_{32}\\
 R_{21}\!+\!R_{12}&amp;R_{22}\!-\!R_{11}\!-\!R_{33}&amp;R_{32}\!+\!R_{23}&amp;R_{31}\!-\!R_{13}\\
 R_{31}\!+\!R_{13}&amp;R_{32}\!+\!R_{23}&amp;R_{33}\!-\!R_{11}\!-\!R_{22}&amp;R_{12}\!-\!R_{21}\\
 R_{23}\!-\!R_{32}&amp;R_{31}\!-\!R_{13}&amp;R_{12}\!-\!R_{21}&amp;R_{11}\!+\!R_{22}\!+\!R_{33}\end{bmatrix}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(178)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(185)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">whose largest eigenvalue corresponds to <span class="ltx_Math" id="SSx4.p7.m4">\bm{q}</span>.</p>
@@ -145,61 +145,61 @@ Parallel transport <span class="ltx_Math" id="SS1.p3.m12">\Gamma_{\bm{g}{\script
 </div>
 <div class="ltx_para" id="S12-para:SS2.p2">
 <p class="ltx_p">The exponential and logarithmic maps corresponding to the distance</p>
-<table class="ltx_equation ltx_eqn_table" id="S12-eq:E179">
+<table class="ltx_equation ltx_eqn_table" id="S12-eq:E186">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E179.m1">d(\bm{x},\bm{y})=\arccos(\bm{x}^{\scriptscriptstyle\top}\bm{y}),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E186.m1">d(\bm{x},\bm{y})=\arccos(\bm{x}^{\scriptscriptstyle\top}\bm{y}),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(179)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(186)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">with <span class="ltx_Math" id="SS2.p2.m1">\bm{x},\bm{y}\in\mathcal{S}^{d}</span> computed as</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S12-eq:A5.EGx49">
-<tbody id="S12-eq:E180"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S12-eq:A5.EGx52">
+<tbody id="S12-eq:E187"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E180.m1">\displaystyle\bm{y}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E180.m2">\displaystyle=\text{Exp}_{\bm{x}}(\bm{u})=\bm{x}\cos(\|\bm{u}\|)+\frac{\bm{u}}{\|\bm{u}\|}\sin(\|\bm{u}\|),</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E187.m1">\displaystyle\bm{y}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E187.m2">\displaystyle=\text{Exp}_{\bm{x}}(\bm{u})=\bm{x}\cos(\|\bm{u}\|)+\frac{\bm{u}}{\|\bm{u}\|}\sin(\|\bm{u}\|),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(180)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(187)</span></td>
 </tr></tbody>
-<tbody id="S12-eq:E181"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S12-eq:E188"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E181.m1">\displaystyle\bm{u}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E181.m2">\displaystyle=\text{Log}_{\bm{x}}(\bm{y})=d(\bm{x},\bm{y})\,\frac{\bm{y}-\bm{x}^{\scriptscriptstyle\top}\bm{y}\,\bm{x}}{\|\bm{y}-\bm{x}^{\scriptscriptstyle\top}\bm{y}\,\bm{x}\|}.</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E188.m1">\displaystyle\bm{u}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E188.m2">\displaystyle=\text{Log}_{\bm{x}}(\bm{y})=d(\bm{x},\bm{y})\,\frac{\bm{y}-\bm{x}^{\scriptscriptstyle\top}\bm{y}\,\bm{x}}{\|\bm{y}-\bm{x}^{\scriptscriptstyle\top}\bm{y}\,\bm{x}\|}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(181)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(188)</span></td>
 </tr></tbody>
 </table>
 </div>
 <div class="ltx_para" id="S12-para:SS2.p3">
 <p class="ltx_p">The parallel transport of <span class="ltx_Math" id="SS2.p3.m1">\bm{v}\in\mathcal{T}_{\bm{x}}\mathcal{S}^{d}</span> to <span class="ltx_Math" id="SS2.p3.m2">\mathcal{T}_{\bm{y}}\mathcal{S}^{d}</span> is given by</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S12-eq:A5.EGx50">
-<tbody id="S12-eq:E182"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S12-eq:A5.EGx53">
+<tbody id="S12-eq:E189"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E182.m1">\displaystyle\Gamma_{\bm{x}{\scriptscriptstyle{\to}}\bm{y}}(\bm{v})</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E182.m2">\displaystyle=\bm{v}-\frac{{\text{Log}_{\bm{x}}(\bm{y})}^{\scriptscriptstyle\top}\bm{v}}{d(\bm{x},\bm{y})^{2}}\Big(\text{Log}_{\bm{x}}(\bm{y})+\text{Log}_{\bm{y}}(\bm{x})\Big).</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E189.m1">\displaystyle\Gamma_{\bm{x}{\scriptscriptstyle{\to}}\bm{y}}(\bm{v})</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E189.m2">\displaystyle=\bm{v}-\frac{{\text{Log}_{\bm{x}}(\bm{y})}^{\scriptscriptstyle\top}\bm{v}}{d(\bm{x},\bm{y})^{2}}\Big(\text{Log}_{\bm{x}}(\bm{y})+\text{Log}_{\bm{y}}(\bm{x})\Big).</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(182)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(189)</span></td>
 </tr></tbody>
 </table>
 </div>
 <div class="ltx_para" id="S12-para:SS2.p4">
 <p class="ltx_p">In some applications, it can be convenient to define the parallel transport with the alternative equivalent form</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S12-eq:A5.EGx51">
-<tbody id="S12-eq:E183"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S12-eq:A5.EGx54">
+<tbody id="S12-eq:E190"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E183.m1">\displaystyle\Gamma_{\bm{x}{\scriptscriptstyle{\to}}\bm{y}}(\bm{v})=\bm{A}_{\bm{x}{\scriptscriptstyle{\to}}\bm{y}}\,\bm{v},\quad\mathrm{with}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E190.m1">\displaystyle\Gamma_{\bm{x}{\scriptscriptstyle{\to}}\bm{y}}(\bm{v})=\bm{A}_{\bm{x}{\scriptscriptstyle{\to}}\bm{y}}\,\bm{v},\quad\mathrm{with}</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(183)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(190)</span></td>
 </tr></tbody>
-<tbody id="S12-eq:Ex117"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S12-eq:Ex119"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex117.m1">\displaystyle\bm{A}_{\bm{x}{\scriptscriptstyle{\to}}\bm{y}}=-\bm{x}\sin(\|\bm{u}\|)\bm{\overline{u}}^{{\scriptscriptstyle\top}}+\bm{\overline{u}}\cos(\|\bm{u}\|)\bm{\overline{u}}^{\scriptscriptstyle\top}+(\bm{I}-\bm{\overline{u}}\,\bm{\overline{u}}^{\scriptscriptstyle\top}),</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex119.m1">\displaystyle\bm{A}_{\bm{x}{\scriptscriptstyle{\to}}\bm{y}}=-\bm{x}\sin(\|\bm{u}\|)\bm{\overline{u}}^{{\scriptscriptstyle\top}}+\bm{\overline{u}}\cos(\|\bm{u}\|)\bm{\overline{u}}^{\scriptscriptstyle\top}+(\bm{I}-\bm{\overline{u}}\,\bm{\overline{u}}^{\scriptscriptstyle\top}),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
-<tbody id="S12-eq:Ex118"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S12-eq:Ex120"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex118.m1">\displaystyle\bm{u}=\text{Log}_{\bm{x}}(\bm{y}),\quad\mathrm{and}\quad\bm{\overline{u}}=\frac{\bm{u}}{\|\bm{u}\|},</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex120.m1">\displaystyle\bm{u}=\text{Log}_{\bm{x}}(\bm{y}),\quad\mathrm{and}\quad\bm{\overline{u}}=\frac{\bm{u}}{\|\bm{u}\|},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
@@ -218,10 +218,10 @@ Parallel transport <span class="ltx_Math" id="SS1.p3.m12">\Gamma_{\bm{g}{\script
 </figure>
 <div class="ltx_para" id="S12-para:SS3.p1">
 <p class="ltx_p">Several approaches can be used to extend Gaussian distributions to Riemannian manifolds. The most simple approach consists of estimating the mean of the Gaussian as a centroid on the manifold (also called Karcher/Fréchet mean), and representing the dispersion of the data as a covariance expressed in the tangent space of the mean <cite class="ltx_cite ltx_citemacro_cite">[<a class="ltx_ref" href="#bib-bib:bib11" title="Gaussians on Riemannian manifolds: applications for robot learning and adaptive control">3</a>]</cite>. This is an approximation, because distortions arise when points are too far apart from the mean. However, this distortion is negligible in most robotics applications. In particular, this effect is strongly attenuated when the Gaussian covers a small part of the manifold. This Gaussian representation on a manifold <span class="ltx_Math" id="SS3.p1.m1">\mathcal{M}</span> is defined as</p>
-<table class="ltx_equation ltx_eqn_table" id="S12-eq:Ex119">
+<table class="ltx_equation ltx_eqn_table" id="S12-eq:Ex121">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex119.m1">\mathcal{N}_{\mathcal{M}}(\bm{x}|\bm{\mu},\bm{\Sigma})={\Big((2\pi)^{d}|\bm{\Sigma}|\Big)}^{-\frac{1}{2}}\;e^{-\frac{1}{2}{\text{Log}_{\bm{\mu}}\!(\bm{x})}^{\scriptscriptstyle\top}\,\bm{\Sigma}^{-1}\,\text{Log}_{\bm{\mu}}\!(\bm{x})},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex121.m1">\mathcal{N}_{\mathcal{M}}(\bm{x}|\bm{\mu},\bm{\Sigma})={\Big((2\pi)^{d}|\bm{\Sigma}|\Big)}^{-\frac{1}{2}}\;e^{-\frac{1}{2}{\text{Log}_{\bm{\mu}}\!(\bm{x})}^{\scriptscriptstyle\top}\,\bm{\Sigma}^{-1}\,\text{Log}_{\bm{\mu}}\!(\bm{x})},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
@@ -229,18 +229,18 @@ Parallel transport <span class="ltx_Math" id="SS1.p3.m12">\Gamma_{\bm{g}{\script
 </div>
 <div class="ltx_para" id="S12-para:SS3.p2">
 <p class="ltx_p">For a set of <span class="ltx_Math" id="SS3.p2.m1">N</span> datapoints, this geometric mean corresponds to the minimization</p>
-<table class="ltx_equation ltx_eqn_table" id="S12-eq:Ex120">
+<table class="ltx_equation ltx_eqn_table" id="S12-eq:Ex122">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex120.m1">\min_{\bm{\mu}}\sum_{n=1}^{N}{\text{Log}_{\bm{\mu}}\!(\bm{x}_{n})}^{\scriptscriptstyle\top}\;\text{Log}_{\bm{\mu}}\!(\bm{x}_{n}),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex122.m1">\min_{\bm{\mu}}\sum_{n=1}^{N}{\text{Log}_{\bm{\mu}}\!(\bm{x}_{n})}^{\scriptscriptstyle\top}\;\text{Log}_{\bm{\mu}}\!(\bm{x}_{n}),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">which can be solved by a simple and fast Gauss–Newton iterative algorithm. The algorithm starts from an initial estimate on the manifold and an associated tangent space. The datapoints <span class="ltx_Math" id="SS3.p2.m2">\{\bm{x}_{n}\}_{n=1}^{N}</span> are projected in this tangent space to compute a direction vector, which provides an updated estimate of the mean. This process is repeated by iterating</p>
-<table class="ltx_equation ltx_eqn_table" id="S12-eq:Ex121">
+<table class="ltx_equation ltx_eqn_table" id="S12-eq:Ex123">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex121.m1">\bm{u}=\frac{1}{N}\sum_{n=1}^{N}\text{Log}_{\bm{\mu}}\!(\bm{x}_{n}),\qquad\bm{\mu}\leftarrow\text{Exp}_{\bm{\mu}}\!(\bm{u}),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex123.m1">\bm{u}=\frac{1}{N}\sum_{n=1}^{N}\text{Log}_{\bm{\mu}}\!(\bm{x}_{n}),\qquad\bm{\mu}\leftarrow\text{Exp}_{\bm{\mu}}\!(\bm{u}),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
@@ -276,40 +276,40 @@ A_{12}&amp;A_{22}\end{smallmatrix}\right)</span>. The hyperbolic manifold <span 
 </div>
 <div class="ltx_para" id="S12-para:SS5.p2">
 <p class="ltx_p">For an affine-invariant distance between <span class="ltx_Math" id="SS5.p2.m1">\bm{X},\bm{Y}\in\mathcal{S}_{++}^{d}</span></p>
-<table class="ltx_equation ltx_eqn_table" id="S12-eq:E184">
+<table class="ltx_equation ltx_eqn_table" id="S12-eq:E191">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E184.m1">d(\bm{X},\bm{Y})={\big\|\log(\bm{X}^{-\frac{1}{2}}\bm{Y}\bm{X}^{-\frac{1}{2}})\big\|}_{\text{F}},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E191.m1">d(\bm{X},\bm{Y})={\big\|\log(\bm{X}^{-\frac{1}{2}}\bm{Y}\bm{X}^{-\frac{1}{2}})\big\|}_{\text{F}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(184)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(191)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">the exponential and logarithmic maps on the SPD manifold can be computed as</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S12-eq:A5.EGx52">
-<tbody id="S12-eq:E185"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S12-eq:A5.EGx55">
+<tbody id="S12-eq:E192"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E185.m1">\displaystyle\bm{Y}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E185.m2">\displaystyle=\text{Exp}_{\bm{X}}(\bm{U})=\bm{X}^{\frac{1}{2}}\exp\big(\bm{X}^{-\frac{1}{2}}\bm{U}\bm{X}^{-\frac{1}{2}}\big)\bm{X}^{\frac{1}{2}},</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E192.m1">\displaystyle\bm{Y}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E192.m2">\displaystyle=\text{Exp}_{\bm{X}}(\bm{U})=\bm{X}^{\frac{1}{2}}\exp\big(\bm{X}^{-\frac{1}{2}}\bm{U}\bm{X}^{-\frac{1}{2}}\big)\bm{X}^{\frac{1}{2}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(185)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(192)</span></td>
 </tr></tbody>
-<tbody id="S12-eq:E186"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<tbody id="S12-eq:E193"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E186.m1">\displaystyle\bm{U}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E186.m2">\displaystyle=\text{Log}_{\bm{X}}(\bm{Y})=\bm{X}^{\frac{1}{2}}\log\big(\bm{X}^{-\frac{1}{2}}\bm{Y}\bm{X}^{-\frac{1}{2}}\big)\bm{X}^{\frac{1}{2}}.</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E193.m1">\displaystyle\bm{U}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E193.m2">\displaystyle=\text{Log}_{\bm{X}}(\bm{Y})=\bm{X}^{\frac{1}{2}}\log\big(\bm{X}^{-\frac{1}{2}}\bm{Y}\bm{X}^{-\frac{1}{2}}\big)\bm{X}^{\frac{1}{2}}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(186)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(193)</span></td>
 </tr></tbody>
 </table>
 </div>
 <div class="ltx_para" id="S12-para:SS5.p3">
 <p class="ltx_p">The parallel transport of <span class="ltx_Math" id="SS5.p3.m1">\bm{V}\in\mathcal{T}_{\bm{X}}\mathcal{S}_{++}^{d}</span> to <span class="ltx_Math" id="SS5.p3.m2">\mathcal{T}_{\bm{Y}}\mathcal{S}_{++}^{d}</span> is given by</p>
-<table class="ltx_equation ltx_eqn_table" id="S12-eq:E187">
+<table class="ltx_equation ltx_eqn_table" id="S12-eq:E194">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E187.m1">\Gamma_{\bm{X}{\scriptscriptstyle{\to}}\bm{Y}}(\bm{V})=\bm{A}_{\bm{X}{\scriptscriptstyle{\to}}\bm{Y}}\,\bm{V}\,\bm{A}_{\bm{X}{\scriptscriptstyle{\to}}\bm{Y}}^{\scriptscriptstyle\top},\,\mathrm{with}\,\bm{A}_{\bm{X}{\scriptscriptstyle{\to}}\bm{Y}}=\bm{Y}^{\frac{1}{2}}\bm{X}^{-\frac{1}{2}}.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E194.m1">\Gamma_{\bm{X}{\scriptscriptstyle{\to}}\bm{Y}}(\bm{V})=\bm{A}_{\bm{X}{\scriptscriptstyle{\to}}\bm{Y}}\,\bm{V}\,\bm{A}_{\bm{X}{\scriptscriptstyle{\to}}\bm{Y}}^{\scriptscriptstyle\top},\,\mathrm{with}\,\bm{A}_{\bm{X}{\scriptscriptstyle{\to}}\bm{Y}}=\bm{Y}^{\frac{1}{2}}\bm{X}^{-\frac{1}{2}}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(187)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(194)</span></td>
 </tr></tbody>
 </table>
 </div>
@@ -335,7 +335,7 @@ The movement in dashed lines show the baseline movements that would be produced 
 </span></figcaption>
 </figure>
 <div class="ltx_para" id="S12-para:SS6.p1">
-<p class="ltx_p">Manifolds with nonconstant curvature can also be employed, such as spaces endowed with a metric, characterized by a weighting matrix used to compute distances. Many problems in robotics can be formulated with such a smoothly varying matrix <span class="ltx_Math" id="SS6.p1.m1">\bm{G}(\bm{x})</span> that can for example be used to evaluate displacements <span class="ltx_Math" id="SS6.p1.m2">\Delta\bm{x}</span> as a quadratic error term <span class="ltx_Math" id="SS6.p1.m3">c(\Delta\bm{x})=\Delta\bm{x}^{\scriptscriptstyle\top}\bm{G}(\bm{x})\Delta\bm{x}</span>, forming a Riemannian metric that describes the underlying manifold (with non-homogeneous curvature). This weighting matrix can for example represent levels of kinetic energy or stiffness gains to model varying impedance behaviors. Computation is often more costly for these manifolds with nonconstant curvature, because it typically requires iterative algorithms instead of the direct analytic expressions typically provided by homogeneous manifolds.</p>
+<p class="ltx_p">Manifolds with nonconstant curvature can also be employed, such as spaces endowed with a metric, characterized by a weighting matrix used to compute distances. Many problems in robotics can be formulated with such a smoothly varying matrix <span class="ltx_Math" id="SS6.p1.m1">\bm{G}(\bm{x})</span> that can for example be used to evaluate velocity commands <span class="ltx_Math" id="SS6.p1.m2">\bm{u}</span> as a quadratic error term <span class="ltx_Math" id="SS6.p1.m3">c(\bm{u})=\bm{u}^{\scriptscriptstyle\top}\bm{G}(\bm{x})\bm{u}</span>, forming a Riemannian metric that describes the underlying manifold (with non-homogeneous curvature). This weighting matrix can for example represent levels of kinetic energy or stiffness gains to model varying impedance behaviors. Computation is often more costly for these manifolds with nonconstant curvature, because it typically requires iterative algorithms instead of the direct analytic expressions typically provided by homogeneous manifolds.</p>
 </div>
 <div class="ltx_para" id="S12-para:SS6.p2">
 <p class="ltx_p">Figures <a class="ltx_ref" href="#S12-fig:F47" title="Figure 47 ‣ 12.6 Non-homogeneous manifolds in robotics ‣ 12 Orientation representations and Riemannian manifolds ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">47</span></a> and <a class="ltx_ref" href="#S12-fig:F48" title="Figure 48 ‣ 12.6 Non-homogeneous manifolds in robotics ‣ 12 Orientation representations and Riemannian manifolds ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">48</span></a> presents examples exploiting non-homogeneous Riemannian manifolds.</p>

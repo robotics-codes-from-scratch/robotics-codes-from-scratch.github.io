@@ -4,17 +4,17 @@
 The nonzero elements correspond to the targets that the three agents must reach.
 For Agent 3 (the ball), <span class="ltx_Math" id="p1.m2">\bm{\mu}</span> corresponds to a 2D position target at time <span class="ltx_Math" id="p1.m3">T</span> (ball target), with a corresponding 2D precision matrix (identity matrix) in <span class="ltx_Math" id="p1.m4">\bm{Q}</span>. For Agent 1 and 2 (the hands), <span class="ltx_Math" id="p1.m5">\bm{\mu}</span> corresponds to 2D position targets active from time <span class="ltx_Math" id="p1.m6">\frac{3T}{4}</span> to <span class="ltx_Math" id="p1.m7">T</span> (coming back to the initial pose and maintaining this pose), with corresponding 2D precision matrices (identity matrices) in <span class="ltx_Math" id="p1.m8">\bm{Q}</span>.
 The constraint that Agents 2 and 3 collide at time <span class="ltx_Math" id="p1.m9">\frac{T}{2}</span> is ensured by setting <span class="ltx_Math" id="p1.m10">\left[\begin{smallmatrix}\bm{I}&amp;-\bm{I}\\
--\bm{I}&amp;\bm{I}\end{smallmatrix}\right]</span> in the entries of the precision matrix <span class="ltx_Math" id="p1.m11">\bm{Q}</span> corresponding to the 2D positions of Agents 2 and 3 at <span class="ltx_Math" id="p1.m12">\frac{T}{2}</span>. With this formulation, the two positions are constrained to be the same, without having to predetermine the position at which the two agents should meet.<span class="ltx_note ltx_role_footnote" id="footnote3"><sup class="ltx_note_mark">3</sup><span class="ltx_note_outer"><span class="ltx_note_content"><sup class="ltx_note_mark">3</sup><span class="ltx_tag ltx_tag_note">3</span>Indeed, we can see that a cost <span class="ltx_Math" id="footnote3.m1">c\!=\!\left[\begin{smallmatrix}x_{i}\\
+-\bm{I}&amp;\bm{I}\end{smallmatrix}\right]</span> in the entries of the precision matrix <span class="ltx_Math" id="p1.m11">\bm{Q}</span> corresponding to the 2D positions of Agents 2 and 3 at <span class="ltx_Math" id="p1.m12">\frac{T}{2}</span>. With this formulation, the two positions are constrained to be the same, without having to predetermine the position at which the two agents should meet.<span class="ltx_note ltx_role_footnote" id="footnote4"><sup class="ltx_note_mark">4</sup><span class="ltx_note_outer"><span class="ltx_note_content"><sup class="ltx_note_mark">4</sup><span class="ltx_tag ltx_tag_note">4</span>Indeed, we can see that a cost <span class="ltx_Math" id="footnote4.m1">c\!=\!\left[\begin{smallmatrix}x_{i}\\
 x_{j}\end{smallmatrix}\right]^{\scriptscriptstyle\top}\left[\begin{smallmatrix}1&amp;-1\\
 -1&amp;1\end{smallmatrix}\right]\left[\begin{smallmatrix}x_{i}\\
-x_{j}\end{smallmatrix}\right]\!=\!(x_{i}-x_{j})^{2}</span> is minimized when <span class="ltx_Math" id="footnote3.m2">x_{i}\!=\!x_{j}</span>.</span></span></span></p>
+x_{j}\end{smallmatrix}\right]\!=\!(x_{i}-x_{j})^{2}</span> is minimized when <span class="ltx_Math" id="footnote4.m2">x_{i}\!=\!x_{j}</span>.</span></span></span></p>
 </div><div class="ltx_para" id="A3-para:p2">
 <p class="ltx_p">The evolution of the system is described by the linear relation <span class="ltx_Math" id="p2.m1">\bm{\dot{x}}_{t}=\bm{A}^{c}_{t}\bm{x}_{t}+\bm{B}^{c}_{t}\bm{u}_{t}</span>, gathering the behavior of the 3 agents (left hand, right hand and ball) as double integrators with motions affected by gravity.
 For <span class="ltx_Math" id="p2.m2">t\!\leq\!\frac{T}{4}</span> (left hand holding the ball), we have</p>
-<table class="ltx_equation ltx_eqn_table" id="A3-eq:E189">
+<table class="ltx_equation ltx_eqn_table" id="A3-eq:E196">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E189.m1">\underbrace{\left[\begin{array}{c}\mathbf{\dot{x}}_{1,t}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E196.m1">\underbrace{\left[\begin{array}{c}\mathbf{\dot{x}}_{1,t}\\
 \mathbf{\ddot{x}}_{1,t}\\
 \bm{\dot{f}}_{1,t}\\
 \hline\cr\mathbf{\dot{x}}_{2,t}\\
@@ -49,14 +49,14 @@ For <span class="ltx_Math" id="p2.m2">t\!\leq\!\frac{T}{4}</span> (left hand hol
 \bm{0}&amp;\bm{0}\end{array}\right]}_{\bm{B}^{c}_{t}}\underbrace{\left[\begin{array}{c}\bm{u}_{1,t}\\
 \hline\cr\bm{u}_{2,t}\end{array}\right]}_{\bm{u}_{t}}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(189)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(196)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">At <span class="ltx_Math" id="p2.m3">t\!=\!\frac{T}{2}</span> (right hand hitting the ball), we have</p>
-<table class="ltx_equation ltx_eqn_table" id="A3-eq:E190">
+<table class="ltx_equation ltx_eqn_table" id="A3-eq:E197">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E190.m1">\underbrace{\left[\begin{array}{c}\mathbf{\dot{x}}_{1,t}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E197.m1">\underbrace{\left[\begin{array}{c}\mathbf{\dot{x}}_{1,t}\\
 \mathbf{\ddot{x}}_{1,t}\\
 \bm{\dot{f}}_{1,t}\\
 \hline\cr\mathbf{\dot{x}}_{2,t}\\
@@ -91,14 +91,14 @@ For <span class="ltx_Math" id="p2.m2">t\!\leq\!\frac{T}{4}</span> (left hand hol
 \bm{0}&amp;\bm{0}\end{array}\right]}_{\bm{B}^{c}_{t}}\underbrace{\left[\begin{array}{c}\bm{u}_{1,t}\\
 \hline\cr\bm{u}_{2,t}\end{array}\right]}_{\bm{u}_{t}}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(190)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(197)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">For <span class="ltx_Math" id="p2.m4">\frac{T}{4}\!&lt;\!t\!&lt;\!\frac{T}{2}</span> and <span class="ltx_Math" id="p2.m5">t\!&gt;\!\frac{T}{2}</span> (free motion of the ball), we have</p>
-<table class="ltx_equation ltx_eqn_table" id="A3-eq:E191">
+<table class="ltx_equation ltx_eqn_table" id="A3-eq:E198">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E191.m1">\underbrace{\left[\begin{array}{c}\mathbf{\dot{x}}_{1,t}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E198.m1">\underbrace{\left[\begin{array}{c}\mathbf{\dot{x}}_{1,t}\\
 \mathbf{\ddot{x}}_{1,t}\\
 \bm{\dot{f}}_{1,t}\\
 \hline\cr\mathbf{\dot{x}}_{2,t}\\
@@ -133,18 +133,18 @@ For <span class="ltx_Math" id="p2.m2">t\!\leq\!\frac{T}{4}</span> (left hand hol
 \bm{0}&amp;\bm{0}\end{array}\right]}_{\bm{B}^{c}_{t}}\underbrace{\left[\begin{array}{c}\bm{u}_{1,t}\\
 \hline\cr\bm{u}_{2,t}\end{array}\right]}_{\bm{u}_{t}}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(191)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(198)</span></td>
 </tr></tbody>
 </table>
 </div><div class="ltx_para" id="A3-para:p3">
 <p class="ltx_p">In the above, <span class="ltx_Math" id="p3.m1">\bm{f}_{i}=m_{i}\bm{g}</span> represent the effect of gravity on the three agents, with mass <span class="ltx_Math" id="p3.m2">m_{i}</span> and acceleration vector <span class="ltx_Math" id="p3.m3">\bm{g}=\left[\begin{smallmatrix}0\\
 -9.81\end{smallmatrix}\right]</span> due to gravity. The parameters <span class="ltx_Math" id="p3.m4">\{\bm{A}^{c}_{t},\bm{B}^{c}_{t}\}_{t=1}^{T}</span>, describing a continuous system, are first converted to their discrete forms with</p>
-<table class="ltx_equation ltx_eqn_table" id="A3-eq:E192">
+<table class="ltx_equation ltx_eqn_table" id="A3-eq:E199">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E192.m1">\bm{A}_{t}=\bm{I}+\bm{A}^{c}_{t}\Delta t,\quad\bm{B}_{t}=\bm{B}^{c}_{t}\Delta t,\quad\forall t\in\{1,\ldots,T\},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E199.m1">\bm{A}_{t}=\bm{I}+\bm{A}^{c}_{t}\Delta t,\quad\bm{B}_{t}=\bm{B}^{c}_{t}\Delta t,\quad\forall t\in\{1,\ldots,T\},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(192)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(199)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">which can then be used to define sparse transfer matrices <span class="ltx_Math" id="p3.m5">\bm{S}_{\bm{x}}</span> and <span class="ltx_Math" id="p3.m6">\bm{S}_{\bm{u}}</span> describing the evolution of the system in a vector form, starting from an initial state <span class="ltx_Math" id="p3.m7">\bm{x}_{1}</span>, namely <span class="ltx_Math" id="p3.m8">\bm{x}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{u}</span>.</p>

@@ -1,139 +1,139 @@
 <div class="row"><div class="col-sm-7 offset-1"><div id="txt-col"><h1 class="ltx_title ltx_title_appendix">
 <span class="ltx_tag ltx_tag_appendix">Appendix E </span>Forward dynamics (FD) for a planar robot manipulator</h1><div class="ltx_para" id="A5-para:p1">
 <p class="ltx_p">The dynamic equation of a planar robot with an arbitrary number of links can be derived using the Lagrangian formulation, by representing the kinetic and potential energies of the robot as functions of generalized coordinates, which are joint angles in this case. For simplicity, we will assume that all masses are located at the end of each link, and we will neglect the terms that contain rotational energies (i.e, zero moments of inertia). To do this, we exploit the formulation derived in Section <a class="ltx_ref" href="#S4" title="4 Forward kinematics (FK) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">4</span></a> without the orientation part, so the position of the j-<em class="ltx_emph ltx_font_italic">th</em> mass can be written as</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:E193">
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:E200">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E193.m1">\bm{f}_{j}=\begin{bmatrix}f_{j,1}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E200.m1">\bm{f}_{j}=\begin{bmatrix}f_{j,1}\\
 f_{j,2}\end{bmatrix}=\begin{bmatrix}\sum_{k=1}^{j}l_{k}c_{k}\\
 \sum_{k=1}^{j}l_{k}s_{k}\end{bmatrix},\quad\text{where}\quad c_{k}=\cos(\sum_{i=1}^{k}x_{i}),\ \ \ s_{k}=\sin(\sum_{i=1}^{k}x_{i}),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(193)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(200)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">whose corresponding velocity can be calculated as</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex141">
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex143">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex141.m1">\bm{\dot{f}}_{j}=\begin{bmatrix}-\sum_{k=1}^{j}l_{k}(\sum_{i=1}^{k}\dot{x}_{i})s_{k}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex143.m1">\bm{\dot{f}}_{j}=\begin{bmatrix}-\sum_{k=1}^{j}l_{k}(\sum_{i=1}^{k}\dot{x}_{i})s_{k}\\
 \sum_{k=1}^{j}l_{k}(\sum_{i=1}^{k}\dot{x}_{i})c_{k}\end{bmatrix}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 </div><div class="ltx_para" id="A5-para:p2">
 <p class="ltx_p">By knowing the velocity, the j-<em class="ltx_emph ltx_font_italic">th</em> point kinetic energy can be expressed as</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex142">
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex144">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex142.m1">T_{j}=\frac{1}{2}m_{j}\big(\dot{f}_{j,1}^{2}+\dot{f}_{j,2}^{2}\big)=\frac{1}{2}m_{j}\Bigg(\!\!\Big(\!-\sum_{k=1}^{j}l_{k}\Big(\sum_{i=1}^{k}\dot{x}_{i}\Big)s_{k}\!\Big)^{\!2}\!+\!\Big(\sum_{k=1}^{j}l_{k}\Big(\sum_{i=1}^{k}\dot{x}_{i}\Big)c_{k}\!\Big)^{\!2}\!\Bigg),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex144.m1">T_{j}=\frac{1}{2}m_{j}\big(\dot{f}_{j,1}^{2}+\dot{f}_{j,2}^{2}\big)=\frac{1}{2}m_{j}\Bigg(\!\!\Big(\!-\sum_{k=1}^{j}l_{k}\Big(\sum_{i=1}^{k}\dot{x}_{i}\Big)s_{k}\!\Big)^{\!2}\!+\!\Big(\sum_{k=1}^{j}l_{k}\Big(\sum_{i=1}^{k}\dot{x}_{i}\Big)c_{k}\!\Big)^{\!2}\!\Bigg),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">and its potential energy as</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex143">
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex145">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex143.m1">U_{j}=m_{j}\,g\,f_{j,2}=m_{j}g\Big(\sum_{k=1}^{j}l_{k}s_{k}\Big).</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex145.m1">U_{j}=m_{j}\,g\,f_{j,2}=m_{j}g\Big(\sum_{k=1}^{j}l_{k}s_{k}\Big).</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 </div><div class="ltx_para" id="A5-para:p3">
 <p class="ltx_p">The kinetic and potential energies are easier to express with absolute angles <span class="ltx_Math" id="p3.m1">\sum_{i=1}^{k}x_{i}</span> instead of relative angles <span class="ltx_Math" id="p3.m2">x_{i}</span>. This is because the energies of the system are coordinate invariant and are dependent on absolute values. For simplicity, we define the absolute angles as</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex144">
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex146">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex144.m1">q_{k}=\sum_{i=1}^{k}x_{i},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex146.m1">q_{k}=\sum_{i=1}^{k}x_{i},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">so the kinetic energy can be redefined as</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex145">
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex147">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex145.m1">T_{j}=\frac{1}{2}m_{j}\Big(\Big(-\sum_{k=1}^{j}l_{k}\dot{q}_{k}S_{k}\Big)^{2}+\Big(\sum_{k=1}^{j}l_{k}\dot{q}_{k}C_{k}\Big)^{2}\Big).</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex147.m1">T_{j}=\frac{1}{2}m_{j}\Big(\Big(-\sum_{k=1}^{j}l_{k}\dot{q}_{k}S_{k}\Big)^{2}+\Big(\sum_{k=1}^{j}l_{k}\dot{q}_{k}C_{k}\Big)^{2}\Big).</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 </div><div class="ltx_para" id="A5-para:p4">
 <p class="ltx_p">The robot’s total kinetic and potential energies are the sum of their corresponding values in each point mass. So, the Lagrangian of the whole system can be written as</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex146">
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex148">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex146.m1">E_{\text{lag}}=\sum_{j=1}^{N}T_{j}-U_{j},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex148.m1">E_{\text{lag}}=\sum_{j=1}^{N}T_{j}-U_{j},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="p4.m1">N</span> is the number of links. Using the Euler-Lagrange equation, we can write</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:E194">
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:E201">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E194.m1">u_{z}=\frac{d}{dt}\frac{\partial E_{\text{lag}}}{\partial\dot{q}_{z}}-\frac{\partial E_{\text{lag}}}{\partial q_{z}}\quad=\frac{d}{dt}\frac{\partial(\sum_{j=z}^{N}T_{j})}{\partial\dot{q}_{z}}-\frac{\partial\sum_{j=z}^{N}(T_{j}-U_{j})}{\partial q_{z}}\quad=\sum_{j=z}^{N}\Big(\frac{d}{dt}\frac{\partial T_{j}}{\partial\dot{q}_{z}}-\frac{\partial T_{j}}{\partial q_{z}}+\frac{\partial U_{j}}{\partial q_{z}}\Big),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E201.m1">u_{z}=\frac{d}{dt}\frac{\partial E_{\text{lag}}}{\partial\dot{q}_{z}}-\frac{\partial E_{\text{lag}}}{\partial q_{z}}\quad=\frac{d}{dt}\frac{\partial(\sum_{j=z}^{N}T_{j})}{\partial\dot{q}_{z}}-\frac{\partial\sum_{j=z}^{N}(T_{j}-U_{j})}{\partial q_{z}}\quad=\sum_{j=z}^{N}\Big(\frac{d}{dt}\frac{\partial T_{j}}{\partial\dot{q}_{z}}-\frac{\partial T_{j}}{\partial q_{z}}+\frac{\partial U_{j}}{\partial q_{z}}\Big),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(194)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(201)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="p4.m2">u_{z}</span> is the generalized force related to <span class="ltx_Math" id="p4.m3">q_{z}</span>. This force can be found from the corresponding generalized work <span class="ltx_Math" id="p4.m4">w_{z}</span>, which can be described by</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:E195">
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:E202">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E195.m1">w_{z}=\begin{cases}(\tau_{z}-\tau_{z+1})\dot{q}_{z}&amp;z&lt;N\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E202.m1">w_{z}=\begin{cases}(\tau_{z}-\tau_{z+1})\dot{q}_{z}&amp;z&lt;N\\
 \tau_{N}\dot{q}_{N}&amp;z=N\end{cases},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(195)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(202)</span></td>
 </tr></tbody>
 </table>
-<p class="ltx_p">where <span class="ltx_Math" id="p4.m5">\tau_{z}</span> is the torque applied at z-<em class="ltx_emph ltx_font_italic">th</em> joint. The fact that we need subtraction in the first line of (<a class="ltx_ref" href="#A5-eq:E195" title="In Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">195</span></a>) is that when <span class="ltx_Math" id="p4.m6">\tau_{z+1}</span> is applied on link <span class="ltx_Math" id="p4.m7">l_{z+1}</span>, its reaction is applied on link <span class="ltx_Math" id="p4.m8">l_{z}</span>, except for the last joint where there is no reaction from the proceeding links. Please note that if we had used relative angles in our formulation, we did not need to consider this reaction as it will be cancelled by itself at link <span class="ltx_Math" id="p4.m9">z+1</span> (as <span class="ltx_Math" id="p4.m10">\dot{q}_{z+1}=\dot{q}_{z}+\dot{x}_{z+1}</span>). That said, generalized forces can be defined as</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex147">
+<p class="ltx_p">where <span class="ltx_Math" id="p4.m5">\tau_{z}</span> is the torque applied at z-<em class="ltx_emph ltx_font_italic">th</em> joint. The fact that we need subtraction in the first line of (<a class="ltx_ref" href="#A5-eq:E202" title="In Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">202</span></a>) is that when <span class="ltx_Math" id="p4.m6">\tau_{z+1}</span> is applied on link <span class="ltx_Math" id="p4.m7">l_{z+1}</span>, its reaction is applied on link <span class="ltx_Math" id="p4.m8">l_{z}</span>, except for the last joint where there is no reaction from the proceeding links. Please note that if we had used relative angles in our formulation, we did not need to consider this reaction as it will be cancelled by itself at link <span class="ltx_Math" id="p4.m9">z+1</span> (as <span class="ltx_Math" id="p4.m10">\dot{q}_{z+1}=\dot{q}_{z}+\dot{x}_{z+1}</span>). That said, generalized forces can be defined as</p>
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex149">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex147.m1">u_{z}=\frac{\partial w_{z}}{\partial\dot{q}_{z}}=\begin{cases}(\tau_{z}-\tau_{z+1})&amp;z&lt;N\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex149.m1">u_{z}=\frac{\partial w_{z}}{\partial\dot{q}_{z}}=\begin{cases}(\tau_{z}-\tau_{z+1})&amp;z&lt;N\\
 \tau_{N}&amp;z=N\end{cases}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 </div><div class="ltx_para" id="A5-para:p5">
-<p class="ltx_p">By substituting the derived equations into (<a class="ltx_ref" href="#A5-eq:E194" title="In Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">194</span></a>), the dynamic equation of a general planar robot with an arbitrary number of links can be expressed as (for more details, please refer to Appendix <a class="ltx_ref" href="#A2" title="Appendix B Derivation of motion equation for a planar robot ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">B</span></a>)</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:E196">
+<p class="ltx_p">By substituting the derived equations into (<a class="ltx_ref" href="#A5-eq:E201" title="In Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">201</span></a>), the dynamic equation of a general planar robot with an arbitrary number of links can be expressed as (for more details, please refer to Appendix <a class="ltx_ref" href="#A2" title="Appendix B Derivation of motion equation for a planar robot ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">B</span></a>)</p>
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:E203">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E196.m1">\sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}c_{z-k}\ddot{q}_{k}\Big)=u_{z}-\sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}s_{z-k}\dot{q}_{k}^{2}\Big)-\sum_{j=z}^{N}m_{j}gl_{z}c_{z},\quad\text{where}\quad\left\{{\begin{aligned} c_{h-k}&amp;=c_{h}c_{k}-s_{h}s_{k},\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E203.m1">\sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}c_{z-k}\ddot{q}_{k}\Big)=u_{z}-\sum_{j=z}^{N}m_{j}\Big(\sum_{k=1}^{j}l_{z}l_{k}s_{z-k}\dot{q}_{k}^{2}\Big)-\sum_{j=z}^{N}m_{j}gl_{z}c_{z},\quad\text{where}\quad\left\{{\begin{aligned} c_{h-k}&amp;=c_{h}c_{k}-s_{h}s_{k},\\
 s_{h-k}&amp;=s_{h}c_{k}-c_{h}s_{k}.\end{aligned}}\right.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(196)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(203)</span></td>
 </tr></tbody>
 </table>
 </div><div class="ltx_para" id="A5-para:p6">
-<p class="ltx_p">In (<a class="ltx_ref" href="#A5-eq:E196" title="In Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">196</span></a>), the coefficient of <span class="ltx_Math" id="p6.m1">\ddot{q}_{k}</span> can be written as</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex148">
+<p class="ltx_p">In (<a class="ltx_ref" href="#A5-eq:E203" title="In Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">203</span></a>), the coefficient of <span class="ltx_Math" id="p6.m1">\ddot{q}_{k}</span> can be written as</p>
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex150">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex148.m1">l_{z}l_{k}c_{z-k}\sum_{j=z}^{N}m_{j}\bm{1}(j-k),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex150.m1">l_{z}l_{k}c_{z-k}\sum_{j=z}^{N}m_{j}\bm{1}(j-k),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="p6.m2">\bm{1}(\cdot)</span> is a function that returns 0 if it receives a negative input, and 1 otherwise. The coefficient of <span class="ltx_Math" id="p6.m3">\dot{q}_{k}^{2}</span> can be found in a similar way as</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex149">
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex151">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex149.m1">-l_{z}l_{k}s_{z-k}\sum_{j=z}^{N}m_{j}\bm{1}(j-k).</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex151.m1">-l_{z}l_{k}s_{z-k}\sum_{j=z}^{N}m_{j}\bm{1}(j-k).</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 </div><div class="ltx_para" id="A5-para:p7">
 <p class="ltx_p">By concatenation of the results for all z’s, the dynamic equation of the whole system can be expressed as</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:E197">
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:E204">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E197.m1">\tilde{\bm{M}}\ddot{\bm{q}}+\tilde{\bm{g}}+\tilde{\bm{C}}\text{diag}(\bm{\dot{q}})\bm{\dot{q}}=\bm{u},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E204.m1">\tilde{\bm{M}}\ddot{\bm{q}}+\tilde{\bm{g}}+\tilde{\bm{C}}\text{diag}(\bm{\dot{q}})\bm{\dot{q}}=\bm{u},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(197)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(204)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">where</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex150">
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex152">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex150.m1">\bm{q}=\begin{bmatrix}q_{1}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex152.m1">\bm{q}=\begin{bmatrix}q_{1}\\
 q_{2}\\
 \vdots\\
 q_{N-1}\\
@@ -145,10 +145,10 @@ u_{N}\end{bmatrix},\quad\tilde{\bm{M}}(z,k)=l_{z}l_{k}C_{z-k}\sum_{j=z}^{N}m_{j}
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex151">
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex153">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex151.m1">\tilde{\bm{g}}=\begin{bmatrix}\sum_{j=1}^{N}m_{j}l_{1}g\cos(q_{1})\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex153.m1">\tilde{\bm{g}}=\begin{bmatrix}\sum_{j=1}^{N}m_{j}l_{1}g\cos(q_{1})\\
 \sum_{j=2}^{N}m_{j}l_{2}g\cos(q_{2})\\
 \vdots\\
 \sum_{j={N-1}}^{N}m_{j}l_{N-1}g\cos(q_{N-1})\\
@@ -158,10 +158,10 @@ m_{N}l_{N}g\cos(q_{N})\end{bmatrix}.</span></td>
 </table>
 </div><div class="ltx_para" id="A5-para:p8">
 <p class="ltx_p">To use this equation with relative angles and torque commands, one can replace the absolute angles and general forces by</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex152">
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex154">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex152.m1">\bm{q}=\bm{L}\bm{x},\ \ \ \bm{u}=\bm{L}^{-{\scriptscriptstyle\top}}\bm{\tau},\quad\text{where}\quad\bm{x}=\begin{bmatrix}x_{1}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex154.m1">\bm{q}=\bm{L}\bm{x},\ \ \ \bm{u}=\bm{L}^{-{\scriptscriptstyle\top}}\bm{\tau},\quad\text{where}\quad\bm{x}=\begin{bmatrix}x_{1}\\
 x_{2}\\
 \vdots\\
 x_{N-1}\\
@@ -174,28 +174,28 @@ x_{N}\end{bmatrix},\ \ \ \bm{\tau}=\begin{bmatrix}\tau_{1}\\
 </tr></tbody>
 </table>
 </div><div class="ltx_para" id="A5-para:p9">
-<p class="ltx_p">By substituting these variables into (<a class="ltx_ref" href="#A5-eq:E197" title="In Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">197</span></a>), we would have</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:E198">
+<p class="ltx_p">By substituting these variables into (<a class="ltx_ref" href="#A5-eq:E204" title="In Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">204</span></a>), we would have</p>
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:E205">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E198.m1">\bm{M}\ddot{\bm{x}}+\bm{g}+\bm{C}\text{diag}(\bm{L\dot{x}})\bm{L\dot{x}}=\bm{\tau},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E205.m1">\bm{M}\ddot{\bm{x}}+\bm{g}+\bm{C}\text{diag}(\bm{L\dot{x}})\bm{L\dot{x}}=\bm{\tau},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(198)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(205)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">where</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex153">
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex155">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex153.m1">\bm{M}=\bm{L}^{\scriptscriptstyle\top}\tilde{\bm{M}}\bm{L},\quad\bm{C}=\bm{L}^{\scriptscriptstyle\top}\tilde{\bm{C}},\quad\bm{g}=\bm{L}^{\scriptscriptstyle\top}\tilde{\bm{g}}</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex155.m1">\bm{M}=\bm{L}^{\scriptscriptstyle\top}\tilde{\bm{M}}\bm{L},\quad\bm{C}=\bm{L}^{\scriptscriptstyle\top}\tilde{\bm{C}},\quad\bm{g}=\bm{L}^{\scriptscriptstyle\top}\tilde{\bm{g}}</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">Please note that elements in <span class="ltx_Math" id="p9.m1">\tilde{\bm{M}},\tilde{\bm{C}}</span> and <span class="ltx_Math" id="p9.m2">\tilde{\bm{g}}</span> are defined with absolute angles, which can be replaced with the relative angles by</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex154">
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex156">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex154.m1">q_{i}=\bm{L}_{i}\bm{x},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex156.m1">q_{i}=\bm{L}_{i}\bm{x},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
@@ -204,23 +204,23 @@ x_{N}\end{bmatrix},\ \ \ \bm{\tau}=\begin{bmatrix}\tau_{1}\\
 <h2 class="ltx_title ltx_title_subsection">iLQR for a robot manipulator with dynamics equation</h2>
 <div class="ltx_para" id="A5-para:SSx1.p1">
 <p class="ltx_p">The nonlinear dynamic equation of a planar robot presented in the above can be expressed as</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:E199">
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:E206">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E199.m1">\begin{bmatrix}\bm{q}_{t+1}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E206.m1">\begin{bmatrix}\bm{q}_{t+1}\\
 \dot{\bm{q}}_{t+1}\end{bmatrix}=\begin{bmatrix}\bm{q}_{t}+\dot{\bm{q}}_{t}dt\\
 \dot{\bm{q}}_{t}+\tilde{\bm{M}}^{-1}\Big(\bm{u}-\tilde{\bm{g}}-\tilde{\bm{C}}\text{diag}(\bm{\dot{q}}_{t})\bm{\dot{q}_{t}}\Big)dt\end{bmatrix}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(199)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(206)</span></td>
 </tr></tbody>
 </table>
 </div>
 <div class="ltx_para" id="A5-para:SSx1.p2">
-<p class="ltx_p">For simplicity we start with (<a class="ltx_ref" href="#A5-eq:E197" title="In Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">197</span></a>), and at the end, we will describe how the result can be converted to the other choice of variables. The iLQR method requires (<a class="ltx_ref" href="#A5-eq:E199" title="In iLQR for a robot manipulator with dynamics equation ‣ Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">199</span></a>) to be linearized around the current states and inputs.The corresponding <span class="ltx_Math" id="SSx1.p2.m1">\bm{A}_{t}</span> and <span class="ltx_Math" id="SSx1.p2.m2">\bm{B}_{t}</span> can be found according to (<a class="ltx_ref" href="#S8-eq:E82" title="In 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">82</span></a>) as</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex155">
+<p class="ltx_p">For simplicity we start with (<a class="ltx_ref" href="#A5-eq:E204" title="In Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">204</span></a>), and at the end, we will describe how the result can be converted to the other choice of variables. The iLQR method requires (<a class="ltx_ref" href="#A5-eq:E206" title="In iLQR for a robot manipulator with dynamics equation ‣ Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">206</span></a>) to be linearized around the current states and inputs.The corresponding <span class="ltx_Math" id="SSx1.p2.m1">\bm{A}_{t}</span> and <span class="ltx_Math" id="SSx1.p2.m2">\bm{B}_{t}</span> can be found according to (<a class="ltx_ref" href="#S8-eq:E91" title="In 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">91</span></a>) as</p>
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex157">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex155.m1">\bm{A}_{t}=\begin{bmatrix}\bm{I}&amp;\bm{I}dt\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex157.m1">\bm{A}_{t}=\begin{bmatrix}\bm{I}&amp;\bm{I}dt\\
 \bm{A}_{21}dt&amp;\bm{I}-2\tilde{\bm{M}}^{-1}\tilde{\bm{C}}\text{diag}(\dot{\bm{q}}_{t})dt\end{bmatrix},\quad\bm{B}_{t}=\begin{bmatrix}\bm{0}\\
 \tilde{\bm{M}}^{-1}dt\end{bmatrix}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
@@ -228,53 +228,53 @@ x_{N}\end{bmatrix},\ \ \ \bm{\tau}=\begin{bmatrix}\tau_{1}\\
 </table>
 </div>
 <div class="ltx_para" id="A5-para:SSx1.p3">
-<p class="ltx_p"><span class="ltx_Math" id="SSx1.p3.m1">\bm{A}_{21}=\frac{\partial\ddot{\bm{q}}_{t}}{\partial\bm{q}_{t}}</span> can be found by taking the derivation of (<a class="ltx_ref" href="#A5-eq:E197" title="In Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">197</span></a>) w.r.t. <span class="ltx_Math" id="SSx1.p3.m2">\bm{q}_{t}</span>. The <span class="ltx_Math" id="SSx1.p3.m3">p</span>-<em class="ltx_emph ltx_font_italic">th</em> column of <span class="ltx_Math" id="SSx1.p3.m4">\bm{A}_{21}</span> is the partial derivation of <span class="ltx_Math" id="SSx1.p3.m5">\ddot{\bm{q}}_{t}</span> w.r.t. <span class="ltx_Math" id="SSx1.p3.m6">p</span>-<em class="ltx_emph ltx_font_italic">th</em> joint angle at time <span class="ltx_Math" id="SSx1.p3.m7">t</span> <span class="ltx_Math" id="SSx1.p3.m8">q_{t}^{p}</span> which can be formulated as</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex156">
+<p class="ltx_p"><span class="ltx_Math" id="SSx1.p3.m1">\bm{A}_{21}=\frac{\partial\ddot{\bm{q}}_{t}}{\partial\bm{q}_{t}}</span> can be found by taking the derivation of (<a class="ltx_ref" href="#A5-eq:E204" title="In Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">204</span></a>) w.r.t. <span class="ltx_Math" id="SSx1.p3.m2">\bm{q}_{t}</span>. The <span class="ltx_Math" id="SSx1.p3.m3">p</span>-<em class="ltx_emph ltx_font_italic">th</em> column of <span class="ltx_Math" id="SSx1.p3.m4">\bm{A}_{21}</span> is the partial derivation of <span class="ltx_Math" id="SSx1.p3.m5">\ddot{\bm{q}}_{t}</span> w.r.t. <span class="ltx_Math" id="SSx1.p3.m6">p</span>-<em class="ltx_emph ltx_font_italic">th</em> joint angle at time <span class="ltx_Math" id="SSx1.p3.m7">t</span> <span class="ltx_Math" id="SSx1.p3.m8">q_{t}^{p}</span> which can be formulated as</p>
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex158">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex156.m1">\frac{\partial\ddot{\bm{q}}_{t}}{\partial q_{t}^{p}}=\frac{\partial\tilde{\bm{M}}^{-1}}{\partial q_{t}^{p}}\Big(\bm{u}-\tilde{\bm{g}}-\tilde{\bm{C}}\text{diag}(\bm{\dot{q}}_{t})\bm{\dot{q}}_{t}\Big)-\tilde{\bm{M}}^{-1}\Big(\frac{\partial\tilde{\bm{g}}}{\partial q_{t}^{p}}+\frac{\partial\tilde{\bm{C}}}{\partial q_{t}^{p}}\text{diag}(\dot{\bm{q}}_{t})\dot{\bm{q}}_{t}\Big).</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex158.m1">\frac{\partial\ddot{\bm{q}}_{t}}{\partial q_{t}^{p}}=\frac{\partial\tilde{\bm{M}}^{-1}}{\partial q_{t}^{p}}\Big(\bm{u}-\tilde{\bm{g}}-\tilde{\bm{C}}\text{diag}(\bm{\dot{q}}_{t})\bm{\dot{q}}_{t}\Big)-\tilde{\bm{M}}^{-1}\Big(\frac{\partial\tilde{\bm{g}}}{\partial q_{t}^{p}}+\frac{\partial\tilde{\bm{C}}}{\partial q_{t}^{p}}\text{diag}(\dot{\bm{q}}_{t})\dot{\bm{q}}_{t}\Big).</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 </div>
 <div class="ltx_para" id="A5-para:SSx1.p4">
 <p class="ltx_p">Having this done for all <em class="ltx_emph ltx_font_italic">p</em> at time <span class="ltx_Math" id="SSx1.p4.m1">t</span>, we can write</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex157">
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex159">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex157.m1">\frac{\partial\ddot{\bm{q}}_{t}}{\partial\bm{q}_{t}}=\Big(\tilde{\bm{M}}^{-1}\Big)^{\prime}\Big(\bm{u}-\tilde{\bm{g}}-\tilde{\bm{C}}\text{diag}(\bm{\dot{q}}_{t})\bm{\dot{q}}_{t}\Big)-\tilde{\bm{M}}^{-1}\Big(\tilde{\bm{g}}^{\prime}+\tilde{\bm{C}}^{\prime}\text{diag}(\dot{\bm{q}}_{t})\dot{\bm{q}}_{t}\Big),</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex159.m1">\frac{\partial\ddot{\bm{q}}_{t}}{\partial\bm{q}_{t}}=\Big(\tilde{\bm{M}}^{-1}\Big)^{\prime}\Big(\bm{u}-\tilde{\bm{g}}-\tilde{\bm{C}}\text{diag}(\bm{\dot{q}}_{t})\bm{\dot{q}}_{t}\Big)-\tilde{\bm{M}}^{-1}\Big(\tilde{\bm{g}}^{\prime}+\tilde{\bm{C}}^{\prime}\text{diag}(\dot{\bm{q}}_{t})\dot{\bm{q}}_{t}\Big),</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">where</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex158">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex158.m1">\tilde{\bm{g}}^{\prime}(i,j)=\begin{cases}-\sum_{j=i}^{N}m_{j}l_{i}gs_{i}&amp;\text{if }i=j\\
-0&amp;\text{otherwise}\end{cases},</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr></tbody>
-</table>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex159">
-<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex159.m1">\tilde{\bm{C}}^{\prime}=\begin{bmatrix}\frac{\partial\tilde{\bm{C}}}{\partial q_{1}^{t}}&amp;\frac{\partial\tilde{\bm{C}}}{\partial q_{2}^{t}}&amp;\cdots&amp;\frac{\partial\tilde{\bm{C}}}{\partial q_{N}^{t}}\end{bmatrix},\quad\tilde{\bm{C}}^{\prime}(h,k,p)=\begin{cases}l_{h}l_{k}c_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=h\neq k\\
--l_{h}l_{k}c_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=k\neq h\\
-0&amp;\text{otherwise}\end{cases},</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr></tbody>
-</table>
 <table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex160">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex160.m1">(\tilde{\bm{M}}^{-1})^{\prime}=\begin{bmatrix}\frac{\partial\tilde{\bm{M}}^{-1}}{\partial q_{t}^{1}}&amp;\frac{\partial\tilde{\bm{M}}^{-1}}{\partial q_{t}^{2}}&amp;\cdots&amp;\frac{\partial\tilde{\bm{M}}^{-1}}{\partial q_{t}^{N}}\end{bmatrix},\quad\Big(\tilde{\bm{M}}^{-1}\Big)^{\prime}=-\tilde{\bm{M}}^{-1}\tilde{\bm{M}}^{\prime}\tilde{\bm{M}}^{-1},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex160.m1">\tilde{\bm{g}}^{\prime}(i,j)=\begin{cases}-\sum_{j=i}^{N}m_{j}l_{i}gs_{i}&amp;\text{if }i=j\\
+0&amp;\text{otherwise}\end{cases},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex161">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex161.m1">\tilde{\bm{M}}^{\prime}(h,k,p)=\begin{cases}-l_{h}l_{k}s_{h-k}\sum_{j=k}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=h\neq k\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex161.m1">\tilde{\bm{C}}^{\prime}=\begin{bmatrix}\frac{\partial\tilde{\bm{C}}}{\partial q_{1}^{t}}&amp;\frac{\partial\tilde{\bm{C}}}{\partial q_{2}^{t}}&amp;\cdots&amp;\frac{\partial\tilde{\bm{C}}}{\partial q_{N}^{t}}\end{bmatrix},\quad\tilde{\bm{C}}^{\prime}(h,k,p)=\begin{cases}l_{h}l_{k}c_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=h\neq k\\
+-l_{h}l_{k}c_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=k\neq h\\
+0&amp;\text{otherwise}\end{cases},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex162">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex162.m1">(\tilde{\bm{M}}^{-1})^{\prime}=\begin{bmatrix}\frac{\partial\tilde{\bm{M}}^{-1}}{\partial q_{t}^{1}}&amp;\frac{\partial\tilde{\bm{M}}^{-1}}{\partial q_{t}^{2}}&amp;\cdots&amp;\frac{\partial\tilde{\bm{M}}^{-1}}{\partial q_{t}^{N}}\end{bmatrix},\quad\Big(\tilde{\bm{M}}^{-1}\Big)^{\prime}=-\tilde{\bm{M}}^{-1}\tilde{\bm{M}}^{\prime}\tilde{\bm{M}}^{-1},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex163">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex163.m1">\tilde{\bm{M}}^{\prime}(h,k,p)=\begin{cases}-l_{h}l_{k}s_{h-k}\sum_{j=k}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=h\neq k\\
 l_{h}l_{k}s_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=k\neq h\\
 0&amp;\text{otherwise}\end{cases}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
@@ -283,10 +283,10 @@ l_{h}l_{k}s_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=k\neq h\\
 </div>
 <div class="ltx_para" id="A5-para:SSx1.p5">
 <p class="ltx_p">According to Section <a class="ltx_ref" href="#S8-sec:SS1" title="8.1 Batch formulation of iLQR ‣ 8 iLQR optimization ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">8.1</span></a>, we can concatenate the results for all time steps as</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:E200">
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:E207">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E200.m1">\begin{bmatrix}\Delta\bm{q}_{1}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E207.m1">\begin{bmatrix}\Delta\bm{q}_{1}\\
 \Delta\bm{\dot{q}}_{1}\\
 \vdots\\
 \Delta\bm{q}_{T}\\
@@ -295,14 +295,14 @@ l_{h}l_{k}s_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=k\neq h\\
 \vdots\\
 \Delta\bm{u}_{T-1}\end{bmatrix},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(200)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(207)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="SSx1.p5.m1">T</span> is the total time horizon. These variables can be converted to relative angles and joint torque commands by</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex162">
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex164">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex162.m1">\begin{bmatrix}\Delta\bm{q}_{1}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex164.m1">\begin{bmatrix}\Delta\bm{q}_{1}\\
 \Delta\bm{\dot{q}}_{1}\\
 \vdots\\
 \Delta\bm{q}_{T}\\
@@ -326,11 +326,11 @@ l_{h}l_{k}s_{h-k}\sum_{j=h}^{N}m_{j}\bm{1}(j-k)&amp;\text{if}\ p=k\neq h\\
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
-<p class="ltx_p">so (<a class="ltx_ref" href="#A5-eq:E200" title="In iLQR for a robot manipulator with dynamics equation ‣ Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">200</span></a>) can be rewritten as</p>
-<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex163">
+<p class="ltx_p">so (<a class="ltx_ref" href="#A5-eq:E207" title="In iLQR for a robot manipulator with dynamics equation ‣ Appendix E Forward dynamics (FD) for a planar robot manipulator ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">207</span></a>) can be rewritten as</p>
+<table class="ltx_equation ltx_eqn_table" id="A5-eq:Ex165">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex163.m1">\begin{bmatrix}\Delta\bm{x}_{1}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex165.m1">\begin{bmatrix}\Delta\bm{x}_{1}\\
 \Delta\bm{\dot{x}}_{1}\\
 \vdots\\
 \Delta\bm{x}_{T}\\

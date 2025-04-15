@@ -342,7 +342,7 @@ We also define the partial cumulative cost</p>
 <table class="ltx_equation ltx_eqn_table" id="S7-eq:E74">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E74.m1">\bm{\hat{u}}_{t}=-\bm{K}_{t}\,\bm{x}_{t},\quad\text{with}\quad\bm{K}_{t}=\bm{Q}_{\bm{u}\bm{u},t}^{-1}\,\bm{Q}_{\bm{u}\bm{x},t}.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E74.m1">\bm{\hat{u}}_{t}=\bm{K}_{t}\,\bm{x}_{t},\quad\text{with}\quad\bm{K}_{t}=-\bm{Q}_{\bm{u}\bm{u},t}^{-1}\,\bm{Q}_{\bm{u}\bm{x},t}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(74)</span></td>
 </tr></tbody>
@@ -363,7 +363,7 @@ We also define the partial cumulative cost</p>
 <p class="ltx_p">We observe that (<a class="ltx_ref" href="#S7-eq:E75" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">75</span></a>) has the same quadratic form as (<a class="ltx_ref" href="#S7-eq:E71" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">71</span></a>), so that (<a class="ltx_ref" href="#S7-eq:E70" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">70</span></a>) can be solved recursively. We thus obtain a backward recursion procedure in which <span class="ltx_Math" id="SS4.p10.m1">\bm{V}_{t}</span> is evaluated recursively from <span class="ltx_Math" id="SS4.p10.m2">t=T-1</span> to <span class="ltx_Math" id="SS4.p10.m3">t=1</span>, starting from <span class="ltx_Math" id="SS4.p10.m4">\bm{V}_{T}=\bm{Q}_{T}</span>, which corresponds to a Riccati equation.</p>
 </div>
 <div class="ltx_para" id="S7-para:SS4.p11">
-<p class="ltx_p">After all feedback gain matrices <span class="ltx_Math" id="SS4.p11.m1">\bm{K}_{t}</span> have been computed by backward recursion, a forward recursion can be used to compute the evolution of the state, starting from <span class="ltx_Math" id="SS4.p11.m2">\bm{x}_{1}</span>, by using the linear system <span class="ltx_Math" id="SS4.p11.m3">\bm{x}_{t+1}=\bm{A}_{t}\bm{x}_{t}+\bm{B}_{t}\bm{u}_{t}</span> and the control policy <span class="ltx_Math" id="SS4.p11.m4">\bm{u}_{t}=-\bm{K}_{t}\bm{x}_{t}</span>, see Algorithm <a class="ltx_ref" href="#S7-alg:algorithm3" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">3</span></a> for the summary of the overall procedure.</p>
+<p class="ltx_p">After all feedback gain matrices <span class="ltx_Math" id="SS4.p11.m1">\bm{K}_{t}</span> have been computed by backward recursion, a forward recursion can be used to compute the evolution of the state, starting from <span class="ltx_Math" id="SS4.p11.m2">\bm{x}_{1}</span>, by using the linear system <span class="ltx_Math" id="SS4.p11.m3">\bm{x}_{t+1}=\bm{A}_{t}\bm{x}_{t}+\bm{B}_{t}\bm{u}_{t}</span> and the control policy <span class="ltx_Math" id="SS4.p11.m4">\bm{u}_{t}=\bm{K}_{t}\bm{x}_{t}</span>, see Algorithm <a class="ltx_ref" href="#S7-alg:algorithm3" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">3</span></a> for the summary of the overall procedure.</p>
 </div>
 </div><div class="ltx_subsection" id="S7-sec:SS5">
 <h2 class="ltx_title ltx_title_subsection">
@@ -418,12 +418,12 @@ We also define the partial cumulative cost</p>
 <table class="ltx_equation ltx_eqn_table" id="S7-eq:E78">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E78.m1">\bm{\hat{u}}_{t}=-\bm{\tilde{K}}_{t}\;\bm{\tilde{x}}_{t}=\bm{K}_{t}\,(\bm{\mu}_{t}-\bm{x}_{t})+\bm{u}^{\text{ff}}_{t},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E78.m1">\bm{\hat{u}}_{t}=\bm{\tilde{K}}_{t}\;\bm{\tilde{x}}_{t}=\bm{K}_{t}\,(\bm{x}_{t}-\bm{\mu}_{t})+\bm{u}^{\text{ff}}_{t},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(78)</span></td>
 </tr></tbody>
 </table>
-<p class="ltx_p">characterized by a feedback gain matrix <span class="ltx_Math" id="SS5.p2.m1">\bm{K}_{t}</span> extracted from <span class="ltx_Math" id="SS5.p2.m2">\bm{\tilde{K}}_{t}=\big[\bm{K}_{t},\bm{k}_{t}\big]</span>, and a feedforward term <span class="ltx_Math" id="SS5.p2.m3">\bm{u}^{\text{ff}}_{t}=-\bm{k}_{t}-\bm{K}_{t}\bm{\mu}_{t}</span> depending on <span class="ltx_Math" id="SS5.p2.m4">\bm{\mu}_{t}</span>.</p>
+<p class="ltx_p">characterized by a feedback gain matrix <span class="ltx_Math" id="SS5.p2.m1">\bm{K}_{t}</span> extracted from <span class="ltx_Math" id="SS5.p2.m2">\bm{\tilde{K}}_{t}=\big[\bm{K}_{t},\bm{k}_{t}\big]</span>, and a feedforward term <span class="ltx_Math" id="SS5.p2.m3">\bm{u}^{\text{ff}}_{t}=\bm{k}_{t}-\bm{K}_{t}\bm{\mu}_{t}</span> depending on <span class="ltx_Math" id="SS5.p2.m4">\bm{\mu}_{t}</span>.</p>
 </div>
 </div><div class="ltx_subsection" id="S7-sec:SS6">
 <h2 class="ltx_title ltx_title_subsection">
@@ -451,11 +451,11 @@ We also define the partial cumulative cost</p>
 </div>
 <div class="ltx_para" id="S7-para:SS6.p2">
 <p class="ltx_p">We can see in (<a class="ltx_ref" href="#S7-eq:E79" title="In 7.6 Least squares formulation of recursive LQR ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">79</span></a>) that the open loop control commands <span class="ltx_Math" id="SS6.p2.m1">\bm{\hat{u}}</span> (in a vector form) is linear with respect to <span class="ltx_Math" id="SS6.p2.m2">\bm{x}_{1}</span>.
-Thus, by introducing a matrix <span class="ltx_Math" id="SS6.p2.m3">\bm{F}</span> to describe <span class="ltx_Math" id="SS6.p2.m4">\bm{u}=-\bm{F}\bm{x}_{1}</span>, we can alternatively define the optimization problem as</p>
+Thus, by introducing a matrix <span class="ltx_Math" id="SS6.p2.m3">\bm{F}</span> to describe <span class="ltx_Math" id="SS6.p2.m4">\bm{u}=\bm{F}\bm{x}_{1}</span>, we can alternatively define the optimization problem as</p>
 <table class="ltx_equation ltx_eqn_table" id="S7-eq:Ex69">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex69.m1">\min_{\bm{F}}\;\;\bm{x}^{\!{\scriptscriptstyle\top}}\bm{Q}\bm{x}+(-\bm{F}\bm{x}_{1})^{\!{\scriptscriptstyle\top}}\,\bm{R}\,(-\bm{F}\bm{x}_{1}),\quad\text{s.t.}\quad\bm{x}=(\bm{S}_{\bm{x}}-\bm{S}_{\bm{u}}\bm{F})\bm{x}_{1},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex69.m1">\min_{\bm{F}}\;\;\bm{x}^{\!{\scriptscriptstyle\top}}\bm{Q}\bm{x}+(\bm{F}\bm{x}_{1})^{\!{\scriptscriptstyle\top}}\,\bm{R}\,\bm{F}\bm{x}_{1},\quad\text{s.t.}\quad\bm{x}=(\bm{S}_{\bm{x}}+\bm{S}_{\bm{u}}\bm{F})\bm{x}_{1},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
@@ -463,7 +463,7 @@ Thus, by introducing a matrix <span class="ltx_Math" id="SS6.p2.m3">\bm{F}</span
 <table class="ltx_equation ltx_eqn_table" id="S7-eq:E80">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E80.m1">\bm{F}={\big(\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{u}}+\bm{R}\big)}^{-1}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{x}}.</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E80.m1">\bm{F}=-{\big(\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{u}}+\bm{R}\big)}^{-1}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{Q}\bm{S}_{\bm{x}}.</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(80)</span></td>
 </tr></tbody>
@@ -474,7 +474,7 @@ Thus, by introducing a matrix <span class="ltx_Math" id="SS6.p2.m3">\bm{F}</span
 <table class="ltx_equation ltx_eqn_table" id="S7-eq:E81">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E81.m1">\bm{P}_{t}=\bm{P}_{t-1}{(\bm{A}_{t-1}-\bm{B}_{t-1}\bm{K}_{t-1})}^{-1},\quad\bm{K}_{t}=\bm{F}_{t}\;\bm{P}_{t},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E81.m1">\bm{P}_{t}=\bm{P}_{t-1}{(\bm{A}_{t-1}+\bm{B}_{t-1}\bm{K}_{t-1})}^{-1},\quad\bm{K}_{t}=\bm{F}_{t}\;\bm{P}_{t},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 <td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(81)</span></td>
 </tr></tbody>
@@ -522,14 +522,14 @@ Thus, by introducing a matrix <span class="ltx_Math" id="SS6.p2.m3">\bm{F}</span
 <table class="ltx_equation ltx_eqn_table" id="S7-eq:Ex70">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex70.m1">\bm{\hat{W}}={\big(\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{\tilde{Q}}\bm{S}_{\bm{u}}\bm{\Psi}+\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{R}\bm{\Psi}\big)}^{-1}\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{\tilde{Q}}\bm{S}_{\bm{x}},\quad\bm{F}=\bm{\Psi}\bm{\hat{W}},</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex70.m1">\bm{\hat{W}}={\big(\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{\tilde{Q}}\bm{S}_{\bm{u}}\bm{\Psi}+\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{R}\bm{\Psi}\big)}^{-1}\bm{\Psi}^{\!{\scriptscriptstyle\top}}\bm{S}_{\bm{u}}^{\scriptscriptstyle\top}\bm{\tilde{Q}}\bm{S}_{\bm{x}},\quad\bm{F}=-\bm{\Psi}\bm{\hat{W}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">which is used to compute feedback gains <span class="ltx_Math" id="SS7.p3.m2">\bm{\tilde{K}}_{t}</span> on the augmented state with (<a class="ltx_ref" href="#S7-eq:E81" title="In 7.6 Least squares formulation of recursive LQR ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">81</span></a>).</p>
 </div>
 <div class="ltx_para" id="S7-para:SS7.p4">
-<p class="ltx_p">The resulting controller <span class="ltx_Math" id="SS7.p4.m1">\bm{\hat{u}}_{t}=-\bm{\tilde{K}}_{t}\bm{\tilde{x}}_{t}</span> tracks the acceleration profile while smoothly reaching the desired goal at the end of the movement, with a smooth transition between the two. The main difference with DMP is that the smooth transition between the two behaviors is directly optimized by the system, and the parameters of the feedback controller are automatically optimized (in DMP, stiffness and damping ratio).</p>
+<p class="ltx_p">The resulting controller <span class="ltx_Math" id="SS7.p4.m1">\bm{\hat{u}}_{t}=\bm{\tilde{K}}_{t}\bm{\tilde{x}}_{t}</span> tracks the acceleration profile while smoothly reaching the desired goal at the end of the movement, with a smooth transition between the two. The main difference with DMP is that the smooth transition between the two behaviors is directly optimized by the system, and the parameters of the feedback controller are automatically optimized (in DMP, stiffness and damping ratio).</p>
 </div>
 <div class="ltx_para" id="S7-para:SS7.p5">
 <p class="ltx_p">Figure <a class="ltx_ref" href="#S7-fig:F20" title="Figure 20 ‣ 7.7 Dynamical movement primitives (DMP) reformulated as LQT with control primitives ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">20</span></a> presents an example of reproducing an “S” trajectory with simulation perturbations.</p>
@@ -540,5 +540,114 @@ Thus, by introducing a matrix <span class="ltx_Math" id="SS6.p2.m3">\bm{F}</span
 <div class="ltx_para" id="S7-para:SS7.p7">
 <p class="ltx_p">Moreover, the above problem formulation can be extended to iterative LQR, providing an opportunity to consider obstacle avoidance and constraints within the DMP formulation, as well as to describe costs in task space with a DMP acting in joint angle space.</p>
 </div>
+</div><div class="ltx_subsection" id="S7-sec:SS8">
+<h2 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection"><span class="ltx_text">7.8</span> </span><span class="ltx_text">LQR with infinite time horizon</span>
+</h2>
+<div class="ltx_para" id="S7-para:SS8.p1">
+<p class="ltx_p">We have seen in Section <a class="ltx_ref" href="#S7-sec:SS4" title="7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">7.4</span></a> that dynamic programming could be used to reduce the minimization in (<a class="ltx_ref" href="#S7-eq:E69" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">69</span></a>) over the entire sequence of control commands <span class="ltx_Math" id="SS8.p1.m1">\bm{u}_{t:T-1}</span> to a sequence of minimization problems over control commands at a single time step, by proceeding backwards in time. We obtained a backward recursion procedure in which <span class="ltx_Math" id="SS8.p1.m2">\bm{V}_{t}</span> is evaluated recursively from <span class="ltx_Math" id="SS8.p1.m3">t=T-1</span> to <span class="ltx_Math" id="SS8.p1.m4">t=1</span>, starting from <span class="ltx_Math" id="SS8.p1.m5">\bm{V}_{T}=\bm{Q}_{T}</span>, which corresponds to a Riccati equation, see Algorithm <a class="ltx_ref" href="#S7-alg:algorithm3" title="In 7.4 LQR with a recursive formulation ‣ 7 Linear quadratic tracking (LQT) ‣ A Math Cookbook for Robot Manipulation"><span class="ltx_text ltx_ref_tag">3</span></a> for the summary of the overall procedure.</p>
+</div>
+<div class="ltx_para" id="S7-para:SS8.p2">
+<p class="ltx_p">An infinite time horizon corresponds to <span class="ltx_Math" id="SS8.p2.m1">T\rightarrow\infty</span>, characterized by the steady state</p>
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:E82">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E82.m1">\bm{P}_{\infty}=\bm{A}^{\scriptscriptstyle\top}\bm{P}_{\infty}\bm{A}+\bm{Q}-\bm{A}^{\scriptscriptstyle\top}\bm{P}_{\infty}\bm{B}{(\bm{B}^{\scriptscriptstyle\top}\bm{P}_{\infty}\bm{B}+\bm{R})}^{-1}\bm{B}^{\scriptscriptstyle\top}\bm{P}_{\infty}\bm{A}.</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(82)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">The above equation can also be solved through a discrete algebraic Riccati equation (DARE).
+By rewriting the cost with a Lagragian formulation</p>
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:E83">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E83.m1">c=\sum_{t=1}^{T}\bm{x}_{t}^{\scriptscriptstyle\top}\bm{Q}\bm{x}_{t}+\bm{u}_{t}^{\scriptscriptstyle\top}\bm{R}\bm{u}_{t}+\bm{\lambda}_{t}(\bm{A}\bm{x}_{t}+\bm{B}\bm{u}_{t}-\bm{x}_{t+1}),</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(83)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">we can find the minimum by differentiating the cost and equating to zeros, providing</p>
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="S7-eq:A5.EGx26">
+<tbody id="S7-eq:E84"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E84.m1">\displaystyle\frac{\partial c}{\partial\bm{\lambda}_{t}}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E84.m2">\displaystyle=\bm{A}\bm{x}_{t}+\bm{B}\bm{u}_{t}-\bm{x}_{t+1}=\bm{0},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(84)</span></td>
+</tr></tbody>
+<tbody id="S7-eq:E85"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E85.m1">\displaystyle\frac{\partial c}{\partial\bm{x}_{t}}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E85.m2">\displaystyle=\bm{Q}\bm{x}_{t}+\bm{A}^{\scriptscriptstyle\top}\bm{\lambda}_{t}-\bm{\lambda}_{t-1}=\bm{0},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(85)</span></td>
+</tr></tbody>
+<tbody id="S7-eq:E86"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="E86.m1">\displaystyle\frac{\partial c}{\partial\bm{u}_{t}}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="E86.m2">\displaystyle=\bm{R}\bm{u}_{t}+\bm{B}^{\scriptscriptstyle\top}\bm{\lambda}_{t}=\bm{0},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(86)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">which can be rewritten as</p>
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:E87">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E87.m1">\begin{bmatrix}\bm{x}_{t+1}\\
+\bm{\lambda}_{t}\end{bmatrix}\!=\!\underbrace{\begin{bmatrix}\bm{A}\!+\!\bm{B}\bm{R}^{-1}\!\bm{B}^{\scriptscriptstyle\top}\!\bm{A}^{-{\scriptscriptstyle\top}}\bm{Q}&amp;-\bm{B}\bm{R}^{-1}\!\bm{B}^{\scriptscriptstyle\top}\!\bm{A}^{-{\scriptscriptstyle\top}}\\
+-\bm{A}^{-{\scriptscriptstyle\top}}\bm{Q}&amp;\bm{A}^{-{\scriptscriptstyle\top}}\end{bmatrix}}_{\bm{Z}}\!\begin{bmatrix}\bm{x}_{t}\\
+\bm{\lambda}_{t-1}\end{bmatrix},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(87)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">where <span class="ltx_Math" id="SS8.p2.m2">\bm{Z}</span> is called a symplectic matrix.<span class="ltx_note ltx_role_footnote" id="footnote1"><sup class="ltx_note_mark">1</sup><span class="ltx_note_outer"><span class="ltx_note_content"><sup class="ltx_note_mark">1</sup><span class="ltx_tag ltx_tag_note">1</span>For a continuous system, the same development would result in a Hamiltonian matrix.</span></span></span></p>
+</div>
+<div class="ltx_para" id="S7-para:SS8.p3">
+<p class="ltx_p">The above DARE problem has multiple solutions, but only one results in a positive semi-definite <span class="ltx_Math" id="SS8.p3.m1">\bm{P}_{\infty}</span>. The symplectic matrix <span class="ltx_Math" id="SS8.p3.m2">\bm{Z}</span> can be decomposed as <span class="ltx_Math" id="SS8.p3.m3">\bm{Z}=\bm{V}\bm{D}\bm{V}^{\scriptscriptstyle\top}</span> (for example, with an eigendecomposition). For systems such as double integrators, it has a structure in which half of the eigenvalues are within the inner circle, which corresponds to the stable solution we are interested in.<span class="ltx_note ltx_role_footnote" id="footnote2"><sup class="ltx_note_mark">2</sup><span class="ltx_note_outer"><span class="ltx_note_content"><sup class="ltx_note_mark">2</sup><span class="ltx_tag ltx_tag_note">2</span>For a continuous system, the corresponding eigenvalues have negative real part.</span></span></span>
+If we decompose the matrix <span class="ltx_Math" id="SS8.p3.m4">\bm{V}</span> containing the eigenvectors as</p>
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:E88">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E88.m1">\bm{V}=\begin{bmatrix}\bm{V}_{11}&amp;\bm{V}_{12}\\
+\bm{V}_{21}&amp;\bm{V}_{22}\end{bmatrix},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(88)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">the steady state solution of the Riccati equation can be described in terms of the corresponding eigenvectors as <span class="ltx_Math" id="SS8.p3.m5">\bm{P}_{\infty}=\bm{V}_{21}\bm{V}_{11}^{-1}</span>.</p>
+</div>
+<div class="ltx_subsubsection" id="S7-sec:SS8.SSSx1">
+<h3 class="ltx_title ltx_title_subsubsection">Ideal damping ratio with DARE</h3>
+<div class="ltx_para" id="S7-para:SS8.SSSx1.p1">
+<p class="ltx_p">As an example of application, in the case of diagonal stiffness and damping matrices, it is easy to show that the stiffness-damping ratio estimated by DARE corresponds to an ideal damping ratio.
+By defining a double integrator system with a state composed of 1D position and 1D velocity, and by setting the weighting terms
+</p>
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:E89">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E89.m1">\bm{Q}=\begin{bmatrix}c_{1}&amp;0\\
+0&amp;0\end{bmatrix}\;,\quad R=c_{2},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(89)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">with <span class="ltx_Math" id="SS8.SSSx1.p1.m1">c_{1}</span> and <span class="ltx_Math" id="SS8.SSSx1.p1.m2">c_{2}</span> constant scalars, the optimal feedback law found by the system is described by <span class="ltx_Math" id="SS8.SSSx1.p1.m3">u=-\kappa^{\scriptscriptstyle{P}}e-\kappa^{\scriptscriptstyle{V}}\dot{e}</span>, with <span class="ltx_Math" id="SS8.SSSx1.p1.m4">\kappa^{\scriptscriptstyle{V}}=\sqrt{2\kappa^{\scriptscriptstyle{P}}}</span>, which corresponds to the ideal underdamped damping ratio <span class="ltx_Math" id="SS8.SSSx1.p1.m5">x=\frac{\kappa^{\scriptscriptstyle{V}}}{2\sqrt{\kappa^{\scriptscriptstyle{P}}}}=\frac{1}{\sqrt{2}}\approx 0.7071</span> in control design, optimizing the reaction speed while still allowing the system to asymptotically come back to its rest position.</p>
+</div>
+<div class="ltx_para" id="S7-para:SS8.SSSx1.p2">
+<p class="ltx_p">Similarly, for multivariate problems, the stiffness and damping matrices estimated by the system automatically satisfy the relation</p>
+<table class="ltx_equation ltx_eqn_table" id="S7-eq:E90">
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E90.m1">\bm{\hat{K}}^{\scriptscriptstyle{V}}=\bm{V}(2\bm{D})^{\nicefrac{{1}}{{2}}}\bm{V}^{\scriptscriptstyle\top},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(90)</span></td>
+</tr></tbody>
+</table>
+<p class="ltx_p">with <span class="ltx_Math" id="SS8.SSSx1.p2.m1">\bm{\hat{K}}^{\scriptscriptstyle{P}}=\bm{V}\bm{D}\bm{V}^{\scriptscriptstyle\top}</span> the eigendecomposition of <span class="ltx_Math" id="SS8.SSSx1.p2.m2">\bm{\hat{K}}^{\scriptscriptstyle{P}}</span>, with unit eigenvectors represented as a matrix <span class="ltx_Math" id="SS8.SSSx1.p2.m3">\bm{V}</span>, and the squared eigenvalues represented in a diagonal matrix <span class="ltx_Math" id="SS8.SSSx1.p2.m4">\bm{D}</span>.</p>
+</div>
 <div class="ltx_pagination ltx_role_newpage"></div>
+</div>
 </div><ul class="pagination justify-content-center small_menu"><li class="page-item previous_file"><a class="page-link" href="#S6">Previous</a></li><li class="page-item next_file"><a class="page-link" href="#S8">Next</a></li></ul></div></div><div class="col-sm-3"><div id="img-col"></div></div></div>
