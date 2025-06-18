@@ -1,0 +1,128 @@
+﻿<div class="row">
+    <div class="col-sm-1"></div>
+
+    <div class="col-sm-5">
+        <h3>Signed distance function</h3>
+        <div class="card block" id="instructionBlock">
+
+            <div class="card-header">
+                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
+                    Instructions
+                </button>
+            </div>
+
+            <div id="instructions" class="collapse card-body instructions">
+                <p>
+                    Allows to define a 3D <a href="https://en.wikipedia.org/wiki/Signed_distance_function">signed distance function (SDF)</a>
+                    composed of a sphere and a box.
+                </p>
+            </div>
+
+        </div>
+        <editor id="editor" src="user_code"></editor>
+
+        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
+            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        </div>
+
+        <pre id="errors" class="py-error"></pre>
+        <pre id="output" class="py-output"></pre>
+    </div>
+
+    <div class="col-sm-6">
+        <div class="sticky-sm-top" style="padding-top: 2rem;">
+            <div id="viewer3d" style="width: 100%; height: 400px;"></div>
+        </div>
+    </div>
+</div>
+
+
+<script id="user_code" type="python">
+    # Position of the sphere
+    sphere_position = np.array([0.0, 0.0, 0.5])  
+
+    # Sphere radius
+    sphere_radius = 0.16
+
+    # Box dimension
+    box_size = np.array([0.48, 0.2, 0.24]) 
+
+    # Box position wrt the sphere
+    box_offset = np.array([0.16, 0.12, -0.12])
+
+    # Smoothing factor for softmax composition of SDF shapes 
+    sdf_smoothing_ratio = 0.1
+</script>
+
+
+<script id="page_code" type="python">
+    from viewer3d import Viewer3D, Layers, Passes
+    from js import document, SDFPass
+    from rcfs import configure, displayError, setAspectRatio
+    import numpy as np
+
+
+    # Position of the sphere
+    sphere_position = np.array([0.0, 0.0, 0.5])  
+
+    # Sphere radius
+    sphere_radius = 0.16
+
+    # Box dimension
+    box_size = np.array([0.48, 0.2, 0.24]) 
+
+    # Box position wrt the sphere
+    box_offset = np.array([0.16, 0.12, -0.12])
+
+    # Smoothing factor for softmax composition of SDF shapes 
+    sdf_smoothing_ratio = 0.1
+
+
+    # Resize the container of the Viewer3D to have a 1:1 aspect ratio
+    setAspectRatio('viewer3d', 1.0)
+
+    # Create the Viewer3D
+    viewer3D = Viewer3D(
+        document.getElementById('viewer3d'),
+        {
+            'external_loop': True,
+        }
+    )
+
+    sdfPass = None
+
+    # Load the scene and retrieve the robot
+    async def setup():
+        global sdfPass
+
+        # Load the scene and retrieve the robot
+        viewer3D.loadScene('/scenes/empty.xml')
+        viewer3D.translateCamera([0.0, 0.0, 0.3])
+
+        viewer3D.activateLayer(Layers.NoShadows)
+
+        if sdfPass is None:
+            sdfPass = SDFPass.new(viewer3D.viewer)
+            sdfPass.setSDF(to_js(sphere_position[:3]), sphere_radius, to_js(box_size), to_js(box_offset), sdf_smoothing_ratio)
+            viewer3D.addPassBefore(sdfPass, Passes.TopRenderPass)
+
+        viewer3D.activateLayer(Layers.Base)
+
+
+    async def run():
+        sdfPass.setSDF(to_js(sphere_position[:3]), sphere_radius, to_js(box_size), to_js(box_offset), sdf_smoothing_ratio)
+
+
+    async def loop(delta, time):
+        viewer3D.render()
+
+
+    configure({
+        'setup': setup,
+        'loop': loop,
+        'run': run,
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

@@ -1,0 +1,270 @@
+﻿<div class="row">
+    <div class="col-sm-1"></div>
+
+    <div class="col-sm-5">
+        <h3>Challenge: Move the cube</h3>
+
+        <editor id="editor" src="user_code"></editor>
+
+        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
+            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
+                Instructions
+            </button>
+        </div>
+
+        <div id="instructions" class="collapse instructions show">
+            <div class="card card-body">
+                <h5>Task</h5>
+                <p>Grab the red cube on the orange box and move it on top of the green one. The cube must stay
+                on the green box for 5 seconds to complete the challenge.</p>
+
+                <h5>API</h5>
+                <p>The following functions are available:</p>
+                <ul>
+                    <li><code>logmap(f, f0)</code>: Logarithmic map for $\mathbb{R}^3 \times \mathcal{S}^3$ manifold (with $e$ in tangent space)</li>
+                    <li><code>logmap_S3(f, f0)</code>: Logarithmic map for $\mathcal{S}^3$ manifold (with $e$ in tangent space)</li>
+                    <li><code>openGripper(index)</code></li>
+                    <li><code>closeGripper(index)</code></li>
+                    <li><code>isGripperOpen(index)</code></li>
+                    <li><code>isGripperClosed(index)</code></li>
+                    <li><code>isGripperHoldingSomeObject(index)</code></li>
+                </ul>
+
+                <p>with <code>index</code> being <code>0</code> for the right arm and <code>1</code> for the left one.</p>
+
+                <p>Additionally, some variables are available:</p>
+                <ul>
+                    <li><code>cube_start_pos</code>: Position of the red cube at the beginning <code>[px, py, pz]</code></li>
+                    <li><code>cube_start_orient_right</code>: Suggested orientation to use to grab the red cube with the right arm <code>[qx, qy, qz, qw]</code></li>
+                    <li><code>cube_start_orient_left</code>: Suggested orientation to use to grab the red cube with the left arm <code>[qx, qy, qz, qw]</code></li>
+                    <li><code>target_pos</code>: Position of the top of the green box <code>[px, py, pz]</code></li>
+                    <li><code>target_orient_right</code>: Suggested target orientation to use to move the red cube with the right arm <code>[qx, qy, qz, qw]</code></li>
+                    <li><code>target_orient_left</code>: Suggested target orientation to use to move the red cube with the left arm <code>[qx, qy, qz, qw]</code></li>
+                    <li><code>right_chain</code>: Kinematic chain of the right arm (see below)</li>
+                    <li><code>left_chain</code>: Kinematic chain of the left arm (see below)</li>
+                </ul>
+
+                <p>Kinematic chains have the following methods and properties:</p>
+                <ul>
+                    <li><code>chain.fkin(x)</code>: Forward kinematics</li>
+                    <li><code>chain.Jkin(x)</code>: Jacobian computation</li>
+                    <li><code>chain.actuators</code>: List of the indices of the joints that are part of the kinematic chain</li>
+                </ul>
+
+                <h5>Control</h5>
+                <p>Click on the green run button to execute the code.</p>
+                <p>To rotate the camera, press the left mouse button and drag the mouse. The right mouse button let you translate the camera. The mouse wheel let you zoom in/out.</p>
+            </div>
+        </div>
+
+        <pre id="errors" class="py-error"></pre>
+        <pre id="output" class="py-output"></pre>
+    </div>
+
+    <div class="col-sm-6">
+        <div class="sticky-sm-top" style="padding-top: 2rem;">
+            <div id="viewer3d" style="width: 100%; height: 400px;"></div>
+            <div id="success" style="display:none; position: absolute; top: 6rem; text-align: center; width: 100%; color: limegreen; font-size: 100px; font-weight: bold;">
+                &#x2714;
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script id="user_code" type="python">
+    task_step = 0 # variable to keep track of the current motion phase
+
+    def controlCommand(x, dt):
+        global task_step
+
+        if x[0] < 0:
+            task_step = 1 # switch to the next motion phase
+
+        return np.zeros(x.shape)  # Velocity in rad/s
+</script>
+
+
+<script id="page_code" type="python">
+    from viewer3d import Viewer3D, configs, logmap_S3, logmap, readFile, writeFile
+    from js import document, three
+    from rcfs import configure, displayError, setAspectRatio
+    import numpy as np
+    import math
+
+
+    # The function that will be called once per frame
+    robot = None
+    right_chain = None
+    left_chain = None
+    cube = None
+
+    startJointPositions = [ 0., 0., 0., 0., 0.2, 0., 1.28, 0., 0., 0., 0., -0.2, 0., 1.28, 0., 0., 0. ]
+
+    cube_start_pos0 = None
+    cube_start_orient_right0 = None
+    cube_start_orient_left0 = None
+
+    target_pos0 = None
+    target_orient_right0 = None
+    target_orient_left0 = None
+
+    cube_start_pos = None
+    cube_start_orient_right = None
+    cube_start_orient_left = None
+
+    target_pos = None
+    target_orient_right = None
+    target_orient_left = None
+
+    targetReached = False
+    targetReachedStartTime = None
+
+    def callback(delta, time):
+        global cube_start_pos, cube_start_orient_right, cube_start_orient_left, \
+               target_pos, target_orient_right, target_orient_left, targetReached, targetReachedStartTime
+
+        cube_start_pos = np.copy(cube_start_pos0)
+        cube_start_orient_right = np.copy(cube_start_orient_right0)
+        cube_start_orient_left = np.copy(cube_start_orient_left0)
+
+        target_pos = np.copy(target_pos0)
+        target_orient_right = np.copy(target_orient_right0)
+        target_orient_left = np.copy(target_orient_left0)
+
+        try:
+            x = robot.jointPositions
+            u = controlCommand(x, delta)
+            x += u * delta * 0.1
+            robot.control = x
+        except Exception as e:
+            displayError(e)
+
+        pos = cube.position
+        reached = robot.isGripperOpen(0) and robot.isGripperOpen(1) and \
+                  (pos[0] > target_pos0[0] - 0.1) and (pos[0] < target_pos0[0] + 0.1) and \
+                  (pos[1] > target_pos0[1] - 0.1) and (pos[1] < target_pos0[1] + 0.1) and \
+                  (pos[2] > target_pos0[2] - 0.03) and (pos[2] < target_pos0[2] + 0.02)
+
+        if reached:
+            if not targetReached:
+                targetReached = True
+                targetReachedStartTime = time
+            elif time - targetReachedStartTime > 5.0:
+                viewer3D.physicsSimulatorPaused = False
+                viewer3D.setRenderingCallback(None)
+                document.getElementById('success').style.display = 'block'
+        else:
+            targetReached = False
+            targetReachedStartTime = None
+
+
+    # Load the scene and retrieve the robot
+    def reset():
+        global robot, right_chain, left_chain, cube, cube_start_pos0, cube_start_orient_right0, cube_start_orient_left0, \
+               target_pos0, target_orient_right0, target_orient_left0, targetReached, targetReachedStartTime
+
+        viewer3D.physicsSimulatorPaused = True
+
+        targetReached = False
+        targetReachedStartTime = None
+
+        offset = np.random.rand(2) * 0.16 - 0.08
+        cube_start_pos0 = np.array([0.4 + offset[0], -0.3 + offset[1], 0.86])
+        cube_start_orient_right0 = np.array([0.707, 0., 0., -0.707])
+        cube_start_orient_left0 = np.array([0.707, 0., 0., 0.707])
+
+        target_pos0 = np.array([0.4, 0.3, 0.86])
+        target_orient_right0 = np.array([0.66830098,  0.25598009, -0.26776774, -0.64509567])
+        target_orient_left0 = np.array([0.707, 0., 0., 0.707])
+
+        robot.jointPositions = startJointPositions
+
+        if not robot.isGripperOpen(0):
+            robot.openGripper(0)
+
+        if not robot.isGripperOpen(1):
+            robot.openGripper(1)
+
+        cube = viewer3D.getPhysicalBody('redcube')
+
+        cube.position = cube_start_pos0[:3]
+        cube.orientation = [0., 0., 0., 1.]
+
+        viewer3D.physicsSimulatorPaused = False
+        viewer3D.setRenderingCallback(callback)
+
+        document.getElementById('success').style.display = 'none'
+
+
+    # Resize the container of the Viewer3D to have a 1:1 aspect ratio
+    setAspectRatio('viewer3d', 1.0)
+
+    # Create the Viewer3D
+    viewer3D = Viewer3D(
+        document.getElementById('viewer3d'),
+        {
+            'external_loop': True,
+        }
+    )
+
+    viewer3D.loadScene('/scenes/02.xml')
+    viewer3D.translateCamera([0.0, 0.0, 0.3])
+    
+    robot = viewer3D.createRobot('g1', configs.G1WithHandsUpperBody.new())
+    right_chain = robot.getKinematicChainForTool(0)
+    left_chain = robot.getKinematicChainForTool(1)
+
+    viewer3D.controlsEnabled = False
+
+    reset()
+
+
+    # Placeholder for the function to implement
+    def controlCommand(x, dt):
+        return np.zeros(x.shape)
+
+    # Function to open the gripper (allows to not care about 'robot' in the user code)
+    def openGripper(index):
+        robot.openGripper(index)
+
+    # Function to close the gripper (allows to not care about 'robot' in the user code)
+    def closeGripper(index):
+        robot.closeGripper(index)
+
+    # Function that indicates if the gripper is fully open (allows to not care about 'robot' in the user code)
+    def isGripperOpen(index):
+        return robot.isGripperOpen(index)
+
+    # Function that indicates if the gripper is fully closed (allows to not care about 'robot' in the user code)
+    def isGripperClosed(index):
+        return robot.isGripperClosed(index)
+
+    # Function that indicates if the gripper is holding an object (allows to not care about 'robot' in the user code)
+    def isGripperHoldingSomeObject(index):
+        return robot.isGripperHoldingSomeObject(index)
+
+
+    async def run():
+        try:
+            reset()
+        except Exception as e:
+            displayError(e)
+
+
+    async def loop(delta, time):
+        viewer3D.render()
+
+
+    configure({
+        'loop': loop,
+        'run': run,
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

@@ -208,10 +208,13 @@
             {
                 "title": "Signed distance function",
                 "hash": "3d_sdf",
-                "page": "sdf/sdf.html",
+                "page": "sdf.html",
                 "assets": {
-                    "data": [
-                        "sdf/mwb3D01.npy"
+                    "scenes": [
+                        "scenes/empty.xml"
+                    ],
+                    "scripts": [
+                        "postprocessing/sdfpass.js"
                     ]
                 }
             }
@@ -306,7 +309,7 @@
         ],
         "entries": [
             {
-                "title": "Move the cube",
+                "title": "Move the cube (Panda)",
                 "hash": "challenge01",
                 "page": "01.html",
                 "assets": {
@@ -315,6 +318,19 @@
                     ],
                     "scenes": [
                         "scenes/01.xml"
+                    ]
+                }
+            },
+            {
+                "title": "Move the cube (Humanoid)",
+                "hash": "challenge02",
+                "page": "02.html",
+                "assets": {
+                    "robots": [
+                        "g1"
+                    ],
+                    "scenes": [
+                        "scenes/02.xml"
                     ]
                 }
             }
