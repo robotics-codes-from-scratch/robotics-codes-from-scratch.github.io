@@ -10,6 +10,8 @@ import katex from 'katex';
 import load_mujoco from 'mujoco';
 import * as math from 'mathjs';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 import { Pass, FullScreenQuad } from 'three/examples/jsm/postprocessing/Pass.js';
 import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js';
 
@@ -906,6 +908,20 @@ class Robot {
     }
 
 
+    /* Returns the local position and orientation of a specific end-effector of the robot
+    in an array of the form: [px, py, pz, qx, qy, qz, qw]
+    */
+    _getEndEffectorLocalTransforms(index=0) {
+        const position = this.tools[index].tcp.position;
+        const quaternion = this.tools[index].tcp.quaternion;
+
+        return [
+            position.x, position.y, position.z,
+            quaternion.x, quaternion.y, quaternion.z, quaternion.w,
+        ];
+    }
+
+
     /* Returns the desired position and orientation for a specific end-effector of
     the robot in an array of the form: [px, py, pz, qx, qy, qz, qw]
 
@@ -1761,6 +1777,14 @@ class SimpleRobot extends Robot {
     }
 
 
+    /* Returns the local position and orientation of the end-effector of the robot
+    in an array of the form: [px, py, pz, qx, qy, qz, qw]
+    */
+    getEndEffectorLocalTransforms() {
+        return this._getEndEffectorLocalTransforms();
+    }
+
+
     /* Returns the desired position and orientation for the end-effector of
     the robot in an array of the form: [px, py, pz, qx, qy, qz, qw]
 
@@ -1888,6 +1912,14 @@ class ComplexRobot extends Robot {
     */
     getEndEffectorTransforms(index=0) {
         return this._getEndEffectorTransforms(index);
+    }
+
+
+    /* Returns the local position and orientation of a specific end-effector of the robot
+    in an array of the form: [px, py, pz, qx, qy, qz, qw]
+    */
+    getEndEffectorLocalTransforms(index=0) {
+        return this._getEndEffectorLocalTransforms(index);
     }
 
 
@@ -2460,6 +2492,18 @@ class PhysicsSimulator {
         this.simulation.qpos[jntadr + 1] = orientation.x;
         this.simulation.qpos[jntadr + 2] = orientation.y;
         this.simulation.qpos[jntadr + 3] = orientation.z;
+    }
+
+
+    getSite(name) {
+        for (let s = 0; s < this.model.nsite; ++s) {
+            const siteName = this.names[this.model.name_siteadr[s]];
+
+            if (siteName == name)
+                return this.sites[s];
+        }
+
+        return null;
     }
 
 
@@ -3424,7 +3468,7 @@ function getFreeCameraSettings(xmlDoc) {
     const settings = {
         fovy: 45.0,
         azimuth: 90.0,
-        elevation: -45.0,
+        elevation: -45,
         znear: 0.01,
         zfar: 50,
     };
@@ -4404,6 +4448,9 @@ class PlanarIKControls {
         }
     }
 
+    reset() {
+    }
+
 }
 
 /*
@@ -4687,8 +4734,8 @@ class Logmap {
 
         if (dist > 1.0) {
             dist = 1.0;
-        } else if (dist < -1.0) {
-            dist = -1.0;
+        } else if (dist < -1) {
+            dist = -1;
         }
 
         return Math.acos(dist);
@@ -4705,11 +4752,11 @@ class Logmap {
  */
 
 
-
 const Shapes = Object.freeze({
     Cube: Symbol("cube"),
     Cone: Symbol("cone"),
     Sphere: Symbol("sphere"),
+    Mesh: Symbol("mesh"),
 });
 
 
@@ -4735,7 +4782,10 @@ class Target extends THREE.Object3D {
         listener (function): Function to call when the target is moved/rotated using the mouse
         parameters (dict): Additional shape-dependent parameters (radius, width, height, ...) and opacity
     */
-    constructor(name, position, orientation, color=0x0000aa, shape=Shapes.Cube, listener=null, parameters=null) {
+    constructor(
+        name, position, orientation, color=0x0000aa, shape=Shapes.Cube, listener=null, parameters=null,
+        targetslist=null
+    ) {
         super();
 
         this.name = name;
@@ -4746,64 +4796,81 @@ class Target extends THREE.Object3D {
         else if (!(parameters instanceof Map))
             parameters = new Map(Object.entries(parameters));
 
-        // Create the mesh
-        let geometry = null;
-        switch (shape) {
-            case Shapes.Cone:
-                geometry = new THREE.ConeGeometry(
-                    parameters.get('radius') || 0.05,
-                    parameters.get('height') || 0.1,
-                    12
-                );
-                break;
+        if (shape == Shapes.Mesh) {
+            const target = this;
 
-            case Shapes.Sphere:
-                geometry = new THREE.SphereGeometry(
-                    parameters.get('radius') || 0.05
-                );
-                break;
+            const url = parameters.get('url');
+            const extension = url.toLowerCase().split('.').reverse()[0];
 
-            case Shapes.Cube:
-            default:
-                geometry = new THREE.BoxGeometry(
-                    parameters.get('width') || 0.1,
-                    parameters.get('height') || 0.1,
-                    parameters.get('depth') || 0.1
+            const offset = parameters.get('offset') || [0.0, 0.0, 0.0];
+            const orientation = parameters.get('orientation') || [0.0, 0.0, 0.0, 1.0];
+            if (extension == 'obj') {
+                const loader = new OBJLoader();
+
+                loader.load(
+                    url,
+
+                    // called when resource is loaded
+                    function(object) {
+                        target._setup(object.children[0].geometry, color, parameters, offset, orientation, false);
+                        targetslist.meshes.push(target.mesh);
+                    }
                 );
+            } else if (extension == 'stl') {
+                const loader = new STLLoader();
+
+                loader.load(
+                    url,
+
+                    // called when resource is loaded
+                    function(geometry) {
+                        target._setup(geometry, color, parameters, offset, orientation, false);
+                        targetslist.meshes.push(target.mesh);
+                    }
+                );
+            }
+
+        } else {
+            // Create the geometry
+            let geometry = null;
+            switch (shape) {
+                case Shapes.Cone:
+                    geometry = new THREE.ConeGeometry(
+                        parameters.get('radius') || 0.05,
+                        parameters.get('height') || 0.1,
+                        12
+                    );
+                    break;
+
+                case Shapes.Sphere:
+                    geometry = new THREE.SphereGeometry(
+                        parameters.get('radius') || 0.05
+                    );
+                    break;
+
+                case Shapes.Mesh:
+                    geometry = new THREE.SphereGeometry(
+                        parameters.get('radius') || 0.05
+                    );
+                    break;
+
+                case Shapes.Cube:
+                default:
+                    geometry = new THREE.BoxGeometry(
+                        parameters.get('width') || 0.1,
+                        parameters.get('height') || 0.1,
+                        parameters.get('depth') || 0.1
+                    );
+            }
+
+            // Create the mesh
+            this._setup(geometry, color, parameters, [0.0, 0.0, 0.0], [0.707, 0, 0, 0.707]);
         }
-
-        this.mesh = new THREE.Mesh(
-            geometry,
-            new THREE.MeshBasicMaterial({
-                color: color,
-                opacity: parameters.get('opacity') || 0.75,
-                transparent: true
-            })
-        );
-
-        this.mesh.rotateX(Math.PI / 2);
-        this.mesh.castShadow = true;
-        this.mesh.receiveShadow = false;
-        this.mesh.layers = this.layers;
-
-        this.add(this.mesh);
-
-        // Add a wireframe on top of the cone mesh
-        const wireframe = new THREE.WireframeGeometry(geometry);
-
-        this.line = new THREE.LineSegments(wireframe);
-        this.line.material.depthTest = true;
-        this.line.material.opacity = 0.5;
-        this.line.material.transparent = true;
-        this.line.layers = this.layers;
-
-        this.mesh.add(this.line);
 
         // Set the target position and orientation
         this.position.copy(position);
         this.quaternion.copy(orientation.clone().normalize());
 
-        this.mesh.tag = 'target-mesh';
         this.tag = 'target';
     }
 
@@ -4823,21 +4890,72 @@ class Target extends THREE.Object3D {
     instance is no longer used in your app.
     */
     dispose() {
-        this.mesh.geometry.dispose();
-        this.mesh.material.dispose();
-        this.line.geometry.dispose();
-        this.line.material.dispose();
+        if (this.mesh) {
+            this.mesh.geometry.dispose();
+            this.mesh.material.dispose();
+        }
+
+        if (this.line) {
+            this.line.geometry.dispose();
+            this.line.material.dispose();
+        }
     }
 
 
     _disableVisibility(materials) {
-        this.mesh.material.colorWrite = false;
-        this.mesh.material.depthWrite = false;
+        if (this.mesh) {
+            this.mesh.material.colorWrite = false;
+            this.mesh.material.depthWrite = false;
 
-        this.line.material.colorWrite = false;
-        this.line.material.depthWrite = false;
+            materials.push(this.mesh.material);
+        }
 
-        materials.push(this.mesh.material, this.line.material);
+        if (this.line) {
+            this.line.material.colorWrite = false;
+            this.line.material.depthWrite = false;
+
+            materials.push(this.line.material);
+        }
+    }
+
+
+    _setup(geometry, color, parameters, position, orientation, line=true) {
+        this.mesh = new THREE.Mesh(
+            geometry,
+            new THREE.MeshBasicMaterial({
+                color: color,
+                opacity: parameters.get('opacity') || 0.75,
+                transparent: true
+            })
+        );
+
+        const q = new THREE.Quaternion(orientation[0], orientation[1], orientation[2], orientation[3]);
+        this.mesh.setRotationFromQuaternion(q);
+
+        this.mesh.translateX(position[0]);
+        this.mesh.translateY(position[1]);
+        this.mesh.translateZ(position[2]);
+
+        this.mesh.castShadow = true;
+        this.mesh.receiveShadow = false;
+        this.mesh.layers = this.layers;
+
+        this.add(this.mesh);
+
+        // Add a wireframe on top of the mesh
+        if (line) {
+            const wireframe = new THREE.WireframeGeometry(geometry);
+
+            this.line = new THREE.LineSegments(wireframe);
+            this.line.material.depthTest = true;
+            this.line.material.opacity = 0.5;
+            this.line.material.transparent = true;
+            this.line.layers = this.layers;
+
+            this.mesh.add(this.line);
+        }
+
+        this.mesh.tag = 'target-mesh';
     }
 
 }
@@ -4876,7 +4994,7 @@ class TargetList {
         The target
     */
     create(name, position, orientation, color, shape=Shapes.Cube, listener=null, parameters=null) {
-        const target = new Target(name, position, orientation, color, shape, listener, parameters);
+        const target = new Target(name, position, orientation, color, shape, listener, parameters, this);
         this.add(target);
         return target;
     }
@@ -4889,7 +5007,9 @@ class TargetList {
     */
     add(target) {
         this.targets[target.name] = target;
-        this.meshes.push(target.mesh);
+
+        if (target.mesh)
+            this.meshes.push(target.mesh);
     }
 
 
@@ -5069,7 +5189,7 @@ class Arrow extends THREE.Object3D {
         // 'direction' is assumed to be normalized
         if (direction.y > 0.99999) {
             this.quaternion.set(0, 0, 0, 1);
-        } else if (direction.y < - 0.99999) {
+        } else if (direction.y < -0.99999) {
             this.quaternion.set(1, 0, 0, 0);
         } else {
             axis.set(direction.z, 0, -direction.x).normalize();
@@ -7640,7 +7760,7 @@ class Viewer3D {
 
         this.renderingCallback = null;
         this.renderingCallbackTime = null;
-        this.renderingCallbackTimestep = -1.0;
+        this.renderingCallbackTimestep = -1;
 
         this.controlsEnabled = true;
         this.endEffectorManipulationEnabled = true;
@@ -7679,7 +7799,7 @@ class Viewer3D {
     Note that only one function can be registered at a time. If 'callback' is 'null', no
     function is called anymore.
     */
-    setRenderingCallback(renderingCallback, timestep=-1.0) {
+    setRenderingCallback(renderingCallback, timestep=-1) {
         this.renderingCallback = renderingCallback;
         this.renderingCallbackTimestep = timestep;
         this.renderingCallbackTime = null;
@@ -8890,7 +9010,7 @@ class Viewer3D {
 
             this.didClick = false;
 
-            this.planarIkControls.u = null;
+            this.planarIkControls.reset();
 
             return;
 

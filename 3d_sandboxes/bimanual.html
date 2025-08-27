@@ -210,18 +210,8 @@
             x = robot.jointPositions
 
             mu = np.ndarray((14,))
-            mu[:7] = leftTarget.transforms
-            mu[7:] = rightTarget.transforms
-
-            quaternion = three.Quaternion.new(mu[3], mu[4], mu[5], mu[6])
-            vector = three.Vector3.new(0, 0, -0.02)
-            vector.applyQuaternion(quaternion)
-            mu[:3] += [vector.x, vector.y, vector.z]
-
-            quaternion = three.Quaternion.new(mu[10], mu[11], mu[12], mu[13])
-            vector = three.Vector3.new(0, 0, -0.02)
-            vector.applyQuaternion(quaternion)
-            mu[7:10] += [vector.x, vector.y, vector.z]
+            mu[:7] = rightTarget.transforms
+            mu[7:] = leftTarget.transforms
 
             u = control(x, mu, delta)
             x += u * delta
@@ -259,13 +249,27 @@
     viewer3D.physicsSimulatorPaused = False
 
     # Add the targets
-    parameters = {
-        'width': 0.05,
-        'height': 0.05,
-        'depth': 0.05,
-    }
-    leftTarget = viewer3D.addTarget('leftTarget', [0.3, -0.25,  1.0], [0.76, 0.1, 0.5, -0.4], '#FF3399', shape=Shapes.Cube, parameters=parameters)
-    rightTarget = viewer3D.addTarget('rightTarget', [0.3, 0.3, 0.9], [0.67, 0.22, 0.016, 0.7], '#FF9933', shape=Shapes.Cube, parameters=parameters)
+    transforms = robot.endEffectorLocalTransforms(0)
+
+    rightTarget = viewer3D.addTarget(
+        'rightTarget', [0.3, -0.25,  1.0], [0.76, 0.1, 0.5, -0.4], '#FF3399', shape=Shapes.Mesh,
+        parameters={
+            'url': 'viewer3d/models/unitree_g1/assets/right_rubber_hand.STL',
+            'offset': -transforms[:3],
+            'orientation': [-transforms[3], -transforms[4], -transforms[5], transforms[6]],
+        }
+    )
+
+    transforms = robot.endEffectorLocalTransforms(1)
+
+    leftTarget = viewer3D.addTarget(
+        'leftTarget', [0.3, 0.3, 0.9], [0.67, 0.22, 0.016, 0.7], '#FF9933', shape=Shapes.Mesh,
+        parameters={
+            'url': 'viewer3d/models/unitree_g1/assets/left_rubber_hand.STL',
+            'offset': -transforms[:3],
+            'orientation': [-transforms[3], -transforms[4], -transforms[5], transforms[6]],
+        }
+    )
 
 
     # Placeholder for the function to implement

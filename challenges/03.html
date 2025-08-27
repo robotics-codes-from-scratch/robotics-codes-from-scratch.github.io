@@ -1,0 +1,424 @@
+﻿<style>
+    table#results {
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        margin-top: 40px;
+        font-size: 0.6em;
+        width: 100%;
+    }
+
+    table#results th {
+        background-color: rgb(50, 50, 50);
+        color: white;
+    }
+
+    table#results td,
+    table#results th {
+        border: 1px solid rgb(50, 50, 50);
+        padding-right: 10px;
+        padding-left: 10px;
+        padding-top: 4px;
+        padding-bottom: 4px;
+        text-align: center;
+    }
+
+    table#results th.tools {
+        background: none;
+        border: 0;
+        vertical-align: top;
+    }
+
+    table#results td:first-child {
+        background-color: lightgray;
+    }
+
+    table#results button {
+        font-size: 0.8em;
+        border: 1px solid;
+    }
+
+    table#results th.tools button {
+        width: 100%;
+    }
+</style>
+
+
+<div class="row">
+    <div class="col-sm-1"></div>
+
+    <div class="col-sm-5">
+        <h3>Challenge: Manipulate the leg</h3>
+
+        <editor id="editor" src="user_code"></editor>
+
+        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
+            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        </div>
+
+        <table id="results" style="display: none;">
+            <tr>
+                <th></th>
+                <th style="color: #FF3399;">Right target</th>
+                <th style="color: #FF9933;">Left Target</th>
+                <th class="tools" rowspan="4">
+                    <div>
+                        <button id="btn_reset">Reset</button>
+                    </div>
+                    <div>
+                        <button id="btn_pause_control">Pause control</button>
+                    </div>
+                    <div>
+                        <button id="btn_resume_control" disabled="1">Resume control</button>
+                    </div>
+                </th>
+            </tr>
+            <tr>
+                <td>Position (x, y, z)</td>
+                <td id="right_pos"></td>
+                <td id="left_pos"></td>
+            </tr>
+            <tr>
+                <td>Orientation (x, y, z, w)</td>
+                <td id="right_quat"></td>
+                <td id="left_quat"></td>
+            </tr>
+            <tr>
+                <td>Place at</td>
+                <td id="right_tools">
+                    <div>
+                        <button id="btn_snap_right_thigh_top">Thigh top</button>
+                        <button id="btn_snap_right_thigh_bottom">Thigh bottom</button>
+                    </div>
+                    <div>
+                        <button id="btn_snap_right_calf_top">Calf top</button>
+                        <button id="btn_snap_right_calf_bottom">Calf bottom</button>
+                    </div>
+                    <div>
+                        <button id="btn_snap_right_foot_bottom">Foot bottom</button>
+                    </div>
+                </td>
+                <td id="left_tools">
+                    <div>
+                        <button id="btn_snap_left_thigh_top">Thigh top</button>
+                        <button id="btn_snap_left_thigh_bottom">Thigh bottom</button>
+                    </div>
+                    <div>
+                        <button id="btn_snap_left_calf_top">Calf top</button>
+                        <button id="btn_snap_left_calf_bottom">Calf bottom</button>
+                    </div>
+                    <div>
+                        <button id="btn_snap_left_foot_bottom">Foot bottom</button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <div style="margin-bottom: 10px;">
+            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
+                Instructions
+            </button>
+        </div>
+
+        <div id="instructions" class="collapse instructions show">
+            <div class="card card-body">
+                <h5>Task</h5>
+                <p>Use both hands of the robot to manipulate the leg.</p>
+
+                <h5>API</h5>
+                <p>The following functions are available:</p>
+                <ul>
+                    <li><code>logmap(f, f0)</code>: Logarithmic map for $\mathbb{R}^3 \times \mathcal{S}^3$ manifold (with $e$ in tangent space)</li>
+                    <li><code>logmap_S3(f, f0)</code>: Logarithmic map for $\mathcal{S}^3$ manifold (with $e$ in tangent space)</li>
+                    <li><code>fkin(x)</code>: Forward kinematics</li>
+                    <li><code>Jkin(x)</code>: Jacobian computation</li>
+                    <li><code>getTransforms(slot)</code>: Retrieves the transforms (position and orientation) of a slot of the leg (see below) <code>[px, py, pz, qx, qy, qz, qw]</code></li>
+                </ul>
+
+                <p>Additionally, some variables are available:</p>
+                <ul>
+                    <li><code>rightTarget</code>: The right hand target (the red one). Use <code>rightTarget.transforms</code> to retrieve its transforms <code>[px, py, pz, qx, qy, qz, qw]</code></li>
+                    <li><code>leftTarget</code>: The left hand target (the orange one). Use <code>leftTarget.transforms</code> to retrieve its transforms <code>[px, py, pz, qx, qy, qz, qw]</code></li>
+                </ul>
+
+                <p>The leg has 5 slots defined (displayed as blue dots). Their transforms (which can be used as targets
+                    for the hands of the robot) can be retrieved with the <code>getTransforms(slot)</code> function,
+                    using the name of the slot: <code>'thigh_top'</code>, <code>'thigh_bottom'</code>, <code>'calf_top'</code>,
+                    <code>'calf_bottom'</code> or <code>'foot_bottom'</code>.
+                </p>
+
+                <h5>Control</h5>
+                <p>Click on the green run button to execute the code.</p>
+                <p>To rotate the camera, press the left mouse button and drag the mouse. The right mouse button let you translate the camera. The mouse wheel let you zoom in/out.</p>
+                <p>
+                    The table below the code editor allows to:
+                    <ul>
+                        <li>read the current position and orientation of both targets</li>
+                        <li>place the targets over one of the leg slots</li>
+                        <li>call the <code>reset()</code> function without running all the code</li>
+                        <li>pause and resume the calling of the <code>control(x, dt)</code> function each frame</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+
+        <pre id="errors" class="py-error"></pre>
+        <pre id="output" class="py-output"></pre>
+    </div>
+
+    <div class="col-sm-6">
+        <div class="sticky-sm-top" style="padding-top: 2rem;">
+            <div id="viewer3d" style="width: 100%; height: 400px;"></div>
+        </div>
+    </div>
+</div>
+
+
+<script id="user_code" type="python">
+    # Called when the 'Run' and 'Reset' buttons are clicked
+    def reset():
+        # Initial leg state
+        leg.jointPositions = [0.707, -1.5]
+
+        # Returns the initial robot state
+        return [
+            0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0.
+        ]
+
+
+    # Control loop definition, called once per frame
+    def control(x, dt):
+        J = Jkin(x)
+        f = fkin(x)
+
+        # Task: The right hand pushes on the top of the thigh
+        # and the left hand pushes on the top of the calf
+        mu = np.ndarray((14,))
+        mu[:7] = getTransforms('thigh_top')
+        mu[7:] = getTransforms('calf_top')
+
+        # # Task: The right hand follows the right target
+        # # and the left hand pushes on the top of the calf
+        # mu = np.ndarray((14,))
+        # mu[:7] = rightTarget.transforms
+        # mu[7:] = getTransforms('calf_top')
+
+        # Position & orientation tracking
+        diff = np.ndarray(12)
+        diff[:6] = logmap(mu[:7], f[:7]) # Right hand correction
+        diff[6:] = logmap(mu[7:], f[7:]) # Left hand correction
+        u = np.linalg.pinv(J) @ diff
+
+        return u / dt  # Velocity in rad/s
+</script>
+
+
+<script id="page_code" type="python">
+    from viewer3d import Viewer3D, configs, logmap_S3, logmap, q2R, Shapes, Object3D
+    from js import document, three
+    from rcfs import configure, displayError, setAspectRatio
+    import numpy as np
+
+    # The function that will be called once per frame
+    x = None
+
+    def ikUpdate(delta, time):
+        try:
+            x = robot.jointPositions
+            
+            mu = np.ndarray((14,))
+            mu[:7] = rightTarget.transforms
+            mu[7:] = leftTarget.transforms
+
+            right_pos_cell.textContent = f'{mu[0]:.3}, {mu[1]:.3}, {mu[2]:.3}'
+            right_quat_cell.textContent = f'{mu[3]:.3}, {mu[4]:.3}, {mu[5]:.3}, {mu[6]:.3}'
+            left_pos_cell.textContent = f'{mu[7]:.3}, {mu[8]:.3}, {mu[9]:.3}'
+            left_quat_cell.textContent = f'{mu[10]:.3}, {mu[11]:.3}, {mu[12]:.3}, {mu[13]:.3}'
+
+            u = control(x, delta)
+            x += u * delta
+
+            robot.control = x
+        except Exception as e:
+            displayError(e)
+
+
+    # Resize the container of the Viewer3D to have a 1:1 aspect ratio
+    setAspectRatio('viewer3d', 1.0)
+
+    # Create the Viewer3D
+    element = document.getElementById('viewer3d')
+
+    viewer3D = Viewer3D(
+        element,
+        {
+            'external_loop': True,
+        }
+    )
+
+    viewer3D.setRenderingCallback(ikUpdate, 0.01)
+
+    # Load the scene and retrieve the robot
+    viewer3D.loadScene('/scenes/03.xml')
+    viewer3D.translateCamera([0.0, 0.0, 0.3])
+
+    robot = viewer3D.createRobot('g1', configs.G1UpperBody.new())
+
+    # Initialise the leg
+    leg_config = configs.RobotConfiguration.new()
+    leg_config.robotRoot = 'leg'
+
+    leg = viewer3D.createRobot('leg', leg_config)
+    leg.jointPositions = [0.707, -1.5]
+
+    leg_slots = { slot : Object3D(viewer3D.viewer.physicsSimulator.getSite(slot)) for slot in [
+            'thigh_top',
+            'thigh_bottom',
+            'calf_top',
+            'calf_bottom',
+            'foot_bottom',
+            'thigh_top',
+            'thigh_bottom',
+            'calf_top',
+            'calf_bottom',
+            'foot_bottom',
+        ]
+    }
+
+    # Disable the manipulation of the joints
+    viewer3D.jointsManipulationEnabled = False
+    viewer3D.endEffectorManipulationEnabled = False
+
+    viewer3D.physicsSimulatorPaused = False
+
+    # Add the targets
+    transforms = robot.endEffectorLocalTransforms(0)
+
+    rightTarget = viewer3D.addTarget(
+        'rightTarget', [0.3, -0.25,  1.0], [0.76, 0.1, 0.5, -0.4], '#FF3399', shape=Shapes.Mesh,
+        parameters={
+            'url': 'viewer3d/models/unitree_g1/assets/right_rubber_hand.STL',
+            'offset': -transforms[:3],
+            'orientation': [-transforms[3], -transforms[4], -transforms[5], transforms[6]],
+        }
+    )
+
+    transforms = robot.endEffectorLocalTransforms(1)
+
+    leftTarget = viewer3D.addTarget(
+        'leftTarget', [0.3, 0.3, 0.9], [0.67, 0.22, 0.016, 0.7], '#FF9933', shape=Shapes.Mesh,
+        parameters={
+            'url': 'viewer3d/models/unitree_g1/assets/left_rubber_hand.STL',
+            'offset': -transforms[:3],
+            'orientation': [-transforms[3], -transforms[4], -transforms[5], transforms[6]],
+        }
+    )
+
+    # Retrieve the table cells
+    right_pos_cell = document.getElementById('right_pos')
+    left_pos_cell = document.getElementById('left_pos')
+    right_quat_cell = document.getElementById('right_quat')
+    left_quat_cell = document.getElementById('left_quat')
+
+    document.getElementById('results').style.display = 'table'
+
+    
+    # Placeholder for the function to implement
+    def control(x, dt):
+        return np.zeros(x.shape)
+
+    # Forward kinematics function (allows to not care about 'robot' in the user code)
+    def fkin(x):
+        return robot.fkin(x)
+
+    # Jacobian function (allows to not care about 'robot' in the user code)
+    def Jkin(x):
+        return robot.Jkin(x)
+
+
+    # Retrieve the transforms of a slot
+    def getTransforms(slot):
+        obj = leg_slots[slot]
+        p = obj.worldPosition
+        q = obj.worldOrientation
+        return [p[0], p[1], p[2], q[0], q[1], q[2], q[3]]
+
+    # Put a target to a given slot
+    def snapTargetTo(target, slot):
+        transforms = getTransforms(slot)
+        target.position = transforms[:3]
+        target.orientation = transforms[3:]
+
+    # Put the right target to a given slot
+    def snapRightTargetTo(slot):
+        snapTargetTo(rightTarget, slot)
+
+    # Put the left target to a given slot
+    def snapLeftTargetTo(slot):
+        snapTargetTo(leftTarget, slot)
+
+    def doReset():
+        robot.jointPositions = reset()
+
+
+    control_zero = control
+    control_user = None
+
+    def pauseControl():
+        global control
+        control = control_zero
+        document.getElementById('btn_pause_control').disabled = 1
+        document.getElementById('btn_resume_control').disabled = 0
+
+    def resumeControl():
+        global control
+        control = control_user
+        document.getElementById('btn_pause_control').disabled = 0
+        document.getElementById('btn_resume_control').disabled = 1
+
+
+    # Configure the buttons
+    document.getElementById('btn_snap_right_thigh_top').onclick = lambda x: snapRightTargetTo('thigh_top')
+    document.getElementById('btn_snap_right_thigh_bottom').onclick = lambda x: snapRightTargetTo('thigh_bottom')
+    document.getElementById('btn_snap_right_calf_top').onclick = lambda x: snapRightTargetTo('calf_top')
+    document.getElementById('btn_snap_right_calf_bottom').onclick = lambda x: snapRightTargetTo('calf_bottom')
+    document.getElementById('btn_snap_right_foot_bottom').onclick = lambda x: snapRightTargetTo('foot_bottom')
+    document.getElementById('btn_snap_left_thigh_top').onclick = lambda x: snapLeftTargetTo('thigh_top')
+    document.getElementById('btn_snap_left_thigh_bottom').onclick = lambda x: snapLeftTargetTo('thigh_bottom')
+    document.getElementById('btn_snap_left_calf_top').onclick = lambda x: snapLeftTargetTo('calf_top')
+    document.getElementById('btn_snap_left_calf_bottom').onclick = lambda x: snapLeftTargetTo('calf_bottom')
+    document.getElementById('btn_snap_left_foot_bottom').onclick = lambda x: snapLeftTargetTo('foot_bottom')
+    document.getElementById('btn_reset').onclick = lambda x: doReset()
+    document.getElementById('btn_pause_control').onclick = lambda x: pauseControl()
+    document.getElementById('btn_resume_control').onclick = lambda x: resumeControl()
+
+
+    async def loop(delta, time):
+        viewer3D.render()
+
+
+    async def run():
+        global control_user
+        control_user = control
+
+        resumeControl()
+        doReset()
+
+
+    async def cleanup():
+        global viewer3D
+        viewer3D.dispose()
+        viewer3D = None
+        document.getElementById('viewer3d').innerHTML = ''
+
+
+    configure({
+        'loop': loop,
+        'run': run,
+        'cleanup': cleanup,
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

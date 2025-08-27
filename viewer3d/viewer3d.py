@@ -944,6 +944,16 @@ class Robot:
         return np.array(self.robot.getEndEffectorTransforms(index).to_py())
 
 
+    def _endEffectorLocalTransforms(self, index=0):
+        """Returns the local position and orientation of the end-effector of the robot in
+        a Numpy array of the form: [px, py, pz, qx, qy, qz, qw]
+
+        Returns:
+            A NumPy array like [px, py, pz, qx, qy, qz, qw]
+        """
+        return np.array(self.robot.getEndEffectorLocalTransforms(index).to_py())
+
+
     def _endEffectorDesiredTransforms(self, index=0):
         """Returns the desired position and orientation for the end-effector of the robot
         in a Numpy array of the form: [px, py, pz, qx, qy, qz, qw]
@@ -1071,6 +1081,11 @@ class SimpleRobot(Robot):
 
 
     @property
+    def endEffectorLocalTransforms(self):
+        return self._endEffectorLocalTransforms()
+
+
+    @property
     def endEffectorDesiredTransforms(self):
         return self._endEffectorDesiredTransforms()
 
@@ -1151,6 +1166,10 @@ class ComplexRobot(Robot):
 
     def endEffectorTransforms(self, index=0):
         return self._endEffectorTransforms(index)
+
+
+    def endEffectorLocalTransforms(self, index=0):
+        return self._endEffectorLocalTransforms(index)
 
 
     def endEffectorDesiredTransforms(self, index=0):
@@ -1317,6 +1336,33 @@ class Object3D:
         """Returns the position and orientation of the object in a Numpy array of the form:
         [px, py, pz, qx, qy, qz, qw]"""
         return np.array(self.object.transforms().to_py())
+
+
+    @property
+    def worldPosition(self):
+        """Returns the world position of the object (as a NumPy array)"""
+        position = three.Vector3.new()
+        self.object.getWorldPosition(position)
+
+        return np.array([
+            position.x,
+            position.y,
+            position.z,
+        ])
+
+
+    @property
+    def worldOrientation(self):
+        """Returns the world orientation (x, y, z, w) of the object (as a NumPy array)"""
+        quaternion = three.Quaternion.new()
+        self.object.getWorldQuaternion(quaternion)
+
+        return np.array([
+            quaternion.x,
+            quaternion.y,
+            quaternion.z,
+            quaternion.w,
+        ])
 
 
 

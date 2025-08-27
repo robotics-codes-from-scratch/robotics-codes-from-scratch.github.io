@@ -217,6 +217,7 @@
                           <geom class="collision" mesh="left_wrist_yaw_link"/>
                           <body name="left_hand" pos="0.0415 0.003 0" quat="1 0 0 0" gravcomp="1">
                               <geom class="visual" mesh="left_rubber_hand"/>
+                              <geom class="collision" mesh="left_rubber_hand"/>
                               <site name="left_tcp" pos="0.07 -0.02 0" quat="0.707 0.707 0 0"/>
                           </body>
                         </body>
@@ -276,6 +277,7 @@
                           <geom class="collision" mesh="right_wrist_yaw_link"/>
                           <body name="right_hand" pos="0.0415 -0.003 0" quat="1 0 0 0" gravcomp="1">
                               <geom class="visual" mesh="right_rubber_hand"/>
+                              <geom class="collision" mesh="right_rubber_hand"/>
                               <site name="right_tcp" pos="0.07 0.02 0" quat="0.707 -0.707 0 0"/>
                           </body>
                         </body>

@@ -333,6 +333,19 @@
                         "scenes/02.xml"
                     ]
                 }
+            },
+            {
+                "title": "Manipulate a leg (Humanoid)",
+                "hash": "challenge03",
+                "page": "03.html",
+                "assets": {
+                    "robots": [
+                        "g1"
+                    ],
+                    "scenes": [
+                        "scenes/03.xml"
+                    ]
+                }
             }
         ]
     },
