@@ -1,10 +1,10 @@
 <div class="row"><div class="col-sm-7 offset-1"><div id="txt-col"><h1 class="ltx_title ltx_title_appendix">
 <span class="ltx_tag ltx_tag_appendix">Appendix D </span>Equivalence between LQT and LQR with augmented state space</h1><div class="ltx_para" id="A4-para:p1">
 <p class="ltx_p">The equivalence between the original LQT problem and the corresponding LQR problem with an augmented state space can be shown by using the block matrices composition rule</p>
-<table class="ltx_equation ltx_eqn_table" id="A4-eq:Ex140">
+<table class="ltx_equation ltx_eqn_table" id="A4-eq:Ex138">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex140.m1">\bm{M}=\footnotesize\begin{bmatrix}\bm{M}_{11}&amp;\bm{M}_{12}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex138.m1">\bm{M}=\footnotesize\begin{bmatrix}\bm{M}_{11}&amp;\bm{M}_{12}\\
 \bm{M}_{21}&amp;\bm{M}_{22}\end{bmatrix}\quad\iff\quad\bm{M}^{-1}=\footnotesize\begin{bmatrix}\bm{I}&amp;\bm{0}\\
 -\bm{M}_{22}^{-1}\bm{M}_{21}&amp;\bm{I}\end{bmatrix}\begin{bmatrix}\bm{S}^{-1}&amp;\bm{0}\\
 \bm{0}&amp;\bm{M}_{22}^{-1}\end{bmatrix}\begin{bmatrix}\bm{I}&amp;-\bm{M}_{12}\bm{M}_{22}^{-1}\\
@@ -16,10 +16,10 @@
 and <span class="ltx_Math" id="p1.m5">\bm{S}=\bm{M}_{11}-\bm{M}_{12}\bm{M}_{22}^{-1}\bm{M}_{21}</span> the Schur complement of the matrix <span class="ltx_Math" id="p1.m6">\bm{M}</span>.</p>
 </div><div class="ltx_para" id="A4-para:p2">
 <p class="ltx_p">In our case, we have</p>
-<table class="ltx_equation ltx_eqn_table" id="A4-eq:Ex141">
+<table class="ltx_equation ltx_eqn_table" id="A4-eq:Ex139">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex141.m1">\begin{bmatrix}\bm{Q}^{-1}\!+\!\bm{\mu}\bm{\mu}^{\scriptscriptstyle\top}&amp;\bm{\mu}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex139.m1">\begin{bmatrix}\bm{Q}^{-1}\!+\!\bm{\mu}\bm{\mu}^{\scriptscriptstyle\top}&amp;\bm{\mu}\\
 \bm{\mu}^{\scriptscriptstyle\top}&amp;1\end{bmatrix}^{-1}=\begin{bmatrix}\bm{I}&amp;\bm{0}\\
 -\bm{\mu}^{\scriptscriptstyle\top}&amp;1\end{bmatrix}\begin{bmatrix}\bm{Q}&amp;\bm{0}\\
 \bm{0}&amp;1\end{bmatrix}\begin{bmatrix}\bm{I}&amp;-\bm{\mu}\\
@@ -28,10 +28,10 @@ and <span class="ltx_Math" id="p1.m5">\bm{S}=\bm{M}_{11}-\bm{M}_{12}\bm{M}_{22}^
 </tr></tbody>
 </table>
 <p class="ltx_p">and it is easy to see that</p>
-<table class="ltx_equation ltx_eqn_table" id="A4-eq:Ex142">
+<table class="ltx_equation ltx_eqn_table" id="A4-eq:Ex140">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex142.m1">{(\bm{x}-\bm{\mu})}^{\scriptscriptstyle\top}\bm{Q}(\bm{x}-\bm{\mu})=\begin{bmatrix}\bm{x}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex140.m1">{(\bm{x}-\bm{\mu})}^{\scriptscriptstyle\top}\bm{Q}(\bm{x}-\bm{\mu})=\begin{bmatrix}\bm{x}\\
 1\end{bmatrix}^{\scriptscriptstyle\top}\begin{bmatrix}\bm{Q}^{-1}\!+\!\bm{\mu}\bm{\mu}^{\scriptscriptstyle\top}&amp;\bm{\mu}\\
 \bm{\mu}^{\scriptscriptstyle\top}&amp;1\end{bmatrix}^{-1}\begin{bmatrix}\bm{x}\\
 1\end{bmatrix}-1.</span></td>

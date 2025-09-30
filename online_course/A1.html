@@ -1,10 +1,10 @@
 <div class="row"><div class="col-sm-7 offset-1"><div id="txt-col"><h1 class="ltx_title ltx_title_appendix">
 <span class="ltx_tag ltx_tag_appendix">Appendix A </span>System dynamics at trajectory level</h1><div class="ltx_para" id="A1-para:p1">
 <p class="ltx_p">A linear system is described by</p>
-<table class="ltx_equation ltx_eqn_table" id="A1-eq:Ex124">
+<table class="ltx_equation ltx_eqn_table" id="A1-eq:Ex122">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex124.m1">\bm{x}_{t+1}=\bm{A}_{t}\;\bm{x}_{t}+\bm{B}_{t}\;\bm{u}_{t},\quad\forall t\in\{1,\ldots,T\}</span></td>
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="Ex122.m1">\bm{x}_{t+1}=\bm{A}_{t}\;\bm{x}_{t}+\bm{B}_{t}\;\bm{u}_{t},\quad\forall t\in\{1,\ldots,T\}</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
@@ -12,37 +12,37 @@
 </div><div class="ltx_para" id="A1-para:p2">
 <p class="ltx_p">With the above linearization, we can express all states <span class="ltx_Math" id="p2.m1">\bm{x}_{t}</span> as an explicit function of the initial state <span class="ltx_Math" id="p2.m2">\bm{x}_{1}</span>.
 By writing</p>
-<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A1-eq:A5.EGx56">
+<table class="ltx_equationgroup ltx_eqn_align ltx_eqn_table" id="A1-eq:A5.EGx53">
+<tbody id="A1-eq:Ex123"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex123.m1">\displaystyle\bm{x}_{2}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex123.m2">\displaystyle=\bm{A}_{1}\bm{x}_{1}+\bm{B}_{1}\bm{u}_{1},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="A1-eq:Ex124"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex124.m1">\displaystyle\bm{x}_{3}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex124.m2">\displaystyle=\bm{A}_{2}\bm{x}_{2}+\bm{B}_{2}\bm{u}_{2}=\bm{A}_{2}(\bm{A}_{1}\bm{x}_{1}+\bm{B}_{1}\bm{u}_{1})+\bm{B}_{2}\bm{u}_{2},</span></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
 <tbody id="A1-eq:Ex125"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex125.m1">\displaystyle\bm{x}_{2}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex125.m2">\displaystyle=\bm{A}_{1}\bm{x}_{1}+\bm{B}_{1}\bm{u}_{1},</span></td>
+<td class="ltx_td ltx_eqn_cell"></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex125.m1">\displaystyle\vdots</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 <tbody id="A1-eq:Ex126"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex126.m1">\displaystyle\bm{x}_{3}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex126.m2">\displaystyle=\bm{A}_{2}\bm{x}_{2}+\bm{B}_{2}\bm{u}_{2}=\bm{A}_{2}(\bm{A}_{1}\bm{x}_{1}+\bm{B}_{1}\bm{u}_{1})+\bm{B}_{2}\bm{u}_{2},</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr></tbody>
-<tbody id="A1-eq:Ex127"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_eqn_cell"></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex127.m1">\displaystyle\vdots</span></td>
-<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-</tr></tbody>
-<tbody id="A1-eq:Ex128"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
-<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex128.m1">\displaystyle\bm{x}_{T}</span></td>
-<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex128.m2">\displaystyle=\left(\prod_{t=1}^{T-1}\bm{A}_{T-t}\right)\bm{x}_{1}\;+\left(\prod_{t=1}^{T-2}\bm{A}_{T-t}\right)\bm{B}_{1}\bm{u}_{1}+\left(\prod_{t=1}^{T-3}\bm{A}_{T-t}\right)\bm{B}_{2}\bm{u}_{2}\;+\;\cdots\;+\;\bm{B}_{T-1}\bm{u}_{T-1},</span></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><span class="ltx_Math" id="Ex126.m1">\displaystyle\bm{x}_{T}</span></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><span class="ltx_Math" id="Ex126.m2">\displaystyle=\left(\prod_{t=1}^{T-1}\bm{A}_{T-t}\right)\bm{x}_{1}\;+\left(\prod_{t=1}^{T-2}\bm{A}_{T-t}\right)\bm{B}_{1}\bm{u}_{1}+\left(\prod_{t=1}^{T-3}\bm{A}_{T-t}\right)\bm{B}_{2}\bm{u}_{2}\;+\;\cdots\;+\;\bm{B}_{T-1}\bm{u}_{T-1},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">in a matrix form, we get an expression of the form <span class="ltx_Math" id="p2.m3">\bm{x}=\bm{S}_{\bm{x}}\bm{x}_{1}+\bm{S}_{\bm{u}}\bm{u}</span>, with</p>
-<table class="ltx_equation ltx_eqn_table" id="A1-eq:E195">
+<table class="ltx_equation ltx_eqn_table" id="A1-eq:E188">
 <tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
 <td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
-<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E195.m1">\footnotesize\underbrace{\begin{bmatrix}\bm{x}_{1}\\
+<td class="ltx_eqn_cell ltx_align_center"><span class="ltx_Math" id="E188.m1">\footnotesize\underbrace{\begin{bmatrix}\bm{x}_{1}\\
 \bm{x}_{2}\\
 \bm{x}_{3}\\
 \vdots\\
@@ -59,7 +59,7 @@ By writing</p>
 \vdots\\
 \bm{u}_{T\!-\!1}\end{bmatrix}}_{\bm{u}},</span></td>
 <td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
-<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(195)</span></td>
+<td class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right" rowspan="1"><span class="ltx_tag ltx_tag_equation ltx_align_right">(188)</span></td>
 </tr></tbody>
 </table>
 <p class="ltx_p">where <span class="ltx_Math" id="p2.m4">\bm{S}_{\bm{x}}\!\in\!\mathbb{R}^{dT\times d}</span>, <span class="ltx_Math" id="p2.m5">\bm{x}_{1}\!\in\!\mathbb{R}^{d}</span>, <span class="ltx_Math" id="p2.m6">\bm{S}_{\bm{u}}\!\in\!\mathbb{R}^{dT\times d(T-1)}</span> and <span class="ltx_Math" id="p2.m7">\bm{u}\!\in\!\mathbb{R}^{d(T-1)}</span>.</p>
