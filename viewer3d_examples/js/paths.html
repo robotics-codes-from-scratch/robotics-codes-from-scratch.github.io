@@ -1,0 +1,97 @@
+<!--
+SPDX-FileCopyrightText: 2023 Idiap Research Institute <contact@idiap.ch>
+
+SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+
+SPDX-License-Identifier: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Paths example (JavaScript version)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+
+
+<body style="font-family: MONOSPACE;">
+    <h2>Paths example (JavaScript version)</h2>
+
+    <p>This example shows how to add paths to the scene.</p>
+
+    <div id="viewer3d" style="height: 700px"></div>
+
+
+    <!-- Import all the necessary JavaScript dependency modules
+    Sadly, can't be imported from an external file for the moment, this is not supported by Chrome
+    -->
+    <script src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+                "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+                "mujoco": "../../viewer3d/jsm/mujoco_wasm.js",
+                "katex": "https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.mjs",
+                "mathjs": "https://cdn.jsdelivr.net/npm/mathjs@14.1.0/+esm"
+            }
+        }
+    </script>
+
+
+    <!-- Create the Viewer3D from JavaScript -->
+    <script type="module">
+        import { Viewer3D, downloadScene, downloadPandaRobot, PandaConfiguration } from '../../viewer3d/viewer3d.js';
+
+        // Download the assets
+        await downloadPandaRobot();
+        await downloadScene('../scenes/panda.xml');
+
+        // Create the Viewer3D
+        const viewer3D = new Viewer3D(document.getElementById('viewer3d'));
+
+        // Load the scene and retrieve the robot
+        viewer3D.loadScene('/scenes/panda.xml');
+        const robot = viewer3D.createRobot('panda', new PandaConfiguration());
+
+        // Start the physics simulation
+        viewer3D.physicsSimulator.paused = false;
+
+        let points = [];
+        for (let i = 0; i < 25; ++i) {
+            points.push([
+                0.5 - Math.sin(i * 0.05),
+                Math.sin(i * 0.1),
+                (1.0 - Math.cos(i * 0.2)) * 0.3,
+            ]);
+        }
+
+        const path1 = viewer3D.addPath(
+            'path1',
+            points,
+            0.005,
+            '#ffaa00',
+            false,      // No shading
+            true        // Transparent
+        );
+
+        points = [];
+        for (let i = 0; i < 30; ++i) {
+            points.push([
+                -0.5 + i / 20,
+                -0.5,
+                0.4 - Math.sin(i * 0.2) * 0.3,
+            ]);
+        }
+
+        const path2 = viewer3D.addPath(
+            'path2',
+            points,
+            0.01,
+            '#ff0000',
+            true      // With shading
+        );
+    </script>
+</body>
+</html>

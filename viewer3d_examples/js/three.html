@@ -1,0 +1,282 @@
+<!--
+SPDX-FileCopyrightText: 2023 Idiap Research Institute <contact@idiap.ch>
+
+SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+
+SPDX-License-Identifier: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>three.js example (JavaScript version)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <script type="x-shader/x-vertex" id="vertexshader">
+        varying vec3 vColor;
+
+        void main() {
+            vColor = color;
+
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+
+            gl_PointSize = 1.5 / -mvPosition.z;
+
+            gl_Position = projectionMatrix * mvPosition;
+        }
+    </script>
+
+    <script type="x-shader/x-fragment" id="fragmentshader">
+        varying vec3 vColor;
+
+        void main() {
+            gl_FragColor = vec4(vColor, 1.0);
+        }
+    </script>
+</head>
+
+
+<body style="font-family: MONOSPACE;">
+    <h2>three.js example (JavaScript version)</h2>
+
+    <p>This example shows how to directly interact with the three.js scene at the core of a 3D viewer. It is a more complex version
+        of <a href="three_basic.html">three_basic.html</a>.</p>
+
+    <p>The animation works by dynamically updating the content of a <i>BufferAttribute</i> each frame.</p>
+
+    <p>The point cloud and colors comes from gzip files downloaded and decompressed in JavaScript. The trajectory is a plain text file.</p>
+
+    <input type="checkbox" id="animation" name="animation" checked>
+    <label for="animation">Animation enabled</label>
+
+    <div id="viewer3d" style="height: 700px"></div>
+
+
+    <!-- Import all the necessary JavaScript dependency modules
+    Sadly, can't be imported from an external file for the moment, this is not supported by Chrome
+    -->
+    <script src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+                "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+                "mujoco": "../../viewer3d/jsm/mujoco_wasm.js",
+                "katex": "https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.mjs",
+                "mathjs": "https://cdn.jsdelivr.net/npm/mathjs@14.1.0/+esm"
+            }
+        }
+    </script>
+
+
+    <!-- Create the Viewer3D from JavaScript -->
+    <script type="module">
+        import * as THREE from 'three';
+        import { Viewer3D, downloadFiles, getURL, readFile } from '../../viewer3d/viewer3d.js';
+
+        await downloadFiles(
+            '/data',
+            '../data/',
+            [
+                'trajectory.txt',
+            ]
+        );
+
+        const SCALE = 4.0;
+
+        // Contains all the variables needed for the animation
+        const animation = {
+            segment: 0,
+            startTime: null,
+            velocity: 0.1,
+            point: null,
+            coords: null,
+            positionAttribute: null,
+        };
+
+        // Download and decompress a gzip file from the server (containing text)
+        async function decompress(url)
+        {
+            const ds = new DecompressionStream('gzip');
+            const response = await fetch(url);
+            const blob_in = await response.blob();
+            const stream_in = blob_in.stream().pipeThrough(ds);
+            const blob_out = await new Response(stream_in).blob();
+            return await blob_out.text();
+        }
+
+        // This function will be called once per frame
+        function update(delta, time) {
+            // check that all the necessary data was downloaded
+            if (animation.positionAttribute == null)
+                return;
+
+            // Are we at the beginning of the line?
+            if (animation.startTime == null)
+            {
+                animation.startTime = time;
+
+                for (let i = 0; i < animation.positionAttribute.count; ++i)
+                    animation.positionAttribute.setXYZ(i, animation.coords[0], animation.coords[1], animation.coords[2]);
+
+                animation.positionAttribute.needsUpdate = true;
+            }
+
+            // Retrieve the start and end coordinates of the current segment
+            const segmentStart = new THREE.Vector3(
+                animation.coords[animation.segment * 3],
+                animation.coords[animation.segment * 3 + 1],
+                animation.coords[animation.segment * 3 + 2]
+            );
+
+            const segmentEnd = new THREE.Vector3(
+                animation.coords[(animation.segment + 1) * 3],
+                animation.coords[(animation.segment + 1) * 3 + 1],
+                animation.coords[(animation.segment + 1) * 3 + 2]
+            );
+
+            const segmentLength = segmentStart.distanceTo(segmentEnd);
+            const segmentDuration = segmentLength / animation.velocity;
+            let done = false;
+
+            // Should we switch to the next segment?
+            if (time >= animation.startTime + segmentDuration)
+            {
+                if (animation.segment < animation.coords.length / 3 - 2)
+                {
+                    animation.segment += 1;
+                    animation.startTime += segmentDuration;
+
+                    animation.positionAttribute.setXYZ(
+                        animation.segment,
+                        animation.coords[animation.segment * 3],
+                        animation.coords[animation.segment * 3 + 1],
+                        animation.coords[animation.segment * 3 + 2]
+                    );
+                    animation.positionAttribute.needsUpdate = true;
+
+                    update(delta, time);
+                    return;
+                }
+                else
+                {
+                    time = animation.startTime + segmentDuration;
+                    done = true;
+                }
+            }
+
+            // Compute our position in the segment
+            const position = new THREE.Vector3().lerpVectors(segmentStart, segmentEnd, (time - animation.startTime) / segmentDuration);
+
+            for (let i = animation.segment + 1; i < animation.positionAttribute.count; ++i)
+                animation.positionAttribute.setXYZ(i, position.x, position.y, position.z);
+            animation.positionAttribute.needsUpdate = true;
+
+            animation.point.position.set(position.x * SCALE, position.y * SCALE, position.z * SCALE);
+
+            // Should we go back to the beginning?
+            if (done)
+            {
+                animation.segment = 0;
+                animation.startTime = null;
+            }
+        }
+
+        // Create the Viewer3D
+        const viewer3D = new Viewer3D(document.getElementById('viewer3d'));
+        viewer3D.setRenderingCallback(update);
+
+        // Set the background color
+        viewer3D.backgroundColor = new THREE.Color(0.9, 0.9, 0.9);
+
+        // Create the material (using custom shaders)
+        const shaderMaterial = new THREE.ShaderMaterial( {
+            vertexShader: document.getElementById( 'vertexshader' ).textContent,
+            fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+
+            depthTest: true,
+            transparent: false,
+            vertexColors: true
+        });
+
+        // Create the point mesh
+        const vertices = JSON.parse('[' + await decompress('../data/bun270_points.txt.gz') + ']');
+        const colors = JSON.parse('[' + await decompress('../data/bun270_colors.txt.gz') + ']');
+
+        let geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+        const mesh = new THREE.Points(geometry, shaderMaterial);
+        mesh.scale.set(SCALE, SCALE, SCALE);
+
+        const group = new THREE.Group();
+        group.rotateX(Math.PI / 2.0);
+        viewer3D.scene.add(group);
+
+        group.add(mesh);
+
+        // Create the line
+        animation.coords = JSON.parse('[' + readFile('/data/trajectory.txt') + ']');
+        animation.positionAttribute = new THREE.Float32BufferAttribute(animation.coords, 3);
+        animation.positionAttribute.setUsage(THREE.DynamicDrawUsage);
+
+        for (let i = 0; i < animation.positionAttribute.count; ++i)
+            animation.positionAttribute.setXYZ(i, animation.coords[0], animation.coords[1], animation.coords[2]);
+
+        geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', animation.positionAttribute);
+
+        let material = new THREE.LineBasicMaterial({ color: 0x000000 });
+
+        const line = new THREE.Line(geometry, material);
+        line.scale.set(SCALE, SCALE, SCALE);
+        group.add(line);
+
+        // Create the point used by the animation
+        geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0], 3));
+
+        material = new THREE.PointsMaterial({ color: 0x0000CC, size: 0.01 });
+
+        animation.point = new THREE.Points(geometry, material);
+        group.add(animation.point);
+
+        // Manually position the camera
+        viewer3D.camera.position.set(0.4, -1.0, 0.7);
+        viewer3D.cameraControl.target.set(0.0, 0.0, 0.4);
+        viewer3D.cameraControl.update();
+
+        // Enable/disable the animation of the trajectory according to the state of the checkbox
+        document.getElementById('animation').addEventListener('change', (event) => {
+            animation.segment = 0;
+            animation.startTime = null;
+
+            animation.point.position.set(
+                animation.coords[animation.segment * 3],
+                animation.coords[animation.segment * 3 + 1],
+                animation.coords[animation.segment * 3 + 2]
+            );
+
+            if (event.target.checked)
+            {
+                viewer3D.setRenderingCallback(update);
+                group.add(animation.point);
+
+                for (let i = 0; i < animation.positionAttribute.count; ++i)
+                    animation.positionAttribute.setXYZ(i, animation.coords[0], animation.coords[1], animation.coords[2]);
+            }
+            else
+            {
+                viewer3D.setRenderingCallback(null);
+                animation.point.removeFromParent();
+
+                animation.positionAttribute.copyArray(animation.coords);
+            }
+
+            animation.positionAttribute.needsUpdate = true;
+        });
+    </script>
+</body>
+</html>

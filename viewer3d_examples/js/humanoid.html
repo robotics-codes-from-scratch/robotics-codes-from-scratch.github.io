@@ -1,0 +1,113 @@
+<!--
+SPDX-FileCopyrightText: 2023 Idiap Research Institute <contact@idiap.ch>
+
+SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+
+SPDX-License-Identifier: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Humanoid example (JavaScript version)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+
+
+<body style="font-family: MONOSPACE;">
+    <h2>Humanoid example (JavaScript version)</h2>
+
+    <p>This example uses a humanoid robot, with multiple end-effectors.</p>
+
+    <label for="scenes">Choose a robot:</label>
+
+    <select id="scenes" style="margin-bottom: 20px;">
+      <option value="g1_upperbody.xml">G1 robot, joints on upper body only</option>
+      <option value="g1.xml">G1 robot</option>
+      <option value="g1_with_hands_upperbody.xml">G1 robot, with manipulable hands, joints on upper body only</option>
+      <option value="g1_with_hands.xml">G1 robot, with manipulable hands</option>
+    </select>
+
+    <div id="viewer3d" style="height: 700px"></div>
+
+
+    <!-- Import all the necessary JavaScript dependency modules
+    Sadly, can't be imported from an external file for the moment, this is not supported by Chrome
+    -->
+    <script src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+                "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+                "mujoco": "../../viewer3d/jsm/mujoco_wasm.js",
+                "katex": "https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.mjs",
+                "mathjs": "https://cdn.jsdelivr.net/npm/mathjs@14.1.0/+esm"
+            }
+        }
+    </script>
+
+
+    <!-- Create the Viewer3D from JavaScript -->
+    <script type="module">
+        import {
+            Viewer3D,
+            downloadScene,
+            downloadG1Robot,
+            G1Configuration,
+            G1UpperBodyConfiguration,
+            G1WithHandsConfiguration,
+            G1WithHandsUpperBodyConfiguration
+        } from '../../viewer3d/viewer3d.js';
+
+        const selector = document.getElementById('scenes');
+
+        // Function to load the scene selected by the user
+        function loadSelectedScene() {
+            // Load the scene and retrieve the robots (if any)
+            viewer3D.loadScene('/scenes/' + selector.value);
+
+            let robot = null;
+
+            if (selector.value == 'g1_upperbody.xml')
+                robot = viewer3D.createRobot('g1', new G1UpperBodyConfiguration());
+            else if (selector.value == 'g1.xml')
+                robot = viewer3D.createRobot('g1', new G1Configuration());
+            else if (selector.value == 'g1_with_hands_upperbody.xml')
+                robot = viewer3D.createRobot('g1', new G1WithHandsUpperBodyConfiguration());
+            else if (selector.value == 'g1_with_hands.xml')
+                robot = viewer3D.createRobot('g1', new G1WithHandsConfiguration());
+
+            // Start the physics simulation
+            viewer3D.physicsSimulator.paused = false;
+        }
+
+        // Download the assets
+        await downloadG1Robot();
+
+        for (const option of selector.options) {
+            if (option.disabled)
+                continue;
+
+            let sceneName = option.value;
+
+            let destFolder = '/scenes'
+
+            const offset = sceneName.lastIndexOf('/');
+            if (offset != -1)
+                destFolder += '/' + sceneName.substring(0, offset + 1);
+
+            await downloadScene('../scenes/' + sceneName, destFolder);
+        }
+
+        // Create the Viewer3D
+        const viewer3D = new Viewer3D(document.getElementById('viewer3d'));
+
+        // Event handling to change the scene when the user selects one
+        selector.addEventListener('change', loadSelectedScene);
+
+        loadSelectedScene();
+    </script>
+</body>
+</html>

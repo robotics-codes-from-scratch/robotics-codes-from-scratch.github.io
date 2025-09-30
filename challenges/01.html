@@ -23,6 +23,11 @@
                 <p>Grab the red cube on the orange box and move it on top of the green one. The cube must stay
                 on the green box for 5 seconds to complete the challenge.</p>
 
+                <p>
+                    The starting position and orientation of the red cube are chosen at random each
+                    time the green run button is clicked.
+                </p>
+
                 <h5>API</h5>
                 <p>The following functions are available:</p>
                 <ul>
@@ -39,11 +44,20 @@
 
                 <p>Additionally, some variables are available:</p>
                 <ul>
-                    <li><code>cube_start</code>: Position & orientation of the red cube at the beginning</li>
-                    <li><code>target</code>: Position & orientation of the top of the green box</li>
+                    <li><code>cube_start_position</code>: Position of the red cube at the beginning <code>[px, py, pz]</code></li>
+                    <li>
+                        <code>cube_start_angle</code>: Angle (in radians) of the cube relative to
+                        the X-axis of the scene (as would be returned by a computer vision algorithm)
+                    </li>
+                    <li><code>target_position</code>: Position to put the cube at (slightly above the center of the top of the green box, <code>[px, py, pz]</code>)</li>
                 </ul>
 
-                <p>Both are of the form: <code>[px, py, pz, qx, qy, qz, qw]</code>.</p>
+                <p>The following modules are already imported:</p>
+                <ul>
+                    <li><code>import numpy as np</code></li>
+                    <li><code>from scipy.spatial.transform import Rotation as R</code> (to work with quaternions)</li>
+                    <li><code>import math</code></li>
+                </ul>
 
                 <h5>Control</h5>
                 <p>Click on the green run button to execute the code.</p>
@@ -61,76 +75,306 @@
             <div id="success" style="display:none; position: absolute; top: 6rem; text-align: center; width: 100%; color: limegreen; font-size: 100px; font-weight: bold;">
                 &#x2714;
             </div>
+            <div style="font-size: 0.8em;">
+                <input type="checkbox" id="show_axes" name="show_axes" checked>
+                <label for="show_axes">Show axes</label>
+            </div>
         </div>
     </div>
 </div>
 
 
 <script id="user_code" type="python">
-    task_step = 0 # variable to keep track of the current motion phase
+    # Simple example, in which we perform two steps:
+    #  1) Rotate the robot until the Y component of the gripper position
+    #     is below a certain value
+    #  2) Open the gripper
+
+    # Variable to keep track of the current step
+    task_step = 1
+
 
     def controlCommand(x, dt):
         global task_step
 
-        if x[0] < 0:
-            task_step = 1 # switch to the next motion phase
+        # Step 1: Rotate the robot
+        if task_step == 1:
+            f = fkin(x)
+            if f[1] > -0.3:
+                return np.array([-0.1, 0, 0, 0, 0, 0, 0]) / dt  # Velocity in rad/s
+            else:
+                task_step = 2  # Switch to the next step
 
+        # Step 2: Open the gripper
+        elif task_step == 2:
+            openGripper()
+            task_step = 3  # Switch to the next step
+
+        # By default: no movement
         return np.zeros(x.shape)  # Velocity in rad/s
+</script>
+
+
+<script id="user_code_solution" type="python">
+    # The steps we'll follow to grab the cube and place it on the target
+    STEP_GO_ON_TOP_OF_CUBE = 0
+    STEP_ROTATE_GRIPPER = 1
+    STEP_OPEN_GRIPPER = 2
+    STEP_GO_DOWN = 3
+    STEP_CLOSE_GRIPPER = 4
+    STEP_GO_UP = 5
+    STEP_GO_ON_TOP_OF_TARGET = 6
+    STEP_GO_DOWN_ON_TARGET = 7
+    STEP_RELEASE_CUBE = 8
+    STEP_GO_UP_FINAL = 9
+
+
+    class IK:
+        """An helper class to perform Inverse Kinematics to reach a
+        specific destination (position + orientation)
+        """
+
+        def __init__(self, destination, weights=None):
+            self.destination = destination
+            self.weights = weights
+            self.last_errors = []
+
+        def process(self, x, dt):
+            """Returns the control command to apply to the robot
+            """
+            J = Jkin(x)
+            f = fkin(x)
+
+            # Position & orientation tracking (with weights)
+            if self.weights is not None:
+                Q = np.diag(self.weights)
+                u = np.linalg.pinv(J.T @ Q @ J) @ J.T @ Q @ logmap(self.destination, f)
+
+            # Position & orientation tracking
+            else:
+                u = np.linalg.pinv(J) @ logmap(self.destination, f)
+
+            return 0.5 * u / dt  # Velocity in rad/s
+
+        def done(self, x):
+            """Indicates if the destination is reached
+
+            We'll consider that if the difference between the
+            position/orientation of the gripper and the destination
+            didn't diminish significantly over 5 updates, then
+            the destination is reached
+            """
+
+            # Compute the difference (by applying weights if needed)
+            f = fkin(x)
+            diff = logmap(self.destination, f)
+
+            if self.weights is not None:
+                diff = diff @ self.weights
+
+            error = np.linalg.norm(diff)
+
+            # Memorize the 5 last differences
+            self.last_errors.append(error)
+            if len(self.last_errors) < 6:
+                return False
+
+            self.last_errors = self.last_errors[1:]
+
+            # Use the variance to determine if the diminution is still
+            # significant
+            return np.var(self.last_errors) < 1e-8
+
+
+    # The variables we need to keep track of the current step
+    step = None
+    ik = None
+
+
+    def controlCommand(x, dt):
+        global step, ik
+
+        # If an IK-based movement is in progress, continue it until
+        # the destination is reached
+        if (ik is not None) and not(ik.done(x)):
+            return ik.process(x, dt)
+
+        ik = None
+
+        # At startup: we want to go above the cube, with the gripper
+        # pointing down (using weighted IK: we don't care about the
+        # rotation around the Z axis here, so the robot don't end
+        # up in a convoluted configuration)
+        if step is None:
+            step = STEP_GO_ON_TOP_OF_CUBE
+            destination = np.concatenate((
+                cube_start_position,
+                [
+                    math.sin(math.pi / 2.0),
+                    0.0,
+                    0.0,
+                    math.cos(math.pi / 2.0)
+                ]
+            ))
+            destination[2] += 0.1
+            ik = IK(destination, [1, 1, 1, 1, 1, 0])
+            return ik.process(x, dt)
+
+        # We are above the cube, now rotate the gripper to match the
+        # orientation of the cube
+        elif step == STEP_GO_ON_TOP_OF_CUBE:
+            step = STEP_ROTATE_GRIPPER
+            gripper_pose = fkin(x)
+
+            orientation = R.from_quat([
+                math.sin(math.pi / 2.0),
+                0.0,
+                0.0,
+                math.cos(math.pi / 2.0)
+            ])
+            orientation *= R.from_euler('Z', cube_start_angle)
+
+            destination = np.concatenate((
+                gripper_pose[:3],
+                orientation.as_quat()
+            ))
+
+            ik = IK(destination)
+            return ik.process(x, dt)
+
+        # We are above the cube and correctly oriented, now open the
+        # gripper
+        elif step == STEP_ROTATE_GRIPPER:
+            robot.openGripper()
+            step = STEP_OPEN_GRIPPER
+
+        # Wait until the gripper is fully open before going down
+        elif step == STEP_OPEN_GRIPPER:
+            if robot.isGripperOpen:
+                step = STEP_GO_DOWN
+                gripper_pose = fkin(x)
+                destination = np.concatenate((cube_start_position, gripper_pose[3:]))
+                ik = IK(destination)
+                return ik.process(x, dt)
+
+        # Once at the cube location, close the gripper
+        elif step == STEP_GO_DOWN:
+            robot.closeGripper()
+            step = STEP_CLOSE_GRIPPER
+
+        # Wait until the gripper is holding the cube and go up again
+        elif step == STEP_CLOSE_GRIPPER:
+            if robot.isGripperHoldingSomeObject:
+                step = STEP_GO_UP
+                destination = fkin(x)
+                destination[2] += 0.15
+                ik = IK(destination)
+                return ik.process(x, dt)
+
+        # Once we lifted the cube, move on top of the target
+        # (again using weighted IK)
+        elif step == STEP_GO_UP:
+            step = STEP_GO_ON_TOP_OF_TARGET
+            destination = fkin(x)
+            destination[:3] = target_position
+            destination[2] += 0.15
+            ik = IK(destination, [1, 1, 1, 1, 1, 0])
+            return ik.process(x, dt)
+
+        # Once above the target, go down
+        elif step == STEP_GO_ON_TOP_OF_TARGET:
+            step = STEP_GO_DOWN_ON_TARGET
+            destination = fkin(x)
+            destination[:3] = target_position
+            ik = IK(destination)
+            return ik.process(x, dt)
+
+        # Once at the target, open the gripper
+        elif step == STEP_GO_DOWN_ON_TARGET:
+            robot.openGripper()
+            step = STEP_RELEASE_CUBE
+
+        # Once the cube is released, go up one last time
+        elif step == STEP_RELEASE_CUBE:
+            step = STEP_GO_UP_FINAL
+            destination = fkin(x)
+            destination[2] += 0.15
+            ik = IK(destination)
+            return ik.process(x, dt)
+
+        # By default: no movement
+        return np.zeros(x.shape)
 </script>
 
 
 <script id="page_code" type="python">
     from viewer3d import Viewer3D, configs, logmap_S3, logmap, readFile, writeFile
     from js import document, three
+    from pyodide.ffi import create_proxy
     from rcfs import configure, displayError, setAspectRatio
     import numpy as np
+    from scipy.spatial.transform import Rotation as R
     import math
 
 
-    def setCubeLocation(position, orientation):
-        content = readFile('/scenes/01.xml')
+    # The elements in the scene
+    robot = None
+    cube = None
+    source_base = None
+    target_base = None
 
-        start = content.find('<body name="redcube"')
-        end = content.find('>', start)
+    # Initial state of the elements in the scene
+    initial_robot_joint_positions = None
+    initial_cube_position = None
+    initial_cube_orientation = None
+    initial_source_base_position = None
+    initial_source_base_orientation = None
+    initial_target_base_position = None
+    initial_target_base_orientation = None
 
-        content = content[:start] + f'<body name="redcube" pos="{position[0]} {position[1]} {position[2]}" ' + \
-                  f'quat="{orientation[3]} {orientation[0]} {orientation[1]} {orientation[2]}">' + content[end+1:]
+    # Internal state
+    targetReached = False
+    targetReachedStartTime = None
+    resetting = False
 
-        writeFile('/scenes/01.xml', content)
+    # Variables available to the user
+    cube_start_position = None
+    cube_start_angle = None
+    target_position = None
+
+    cube_start_ref = None
+    cube_start_angle_ref = None
+    target_position_ref = None
 
 
     # The function that will be called once per frame
-    robot = None
-    cube = None
-
-    cube_start0 = None
-    target0 = None
-
-    cube_start = None
-    target = None
-
-    targetReached = False
-    targetReachedStartTime = None
-
     def callback(delta, time):
-        global cube_start, target, targetReached, targetReachedStartTime
+        global cube_start_position, cube_start_angle, target_position, targetReached, \
+               targetReachedStartTime, resetting
 
-        cube_start = np.copy(cube_start0)
-        target = np.copy(target0)
+        if resetting:
+            if robot.isGripperClosed:
+                resetting = False
+            return
+
+        cube_start_position = np.copy(cube_start_ref[:3])
+        cube_start_angle = cube_start_angle_ref
+        target_position = np.copy(target_position_ref)
 
         try:
             x = robot.jointPositions
-            u = controlCommand(x, delta)
+            u = np.array(controlCommand(x, delta))
             x += u * delta
             robot.control = x
         except Exception as e:
             displayError(e)
 
         pos = cube.position
+        #reached = False
         reached = robot.isGripperOpen and \
-                  (pos[0] > target0[0] - 0.1) and (pos[0] < target0[0] + 0.1) and \
-                  (pos[1] > target0[1] - 0.1) and (pos[1] < target0[1] + 0.1) and \
-                  (pos[2] > target0[2] - 0.03) and (pos[2] < target0[2] + 0.02)
+                  (pos[0] > target_position_ref[0] - 0.1) and (pos[0] < target_position_ref[0] + 0.1) and \
+                  (pos[1] > target_position_ref[1] - 0.1) and (pos[1] < target_position_ref[1] + 0.1) and \
+                  (pos[2] > target_position_ref[2] - 0.03) and (pos[2] < target_position_ref[2] + 0.02)
 
         if reached:
             if not targetReached:
@@ -145,39 +389,52 @@
             targetReachedStartTime = None
 
 
-    # Load the scene and retrieve the robot
+    # Reset the scene to its initial state and randomly place the cube on its base
     def reset():
-        global robot, cube, cube_start0, target0, targetReached, targetReachedStartTime
+        global targetReached, targetReachedStartTime, cube_start_ref, cube_start_angle_ref, \
+               target_position_ref, resetting
 
         targetReached = False
         targetReachedStartTime = None
+        resetting = True
 
-        cube_start0 = np.array([0.4, -0.4, 0.42, -0.707, -0.707, 0.0, 0.0])
-        target0 = np.array([0.4, 0.4, 0.42, 0.707, 0.707, 0.0, 0.0])
+        # Reset all the elements to their initial state
+        robot.jointPositions = initial_robot_joint_positions
+        robot.control = initial_robot_joint_positions
+
+        source_base.position = initial_source_base_position
+        source_base.orientation = initial_source_base_orientation
+
+        target_base.position = initial_target_base_position
+        target_base.orientation = initial_target_base_orientation
+
+        # Randomly place the cube on its base
+        position = np.copy(initial_cube_position)
 
         offset = np.random.rand(2) * 0.16 - 0.08
-        cube_start0[0] = 0.4 + offset[0]
-        cube_start0[1] = -0.4 + offset[1]
+        position[:2] += offset
 
-        quaternion1 = three.Quaternion.new(-0.707, -0.707, 0.0, 0.0)
-        quaternion2 = three.Quaternion.new()
-        quaternion2.setFromAxisAngle(three.Vector3.new(0, 0, 1), np.random.random() * math.pi - math.pi / 2)
-        q = quaternion1.multiply(quaternion2)
-    
-        cube_start0[3] = q.x
-        cube_start0[4] = q.y
-        cube_start0[5] = q.z
-        cube_start0[6] = q.w
+        cube_start_angle_ref = np.random.random() * math.pi / 2 - math.pi / 4
 
-        setCubeLocation(cube_start0[:3], cube_start0[3:])
-        viewer3D.loadScene('/scenes/01.xml')
-        viewer3D.translateCamera([0.0, 0.0, 0.3])
-        robot = viewer3D.createRobot('panda', configs.Panda.new())
-        cube = viewer3D.getPhysicalBody('redcube')
+        orientation = R.from_quat(initial_cube_orientation)
+        orientation *= R.from_euler('Z', cube_start_angle_ref)
+
+        cube.position = position
+        cube.orientation = orientation.as_quat()
+
+        # Store the values we want the user to have access to
+        cube_start_ref = np.concatenate((position, orientation.as_quat()))
+        target_position_ref = np.array(initial_target_base_position) + [0, 0, 0.22]
+
+        # Hide the success indicator
+        document.getElementById('success').style.display = 'none'
+
+        # Close the gripper
+        robot.closeGripper()
+
+        # Starts the physics simulation
         viewer3D.physicsSimulatorPaused = False
         viewer3D.setRenderingCallback(callback)
-
-        document.getElementById('success').style.display = 'none'
 
 
     # Resize the container of the Viewer3D to have a 1:1 aspect ratio
@@ -191,9 +448,52 @@
         }
     )
 
+    # Load the scene
+    viewer3D.loadScene('/scenes/01.xml')
+    viewer3D.translateCamera([0.0, 0.0, 0.3])
+
+    # Retrieve the robot and its initial joint position
+    robot = viewer3D.createRobot('panda', configs.Panda.new())
+    initial_robot_joint_positions = robot.jointPositions
+
+    # Retrieve the cube and its initial transforms
+    cube = viewer3D.getPhysicalBody('cube')
+    initial_cube_position = cube.position
+    initial_cube_orientation = cube.orientation
+
+    # Retrieve the bases and their initial transforms
+    source_base = viewer3D.getPhysicalBody('source_base')
+    initial_source_base_position = source_base.position
+    initial_source_base_orientation = source_base.orientation
+
+    target_base = viewer3D.getPhysicalBody('target_base')
+    initial_target_base_position = target_base.position
+    initial_target_base_orientation = target_base.orientation
+
+    # Add some axes
+    ee_axes = viewer3D.addAxes('ee_axes')
+    robot.toolControlPoint.add(ee_axes)
+
+    cube_axes = viewer3D.addAxes('cube_axes')
+    cube_axes.object.lines[1].scale.set(0, 0, 0)
+    cube_axes.object.lines[2].scale.set(0, 0, 0)
+    cube.add(cube_axes)
+
+    scene_axes = viewer3D.addAxes('scene_axes', length=1.0)
+
+    # Disable the manipulations
     viewer3D.controlsEnabled = False
 
     reset()
+
+
+    # Show/hide the axes
+    def onShowAxesCheckboxClicked(event):
+        ee_axes.object.visible = event.target.checked
+        cube_axes.object.visible = event.target.checked
+        scene_axes.object.visible = event.target.checked
+
+    document.getElementById('show_axes').addEventListener('change', create_proxy(onShowAxesCheckboxClicked))
 
 
     # Placeholder for the function to implement

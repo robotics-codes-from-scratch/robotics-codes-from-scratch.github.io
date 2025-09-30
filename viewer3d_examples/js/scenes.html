@@ -1,0 +1,138 @@
+<!--
+SPDX-FileCopyrightText: 2023 Idiap Research Institute <contact@idiap.ch>
+
+SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+
+SPDX-License-Identifier: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Scenes example (JavaScript version)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+
+
+<body style="font-family: MONOSPACE;">
+    <h2>Scenes example (JavaScript version)</h2>
+
+    <p>This example allows to switch between different scenes. Some contain a robot that can be manipulated, others
+        are examples from <i>MuJoCo</i> (to check the rendering), some others are used to test the implementation.</p>
+
+    <p>Note that due to the differences in the way <i>MuJoCo</i> and <i>three.js</i> are defining materials and
+        lights, colors are usually brighter that in the MuJoCo visualization tool. You might need to adjust
+        the lights and materials in your scene to obtain the rendering you want.</p>
+
+    <label for="scenes">Choose a scene:</label>
+
+    <select id="scenes" style="margin-bottom: 20px;">
+      <option value="panda.xml">Panda robot</option>
+      <option value="panda_box.xml">Panda robot with one box to push</option>
+      <option value="two_pandas.xml">Two panda robots</option>
+      <option value="three_pandas.xml">Three panda robots</option>
+      <option value="ur5.xml">UR5 robot</option>
+      <option value="ur5_gripper.xml">UR5 robot with gripper</option>
+      <option disabled>──────────</option>
+      <option value="mujoco/humanoid.xml">(MuJoCo) humanoid</option>
+      <option value="mujoco/mug/mug.xml">(MuJoCo) mug</option>
+      <option value="mujoco/composite/particle.xml">(MuJoCo) particle</option>
+      <option disabled>──────────</option>
+      <option value="test_no_skybox_no_fog.xml">(test) No skybox, no fog</option>
+      <option value="test_skybox_no_haze.xml">(test) Skybox, no haze</option>
+      <option value="test_skybox.xml">(test) Skybox</option>
+      <option value="test_fog.xml">(test) Fog</option>
+    </select>
+
+    <br/>
+
+    <div id="viewer3d" style="height: 700px"></div>
+
+
+    <!-- Import all the necessary JavaScript dependency modules
+    Sadly, can't be imported from an external file for the moment, this is not supported by Chrome
+    -->
+    <script src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+                "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+                "mujoco": "../../viewer3d/jsm/mujoco_wasm.js",
+                "katex": "https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.mjs",
+                "mathjs": "https://cdn.jsdelivr.net/npm/mathjs@14.1.0/+esm"
+            }
+        }
+    </script>
+
+
+    <!-- Create the Viewer3D from JavaScript -->
+    <script type="module">
+        import {
+            Viewer3D, downloadFiles, downloadScene, downloadPandaRobot, downloadUR5Robot,
+            PandaConfiguration, PandaNoHandConfiguration, UR5Configuration, UR5WithGripperConfiguration
+        } from '../../viewer3d/viewer3d.js';
+
+        const selector = document.getElementById('scenes');
+
+        // Function to load the scene selected by the user
+        function loadSelectedScene() {
+            // Load the scene and retrieve the robots (if any)
+            viewer3D.loadScene('/scenes/' + selector.value);
+
+            if (selector.value.indexOf('panda') >= 0) {
+                let robot = viewer3D.createRobot('panda', new PandaConfiguration());
+                if (robot == null) {
+                    let i = 1;
+                    do {
+                        robot = viewer3D.createRobot('panda' + i, new PandaConfiguration(), 'panda' + i + '_');
+                        if (robot == null)
+                            robot = viewer3D.createRobot('panda' + i, new PandaNoHandConfiguration(), 'panda' + i + '_');
+
+                        ++i;
+                    } while (robot != null);
+                }
+            }
+            else if (selector.value.indexOf('ur5') >= 0) {
+                if (selector.value.indexOf('gripper') >= 0)
+                    viewer3D.createRobot('ur5', new UR5WithGripperConfiguration());
+                else
+                    viewer3D.createRobot('ur5', new UR5Configuration());
+            }
+
+            // Start the physics simulation
+            viewer3D.physicsSimulator.paused = false;
+        }
+
+        // Download the assets
+        await downloadPandaRobot();
+        await downloadUR5Robot();
+        await downloadFiles('/scenes/mujoco/composite', '../scenes/mujoco/composite/', ['scene.xml', 'marble.png']);
+        await downloadFiles('/scenes/mujoco/mug', '../scenes/mujoco/mug/', ['mug.obj', 'mug.png']);
+
+        for (const option of selector.options) {
+            if (option.disabled)
+                continue;
+
+            let sceneName = option.value;
+
+            let destFolder = '/scenes'
+
+            const offset = sceneName.lastIndexOf('/');
+            if (offset != -1)
+                destFolder += '/' + sceneName.substring(0, offset + 1);
+
+            await downloadScene('../scenes/' + sceneName, destFolder);
+        }
+
+        // Create the Viewer3D
+        const viewer3D = new Viewer3D(document.getElementById('viewer3d'), { 'show_axes': true });
+
+        // Event handling to change the scene when the user selects one
+        selector.addEventListener('change', loadSelectedScene);
+
+        loadSelectedScene();
+    </script>
+</body>
+</html>

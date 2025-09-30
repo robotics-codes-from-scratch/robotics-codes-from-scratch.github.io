@@ -230,7 +230,7 @@
                           <body name="left_hand" gravcomp="1">
                               <geom pos="0.0415 0.003 0" quat="1 0 0 0" class="visual" mesh="left_hand_palm_link"/>
                               <geom pos="0.0415 0.003 0" quat="1 0 0 0" class="collision" mesh="left_hand_palm_link"/>
-                              <site name="left_hand_tcp" pos="0.07 -0.02 0" quat="0.707 0.707 0 0"/>
+                              <site name="left_hand_tcp" pos="0.0931 -0.04 0" quat="0.707 0.707 0 0"/>
                               <body name="left_hand_thumb_0_link" pos="0.067 0.003 0" gravcomp="1">
                                 <inertial pos="-0.000884246 -0.00863407 0.000944293"
                                   quat="0.462991 0.643965 -0.460173 0.398986" mass="0.0862366"
@@ -349,7 +349,7 @@
                           <body name="right_hand" gravcomp="1">
                               <geom pos="0.0415 -0.003 0" quat="1 0 0 0" class="visual" mesh="right_hand_palm_link"/>
                               <geom pos="0.0415 -0.003 0" quat="1 0 0 0" class="collision" mesh="right_hand_palm_link"/>
-                              <site name="right_hand_tcp" pos="0.07 0.02 0" quat="0.707 -0.707 0 0"/>
+                              <site name="right_hand_tcp" pos="0.0931 0.04 0" quat="0.707 -0.707 0 0"/>
                               <body name="right_hand_thumb_0_link" pos="0.067 -0.003 0" gravcomp="1">
                                 <inertial pos="-0.000884246 0.00863407 0.000944293"
                                   quat="0.643965 0.462991 -0.398986 0.460173" mass="0.0862366"

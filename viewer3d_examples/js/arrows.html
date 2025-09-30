@@ -1,0 +1,117 @@
+<!--
+SPDX-FileCopyrightText: 2023 Idiap Research Institute <contact@idiap.ch>
+
+SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+
+SPDX-License-Identifier: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Arrows example (JavaScript version)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+
+
+<body style="font-family: MONOSPACE;">
+    <h2>Arrows example (JavaScript version)</h2>
+
+    <p>This example shows how to add arrows to the scene.</p>
+
+    <ul>
+        <li>The green arrow is fixed</li>
+        <li>The red arrow moves</li>
+        <li>The yellow arrow follows the end-effector</li>
+    </ul>
+
+    <div id="viewer3d" style="height: 700px"></div>
+
+
+    <!-- Import all the necessary JavaScript dependency modules
+    Sadly, can't be imported from an external file for the moment, this is not supported by Chrome
+    -->
+    <script src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+                "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+                "mujoco": "../../viewer3d/jsm/mujoco_wasm.js",
+                "katex": "https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.mjs",
+                "mathjs": "https://cdn.jsdelivr.net/npm/mathjs@14.1.0/+esm"
+            }
+        }
+    </script>
+
+
+    <!-- Create the Viewer3D from JavaScript -->
+    <script type="module">
+        import { Viewer3D, downloadScene, downloadPandaRobot, PandaConfiguration } from '../../viewer3d/viewer3d.js';
+        import * as THREE from 'three';
+
+        // This function will be called once per frame
+        function update(delta, time) {
+            // Move the first arrow
+            arrow1.position.y = 0.5 * Math.sin(0.5 * Math.PI * time);
+
+            // The second arrow follows the end-effector
+            const direction = new THREE.Vector3(0, 0, 1);
+            direction.applyQuaternion(robot.getEndEffectorOrientation());
+
+            arrow2.position.copy(robot.getEndEffectorPosition());
+            arrow2.setDirection(direction);
+        }
+
+        // Download the assets
+        await downloadPandaRobot();
+        await downloadScene('../scenes/panda.xml');
+
+        // Create the Viewer3D
+        const viewer3D = new Viewer3D(document.getElementById('viewer3d'));
+        viewer3D.setRenderingCallback(update);
+
+        // Load the scene and retrieve the robot
+        viewer3D.loadScene('/scenes/panda.xml');
+        const robot = viewer3D.createRobot('panda', new PandaConfiguration());
+
+        // Start the physics simulation
+        viewer3D.physicsSimulator.paused = false;
+
+        // Add some arrows
+        const arrow1 = viewer3D.addArrow(
+            'arrow1',
+            new THREE.Vector3(0.5, 0.0, 0.1),
+            new THREE.Vector3(1, 0, 0),
+            0.2,
+            '#ff0000',
+            true,
+            0.04,
+            0.04
+        );
+
+        const arrow2 = viewer3D.addArrow(
+            'arrow2',
+            new THREE.Vector3(0.0, 0.0, 0.0),
+            new THREE.Vector3(1, 0, 0),
+            0.5,
+            '#ffff00',
+            true,
+            0.1,
+            0.04
+        );
+
+        const arrow3 = viewer3D.addArrow(
+            'arrow3',
+            new THREE.Vector3(0.0, 0.6, 1.0),
+            new THREE.Vector3(0, -0.707, -0.707),
+            0.2,
+            '#00ff00',
+            true,
+            0.04,
+            0.04
+        );
+    </script>
+</body>
+</html>

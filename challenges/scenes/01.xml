@@ -4,9 +4,14 @@
 
     <statistic center="0.3 0 0.4" extent="1.5"/>
 
+    <option cone="elliptic" impratio="10" noslip_iterations="20" timestep="0.001" integrator="implicitfast">
+        <flag multiccd="enable"/>
+    </option>
+
     <default>
+        <geom friction="0.8 0.1 0.1" solimp="0.95 0.99 0.0001" solref="0.005 1"/>
         <default class="cube">
-            <geom size="0.02 0.02 0.02" type="box"/>
+            <geom size="0.02 0.02 0.02" type="box" mass="0.01"/>
         </default>
     </default>
 
@@ -26,17 +31,17 @@
 
         <geom name="floor" size="5 5 0.1" type="plane" material="groundplane"/>
 
-        <body name="box1" pos="0.4 -0.4 0.2">
+        <body name="source_base" pos="0.4 -0.4 0.2">
             <freejoint/>
             <geom type="box" size=".1 .1 .2" rgba=".98 .59 .17 1" mass="0.1"/>
         </body>
 
-        <body name="box2" pos="0.4 0.4 0.2">
+        <body name="target_base" pos="0.4 0.4 0.2">
             <freejoint/>
             <geom type="box" size=".1 .1 .2" rgba=".59 .98 .17 1" mass="0.1"/>
         </body>
 
-        <body name="redcube" pos="0.4 -0.4 0.42">
+        <body name="cube" pos="0.4 -0.4 0.42" quat="0 1 0 0">
             <freejoint/>
             <geom class="cube" rgba="1 0 0 1"/>
         </body>

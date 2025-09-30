@@ -21,6 +21,8 @@
   <link href="css/main-template.css" rel="stylesheet"/>
   <script src="js/jquery-3.6.4.min.js">
   </script>
+  <script src="js/jquery-ui-1.14.1.min.js">
+  </script>
   <script src="js/bootstrap.bundle.min.js">
   </script>
   <script src="js/katex.min.js">
@@ -32,7 +34,7 @@
   <script src="js/editor.bundle.js">
   </script>
   <py-config type="toml">
-   packages = ['numpy', 'matplotlib']
+   packages = ['numpy', 'matplotlib', 'scipy']
         terminal = false
         [[fetch]]
             from = 'viewer3d/'
@@ -175,7 +177,10 @@
    </div>
   </div>
   <script type="module">
-   import { initViewer3D, initPyScript, downloadScene, downloadPandaRobot, downloadG1Robot } from './viewer3d/viewer3d.js';
+   import {
+            initViewer3D, initPyScript, downloadScene,
+            downloadPandaRobot, downloadG1Robot, downloadUR5Robot
+        } from './viewer3d/viewer3d.js';
 
         // Retrieve the base URL of the page
         const url = window.location;
@@ -186,6 +191,7 @@
         let btnSave = null;
         let btnOpen = null;
         let navlinks = null;
+        let visibility = null;
 
         let mustStopLoop = false;
         let mustCallRun = false;
@@ -221,10 +227,21 @@
             const menu = document.getElementById('menu');
 
             let hash = url.hash.substr(1);
+
+            const hashParts = hash.split('?')
+            if (hashParts.length == 2)
+            {
+                hash = hashParts[0];
+                visibility = hashParts[1];
+            }
+
             if (hash == '')
                 hash = 'home';
 
             content.forEach((category) => {
+                if ((category.visibility != null) && (category.visibility != visibility))
+                    return;
+
                 const separator = document.createElement('li');
                 separator.className = 'border-top my-1';
                 menu.appendChild(separator);
@@ -237,8 +254,25 @@
                 button.setAttribute('aria-expanded', 'false');
                 button.setAttribute('data-bs-target', '#' + category.id + '-collapse');
                 button.setAttribute('data-bs-toggle', 'collapse');
-                button.textContent = category.title;
+
+                if (category.visibility != null)
+                {
+                    const iconElement = document.createElement('i');
+                    iconElement.className = 'bi bi-shield-lock';
+                    iconElement.style.marginRight = '6px';
+                    button.appendChild(iconElement);
+
+                    const textElement = document.createElement('span');
+                    textElement.textContent = category.title;
+                    button.appendChild(textElement);
+                }
+                else
+                {
+                    button.textContent = category.title;
+                }
+
                 categoryElement.appendChild(button);
+
 
                 const categoryContent = document.createElement('div');
                 categoryContent.id = category.id + '-collapse';
@@ -250,6 +284,9 @@
                 categoryContent.appendChild(entriesElement);
 
                 category.entries.forEach((entry) => {
+                    if ((entry.visibility != null) && (entry.visibility != visibility))
+                        return;
+
                     if (hash == entry.hash)
                     {
                         button.setAttribute('aria-expanded', 'true');
@@ -263,7 +300,12 @@
                         const link = document.createElement('a');
                         link.className = 'link-dark d-inline-flex text-decoration-none rounded';
                         link.style.cursor = 'pointer';
-                        link.href = '#' + entry.hash;
+
+                        if (entry.url != null)
+                            link.href = entry.url;
+                        else
+                            link.href = '#' + entry.hash;
+
                         entryElement.appendChild(link);
 
                         if (entry.number != undefined)
@@ -276,8 +318,23 @@
 
                         const entryDiv = document.createElement('div');
                         entryDiv.className = 'p-1 mb-0';
-                        entryDiv.textContent = entry.title;
                         link.appendChild(entryDiv);
+
+                        if (entry.visibility != null)
+                        {
+                            const iconElement = document.createElement('i');
+                            iconElement.className = 'bi bi-shield-lock';
+                            iconElement.style.marginRight = '6px';
+                            entryDiv.appendChild(iconElement);
+
+                            const textElement = document.createElement('span');
+                            textElement.textContent = entry.title;
+                            entryDiv.appendChild(textElement);
+                        }
+                        else
+                        {
+                            entryDiv.textContent = entry.title;
+                        }
 
                         if (entry.sections != undefined)
                         {
@@ -450,6 +507,8 @@
                                 await downloadPandaRobot();
                             else if (robot == "g1")
                                 await downloadG1Robot();
+                            else if (robot == "ur5")
+                                await downloadUR5Robot();
 
                             loadedRobots.push(robot);
                         }
@@ -533,6 +592,24 @@
 
                 if (document._clearOutputTargets != undefined)
                     document._clearOutputTargets();
+
+                $('.resizable').each(function(index) {
+                    const handles = {};
+
+                    const handler = document.querySelector('#' + this.getAttribute('data-handler'));
+                    if (handler.classList.contains('ui-resizable-e'))
+                        handles['e'] = handler;
+                    else if (handler.classList.contains('ui-resizable-s'))
+                        handles['s'] = handler;
+                    else
+                        return;
+
+                    $(this).resizable({
+                        handles: handles,
+                    })
+
+                    updateWorkspaceStyleVariables();
+                });
             });
 
             if (tasks.length == 1)
@@ -548,17 +625,20 @@
             tasks.push(async () => {
 
 
+                let href = url.origin + url.pathname + '#';
+
                 if (page != 'home')
                 {
+                    href += page;
+
                     if (anchor != null)
-                        window.location.href = url.origin + url.pathname + '#' + page + '-' + anchor;
-                    else
-                        window.location.href = url.origin + url.pathname + '#' + page;
+                        href += '-' + anchor;
                 }
-                else
-                {
-                    window.location.href = url.origin + url.pathname + '#';
-                }
+
+                if (visibility != null)
+                    href += '?' + visibility;
+
+                window.location.href = href;
 
                 if (anchor == null)
                 {
@@ -688,9 +768,18 @@
                 let userCode = '';
 
                 if (element.hasAttribute('src'))
-                    userCode = document._getPythonScript(element.getAttribute('src'));
+                {
+                    let src = element.getAttribute('src');
+
+                    if (url.hash.indexOf('_solution') != -1)
+                        src += '_solution';
+
+                    userCode = document._getPythonScript(src);
+                }
                 else if (element.hasAttribute('script'))
+                {
                     userCode = getScript(element.getAttribute('script'));
+                }
 
                 element.editor = CodeEditor.create(
                     element.id,
@@ -850,11 +939,22 @@
             element.style.height = '' + (element.clientWidth * ratio) + 'px';
         }
 
+
+        function updateWorkspaceStyleVariables() {
+            const workspace = document.querySelector('#workspace');
+            if (workspace) {
+                const top = workspace.offsetTop - workspace.parentElement.offsetTop;
+                document.documentElement.style.setProperty('--workspace-top', top + 'px');
+            }
+        }
+
         window.onresize = (evt) => {
             for (const [key, value] of Object.entries(aspectRatios)) {
                 const element = document.getElementById(key);
                 element.style.height = '' + (element.clientWidth * value) + 'px';
             }
+
+            updateWorkspaceStyleVariables();
         };
 
         globalThis._configure = configure;
@@ -963,8 +1063,20 @@
 
 
         window.onhashchange = function() {
-            const dest = window.location.hash.substr(1);
-            const dest_parts = dest.split('-');
+            let dest = window.location.hash.substr(1);
+
+            let dest_parts = dest.split('?');
+            if (dest_parts.length == 2)
+            {
+                dest = dest_parts[0];
+                visibility = dest_parts[1];
+            }
+            else
+            {
+                dest = dest_parts[0];
+            }
+
+            dest_parts = dest.split('-');
             const page = dest_parts[0];
 
             if (page != currentPage)

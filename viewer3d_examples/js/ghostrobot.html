@@ -1,0 +1,79 @@
+<!--
+SPDX-FileCopyrightText: 2024 Idiap Research Institute <contact@idiap.ch>
+
+SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+
+SPDX-License-Identifier: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Ghost robot example (JavaScript version)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+
+
+<body style="font-family: MONOSPACE;">
+    <h2>Ghost robot example (JavaScript version)</h2>
+
+    <p>This example shows how to display a "ghost" robot, a robot only there to show a specific pose without affecting the scene.</p>
+
+    <div id="viewer3d" style="height: 700px"></div>
+
+
+    <!-- Import all the necessary JavaScript dependency modules
+    Sadly, can't be imported from an external file for the moment, this is not supported by Chrome
+    -->
+    <script src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+                "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+                "mujoco": "../../viewer3d/jsm/mujoco_wasm.js",
+                "katex": "https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.mjs",
+                "mathjs": "https://cdn.jsdelivr.net/npm/mathjs@14.1.0/+esm"
+            }
+        }
+    </script>
+
+
+    <!-- Create the Viewer3D from JavaScript -->
+    <script type="module">
+        import { Viewer3D, downloadScene, downloadPandaRobot, PandaConfiguration, PandaNoHandConfiguration, Layers } from '../../viewer3d/viewer3d.js';
+
+        // Download the assets
+        await downloadPandaRobot();
+        await downloadScene('../scenes/ghost_panda.xml');
+
+        // Create the Viewer3D
+        const viewer3D = new Viewer3D(document.getElementById('viewer3d'));
+
+        // Load the scene and retrieve the robots
+        viewer3D.loadScene('/scenes/ghost_panda.xml');
+
+        const robot = viewer3D.createRobot('panda', new PandaConfiguration(), 'panda_');
+
+        viewer3D.activateLayer(Layers.NoShadows);
+        const ghost = viewer3D.createRobot(
+            'ghost',
+            new PandaConfiguration(),
+            'ghost_',
+            {
+                use_light_toon_shader: true,
+                color: [1.0, 0.5, 0.8],
+                controlsEnabled: false,
+            }
+        );
+
+        let pos = ghost.getJointPositions();
+        pos[0] = -1.5;
+        ghost.setJointPositions(pos);
+
+        // Start the physics simulation
+        viewer3D.physicsSimulator.paused = false;
+    </script>
+</body>
+</html>

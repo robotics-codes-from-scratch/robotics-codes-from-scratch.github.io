@@ -1,0 +1,104 @@
+<!--
+SPDX-FileCopyrightText: 2024 Idiap Research Institute <contact@idiap.ch>
+
+SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+
+SPDX-License-Identifier: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Ghost robot example (Python version)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="https://pyscript.net/releases/2024.8.2/core.css" rel="stylesheet"/>
+    <link href="../../css/loader.css" rel="stylesheet"/>
+
+    <py-config type="toml">
+        packages = ['numpy']
+        [[fetch]]
+            from = '../../viewer3d/'
+            files = ['viewer3d.py']
+    </py-config>
+</head>
+
+
+<body style="font-family: MONOSPACE;">
+    <h2>Ghost robot example (Python version)</h2>
+
+    <p>This example shows how to display a "ghost" robot, a robot only there to show a specific pose without affecting the scene.</p>
+
+    <div id="loader-container">
+        <span class="loader"></span>
+    </div>
+
+    <div id="viewer3d" style="height: 700px"></div>
+
+
+    <!-- Import all the necessary JavaScript dependency modules
+    Sadly, can't be imported from an external file for the moment, this is not supported by Chrome
+    -->
+    <script src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+                "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+                "mujoco": "../../viewer3d/jsm/mujoco_wasm.js",
+                "katex": "https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.mjs",
+                "mathjs": "https://cdn.jsdelivr.net/npm/mathjs@14.1.0/+esm"
+            }
+        }
+    </script>
+
+
+    <!-- Import the viewer3d.js library -->
+    <script type="module">
+        import { downloadScene, downloadPandaRobot, initPyScript } from '../../viewer3d/viewer3d.js';
+
+        // Download the assets
+        await downloadPandaRobot();
+        await downloadScene('../scenes/ghost_panda.xml');
+
+        // Now PyScript can be initialised
+        initPyScript();
+    </script>
+
+
+    <py-script>
+        from viewer3d import Viewer3D, Layers, configs
+        from js import document
+
+        document.getElementById('loader-container').style.display = 'none';
+
+        # Create the Viewer3D
+        viewer3D = Viewer3D(document.getElementById('viewer3d'))
+
+        # Load the scene and retrieve the robota
+        viewer3D.loadScene('/scenes/ghost_panda.xml')
+
+        robot = viewer3D.createRobot('panda', configs.Panda.new(), 'panda_')
+
+        viewer3D.activateLayer(Layers.NoShadows);
+        ghost = viewer3D.createRobot(
+            'ghost',
+            configs.Panda.new(),
+            'ghost_',
+            {
+                'use_light_toon_shader': True,
+                'color': [1.0, 0.5, 0.8],
+                'controlsEnabled': False,
+            }
+        )
+
+        pos = ghost.jointPositions
+        pos[0] = -1.5
+        ghost.jointPositions = pos
+
+        # Start the physics simulation
+        viewer3D.physicsSimulatorPaused = False
+    </py-script>
+</body>
+</html>

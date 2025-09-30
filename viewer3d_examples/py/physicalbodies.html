@@ -1,0 +1,121 @@
+<!--
+SPDX-FileCopyrightText: 2023 Idiap Research Institute <contact@idiap.ch>
+
+SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+
+SPDX-License-Identifier: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Physical bodies example (Python version)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="https://pyscript.net/releases/2024.8.2/core.css" rel="stylesheet"/>
+    <link href="../../css/loader.css" rel="stylesheet"/>
+
+    <py-config type="toml">
+        packages = ['numpy', 'scipy']
+        [[fetch]]
+            from = '../../viewer3d/'
+            files = ['viewer3d.py']
+    </py-config>
+</head>
+
+
+<body style="font-family: MONOSPACE;">
+    <h2>Physical bodies example (Python version)</h2>
+
+    <p>This example shows how to manipulate physical bodies (from code).</p>
+
+    <div id="loader-container">
+        <span class="loader"></span>
+    </div>
+
+    <div id="viewer3d" style="height: 700px"></div>
+
+
+    <!-- Import all the necessary JavaScript dependency modules
+    Sadly, can't be imported from an external file for the moment, this is not supported by Chrome
+    -->
+    <script src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+                "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+                "mujoco": "../../viewer3d/jsm/mujoco_wasm.js",
+                "katex": "https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.mjs",
+                "mathjs": "https://cdn.jsdelivr.net/npm/mathjs@14.1.0/+esm"
+            }
+        }
+    </script>
+
+
+    <!-- Import the viewer3d.js library -->
+    <script type="module">
+        import { downloadScene, downloadPandaRobot, initPyScript } from '../../viewer3d/viewer3d.js';
+
+        // Download the assets
+        await downloadPandaRobot();
+        await downloadScene('../scenes/panda_shelf.xml');
+
+        // Now PyScript can be initialised
+        initPyScript();
+    </script>
+
+
+    <py-script>
+        from viewer3d import Viewer3D, Shapes, configs
+        from js import document
+        from pyodide.ffi import create_proxy
+        from scipy.spatial.transform import Rotation as R
+
+        document.getElementById('loader-container').style.display = 'none';
+
+        # This function will be called once per frame
+        def update(delta, time):
+            if time > redcube.nextActionTime:
+                redcube.position = [0.0, -0.5, 1.0]
+                redcube.nextActionTime += 1.0
+
+            if time > bluecube.nextActionTime:
+                bluecube.position = [1.0, 0.0, 1.0]
+                bluecube.nextActionTime += 0.25
+
+            orientation = R.from_quat(greencube.orientation)
+            orientation *= R.from_euler('XYZ', [0.0, 0.0, 90.0 * delta], degrees=True)
+            greencube.orientation = orientation.as_quat()
+
+
+        # Create the Viewer3D
+        viewer3D = Viewer3D(document.getElementById('viewer3d'))
+        viewer3D.setRenderingCallback(update)
+
+        # Load the scene and retrieve the robot
+        viewer3D.loadScene('/scenes/panda_shelf.xml')
+        robot = viewer3D.createRobot('panda', configs.Panda.new())
+
+        # Start the physics simulation
+        viewer3D.physicsSimulatorPaused = False
+
+        # Retrieve the cubes (and add axes to them)
+        def getCube(name):
+            cube = viewer3D.getPhysicalBody(name)
+            cube.add(viewer3D.addAxes(name + '_axes'))
+            return cube
+
+        redcube = getCube('redcube')
+        greencube = getCube('greencube')
+        bluecube = getCube('bluecube')
+        yellowcube = getCube('yellowcube')
+        cyancube = getCube('cyancube')
+        pinkcube = getCube('pinkcube')
+
+        redcube.nextActionTime = 1.0;
+        bluecube.nextActionTime = 1.0;
+    </py-script>
+</body>
+</html>

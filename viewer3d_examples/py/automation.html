@@ -1,0 +1,186 @@
+<!--
+SPDX-FileCopyrightText: 2023 Idiap Research Institute <contact@idiap.ch>
+
+SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+
+SPDX-License-Identifier: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Automation example (Python version)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="https://pyscript.net/releases/2024.8.2/core.css" rel="stylesheet"/>
+    <link href="../../css/loader.css" rel="stylesheet"/>
+
+    <py-config type="toml">
+        packages = ['numpy']
+        [[fetch]]
+            from = '../../viewer3d/'
+            files = ['viewer3d.py']
+    </py-config>
+</head>
+
+
+<body style="font-family: MONOSPACE;">
+    <h2>Automation example (Python version)</h2>
+
+    <p>In this example the robot moves some colored cubes from one location to another.</p>
+
+    <p>Movements are computed using <b>Inverse Kinematics</b> to go from one pre-defined location to another.</p>
+
+    <div id="loader-container">
+        <span class="loader"></span>
+    </div>
+
+    <div id="viewer3d" style="height: 700px"></div>
+
+
+    <!-- Import all the necessary JavaScript dependency modules
+    Sadly, can't be imported from an external file for the moment, this is not supported by Chrome
+    -->
+    <script src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+                "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+                "mujoco": "../../viewer3d/jsm/mujoco_wasm.js",
+                "katex": "https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.mjs",
+                "mathjs": "https://cdn.jsdelivr.net/npm/mathjs@14.1.0/+esm"
+            }
+        }
+    </script>
+
+
+    <!-- Import the viewer3d.js library -->
+    <script type="module">
+        import { downloadScene, downloadPandaRobot, initPyScript } from '../../viewer3d/viewer3d.js';
+
+        // Download the assets
+        await downloadPandaRobot();
+        await downloadScene('../scenes/panda_shelf.xml');
+
+        // Now PyScript can be initialised
+        initPyScript();
+    </script>
+
+
+    <py-script>
+        from viewer3d import Viewer3D, configs
+        from js import document
+        import math
+
+        document.getElementById('loader-container').style.display = 'none';
+
+
+        # The sequence of actions to perform/coordinates to reach
+        sequence = [
+            [ 0.0, 0.6, 0.5, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            'OPEN',
+            [ 0.0, 0.6, 0.42, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            'CLOSE',
+            [ 0.0, 0.6, 0.5, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            [ 0.0, 0.4, 0.5, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            [ 0.4, 0.0, 0.6, 0.98981559, 0.14223855, -0.00534484, 0.0021757 ],
+            [ 0.0, -0.5, 0.5, 0.70329958, -0.71087576, 0.00211635, 0.00456832 ],
+            'OPEN',
+            [ 0.4, 0.0, 0.6, 0.98981559, 0.14223855, -0.00534484, 0.0021757 ],
+
+            [ 0.15, 0.6, 0.5, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            [ 0.15, 0.6, 0.42, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            'CLOSE',
+            [ 0.15, 0.6, 0.5, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            [ 0.15, 0.4, 0.5, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            [ 0.4, 0.0, 0.6, 0.98981559, 0.14223855, -0.00534484, 0.0021757 ],
+            [ 0.0, -0.5, 0.5, 0.70329958, -0.71087576, 0.00211635, 0.00456832 ],
+            'OPEN',
+            [ 0.4, 0.0, 0.6, 0.98981559, 0.14223855, -0.00534484, 0.0021757 ],
+
+            [ -0.15, 0.6, 0.5, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            [ -0.15, 0.6, 0.42, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            'CLOSE',
+            [ -0.15, 0.6, 0.5, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            [ -0.15, 0.4, 0.5, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            [ 0.4, 0.0, 0.6, 0.98981559, 0.14223855, -0.00534484, 0.0021757 ],
+            [ 0.0, -0.5, 0.5, 0.70329958, -0.71087576, 0.00211635, 0.00456832 ],
+            'OPEN',
+            [ 0.4, 0.0, 0.6, 0.98981559, 0.14223855, -0.00534484, 0.0021757 ],
+
+            [ 0.0, 0.4, 0.4, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            [ 0.0, 0.4, 0.32, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            'CLOSE',
+            [ 0.0, 0.4, 0.4, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            [ 0.4, 0.0, 0.6, 0.98981559, 0.14223855, -0.00534484, 0.0021757 ],
+            [ 0.0, -0.5, 0.5, 0.70329958, -0.71087576, 0.00211635, 0.00456832 ],
+            'OPEN',
+            [ 0.4, 0.0, 0.6, 0.98981559, 0.14223855, -0.00534484, 0.0021757 ],
+
+            [ 0.15, 0.4, 0.4, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            [ 0.15, 0.4, 0.32, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            'CLOSE',
+            [ 0.15, 0.4, 0.4, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            [ 0.4, 0.0, 0.6, 0.98981559, 0.14223855, -0.00534484, 0.0021757 ],
+            [ 0.0, -0.5, 0.5, 0.70329958, -0.71087576, 0.00211635, 0.00456832 ],
+            'OPEN',
+            [ 0.4, 0.0, 0.6, 0.98981559, 0.14223855, -0.00534484, 0.0021757 ],
+
+            [ -0.15, 0.4, 0.4, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            [ -0.15, 0.4, 0.32, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            'CLOSE',
+            [ -0.15, 0.4, 0.4, 0.74719376, 0.66433172, -0.01120141, 0.0154722 ],
+            [ 0.4, 0.0, 0.6, 0.98981559, 0.14223855, -0.00534484, 0.0021757 ],
+            [ 0.0, -0.5, 0.5, 0.70329958, -0.71087576, 0.00211635, 0.00456832 ],
+            'OPEN',
+            [ 0.4, 0.0, 0.6, 0.98981559, 0.14223855, -0.00534484, 0.0021757 ],
+
+            'CLOSE',
+        ]
+
+        current = 0
+
+
+        # This function will be called once per frame
+        def update(delta, time):
+            global current
+
+            if sequence[current] == 'OPEN':
+                if robot.isGripperClosed or robot.isGripperHoldingSomeObject:
+                    robot.openGripper()
+                elif robot.isGripperOpen:
+                    current += 1
+
+            elif sequence[current] == 'CLOSE':
+                if robot.isGripperOpen:
+                    robot.closeGripper()
+                elif robot.isGripperClosed or robot.isGripperHoldingSomeObject:
+                    current += 1
+
+            else:
+                done = robot.ik(sequence[current], limit=1, dt=delta, successDistance=1e-4)
+                if done:
+                    current += 1
+
+            if current >= len(sequence):
+                viewer3D.setRenderingCallback(None)
+
+
+        # Create the Viewer3D
+        viewer3D = Viewer3D(document.getElementById('viewer3d'))
+        viewer3D.setRenderingCallback(update, 0.01)
+
+        # Disable all controls (since the robot is controlled by our code)
+        viewer3D.controlsEnabled = False
+
+        # Load the scene and retrieve the robot
+        viewer3D.loadScene('/scenes/panda_shelf.xml')
+        robot = viewer3D.createRobot('panda', configs.Panda.new())
+
+        # Start the physics simulation
+        viewer3D.physicsSimulatorPaused = False
+    </py-script>
+</body>
+</html>

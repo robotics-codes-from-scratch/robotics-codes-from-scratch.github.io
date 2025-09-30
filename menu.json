@@ -129,6 +129,20 @@
                 }
             },
             {
+                "title": "Inverse kinematics (IK) - UR5 robot",
+                "hash": "3d_ik_ur5",
+                "page": "IK_UR5.html",
+                "visibility": "rli",
+                "assets": {
+                    "robots": [
+                        "ur5"
+                    ],
+                    "scenes": [
+                        "scenes/ur5_gripper.xml"
+                    ]
+                }
+            },
+            {
                 "title": "Humanoid robot",
                 "hash": "3d_bimanual",
                 "page": "bimanual.html",
@@ -322,9 +336,51 @@
                 }
             },
             {
+                "title": "Move the cube (Panda) - Solution",
+                "hash": "challenge01_solution",
+                "page": "01.html",
+                "visibility": "rli",
+                "assets": {
+                    "robots": [
+                        "panda"
+                    ],
+                    "scenes": [
+                        "scenes/01.xml"
+                    ]
+                }
+            },
+            {
+                "title": "Move the cube (Panda) - UI Improvement",
+                "hash": "challenge01_ui",
+                "page": "01b.html",
+                "visibility": "rli",
+                "assets": {
+                    "robots": [
+                        "panda"
+                    ],
+                    "scenes": [
+                        "scenes/01.xml"
+                    ]
+                }
+            },
+            {
                 "title": "Move the cube (Humanoid)",
                 "hash": "challenge02",
                 "page": "02.html",
+                "assets": {
+                    "robots": [
+                        "g1"
+                    ],
+                    "scenes": [
+                        "scenes/02.xml"
+                    ]
+                }
+            },
+            {
+                "title": "Move the cube (Humanoid) - Solution",
+                "hash": "challenge02_solution",
+                "page": "02.html",
+                "visibility": "rli",
                 "assets": {
                     "robots": [
                         "g1"
@@ -346,6 +402,40 @@
                         "scenes/03.xml"
                     ]
                 }
+            }
+        ]
+    },
+    {
+        "id": "slides",
+        "title": "Slides",
+        "visibility": "rli",
+        "entries": [
+            {
+                "title": "EPFL Industry Day 2025",
+                "url": "epfl-industryday-2025"
+            },
+            {
+                "title": "Humanoid Forum 2025",
+                "url": "humanoid-forum-2025"
+            }
+        ]
+    },
+    {
+        "id": "other_examples",
+        "title": "Other examples",
+        "visibility": "rli",
+        "entries": [
+            {
+                "title": "Viewer3D (JavaScript)",
+                "url": "viewer3d_examples/js"
+            },
+            {
+                "title": "Viewer3D (Python)",
+                "url": "viewer3d_examples/py"
+            },
+            {
+                "title": "pygafro",
+                "url": "pygafro_examples"
             }
         ]
     },

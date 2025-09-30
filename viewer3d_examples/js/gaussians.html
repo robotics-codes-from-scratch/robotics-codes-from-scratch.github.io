@@ -1,0 +1,100 @@
+<!--
+SPDX-FileCopyrightText: 2023 Idiap Research Institute <contact@idiap.ch>
+
+SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+
+SPDX-License-Identifier: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Gaussians example (JavaScript version)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+
+
+<body style="font-family: MONOSPACE;">
+    <h2>Gaussians example (JavaScript version)</h2>
+
+    <p>This example shows how to add gaussians to the scene.</p>
+
+    <div id="viewer3d" style="height: 700px"></div>
+
+
+    <!-- Import all the necessary JavaScript dependency modules
+    Sadly, can't be imported from an external file for the moment, this is not supported by Chrome
+    -->
+    <script src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+                "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+                "mujoco": "../../viewer3d/jsm/mujoco_wasm.js",
+                "katex": "https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.mjs",
+                "mathjs": "https://cdn.jsdelivr.net/npm/mathjs@14.1.0/+esm"
+            }
+        }
+    </script>
+
+
+    <!-- Create the Viewer3D from JavaScript -->
+    <script type="module">
+        import { Viewer3D, downloadScene, downloadPandaRobot, PandaConfiguration, sigmaFromQuaternionAndScale } from '../../viewer3d/viewer3d.js';
+        import * as THREE from 'three';
+
+        // Download the assets
+        await downloadPandaRobot();
+        await downloadScene('../scenes/panda.xml');
+
+        // Create the Viewer3D
+        const viewer3D = new Viewer3D(document.getElementById('viewer3d'));
+
+        // Load the scene and retrieve the robot
+        viewer3D.loadScene('/scenes/panda.xml');
+        const robot = viewer3D.createRobot('panda', new PandaConfiguration());
+
+        // Start the physics simulation
+        viewer3D.physicsSimulator.paused = false;
+
+        // Add some gaussians
+        let sigma = sigmaFromQuaternionAndScale(
+            new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3().set(0.5, 1.0, 0.3).normalize(), 0.4),
+            new THREE.Vector3().set(0.1, 0.3, 0.2)
+        );
+
+        const gaussian1 = viewer3D.addGaussian(
+            'gaussian1',
+            new THREE.Vector3(0.5, 0.0, 1.0),
+            sigma,
+            '#ff0000'
+        );
+
+        sigma = sigmaFromQuaternionAndScale(
+            new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3().set(2.0, 0.3, 1.0).normalize(), 0.4),
+            new THREE.Vector3().set(0.2, 0.5, 0.2)
+        );
+
+        const gaussian2 = viewer3D.addGaussian(
+            'gaussian2',
+            new THREE.Vector3(-0.1, 0.0, 0.5),
+            sigma,
+            '#ffff00'
+        );
+
+        sigma = sigmaFromQuaternionAndScale(
+            new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3().set(0.0, 0.0, 1.0).normalize(), 1.5),
+            new THREE.Vector3().set(0.2, 0.3, 0.3)
+        );
+
+        const gaussian3 = viewer3D.addGaussian(
+            'gaussian3',
+            new THREE.Vector3(0.5, 0.7, 0.5),
+            sigma,
+            '#0000ff'
+        );
+    </script>
+</body>
+</html>

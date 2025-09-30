@@ -1,0 +1,100 @@
+<!--
+SPDX-FileCopyrightText: 2023 Idiap Research Institute <contact@idiap.ch>
+
+SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+
+SPDX-License-Identifier: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Points example (JavaScript version)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+
+
+<body style="font-family: MONOSPACE;">
+    <h2>Points example (JavaScript version)</h2>
+
+    <p>This example shows how to add points to the scene.</p>
+
+    <ul>
+        <li>The red point turns around the robot</li>
+        <li>The yellow point follows the end-effector projection on the XY plane, and has a label</li>
+    </ul>
+
+    <div id="viewer3d" style="height: 700px"></div>
+
+
+    <!-- Import all the necessary JavaScript dependency modules
+    Sadly, can't be imported from an external file for the moment, this is not supported by Chrome
+    -->
+    <script src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+                "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+                "mujoco": "../../viewer3d/jsm/mujoco_wasm.js",
+                "katex": "https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.mjs",
+                "mathjs": "https://cdn.jsdelivr.net/npm/mathjs@14.1.0/+esm"
+            }
+        }
+    </script>
+
+
+    <!-- Create the Viewer3D from JavaScript -->
+    <script type="module">
+        import { Viewer3D, downloadScene, downloadPandaRobot, PandaConfiguration } from '../../viewer3d/viewer3d.js';
+        import * as THREE from 'three';
+
+        // This function will be called once per frame
+        function update(delta, time) {
+            // Move the first point
+            point1.position.x = Math.cos(0.2 * Math.PI * time);
+            point1.position.y = -Math.sin(0.2 * Math.PI * time);
+
+            // The second point follows the end-effector projection on the XY plane
+            const ee_position = robot.getEndEffectorPosition();
+            point2.position.x = ee_position.x;
+            point2.position.y = ee_position.y;
+        }
+
+        // Download the assets
+        await downloadPandaRobot();
+        await downloadScene('../scenes/panda.xml');
+
+        // Create the Viewer3D
+        const viewer3D = new Viewer3D(document.getElementById('viewer3d'));
+        viewer3D.setRenderingCallback(update);
+
+        // Load the scene and retrieve the robot
+        viewer3D.loadScene('/scenes/panda.xml');
+        const robot = viewer3D.createRobot('panda', new PandaConfiguration());
+
+        // Start the physics simulation
+        viewer3D.physicsSimulator.paused = false;
+
+        // Add some points
+        const point1 = viewer3D.addPoint(
+            'point1',
+            new THREE.Vector3(1.0, 0.0, 0.7),
+            0.01,
+            '#ff0000',
+            null,
+            true
+        )
+
+        const point2 = viewer3D.addPoint(
+            'point2',
+            new THREE.Vector3(0.0, 0.0, 0.0),
+            0.02,
+            '#cccc00',
+            '(f_1, f_2)',
+            true
+        )
+    </script>
+</body>
+</html>

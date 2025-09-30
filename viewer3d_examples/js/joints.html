@@ -1,0 +1,85 @@
+<!--
+SPDX-FileCopyrightText: 2023 Idiap Research Institute <contact@idiap.ch>
+
+SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+
+SPDX-License-Identifier: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Joints animation example (JavaScript version)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+
+
+<body style="font-family: MONOSPACE;">
+    <h2>Joints animation example (JavaScript version)</h2>
+
+    <p>This example shows how to change the joint positions using code.</p>
+
+    <div id="viewer3d" style="height: 700px"></div>
+
+
+    <!-- Import all the necessary JavaScript dependency modules
+    Sadly, can't be imported from an external file for the moment, this is not supported by Chrome
+    -->
+    <script src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+                "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+                "mujoco": "../../viewer3d/jsm/mujoco_wasm.js",
+                "katex": "https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.mjs",
+                "mathjs": "https://cdn.jsdelivr.net/npm/mathjs@14.1.0/+esm"
+            }
+        }
+    </script>
+
+
+    <!-- Create the Viewer3D from JavaScript -->
+    <script type="module">
+        import { Viewer3D, downloadScene, downloadPandaRobot, PandaConfiguration } from '../../viewer3d/viewer3d.js';
+
+        // This function will be called once per frame
+        function update(delta, time) {
+            // Move some joints of the arm
+            const ctrl = robot.getControl();
+
+            ctrl[2] = 2.0 * Math.sin(0.2 * Math.PI * time);
+            ctrl[4] = Math.sin(0.1 * Math.PI * time);
+
+            robot.setControl(ctrl);
+
+            // Open/close the gripper
+            const abduction = robot.getGripperAbduction();
+
+            if (abduction < 0.01)
+                robot.openGripper();
+            else if (abduction > 0.99)
+                robot.closeGripper();
+        }
+
+        // Download the assets
+        await downloadPandaRobot();
+        await downloadScene('../scenes/panda_box.xml');
+
+        // Create the Viewer3D
+        const viewer3D = new Viewer3D(document.getElementById('viewer3d'));
+        viewer3D.setRenderingCallback(update);
+
+        // Disable all controls (since the robot is controlled by our code)
+        viewer3D.enableControls(false);
+
+        // Load the scene and retrieve the robot
+        viewer3D.loadScene('/scenes/panda_box.xml');
+        const robot = viewer3D.createRobot('panda', new PandaConfiguration());
+
+        // Start the physics simulation
+        viewer3D.physicsSimulator.paused = false;
+    </script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!--
+SPDX-FileCopyrightText: 2023 Idiap Research Institute <contact@idiap.ch>
+
+SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+
+SPDX-License-Identifier: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Humanoid example (Python version)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <link href="https://pyscript.net/releases/2024.8.2/core.css" rel="stylesheet"/>
+    <link href="../../css/loader.css" rel="stylesheet"/>
+
+    <py-config type="toml">
+        packages = ['numpy']
+        [[fetch]]
+            from = '../../viewer3d/'
+            files = ['viewer3d.py']
+    </py-config>
+</head>
+
+
+<body style="font-family: MONOSPACE;">
+    <h2>Humanoid example (Python version)</h2>
+
+    <p>This example uses a humanoid robot, with multiple end-effectors.</p>
+
+    <label for="scenes">Choose a robot:</label>
+
+    <select id="scenes" style="margin-bottom: 20px;">
+      <option value="g1_upperbody.xml">G1 robot, joints on upper body only</option>
+      <option value="g1.xml">G1 robot</option>
+      <option value="g1_with_hands_upperbody.xml">G1 robot, with manipulable hands, joints on upper body only</option>
+      <option value="g1_with_hands.xml">G1 robot, with manipulable hands</option>
+    </select>
+
+    <br/>
+
+    <div id="loader-container">
+        <span class="loader"></span>
+    </div>
+
+    <div id="viewer3d" style="height: 700px"></div>
+
+
+    <!-- Import all the necessary JavaScript dependency modules
+    Sadly, can't be imported from an external file for the moment, this is not supported by Chrome
+    -->
+    <script src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+                "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+                "mujoco": "../../viewer3d/jsm/mujoco_wasm.js",
+                "katex": "https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.mjs",
+                "mathjs": "https://cdn.jsdelivr.net/npm/mathjs@14.1.0/+esm"
+            }
+        }
+    </script>
+
+
+    <!-- Create the Viewer3D from JavaScript -->
+    <script type="module">
+        import { downloadScene, downloadG1Robot, initPyScript } from '../../viewer3d/viewer3d.js';
+
+        const selector = document.getElementById('scenes');
+
+        // Download the assets
+        await downloadG1Robot();
+
+        for (const option of selector.options) {
+            if (option.disabled)
+                continue;
+
+            let sceneName = option.value;
+
+            let destFolder = '/scenes'
+
+            const offset = sceneName.lastIndexOf('/');
+            if (offset != -1)
+                destFolder += '/' + sceneName.substring(0, offset + 1);
+
+            await downloadScene('../scenes/' + sceneName, destFolder);
+        }
+
+        // Now PyScript can be initialised
+        initPyScript();
+    </script>
+
+
+    <py-script>
+        from viewer3d import Viewer3D, configs
+        from js import document
+        from pyodide.ffi import create_proxy
+
+        document.getElementById('loader-container').style.display = 'none';
+
+        # Function to load the scene selected by the user
+        def loadSelectedScene(evt=None):
+            # Load the scene and retrieve the robot (if any)
+            viewer3D.loadScene('/scenes/' + selector.value)
+
+            robot = None
+
+            if selector.value == 'g1_upperbody.xml':
+                robot = viewer3D.createRobot('g1', configs.G1UpperBody.new())
+            elif selector.value == 'g1.xml':
+                robot = viewer3D.createRobot('g1', configs.G1.new())
+            elif selector.value == 'g1_with_hands_upperbody.xml':
+                robot = viewer3D.createRobot('g1', configs.G1WithHandsUpperBody.new())
+            elif selector.value == 'g1_with_hands.xml':
+                robot = viewer3D.createRobot('g1', configs.G1WithHands.new())
+
+            # Start the physics simulation
+            viewer3D.physicsSimulatorPaused = False
+
+        # Create the Viewer3D
+        viewer3D = Viewer3D(document.getElementById('viewer3d'))
+
+        # Event handling to change the scene when the user selects one
+        selector = document.getElementById('scenes')
+        selector.addEventListener('change', create_proxy(loadSelectedScene))
+
+        loadSelectedScene()
+    </py-script>
+</body>
+</html>

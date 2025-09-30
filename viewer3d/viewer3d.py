@@ -474,6 +474,45 @@ class Viewer3D:
         return Arrow(self.viewer.getArrow(name))
 
 
+    def addAxes(self, name, position=None, orientation=None, length=0.1):
+        """Add axes to the scene.
+
+        Parameters:
+            name (str): Name of the axes
+            position (list/NumPy array): The position (x, y, z) of the axes (default is [0, 0, 0])
+            orientation (list/NumPy array): The orientation (x, y, z, w) of the axes (default is [1, 0, 0, 0])
+            length (float): The length of the axes (default is 0.1)
+        """
+        if isinstance(position, np.ndarray):
+            position = list(position)
+
+        if isinstance(orientation, np.ndarray):
+            orientation = list(orientation)
+
+        return Axes(self.viewer.addAxes(name, position, orientation, length))
+
+
+    def removeAxes(self, name):
+        """Remove axes from the scene.
+
+        Parameters:
+            name (str): Name of the axes
+        """
+        self.viewer.removeAxes(name)
+
+
+    def getAxes(self, name):
+        """Returns axes from the scene.
+
+        Parameters:
+            name (str): Name of the axes
+
+        Returns:
+            The axes (Axes)
+        """
+        return Axes(self.viewer.getAxes(name))
+
+
     def addPath(self, name, points, radius=0.01, color='#ffff00', shading=False,
                 transparent=False, opacity=0.5):
         """Add a path to the scene.
@@ -693,6 +732,46 @@ class KinematicChain:
     def __init__(self, chainjs):
         """Constructor, for internal use only"""
         self.chain = chainjs
+
+
+    def sample(self, values):
+        """Given a list of joint positions or control values for the whole robot,
+        returns only the elements concerning this kinematic chain.
+
+        To perform the opposite operation, use 'project()'.
+
+        Parameters:
+            values (list/NumpPy array): The joint positions or control values of
+                                        the whole robot
+
+        Returns:
+            A Numpy array containing the values concerning this kinematic chain
+        """
+        if isinstance(values, np.ndarray):
+            values = list(values)
+
+        return np.array(self.chain.sample(to_js(values)).to_py())
+
+
+    def project(self, values):
+        """Given a list of joint positions or control values for this
+        kinematic chain, returns a list for the whole robot, with the
+        elements concerning this kinematic chain in the correct places
+        and the other values set to 0.
+
+        To perform the opposite operation, use 'sample()'.
+
+        Parameters:
+            values (list/NumpPy array): The joint positions or control
+                                        values of this kinematic chain
+
+        Returns:
+            A Numpy array containing the values for the whole robot
+        """
+        if isinstance(values, np.ndarray):
+            values = list(values)
+
+        return np.array(self.chain.project(to_js(values)).to_py())
 
 
     def fkin(self, positions, offset=None):
@@ -1014,6 +1093,10 @@ class Robot:
         self.robot._enableTools(enabled)
 
 
+    def _toolControlPoint(self, index=0):
+        return Object3D(self.robot._getToolControlPoint(index))
+
+
     def getKinematicChainForJoint(self, joint):
         chainjs = self.robot.getKinematicChainForJoint(joint)
         return KinematicChain(chainjs)
@@ -1098,6 +1181,11 @@ class SimpleRobot(Robot):
     @toolEnabled.setter
     def toolEnabled(self, enabled):
         self._toolsEnabled = enabled
+
+
+    @property
+    def toolControlPoint(self):
+        return self._toolControlPoint()
 
 
     def fkin(self, positions, offset=None):
@@ -1204,6 +1292,10 @@ class ComplexRobot(Robot):
     @toolsEnabled.setter
     def toolsEnabled(self, enabled):
         self._toolsEnabled = enabled
+
+
+    def toolControlPoint(self, index=0):
+        return self._toolControlPoint(index)
 
 
     def isGripperOpen(self, index=0):
@@ -1314,10 +1406,10 @@ class Object3D:
     def orientation(self):
         """Returns the orientation (x, y, z, w) of the object (as a NumPy array)"""
         return np.array([
-            self.object.quaternion.x,
-            self.object.quaternion.y,
-            self.object.quaternion.z,
-            self.object.quaternion.w,
+            float(self.object.quaternion.x),
+            float(self.object.quaternion.y),
+            float(self.object.quaternion.z),
+            float(self.object.quaternion.w),
         ])
 
 
@@ -1364,6 +1456,10 @@ class Object3D:
             quaternion.w,
         ])
 
+    def add(self, obj):
+        """Add an object as a child of this one"""
+        self.object.add(obj.object)
+
 
 
 class Target(Object3D):
@@ -1374,6 +1470,16 @@ class Target(Object3D):
     def __init__(self, targetjs):
         """Constructor, for internal use only"""
         super().__init__(targetjs)
+
+
+
+class Axes(Object3D):
+    """Visual representation of 3 XYZ axes
+    """
+
+    def __init__(self, axesjs):
+        """Constructor, for internal use only"""
+        super().__init__(axesjs)
 
 
 
@@ -1518,59 +1624,13 @@ class Gaussian(Object3D):
         self.object.setSigma(three.Matrix3.new().set(*list(sigma.flatten())))
 
 
-class PhysicalBody:
+class PhysicalBody(Object3D):
+    """Allows to manipulate a specific body in the physics simulation
+    """
 
     def __init__(self, bodyjs):
         """Constructor, for internal use only"""
-        self.body = bodyjs
-
-
-    @property
-    def name(self):
-        """Returns the name of the body"""
-        return self.body.name
-
-
-    @property
-    def position(self):
-        """Returns the position of the body (as a NumPy array)"""
-        pos = self.body.position()
-        return np.array([pos.x, pos.y, pos.z])
-
-
-    @position.setter
-    def position(self, position):
-        """Sets the position of the object
-
-        Parameters:
-            position (list/NumpPy array): the desired object position
-        """
-        pos = three.Vector3.new(position[0], position[1], position[2])
-        self.body.setPosition(pos)
-
-
-    @property
-    def orientation(self):
-        """Returns the orientation (x, y, z, w) of the object (as a NumPy array)"""
-        orient = self.body.orientation()
-
-        return np.array([
-            orient.x,
-            orient.y,
-            orient.z,
-            orient.w,
-        ])
-
-
-    @orientation.setter
-    def orientation(self, orientation):
-        """Sets the orientation of the object
-
-        Parameters:
-            orientation (list/NumpPy array): the desired object orientation (x, y, z, w)
-        """
-        quat = three.Quaternion.new(orientation[0], orientation[1], orientation[2], orientation[3])
-        self.body.setOrientation(quat)
+        super().__init__(bodyjs)
 
 
 def q2R(q):

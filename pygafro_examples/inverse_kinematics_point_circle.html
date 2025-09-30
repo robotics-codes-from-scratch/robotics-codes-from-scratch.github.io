@@ -1,0 +1,280 @@
+<!--
+    SPDX-FileCopyrightText: Copyright © 2025 Idiap Research Institute <contact@idiap.ch>
+
+    SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+
+    SPDX-License-Identifier: MPL-2.0
+-->
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+        <link rel="stylesheet" href="https://pyscript.net/releases/2024.8.2/core.css">
+        <script type="module" src="https://pyscript.net/releases/2024.8.2/core.js"></script>
+
+        <link rel="stylesheet" href="../css/loader.css"/>
+
+        <py-config type="toml">
+            packages = [
+                'numpy',
+                'matplotlib',
+                
+            ]
+        </py-config>
+
+        <style>
+            table {
+                border-collapse: collapse;
+                margin-bottom: 20px;
+            }
+
+            th {
+                background-color: rgb(50, 50, 50);
+                color: white;
+            }
+
+            td, th {
+                border: 1px solid rgb(50, 50, 50);
+                padding-right: 10px;
+                padding-left: 10px;
+                padding-top: 4px;
+                padding-bottom: 4px;
+            }
+
+            td:first-child {
+                background-color: lightgray;
+            }
+        </style>
+    </head>
+
+    <body style="font-family: monospace;">
+        <h2>Inverse kinematics: Point to Circle</h2>
+        <p>Robot: Franka Emika Panda</p>
+
+        <table id="results" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Value</th>
+                    <th>Multivector</th>
+                    <th>Position (x, y, z)</th>
+                    <th>Normal (x, y, z)</th>
+                    <th>Radius</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Start Point</td>
+                    <td id="start_mv"></td>
+                    <td id="start_pos"></td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>Target Circle</td>
+                    <td id="target_mv"></td>
+                    <td id="target_pos"></td>
+                    <td id="target_normal"></td>
+                    <td id="target_radius"></td>
+                </tr>
+                <tr>
+                    <td>Solution Point</td>
+                    <td id="solution_mv"></td>
+                    <td id="solution_pos"></td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div id="loader-container">
+            <span class="loader"></span>
+        </div>
+
+        <py-script>
+            # Download the pygafro wheel
+            import micropip
+            from pyscript import document
+            parts = document.location.pathname.split('/')
+            url = document.location.origin + '/'.join(parts[:-2]) + '/wasm/pygafro-1.3.0-cp312-cp312-pyodide_2024_0_wasm32.whl'
+            await micropip.install(url)
+            
+            from pyscript import display
+            import numpy as np
+            import matplotlib.pyplot as plt
+            from matplotlib.ticker import MaxNLocator
+            from js import document
+
+            from pygafro import FrankaEmikaRobot
+            from pygafro import Point
+            from pygafro import Circle
+            from pygafro import SingleManipulatorTarget
+
+
+            # Display a point in a row of the table
+            def displayPoint(point, prefix):
+                p = point.getEuclideanPoint()
+                document.getElementById(f'{prefix}_mv').textContent = str(point)
+                document.getElementById(f'{prefix}_pos').textContent = f'{p[0]:.3}, {p[1]:.3}, {p[2]:.3}'
+
+
+            # Display a circle in a row of the table
+            def displayCircle(circle, prefix):
+                c = circle.getCenter().getEuclideanPoint()
+                n = circle.getPlane().getNormal()
+                n = [ n['e1'], n['e2'], n['e3'] ]
+                n = n / np.linalg.norm(n)
+                r = circle.getRadius()
+                document.getElementById(f'{prefix}_mv').textContent = str(circle)
+                document.getElementById(f'{prefix}_pos').textContent = f'{c[0]:.3}, {c[1]:.3}, {c[2]:.3}'
+                document.getElementById(f'{prefix}_normal').textContent = f'{n[0]:.3}, {n[1]:.3}, {n[2]:.3}'
+                document.getElementById(f'{prefix}_radius').textContent = f'{r:.3}'
+
+
+            # Display a point in the 3D plot
+            def drawPoint(ax, point, s=20, facecolors=None, edgecolors=None, label=None):
+                p = point.getEuclideanPoint()
+                ax.scatter(p[0], p[1], p[2], s=s, facecolors=facecolors, edgecolors=edgecolors, label=label)
+
+
+            # Display a circle in the 3D plot
+            def drawCircle(ax, circle, color=None, label=None):
+                c = circle.getCenter().getEuclideanPoint()
+                n = circle.getPlane().getNormal()
+                n = np.array([ n['e1'], n['e2'], n['e3'] ])
+                n = n / np.linalg.norm(n)
+                r = circle.getRadius()
+
+                v = np.array([1, 0, 0])
+                if np.linalg.norm(n - v) < 1e-6:
+                    v = np.array([0, 1, 0])
+
+                v1 = np.cross(n, v)
+                v2 = np.cross(n, v1)
+
+                points = np.array([ c + r * np.cos(theta) * v1 + r * np.sin(theta) * v2 for theta in np.linspace(0, 2*np.pi) ])
+                ax.plot(points[:, 0], points[:, 1], points[:, 2], color=color, label=label)
+
+
+            # Create the robot
+            panda = FrankaEmikaRobot()
+
+            # Initial robot state
+            x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0]
+            start_point = panda.getEEMotor(x).apply(Point())
+
+            # Target circle
+            ee_target_circle = Circle(Point(-0.3, 0.6, 0.65), Point(-0.1, 0.6, 0.65), Point(-0.2, 0.7, 0.6))
+
+            # Create the cost function
+            cost_function = SingleManipulatorTarget(panda, Point(), ee_target_circle)
+
+            # To store the values displayed in the plots
+            costs = []
+            update_norms = []
+            positions = [start_point.getEuclideanPoint()]
+
+            # Gauss-Newton algorithm to find the inverse kinematics
+            cost = np.linalg.norm(cost_function.getError(x))
+
+            for i in range(100):
+                gradient, hessian = cost_function.getGradientAndHessian(x)
+
+                update = -(np.linalg.inv(hessian + 1e-5 * np.eye(7)) @ gradient)
+
+                # line search
+                iter = 1
+                c = cost
+                alpha = 2.0
+
+                while (c >= cost) and (iter < 20):
+                    alpha *= 0.5
+                    xk = x + alpha * update
+                    c = np.linalg.norm(cost_function.getError(xk))
+                    iter += 1
+
+                update = alpha * update
+
+                if (np.linalg.norm(update) < 1e-10) or np.isnan(update).any():
+                    break
+
+                x = x + update
+
+                if np.isnan(x).any():
+                    break
+
+                cost = np.linalg.norm(cost_function.getError(x))
+
+                print(f"iteration: {i} -> cost: {cost}, update norm: {np.linalg.norm(update)}")
+
+                costs.append(cost)
+                update_norms.append(np.linalg.norm(update))
+                positions.append(panda.getEEMotor(x).apply(Point()).getEuclideanPoint())
+
+                if cost < 1e-10:
+                    break
+
+
+            # Display the results
+            displayPoint(start_point, 'start')
+            displayCircle(ee_target_circle, 'target')
+            displayPoint(panda.getEEMotor(x).apply(Point()), 'solution')
+
+            document.getElementById('results').style.display = 'block'
+            document.getElementById('loader-container').style.display = 'none';
+
+
+            # Display the trajectory of the end-effector
+            fig = plt.figure(layout='constrained', figsize=(12, 6))
+            subfigs = fig.subfigures(1, 2, wspace=0.07)
+
+            ax = subfigs[0].add_subplot(111, projection='3d')
+
+            ax.plot([0, 1], [0, 0], [0, 0], color='r', alpha=0.5)
+            ax.plot([0, 0], [0, 1], [0, 0], color='g', alpha=0.5)
+            ax.plot([0, 0], [0, 0], [0, 1], color='b', alpha=0.5)
+
+            drawPoint(ax, start_point, label='Start Point')
+            drawCircle(ax, ee_target_circle, color='g', label='Target Circle')
+            drawPoint(ax, panda.getEEMotor(x).apply(Point()), label='Solution Point')
+
+            positions = np.array(positions)
+            ax.plot(positions[:, 0], positions[:, 1], positions[:, 2], color='darkturquoise', label='Trajectory')
+
+            ax.set_xlim(-0.5, 0.5)
+            ax.set_ylim(0, 1)
+            ax.set_zlim(0, 1)
+            ax.set_xlabel('X')
+            ax.set_ylabel('Y')
+            ax.set_zlabel('Z')
+
+            ax.legend()
+
+            ax.view_init(elev=30., azim=60)
+
+
+            # Display the evolution of the cost and the update norm
+            axes = subfigs[1].subplots(2, 1)
+
+            axes[0].set_title('Cost')
+            axes[0].set_xlabel('Iteration')
+            axes[0].set_yscale('log')
+            axes[0].set_xmargin(0)
+            axes[0].xaxis.set_major_locator(MaxNLocator(integer=True))
+            axes[0].grid(True)
+            axes[0].plot(list(range(len(costs))), costs)
+
+            axes[1].set_title('Update norm')
+            axes[1].set_xlabel('Iteration')
+            axes[1].set_yscale('log')
+            axes[1].set_xmargin(0)
+            axes[1].xaxis.set_major_locator(MaxNLocator(integer=True))
+            axes[1].grid(True)
+            axes[1].plot(list(range(len(update_norms))), update_norms)
+
+            display(fig)
+        </py-script>
+    </body>
+</html>

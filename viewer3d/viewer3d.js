@@ -237,6 +237,57 @@ class KinematicChain {
     }
 
 
+    /* Given a list of joint positions or control values for the whole robot,
+    returns only the elements concerning this kinematic chain.
+
+    To perform the opposite operation, use 'project()'.
+
+    Parameters:
+        values (array): The joint positions or control values of the whole
+                        robot
+
+    Returns:
+        The values concerning this kinematic chain
+    */
+    sample(values) {
+        return this.joints.map(
+            (v, i) => values[this.robot.joints.indexOf(v)]
+        );
+    }
+
+
+    /* Given a list of joint positions or control values for this
+    kinematic chain, returns a list for the whole robot, with the
+    elements concerning this kinematic chain in the correct places
+    and the other values set to 0.
+
+    To perform the opposite operation, use 'sample()'.
+
+    Parameters:
+        values (array): The joint positions or control values of this
+                        kinematic chain
+
+    Returns:
+        The values for the whole robot
+    */
+    project(values) {
+        this.joints.map(
+            (v, i) => this.robot.joints.indexOf(v)
+        );
+
+        const result = new Array(this.robot.joints.length);
+        result.fill(0.0);
+
+        for (let i = 0; i < this.joints.length; ++i)
+        {
+            const index = this.robot.joints.indexOf(this.joints[i]);
+            result[index] = values[i];
+        }
+
+        return result;
+    }
+
+
     /* Performs Forward Kinematics, on a subset of the joints
 
     Parameters:
@@ -1061,6 +1112,14 @@ class Robot {
     }
 
 
+    _getToolControlPoint(index=0) {
+        if (index < this.tools.length)
+            return this.tools[index].tcp;
+
+        return null;
+    }
+
+
     getKinematicChainForJoint(joint) {
         return new KinematicChain(this, joint);
     }
@@ -1076,7 +1135,7 @@ class Robot {
         if (tool.type != 'gripper')
             return false;
 
-        return (tool.state == 'opened') && (this.getGripperAbduction(index) >= 0.99);
+        return (tool.state == 'opened') && (this.getGripperAbduction(index) >= tool.max);
     }
 
 
@@ -1085,7 +1144,7 @@ class Robot {
         if (tool.type != 'gripper')
             return false;
 
-        return (tool.state == 'closed') && (this.getGripperAbduction(index) <= 0.01);
+        return (tool.state == 'closed') && (this.getGripperAbduction(index) <= tool.min);
     }
 
 
@@ -1113,6 +1172,10 @@ class Robot {
 
         for (let i = 0; i < tool.joints.length; ++i) {
             const joint = tool.joints[i];
+
+            if (tool.ignoredJoints.indexOf(joint) >= 0)
+                continue;
+
             const actuator = this._simulator.getJointActuator(joint);
 
             if (tool.ignoredActuators.indexOf(actuator) >= 0)
@@ -1122,8 +1185,11 @@ class Robot {
 
             let rel = (qpos[i] - range[0]) / (range[1] - range[0]);
 
-            if (tool.invertedActuators.indexOf(actuator) >= 0)
+            if ((tool.invertedJoints.indexOf(joint) >= 0) ||
+                (tool.invertedActuators.indexOf(actuator) >= 0))
+            {
                 rel = 1.0 - rel;
+            }
 
             abduction += rel;
 
@@ -1225,10 +1291,12 @@ class Robot {
             // Update the internal state of the tool
             if ((tool.type == 'gripper') && (tool.state == 'closed')) {
                 const abduction = this.getGripperAbduction(i);
-                if ((abduction > 0.01) && (Math.abs(abduction - tool._previousAbduction) < 1e-3)) {
+                if ((abduction > tool.min) && (Math.abs(abduction - tool._previousAbduction) < 1e-3)) {
                     tool._stateCounter++;
 
                     if (tool._stateCounter == 5) {
+                        this.getGripperAbduction(i);
+
                         const pos = this._simulator.getJointPositions(tool.actuators);
                         this._simulator.setControl(pos, tool.actuators);
                     }
@@ -1332,7 +1400,7 @@ class Robot {
                 if (this.configuration.tools[i].state != null) {
                     tool.state = this.configuration.tools[i].state;
                 } else {
-                    if (this.getGripperAbduction(i) >= 0.99)
+                    if (this.getGripperAbduction(i) >= tool.max)
                         tool.state = 'opened';
                     else
                         tool.state = 'closed';
@@ -1688,10 +1756,16 @@ class Robot {
                 ignoredActuators: [],
                 invertedActuators: [],
 
+                ignoredJoints: [],
+                invertedJoints: [],
+
                 button: {
                     object: null,
                     element: null,
                 },
+
+                min: (configuration.min != undefined ? configuration.min : 0.01),
+                max: (configuration.max != undefined ? configuration.min : 0.99),
 
                 _previousAbduction: null,
                 _stateCounter: 0,
@@ -1807,6 +1881,11 @@ class SimpleRobot extends Robot {
 
     isToolEnabled() {
         return this._areToolsEnabled();
+    }
+
+
+    getToolControlPoint() {
+        return this._getToolControlPoint();
     }
 
 
@@ -1986,6 +2065,11 @@ class ComplexRobot extends Robot {
     }
 
 
+    getToolControlPoint(index=0) {
+        return this._getToolControlPoint(index);
+    }
+
+
     isGripperOpen(index=0) {
         return this._isGripperOpen(index);
     }
@@ -2096,6 +2180,54 @@ class ComplexRobot extends Robot {
 
         return J;
     }
+}
+
+/*
+ * SPDX-FileCopyrightText: Copyright © 2024 Idiap Research Institute <contact@idiap.ch>
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
+
+
+
+/* Allows to manipulate a specific body in the physics simulation.
+
+The body must have a freejoint to be considered as manipulable.
+
+A physical body is an Object3D, so you can manipulate it like one.
+*/
+class PhysicalBody extends THREE.Object3D {
+
+    constructor(name, bodyId) {
+        super();
+
+        this.name = name;
+        this.bodyId = bodyId;
+
+        this._previousPosition = new THREE.Vector3();
+        this._previousOrientation = new THREE.Quaternion();
+
+        this._synchronize();
+    }
+
+
+    _apply(simulator) {
+        if (!this.position.equals(this._previousPosition))
+            simulator.setBodyPosition(this.bodyId, this.position);
+
+        if (!this.quaternion.equals(this._previousOrientation))
+            simulator.setBodyOrientation(this.bodyId, this.quaternion);
+    }
+
+
+    _synchronize() {
+        this._previousPosition.copy(this.position);
+        this._previousOrientation.copy(this.quaternion);
+    }
+
 }
 
 /*
@@ -2237,6 +2369,12 @@ class PhysicsSimulator {
 
 
     update(time) {
+        for (let b = 1; b < this.model.nbody; ++b) {
+            const body = this.bodies[b];
+            if (body instanceof PhysicalBody)
+                body._apply(this);
+        }
+
         if (!this.paused) {
             let timestep = this.model.getOptions().timestep;
 
@@ -2291,6 +2429,9 @@ class PhysicsSimulator {
             }
 
             body.updateWorldMatrix();
+
+            if (body instanceof PhysicalBody)
+                body._synchronize();
         }
 
         // Update light transforms
@@ -2452,6 +2593,21 @@ class PhysicsSimulator {
     }
 
 
+    getPhysicalBody(name) {
+        for (let b = 1; b < this.model.nbody; ++b) {
+            const body = this.bodies[b];
+
+            if (!(body instanceof PhysicalBody))
+                continue;
+
+            if (body.name == name)
+                return body;
+        }
+
+        return null;
+    }
+
+
     getBodyId(name) {
         for (let b = 0; b < this.model.nbody; ++b) {
             const bodyName = this.names[this.model.name_bodyadr[b]];
@@ -2473,9 +2629,16 @@ class PhysicsSimulator {
 
     setBodyPosition(bodyId, position) {
         const jntadr = this.model.body_jntadr[bodyId];
-        this.simulation.qpos[jntadr] = position.x;
-        this.simulation.qpos[jntadr + 1] = position.y;
-        this.simulation.qpos[jntadr + 2] = position.z;
+
+        const posIndex = this.model.jnt_qposadr[jntadr];
+        this.simulation.qpos[posIndex] = position.x;
+        this.simulation.qpos[posIndex + 1] = position.y;
+        this.simulation.qpos[posIndex + 2] = position.z;
+
+        const velIndex = this.model.jnt_dofadr[jntadr];
+        this.simulation.qvel[velIndex] = 0.0;
+        this.simulation.qvel[velIndex + 1] = 0.0;
+        this.simulation.qvel[velIndex + 2] = 0.0;
     }
 
 
@@ -2487,11 +2650,18 @@ class PhysicsSimulator {
 
 
     setBodyOrientation(bodyId, orientation) {
-        const jntadr = this.model.body_jntadr[bodyId] + 3;
-        this.simulation.qpos[jntadr] = orientation.w;
-        this.simulation.qpos[jntadr + 1] = orientation.x;
-        this.simulation.qpos[jntadr + 2] = orientation.y;
-        this.simulation.qpos[jntadr + 3] = orientation.z;
+        const jntadr = this.model.body_jntadr[bodyId];
+
+        const posIndex = this.model.jnt_qposadr[jntadr] + 3;
+        this.simulation.qpos[posIndex] = orientation.w;
+        this.simulation.qpos[posIndex + 1] = orientation.x;
+        this.simulation.qpos[posIndex + 2] = orientation.y;
+        this.simulation.qpos[posIndex + 3] = orientation.z;
+
+        const velIndex = this.model.jnt_dofadr[jntadr] + 3;
+        this.simulation.qvel[velIndex] = 0.0;
+        this.simulation.qvel[velIndex + 1] = 0.0;
+        this.simulation.qvel[velIndex + 2] = 0.0;
     }
 
 
@@ -2771,6 +2941,20 @@ class PhysicsSimulator {
                 parentBody = this.model.site_bodyid[tool.tcp.site_id];
 
             tool.parent = robot._getSegmentOfBody(parentBody);
+
+            // Convert the ignored and inverted joint names to indices
+            const cfg = configuration.tools[j];
+            const jointNames = this.jointNames();
+
+            if (cfg.ignoredJoints != undefined) {
+                for (let k = 0; k < cfg.ignoredJoints.length; ++k)
+                    tool.ignoredJoints.push(jointNames.indexOf(cfg.ignoredJoints[k]));
+            }
+
+            if (cfg.invertedJoints != undefined) {
+                for (let k = 0; k < cfg.invertedJoints.length; ++k)
+                    tool.invertedJoints.push(jointNames.indexOf(cfg.invertedJoints[k]));
+            }
         }
 
         // Let the robot initialise its internal state
@@ -2813,9 +2997,23 @@ class PhysicsSimulator {
 
             // Create the body if it doesn't exist
             if (!(b in this.bodies)) {
-                this.bodies[b] = new THREE.Group();
-                this.bodies[b].name = this.names[this.model.name_bodyadr[b]];
-                this.bodies[b].bodyId = b;
+                let joint = null;
+                for (let j = 0; j < this.model.njnt; ++j) {
+                    if (this.model.jnt_bodyid[j] == b) {
+                        if (this.model.jnt_type[j] == mujoco.mjtJoint.mjJNT_FREE.value)
+                            joint = j;
+                        break;
+                    }
+                }
+
+                if (joint !== null) {
+                    this.bodies[b] = new PhysicalBody(this.names[this.model.name_bodyadr[b]], b);
+                } else {
+                    this.bodies[b] = new THREE.Group();
+                    this.bodies[b].name = this.names[this.model.name_bodyadr[b]];
+                    this.bodies[b].bodyId = b;
+                }
+
                 this.bodies[b].has_custom_mesh = false;
             }
 
@@ -5117,8 +5315,9 @@ class ObjectList {
 
 
 
-let cylinderGeometry = null;
-let coneGeometry = null;
+let CYLINDER_GEOMETRY = null;
+let CONE_GEOMETRY = null;
+
 const axis = new THREE.Vector3();
 
 
@@ -5148,12 +5347,12 @@ class Arrow extends THREE.Object3D {
 
         this.name = name;
 
-        if (cylinderGeometry == null) {
-            cylinderGeometry = new THREE.CylinderGeometry(1, 1, 1, 16);
-            cylinderGeometry.translate(0, 0.5, 0);
+        if (CYLINDER_GEOMETRY == null) {
+            CYLINDER_GEOMETRY = new THREE.CylinderGeometry(1, 1, 1, 16);
+            CYLINDER_GEOMETRY.translate(0, 0.5, 0);
 
-            coneGeometry = new THREE.ConeGeometry(0.5, 1, 16);
-            coneGeometry.translate(0, -0.5, 0);
+            CONE_GEOMETRY = new THREE.ConeGeometry(0.5, 1, 16);
+            CONE_GEOMETRY.translate(0, -0.5, 0);
         }
 
         let material;
@@ -5167,12 +5366,12 @@ class Arrow extends THREE.Object3D {
             });
         }
 
-        this.cylinder = new THREE.Mesh(cylinderGeometry, material);
+        this.cylinder = new THREE.Mesh(CYLINDER_GEOMETRY, material);
         this.cylinder.layers = this.layers;
 
         this.add(this.cylinder);
 
-        this.cone = new THREE.Mesh(coneGeometry, material);
+        this.cone = new THREE.Mesh(CONE_GEOMETRY, material);
         this.cone.layers = this.layers;
 
         this.add(this.cone);
@@ -5235,8 +5434,12 @@ class Arrow extends THREE.Object3D {
     instance is no longer used in your app.
     */
     dispose() {
-        this.cylinder.geometry.dispose();
-        this.cone.geometry.dispose();
+        if (this.cylinder.geometry != CYLINDER_GEOMETRY)
+            this.cylinder.geometry.dispose();
+
+        if (this.cone.geometry != CONE_GEOMETRY)
+            this.cone.geometry.dispose();
+
         this.cone.material.dispose();
     }
 
@@ -5250,6 +5453,119 @@ class Arrow extends THREE.Object3D {
 
         materials.push(this.cylinder.material, this.cone.material);
     }
+}
+
+/*
+ * SPDX-FileCopyrightText: Copyright © 2025 Idiap Research Institute <contact@idiap.ch>
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
+
+
+
+const AXES_MATERIALS = [];
+const AXES_GEOMETRIES = [];
+
+
+/* Visual representation of 3 XYZ axes.
+
+Axes are an Object3D, so you can manipulate them like one.
+*/
+class Axes extends THREE.Object3D {
+
+    /* Constructor
+
+    Parameters:
+        name (str): Name of the axes
+        position (Vector3): Position of the axes (default is [0, 0, 0])
+        orientation (Quaternion): The orientation of the axes (default is [1, 0, 0, 0])
+        length (Number): The length of the axis (default is 0.01)
+    */
+    constructor(name, position=null, orientation=null, length=0.1) {
+        super();
+
+        this.name = name;
+
+        if (position != null)
+            this.position.copy(position);
+
+        if (orientation != null)
+            this.quaternion.copy(orientation.clone().normalize());
+
+        if (AXES_GEOMETRIES.length == 0)
+        {
+            AXES_MATERIALS.push(new THREE.LineBasicMaterial({
+                color: 0xFF0000,
+            }));
+
+            AXES_MATERIALS.push(new THREE.LineBasicMaterial({
+                color: 0x009900,
+            }));
+
+            AXES_MATERIALS.push(new THREE.LineBasicMaterial({
+                color: 0x0000FF,
+            }));
+
+            let points = [];
+            points.push( new THREE.Vector3(0, 0, 0) );
+            points.push( new THREE.Vector3(1, 0, 0) );
+
+            AXES_GEOMETRIES.push(new THREE.BufferGeometry().setFromPoints(points));
+
+            points = [];
+            points.push( new THREE.Vector3(0, 0, 0) );
+            points.push( new THREE.Vector3(0, 1, 0) );
+            AXES_GEOMETRIES.push(new THREE.BufferGeometry().setFromPoints(points));
+
+            points = [];
+            points.push( new THREE.Vector3(0, 0, 0) );
+            points.push( new THREE.Vector3(0, 0, 1) );
+            AXES_GEOMETRIES.push(new THREE.BufferGeometry().setFromPoints(points));
+        }
+
+        this.lines = [];
+
+        for (let i = 0; i < 3; ++i)
+        {
+            let line = new THREE.Line(AXES_GEOMETRIES[i], AXES_MATERIALS[i]);
+            line.scale.set(length, length, length);
+            this.add(line);
+            this.lines.push(line);
+        }
+    }
+
+
+    /* Frees the GPU-related resources allocated by this instance. Call this method whenever this
+    instance is no longer used in your app.
+    */
+    dispose() {
+        for (let i = 0; i < 3; ++i)
+        {
+            if (this.lines[i].geometry != AXES_GEOMETRIES[i])
+                this.lines[i].geometry.dispose();
+
+            if (this.lines[i].material != AXES_MATERIALS[i])
+                this.lines[i].material.dispose();
+        }
+    }
+
+
+    _disableVisibility(materials) {
+        for (let i = 0; i < 3; ++i)
+        {
+            if (this.lines[i].material == AXES_MATERIALS[i])
+                this.lines[i].material = this.lines[i].material.clone();
+
+            this.lines[i].material.colorWrite = false;
+            this.lines[i].material.depthWrite = false;
+
+            materials.push(this.lines[i].material);
+        }
+    }
+
 }
 
 /*
@@ -5475,7 +5791,7 @@ class Point extends THREE.Object3D {
 
 
 
-let sphereGeometry = null;
+let SPHERE_GEOMETRY = null;
 
 
 /* Computes the covariance matrix of a gaussian from an orientation and scale
@@ -5578,8 +5894,8 @@ class Gaussian extends THREE.Object3D {
         this.name = name;
         this.listener = listener;
 
-        if (sphereGeometry == null) {
-            sphereGeometry = new THREE.SphereGeometry(1.0, 32, 16);
+        if (SPHERE_GEOMETRY == null) {
+            SPHERE_GEOMETRY = new THREE.SphereGeometry(1.0, 32, 16);
         }
 
         let material = new THREE.ShaderMaterial({
@@ -5646,7 +5962,7 @@ class Gaussian extends THREE.Object3D {
             `,
         });
 
-        this.sphere = new THREE.Mesh(sphereGeometry, material);
+        this.sphere = new THREE.Mesh(SPHERE_GEOMETRY, material);
         this.sphere.layers = this.layers;
 
         this.add(this.sphere);
@@ -5704,7 +6020,9 @@ class Gaussian extends THREE.Object3D {
     instance is no longer used in your app.
     */
     dispose() {
-        this.sphere.geometry.dispose();
+        if (this.sphere.geometry != SPHERE_GEOMETRY)
+            this.sphere.geometry.dispose();
+
         this.sphere.material.dispose();
     }
 
@@ -5913,48 +6231,6 @@ function modifyMaterialColor(object, color) {
 }
 
 /*
- * SPDX-FileCopyrightText: Copyright © 2024 Idiap Research Institute <contact@idiap.ch>
- *
- * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
- *
- * SPDX-License-Identifier: MIT
- *
- */
-
-
-/* Allows to retrieve informations about a specific body in the physics simulation.
-*/
-class PhysicalBody {
-
-    constructor(name, bodyId, physicsSimulator) {
-        this.name = name;
-        this.bodyId = bodyId;
-        this.physicsSimulator = physicsSimulator;
-    }
-
-
-    position() {
-        return this.physicsSimulator.getBodyPosition(this.bodyId);
-    }
-
-
-    setPosition(position) {
-        return this.physicsSimulator.setBodyPosition(this.bodyId, position);
-    }
-
-
-    orientation() {
-        return this.physicsSimulator.getBodyOrientation(this.bodyId);
-    }
-
-
-    setOrientation(orientation) {
-        return this.physicsSimulator.setBodyOrientation(this.bodyId, orientation);
-    }
-
-}
-
-/*
  * SPDX-FileCopyrightText: Copyright © 2023 Idiap Research Institute <contact@idiap.ch>
  *
  * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
@@ -6006,7 +6282,12 @@ class GripperToolbarSection {
 
         this.btn = document.createElement('button');
         this.btn.className = 'round';
-        this.btn.innerText = 'Open gripper';
+
+        if (robot._isGripperClosed())
+            this.btn.innerText = 'Open gripper';
+        else
+            this.btn.innerText = 'Close gripper';
+
         this.section.appendChild(this.btn);
 
         this.enabled = true;
@@ -6074,6 +6355,8 @@ class RobotConfiguration {
             //     buttonOffset: [0, 0, 0], // Location of the button, relative to the tcp
             //     ignoredActuators: [],    // Names of the actuators to ignore when opening/closing
             //     invertedActuators: [],   // Names of the actuators to invert when opening/closing
+            //     ignoredJoints: [],       // Names of the joints to ignore when opening/closing
+            //     invertedJoints: [],      // Names of the joints to invert when opening/closing
             // }
         ];
 
@@ -6226,6 +6509,80 @@ class PandaNoHandConfiguration extends RobotConfiguration {
             'joint5',
             'joint6',
         ];
+    }
+}
+
+/*
+ * SPDX-FileCopyrightText: Copyright © 2025 Idiap Research Institute <contact@idiap.ch>
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+
+
+class UR5Configuration extends RobotConfiguration {
+    constructor() {
+        super();
+
+        this.robotRoot = "base";
+
+        this.tools = [
+            {
+                root: null,
+                tcpSite: "attachment_site",
+                type: "generic",
+            }
+        ];
+
+        this.defaultPose = {
+            shoulder_pan_joint: -1.5708,
+            shoulder_lift_joint: -1.5708,
+            elbow_joint: 1.5708,
+            wrist_1_joint: -1.5708,
+            wrist_2_joint: -1.5708,
+            wrist_3_joint: 0.0,
+        };
+    }
+}
+
+
+class UR5WithGripperConfiguration extends RobotConfiguration {
+    constructor() {
+        super();
+
+        this.robotRoot = "base";
+
+        this.tools = [
+            {
+                root: "gripper_base",
+                tcpSite: "tcp",
+                tcpSize: 0.1,
+                type: "gripper",
+                buttonOffset: [0, -0.11, 0.05],
+                invertedActuators: ['fingers_actuator'],
+                ignoredJoints: [
+                    'left_spring_link_joint', 'left_follower',
+                    'right_spring_link_joint', 'right_follower_joint'
+                ],
+                invertedJoints: [
+                    'right_driver_joint', 'left_driver_joint'
+                ],
+                min: 0.25,
+                max: 0.9,
+                state: "opened",
+            }
+        ];
+
+        this.defaultPose = {
+            shoulder_pan_joint: -1.5708,
+            shoulder_lift_joint: -1.5708,
+            elbow_joint: 1.5708,
+            wrist_1_joint: -1.5708,
+            wrist_2_joint: -1.5708,
+            wrist_3_joint: 0.0,
+        };
     }
 }
 
@@ -6560,6 +6917,73 @@ async function downloadG1Robot() {
             'torso_link_rev_1_0.STL',
             'waist_roll_link_rev_1_0.STL',
             'waist_yaw_link_rev_1_0.STL',
+        ]
+    );
+}
+
+
+
+/* Download all the files needed to simulate and display the Universel Robots UR5 robot
+
+The files are stored in Mujoco's filesystem at '/scenes/universal_robots_ur5e'
+*/
+async function downloadUR5Robot() {
+    const dstFolder = '/scenes/universal_robots_ur5e';
+    const srcURL = getURL('models/universal_robots_ur5e/');
+
+    await downloadFiles(
+        dstFolder,
+        srcURL,
+        [
+            'ur5e.xml',
+            'ur5e_gripper.xml',
+        ]
+    );
+
+    await downloadFiles(
+        dstFolder + '/assets',
+        srcURL + 'assets/',
+        [
+            'base_0.obj',
+            'base_1.obj',
+            'forearm_0.obj',
+            'forearm_1.obj',
+            'forearm_2.obj',
+            'forearm_3.obj',
+            'shoulder_0.obj',
+            'shoulder_1.obj',
+            'shoulder_2.obj',
+            'upperarm_0.obj',
+            'upperarm_1.obj',
+            'upperarm_2.obj',
+            'upperarm_3.obj',
+            'wrist1_0.obj',
+            'wrist1_1.obj',
+            'wrist1_2.obj',
+            'wrist2_0.obj',
+            'wrist2_1.obj',
+            'wrist2_2.obj',
+            'wrist3.obj',
+        ]
+    );
+
+    await downloadFiles(
+        dstFolder + '/assets/robotiq_2f85_v4/',
+        srcURL + 'assets/robotiq_2f85_v4/',
+        [
+            'base_coupling.stl',
+            'base.stl',
+            'c-a01-85-open.stl',
+            'coupler.stl',
+            'driver.stl',
+            'follower.stl',
+            'pad.stl',
+            'robotiq_fts300_base.stl',
+            'robotiq_fts300_coupling.stl',
+            'robotiq_fts300_top.stl',
+            'robotiq_fts300.stl',
+            'spring_link.stl',
+            'tongue.stl',
         ]
     );
 }
@@ -7727,6 +8151,8 @@ class Viewer3D {
         this.paths = new ObjectList();
         this.points = new ObjectList();
         this.gaussians = new ObjectList();
+        this.axes = new ObjectList();
+        this.physicalBodies = new ObjectList();
 
         this.interactionState = InteractionStates.Default;
 
@@ -8289,6 +8715,46 @@ class Viewer3D {
     }
 
 
+    /* Add axes to the scene
+
+    Parameters:
+        name (str): Name of the axes
+        position (Vector3): Position of the axes (default is [0, 0, 0])
+        orientation (Quaternion): The orientation of the axes (default is [1, 0, 0, 0])
+        length (Number): The length of the axis (default is 0.01)
+    */
+    addAxes(name, position=null, orientation=null, length=0.1) {
+        const axes = new Axes(name, position, orientation, length);
+
+        axes.layers.disableAll();
+        axes.layers.enable(this.activeLayer);
+
+        this.axes.add(axes);
+        this.scene.add(axes);
+        return axes;
+    }
+
+
+    /* Remove axes from the scene.
+
+    Parameters:
+        name (str): Name of the axes
+    */
+    removeAxes(name) {
+        this.axes.destroy(name);
+    }
+
+
+    /* Returns some axes from the scene.
+
+    Parameters:
+        name (str): Name of the axes
+    */
+    getAxes(name) {
+        return this.axes.get(name);
+    }
+
+
     /* Add a path to the scene
 
     Parameters:
@@ -8423,11 +8889,8 @@ class Viewer3D {
 
 
     getPhysicalBody(name) {
-        const bodyId = this.physicsSimulator.getBodyId(name);
-        if (bodyId == null)
-            return null;
+        return this.physicsSimulator.getPhysicalBody(name);
 
-        return new PhysicalBody(name, bodyId, this.physicsSimulator);
     }
 
 
@@ -8659,6 +9122,14 @@ class Viewer3D {
     }
 
 
+    _updatePhysics(elapsed) {
+        if (this.physicsSimulator != null) {
+            this.physicsSimulator.update(elapsed);
+            this.physicsSimulator.synchronize();
+        }
+    }
+
+
     render() {
         // Retrieve the time elapsed since the last frame
         const startTime = this.clock.startTime;
@@ -8702,10 +9173,7 @@ class Viewer3D {
                 while (this.renderingCallbackTime < tmax)
                 {
                     // Update the physics simulator
-                    if (this.physicsSimulator != null) {
-                        this.physicsSimulator.update(this.renderingCallbackTime);
-                        this.physicsSimulator.synchronize();
-                    }
+                    this._updatePhysics(this.renderingCallbackTime);
 
                     this.renderingCallback(
                         this.renderingCallbackTimestep,
@@ -8721,10 +9189,7 @@ class Viewer3D {
             else
             {
                 // Update the physics simulator
-                if (this.physicsSimulator != null) {
-                    this.physicsSimulator.update(this.clock.elapsedTime);
-                    this.physicsSimulator.synchronize();
-                }
+                this._updatePhysics(this.clock.elapsedTime);
 
                 this.renderingCallback(delta, this.clock.elapsedTime);
             }
@@ -8732,11 +9197,9 @@ class Viewer3D {
         else
         {
             // Update the physics simulator
-            if (this.physicsSimulator != null) {
-                this.physicsSimulator.update(this.clock.elapsedTime);
-                this.physicsSimulator.synchronize();
-            }
+            this._updatePhysics(this.clock.elapsedTime);
         }
+
 
         // Ensure that the camera isn't below the floor
         this.cameraControl.target.z = Math.max(this.cameraControl.target.z, 0.0);
@@ -9270,6 +9733,8 @@ function initViewer3D() {
         G1UpperBody: G1UpperBodyConfiguration,
         G1WithHands: G1WithHandsConfiguration,
         G1WithHandsUpperBody: G1WithHandsUpperBodyConfiguration,
+        UR5: UR5Configuration,
+        UR5WithGripper: UR5WithGripperConfiguration,
     };
 
     globalThis.gaussians = {
@@ -9318,4 +9783,4 @@ cssFiles.forEach(css => {
     document.getElementsByTagName('HEAD')[0].appendChild(link);
 });
 
-export { G1Configuration, G1UpperBodyConfiguration, G1WithHandsConfiguration, G1WithHandsUpperBodyConfiguration, LayerRenderPass, Layers, OutlinePass, PandaConfiguration, PandaNoHandConfiguration, Passes, RobotBuilder, RobotConfiguration, Shapes, Viewer3D, downloadFiles, downloadG1Robot, downloadPandaRobot, downloadScene, getURL, initPyScript, initViewer3D, matrixFromSigma, readFile, sigmaFromMatrix3, sigmaFromMatrix4, sigmaFromQuaternionAndScale, writeFile };
+export { G1Configuration, G1UpperBodyConfiguration, G1WithHandsConfiguration, G1WithHandsUpperBodyConfiguration, LayerRenderPass, Layers, OutlinePass, PandaConfiguration, PandaNoHandConfiguration, Passes, RobotBuilder, RobotConfiguration, Shapes, UR5Configuration, UR5WithGripperConfiguration, Viewer3D, downloadFiles, downloadG1Robot, downloadPandaRobot, downloadScene, downloadUR5Robot, getURL, initPyScript, initViewer3D, matrixFromSigma, readFile, sigmaFromMatrix3, sigmaFromMatrix4, sigmaFromQuaternionAndScale, writeFile };
