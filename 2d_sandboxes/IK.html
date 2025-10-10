@@ -1,23 +1,60 @@
-﻿<div class="row">
-    <div class="col-sm-1"></div>
+﻿<style>
+    #canvas {
+        flex: 1;
+        height: 50%;
+        width: 100%;
+    }
 
-    <div class="col-sm-7">
-        <h3>Inverse kinematics (IK)</h3>
-        <div class="card block" id="instructionBlock">
+    .editor-tools {
+        display: flex;
+        flex-direction: row;
+        padding-top: 4px;
+    }
 
-            <div class="card-header">
-                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
-                    Instructions
-                </button>
-                <div class="commands">
-                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/IK_manipulator.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">Download standalone example</a>
+    .controls {
+        display: flex;
+        gap: 10px;
+        font-size: 0.8em;
+    }
+</style>
+
+
+<script id="workspace-title" type="html">
+    Inverse kinematics (IK)
+</script>
+
+
+<script id="workspace-left-panel-content" type="html">
+    <ul class="nav nav-tabs" id="tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button aria-controls="instructions-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#instructions-tab-pane" data-bs-toggle="tab" id="instructions-tab" role="tab" type="button" style="color: orangered;">Instructions</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="IK-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#IK-tab-pane" data-bs-toggle="tab" id="IK-tab" role="tab" type="button">IK</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="dIK-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#dIK-tab-pane" data-bs-toggle="tab" id="dIK-tab" role="tab" type="button">Damped IK</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="wIK-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#wIK-tab-pane" data-bs-toggle="tab" id="wIK-tab" role="tab" type="button">Weighted IK</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="pIK-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#pIK-tab-pane" data-bs-toggle="tab" id="pIK-tab" role="tab" type="button">Prioritized IK</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="tab-content">
+        <div aria-labelledby="instructions-tab" class="tab-pane fade" id="instructions-tab-pane" role="tabpanel" tabindex="0">
+            <div id="instructions" class="instructions">
+                <div class="card-header">
+                    <div class="commands">
+                        <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/IK_manipulator.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">Download standalone example</a>
+                    </div>
                 </div>
-            </div>
 
-            <div id="instructions" class="collapse card-body instructions">
                 <h5>General information</h5>
                 <p>
-                    Modify the code in the cell below and study how inverse kinematics (IK) works. When performing IK we are interested 
+                    Modify the code in the editors on the other tabs and study how inverse kinematics (IK) works. When performing IK we are interested
                     in finding a joint angle configuration that satisfies the desired task space configuration (position and/or orientation).
                     As this can be performed in multiple ways, you will find four different tabs showcasing different IK implementations:
                 </p>
@@ -32,7 +69,7 @@
                         Weighted IK: The weighted pseudo-inverse of the Jacobian matrix is used. This can be useful for softly prioritizing a state space element over another (e.g., softly prioritizing position accuracy instead of orientation accuracy).
                     </li>
                     <li>
-                        Prioritized IK: the nullspace projection of the jacobian matrix is used to 
+                        Prioritized IK: the nullspace projection of the jacobian matrix is used to
                         perform a secondary task that does not interfere with the primary one.
                     </li>
                 </ul>
@@ -43,7 +80,7 @@
                 <h5>Coding information</h5>
 
                 <div>
-                    
+
                     <p class="text-center">
                         <img style="width:80%;" src="static_images/code_schema.png"/>
                     </p>
@@ -53,7 +90,7 @@
                     </p>
 
                     <p>
-                        In the cell below, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
+                        In the code editors, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
                         You can also download the standalone Python example to test it on your machine.
                     </p>
 
@@ -77,7 +114,7 @@
                     <h6>Global variables</h6>
                     <ul>
                         <li><code class="inline_code">x</code>: the current joint configuration of the robot as a list of floats.</li>
-                        <li><code class="inline_code">param</code>: a struct containing the example configuration. We recommend to only read this struct 
+                        <li><code class="inline_code">param</code>: a struct containing the example configuration. We recommend to only read this struct
                             without modifying it. The most useful struct members are:
                             <ul>
                                 <li><code class="inline_code">param.nbVarX</code>: the joint space dimension.</li>
@@ -96,62 +133,41 @@
                     <li>The target objects can be moved by dragging them with the mouse.</li>
                 </ul>
             </div>
-
         </div>
 
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button aria-controls="IK-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#IK-tab-pane" data-bs-toggle="tab" id="IK-tab" role="tab" type="button">IK</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button aria-controls="dIK-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#dIK-tab-pane" data-bs-toggle="tab" id="dIK-tab" role="tab" type="button">Damped IK</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button aria-controls="wIK-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#wIK-tab-pane" data-bs-toggle="tab" id="wIK-tab" role="tab" type="button">Weighted IK</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button aria-controls="pIK-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#pIK-tab-pane" data-bs-toggle="tab" id="pIK-tab" role="tab" type="button">Prioritized IK</button>
-            </li>
-        </ul>
-
-        <div class="tab-content" id="myTabContent">
-            <div aria-labelledby="IK-tab" class="tab-pane fade show active" id="IK-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-ik" src="user_code_ik"></editor>
-            </div>
-
-            <div aria-labelledby="dIK-tab" class="tab-pane fade" id="dIK-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-damped-ik" src="user_code_damped_ik"></editor>
-            </div>
-
-            <div aria-labelledby="wIK-tab" class="tab-pane fade" id="wIK-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-weighted-ik" src="user_code_weighted_ik"></editor>
-            </div>
-
-            <div aria-labelledby="pIK-tab" class="tab-pane fade" id="pIK-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-prioritized-ik" src="user_code_prioritized_ik"></editor>
-            </div>
+        <div aria-labelledby="IK-tab" class="tab-pane fade code show active" id="IK-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-ik" src="user_code_ik"></editor>
         </div>
 
-        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
-            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
-            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        <div aria-labelledby="dIK-tab" class="tab-pane fade code" id="dIK-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-damped-ik" src="user_code_damped_ik"></editor>
         </div>
 
-        <div style="margin-bottom: 20px;">
-            <input class="w-72" id="object_angle" max="3.14159" min="-3.14159" step="0.0001" style="vertical-align:middle;" type="range" value="0"/>
-            <label>Object orientation</label>
+        <div aria-labelledby="wIK-tab" class="tab-pane fade code" id="wIK-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-weighted-ik" src="user_code_weighted_ik"></editor>
         </div>
 
-        <pre id="errors" class="py-error"></pre>
-        <pre id="output" class="py-output"></pre>
-    </div>
-
-    <div class="col-sm-4">
-        <div class="sticky-sm-top" style="padding-top: 2rem;">
-            <canvas height="700px" id="canvas" style="width:100%;" width="900px"></canvas>
+        <div aria-labelledby="pIK-tab" class="tab-pane fade code" id="pIK-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-prioritized-ik" src="user_code_prioritized_ik"></editor>
         </div>
     </div>
-</div>
+
+    <div class="editor-tools">
+        <span style="flex:1"></span>
+        <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+        <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer; margin-left: 6px;"></i>
+    </div>
+</script>
+
+
+<script id="workspace-right-top-panel-content" type="html">
+    <canvas id="canvas" width="900px" height="700px"></canvas>
+
+    <div class="controls">
+        <label>Object orientation</label>
+        <input id="object_angle" max="3.14159" min="-3.14159" step="0.0001" style="vertical-align:middle; flex: 1;" type="range" value="0"/>
+    </div>
+</script>
 
 
 <script id="user_code_ik" type="python">
@@ -418,9 +434,18 @@
     ctx = canvas.getContext('2d')
 
     def clear_screen():
+        global scaling_factor
+
+        canvas.width = canvas.clientWidth
+        canvas.height = canvas.clientHeight
+
         ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity
         ctx.fillStyle = 'white'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+        scale_y = canvas.height / 700
+        scale_x = canvas.width / 900
+        scaling_factor = min(scale_x, scale_y) * 2.0
 
 
     def draw_ground():
@@ -615,7 +640,7 @@
         'loop': loop,
         'reset': reset,
         'cleanup': cleanup,
-        'output': 'output',
-        'errors': 'errors',
+        'output': 'workspace-output',
+        'errors': 'workspace-errors',
     })
 </script>

@@ -1,20 +1,55 @@
-﻿<div class="row">
-    <div class="col-sm-1"></div>
+﻿<style>
+    #canvas-container {
+        flex: 1;
+        height: 50%;
+        width: 100%;
+        position: relative;
+    }
 
-    <div class="col-sm-7">
-        <h3>Impedance control</h3>
-        <div class="card block" id="instructionBlock">
+    #canvas-container canvas {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+    }
 
-            <div class="card-header">
-                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
-                    Instructions
-                </button>
-                <div class="commands">
-                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/impedance_control.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">Download standalone example</a>
+    .editor-tools {
+        display: flex;
+        flex-direction: row;
+        padding-top: 4px;
+    }
+</style>
+
+
+<script id="workspace-title" type="html">
+    Impedance control
+</script>
+
+
+<script id="workspace-left-panel-content" type="html">
+    <ul class="nav nav-tabs" id="tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button aria-controls="instructions-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#instructions-tab-pane" data-bs-toggle="tab" id="instructions-tab" role="tab" type="button" style="color: orangered;">Instructions</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="impedance-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#impedance-tab-pane" data-bs-toggle="tab" id="impedance-tab" role="tab" type="button">Impedance in joint space</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="taskimpedance-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#taskimpedance-tab-pane" data-bs-toggle="tab" id="taskimpedance-tab" role="tab" type="button">Impedance in task space</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="taskimpedance2-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#taskimpedance2-tab-pane" data-bs-toggle="tab" id="taskimpedance2-tab" role="tab" type="button">Impedance in task space with SDF</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="tab-content">
+        <div aria-labelledby="instructions-tab" class="tab-pane fade" id="instructions-tab-pane" role="tabpanel" tabindex="0">
+            <div id="instructions" class="instructions">
+                <div class="card-header">
+                    <div class="commands">
+                        <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/impedance_control.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">Download standalone example</a>
+                    </div>
                 </div>
-            </div>
 
-            <div id="instructions" class="collapse card-body instructions">
                 <h5>General information</h5>
 
                 <p>
@@ -37,7 +72,7 @@
                     </p>
 
                     <p>
-                        In the cell below, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
+                        In the code editors, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
                         You can also download the standalone Python example to test it on your machine.
                     </p>
 
@@ -80,52 +115,35 @@
                     <li>The robot can be perturbed using the mouse, either by dragging the links or rotating the joints using the mouse wheel.</li>
                 </ul>
             </div>
-
-        </div>
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button aria-controls="impedance-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#impedance-tab-pane" data-bs-toggle="tab" id="impedance-tab" role="tab" type="button">Impedance in joint space</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button aria-controls="taskimpedance-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#taskimpedance-tab-pane" data-bs-toggle="tab" id="taskimpedance-tab" role="tab" type="button">Impedance in task space</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button aria-controls="taskimpedance2-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#taskimpedance2-tab-pane" data-bs-toggle="tab" id="taskimpedance2-tab" role="tab" type="button">Impedance in task space with SDF</button>
-            </li>
-        </ul>
-
-        <div class="tab-content" id="myTabContent">
-            <div aria-labelledby="impedance-tab" class="tab-pane fade show active" id="impedance-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-impedance" src="user_code_impedance"></editor>
-            </div>
-
-            <div aria-labelledby="taskimpedance-tab" class="tab-pane fade" id="taskimpedance-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-taskimpedance" src="user_code_taskimpedance"></editor>
-            </div>
-
-            <div aria-labelledby="taskimpedance2-tab" class="tab-pane fade" id="taskimpedance2-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-taskimpedance2" src="user_code_taskimpedance2"></editor>
-            </div>
         </div>
 
-        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
-            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
-            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        <div aria-labelledby="impedance-tab" class="tab-pane fade code show active" id="impedance-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-impedance" src="user_code_impedance"></editor>
         </div>
 
-        <pre id="errors" class="py-error"></pre>
-        <pre id="output" class="py-output"></pre>
-    </div>
+        <div aria-labelledby="taskimpedance-tab" class="tab-pane fade code" id="taskimpedance-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-taskimpedance" src="user_code_taskimpedance"></editor>
+        </div>
 
-    <div class="col-sm-4">
-        <div class="sticky-sm-top" style="padding-top: 2rem;">
-            <div style="position: relative; width: 100%; height: 700px;">
-                <canvas id="canvas-shader" width="900px" height="900px" style="position: absolute; top: 0; left: 0; width:100%;"></canvas>
-                <canvas id="canvas" width="900px" height="900px" style="position: absolute; top: 0; left: 0; width:100%;"></canvas>
-            </div>
+        <div aria-labelledby="taskimpedance2-tab" class="tab-pane fade code" id="taskimpedance2-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-taskimpedance2" src="user_code_taskimpedance2"></editor>
         </div>
     </div>
-</div>
+
+    <div class="editor-tools">
+        <span style="flex:1"></span>
+        <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+        <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer; margin-left: 6px;"></i>
+    </div>
+</script>
+
+
+<script id="workspace-right-top-panel-content" type="html">
+    <div id="canvas-container">
+        <canvas id="canvas-shader" width="900px" height="900px"></canvas>
+        <canvas id="canvas" width="900px" height="900px"></canvas>
+    </div>
+</script>
 
 
 <script id="user_code_impedance" type="python">
@@ -204,6 +222,8 @@
 <script id="fragment-shader" type="shader">
     precision mediump float;
 
+    uniform float scale;
+
     uniform vec2 canvas_size;
     uniform vec2 canvas_offset;
 
@@ -249,11 +269,9 @@
 
     void mainImage(out vec4 fragColor, in vec2 fragCoord)
     {
-        vec2 scale = canvas_size / iResolution;
-
-        vec2 coord = vec2(gl_FragCoord.x, gl_FragCoord.y) * scale;
-        coord.x -= canvas_offset.x;
-        coord.y = coord.y - canvas_size.y + canvas_offset.y;
+        vec2 coord = vec2(gl_FragCoord.x, gl_FragCoord.y) / scale;
+        coord.x -= canvas_offset.x / scale;
+        coord.y = coord.y - canvas_size.y / scale + canvas_offset.y / scale;
 
         float distance = compute_distance(coord);
 
@@ -426,6 +444,9 @@
 
     #########################################################################################
 
+    # GUI
+    scaling_factor = 1 # General scaling factor for rendering
+
     # Mouse events
     mouse0 = np.zeros(2)
     mouse = np.zeros(2)
@@ -438,16 +459,16 @@
         offset = canvas.getBoundingClientRect()
         mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
         mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
-        mouse[0] = (mouse0[0] - canvas_offset[0])
-        mouse[1] = -(mouse0[1] - canvas_offset[1])
+        mouse[0] = (mouse0[0] - canvas_offset[0]) / scaling_factor
+        mouse[1] = -(mouse0[1] - canvas_offset[1]) / scaling_factor
 
     def onTouchMove(event):
         global mouse, mouse0
         offset = event.target.getBoundingClientRect()
         mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
         mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
-        mouse[0] = (mouse0[0] - canvas_offset[0])
-        mouse[1] = -(mouse0[1] - canvas_offset[1])
+        mouse[0] = (mouse0[0] - canvas_offset[0]) / scaling_factor
+        mouse[1] = -(mouse0[1] - canvas_offset[1]) / scaling_factor
 
     def onMouseDown(event):
         global mousedown, move_joint
@@ -483,9 +504,25 @@
     canvas = document.getElementById('canvas')
     ctx = canvas.getContext('2d')
 
-    canvas_offset = (canvas.width / 2, 70)
+    canvas_shader = document.getElementById('canvas-shader')
+
+    canvas_offset = (canvas.width * 0.5, canvas.height * 0.1)
 
     def clear_screen(white):
+        global scaling_factor, canvas_offset
+
+        canvas.width = canvas.clientWidth
+        canvas.height = canvas.clientHeight
+
+        canvas_shader.width = canvas.width
+        canvas_shader.height = canvas.height
+
+        scale_y = canvas.height / 900
+        scale_x = canvas.width / 900
+        scaling_factor = min(scale_x, scale_y)
+
+        canvas_offset = (canvas.width * 0.5, canvas.height * 0.1)
+
         ctx.setTransform(1, 0, 0, 1, 0, 0)
 
         if white:
@@ -496,7 +533,7 @@
 
     def draw_robot(x, color):
         global hover_joint
-        ctx.setTransform(1, 0, 0, -1, canvas_offset[0], canvas_offset[1])
+        ctx.setTransform(scaling_factor, 0, 0, -scaling_factor, canvas_offset[0], canvas_offset[1])
 
         f = fkin0(x, param) 
 
@@ -548,7 +585,7 @@
             ctx.translate(-f[0,i], -f[1,i])
 
     def draw_selected_point(f, color):
-        ctx.setTransform(1, 0, 0, -1, canvas_offset[0], canvas_offset[1])
+        ctx.setTransform(scaling_factor, 0, 0, -scaling_factor, canvas_offset[0], canvas_offset[1])
         # Draw object
         obj = Path2D.new()
         obj.arc(0, 0, 6, 0, 2*np.pi)
@@ -557,7 +594,7 @@
         ctx.fill(obj)
 
     def draw_disc(f, r, color):
-        ctx.setTransform(1, 0, 0, -1, canvas_offset[0], canvas_offset[1])
+        ctx.setTransform(scaling_factor, 0, 0, -scaling_factor, canvas_offset[0], canvas_offset[1])
         ctx.translate(f[0], f[1])
         obj = Path2D.new()
         obj.arc(0, 0, r, 0, 2.0*np.pi)
@@ -573,7 +610,7 @@
         ctx.fill(obj)
     
     def draw_Gaussian(Mu, Sigma, color, color2):
-        ctx.setTransform(1, 0, 0, -1, canvas_offset[0], canvas_offset[1])
+        ctx.setTransform(scaling_factor, 0, 0, -scaling_factor, canvas_offset[0], canvas_offset[1])
         ctx.translate(Mu[0], Mu[1])
         s, U = np.linalg.eig(Sigma)
         al = np.linspace(-np.pi, np.pi, 50)
@@ -596,7 +633,7 @@
         ctx.fill(obj)
 
     def draw_arrow(x1, x2, color='black', sz=20., lw='4'):
-        ctx.setTransform(1, 0, 0, -1, canvas_offset[0], canvas_offset[1])
+        ctx.setTransform(scaling_factor, 0, 0, -scaling_factor, canvas_offset[0], canvas_offset[1])
         ctx.strokeStyle = color
         ctx.fillStyle = color
         ctx.lineWidth = lw
@@ -702,6 +739,9 @@
             if diff[0] > dist_target + 0.1:
                 draw_arrow(f[:2], f[:2] + diff[0] * grad[:2], color='#3333FF')
 
+            renderer.setUniform('scale', scaling_factor)
+            renderer.setUniform('canvas_size', to_js([canvas.width, canvas.height]))
+            renderer.setUniform('canvas_offset', to_js(canvas_offset))
             renderer.render(time)
 
 
@@ -709,8 +749,9 @@
         global renderer
 
         # Start the rendering
-        renderer = GlslRenderer.new(document.getElementById('canvas-shader'), True)
+        renderer = GlslRenderer.new(canvas_shader, True)
 
+        renderer.setUniform('scale', scaling_factor)
         renderer.setUniform('canvas_size', to_js([canvas.width, canvas.height]))
         renderer.setUniform('canvas_offset', to_js(canvas_offset))
         renderer.setUniform('sdf_disc_pos', to_js([f_target[0], f_target[1]]))
@@ -726,6 +767,7 @@
 
     async def run():
         if document.getElementById('taskimpedance2-tab').ariaSelected == 'true':
+            renderer.setUniform('scale', scaling_factor)
             renderer.setUniform('canvas_size', to_js([canvas.width, canvas.height]))
             renderer.setUniform('canvas_offset', to_js(canvas_offset))
             renderer.setUniform('sdf_disc_pos', to_js([f_target[0], f_target[1]]))
@@ -746,7 +788,7 @@
         'run': run,
         'reset': onTabChanged,
         'cleanup': cleanup,
-        'output': 'output',
-        'errors': 'errors',
+        'output': 'workspace-output',
+        'errors': 'workspace-errors',
     })
 </script>

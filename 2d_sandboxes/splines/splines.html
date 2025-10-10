@@ -1,70 +1,81 @@
-﻿<div class="row">
-    <div class="col-sm-1"></div>
-    <div class="col-sm-5">
-        <h3>Splines</h3>
-        <div class="card block" id="instructionBlock">
+﻿<style>
+    #canvas {
+        flex: 1;
+        height: 50%;
+        width: 100%;
+    }
 
-            <div class="card-header">
-                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
-                    Instructions
-                </button>
-            </div>
+    .editor-tools {
+        display: flex;
+        flex-direction: row;
+        padding-top: 4px;
+    }
+</style>
 
-            <div id="instructions" class="collapse card-body instructions">
+
+<script id="workspace-title" type="html">
+    Splines
+</script>
+
+
+<script id="workspace-left-panel-content" type="html">
+    <ul class="nav nav-tabs" id="tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button aria-controls="instructions-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#instructions-tab-pane" data-bs-toggle="tab" id="instructions-tab" role="tab" type="button" style="color: orangered;">Instructions</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="Quadratic-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#Quadratic-tab-pane" data-bs-toggle="tab" id="Quadratic-tab" role="tab" type="button">Concatenated quadratic Bezier curves</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="Cubic-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#Cubic-tab-pane" data-bs-toggle="tab" id="Cubic-tab" role="tab" type="button">Concatenated cubic Bezier curves</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="tab-content">
+        <div aria-labelledby="instructions-tab" class="tab-pane fade" id="instructions-tab-pane" role="tabpanel" tabindex="0">
+            <div id="instructions" class="instructions">
                 <h5>General information</h5>
                 <p>
                     2D concatenated quadratic and cubic bezier curve examples.
                 </p>
 
                 <p>See <a href="#S6">Encoding with basis functions</a> for more information.</p>
-
-            </div>
-
-        </div>
-
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button aria-controls="Quadratic-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#Quadratic-tab-pane" data-bs-toggle="tab" id="Quadratic-tab" role="tab" type="button">Concatenated quadratic Bezier curves</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button aria-controls="Cubic-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#Cubic-tab-pane" data-bs-toggle="tab" id="Cubic-tab" role="tab" type="button">Concatenated cubic Bezier curves</button>
-            </li>
-        </ul>
-
-        <div class="tab-content" id="myTabContent">
-            <div aria-labelledby="Quadratic-tab" class="tab-pane fade" id="Quadratic-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-spline2D_Quadratic" src="user_code_spline2D_Quadratic"></editor>
-            </div>
-            <div aria-labelledby="Cubic-tab" class="tab-pane fade show active" id="Cubic-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-spline2D_Cubic" src="user_code_spline2D_Cubic"></editor>
             </div>
         </div>
 
-        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
-            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
-            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        <div aria-labelledby="Quadratic-tab" class="tab-pane fade code" id="Quadratic-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-spline2D_Quadratic" src="user_code_spline2D_Quadratic"></editor>
         </div>
 
-        <pre id="errors" class="py-error"></pre>
-        <pre id="output" class="py-output"></pre>
+        <div aria-labelledby="Cubic-tab" class="tab-pane fade code show active" id="Cubic-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-spline2D_Cubic" src="user_code_spline2D_Cubic"></editor>
+        </div>
     </div>
 
-    <div class="col-sm-5">
-        <div class="sticky-sm-top" style="padding-top: 2rem;">
-            <canvas height="1000px" id="canvas" style="height:90%;width:90%;border:1px solid black;" width="1000px"></canvas>
-            <div id="legend" style="margin-top: 0px; font-size: 70%; color: #777777;"></div>
-        </div>
+    <div class="editor-tools">
+        <span style="flex:1"></span>
+        <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+        <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer; margin-left: 6px;"></i>
     </div>
-</div>
+</script>
+
+
+<script id="workspace-right-top-panel-content" type="html">
+    <canvas id="canvas" width="1000px" height="1000px"></canvas>
+    <div id="legend" style="margin-top: 0px; font-size: 70%; color: #777777;"></div>
+</script>
+
 
 <script id="user_code_spline2D_Quadratic" type="python">
     spline = BezierPolycurve(nbFct=3)
+
     print("Quadratic bezier matrix B: ", spline.B)
     print("Constraint matrix C: ", spline.C)
 </script>
 
 <script id="user_code_spline2D_Cubic" type="python">
     spline = BezierPolycurve(nbFct=4)
+
     print("Cubic bezier matrix", spline.B)
     print("Constraint matrix: ", spline.C)
 </script>
@@ -76,6 +87,9 @@
     import numpy as np
 
     #########################################################################################
+
+    # GUI
+    scaling_factor = 1 # General scaling factor for rendering
 
     # Mouse events
     mouse0 = np.zeros(2)
@@ -90,16 +104,24 @@
         offset = canvas.getBoundingClientRect()
         mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
         mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
-        mouse[0] = (mouse0[0] - canvas.width * 0.5)
-        mouse[1] = -(mouse0[1] - canvas.height * 1.0)
+
+        dimension = min(canvas.width, canvas.height)
+        offset_y = canvas.height - (canvas.height - dimension) * 0.5
+
+        mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
+        mouse[1] = -(mouse0[1] - offset_y) / scaling_factor
 
     def onTouchMove(event):
         global mouse, mouse0
         offset = event.target.getBoundingClientRect()
         mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
         mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
-        mouse[0] = (mouse0[0] - canvas.width * 0.5)
-        mouse[1] = -(mouse0[1] - canvas.height * 1.0) # 0.9
+
+        dimension = min(canvas.width, canvas.height)
+        offset_y = canvas.height - (canvas.height - dimension) * 0.5
+
+        mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
+        mouse[1] = -(mouse0[1] - offset_y) / scaling_factor
 
     def onMouseDown(event):
         global mousedown, selected_obj, new_point
@@ -133,23 +155,47 @@
     legend = document.getElementById('legend')
 
     def clear_screen():
+        global scaling_factor
+
+        canvas.width = canvas.clientWidth
+        canvas.height = canvas.clientHeight
+
         ctx.setTransform(1, 0, 0, 1, 0, 0)
         ctx.fillStyle = 'white'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
 
+        scale_y = canvas.height / 1000
+        scale_x = canvas.width / 1000
+        scaling_factor = min(scale_x, scale_y)
+
+        dimension = min(canvas.width, canvas.height)
+
+        ctx.setTransform(1, 0, 0, -1, canvas.width * 0.5, canvas.height * 0.5)
+
+        ctx.strokeStyle = 'rgb(100, 100, 100)'
+        ctx.strokeRect(-dimension / 2, -dimension / 2, dimension, dimension)
+
+
     def draw_keypoint(xobj, id, color):
-        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*1.0)
+        dimension = min(canvas.width, canvas.height)
+        offset_y = canvas.height - (canvas.height - dimension) * 0.5
+
+        ctx.setTransform(scaling_factor, 0, 0, -scaling_factor, canvas.width * 0.5, offset_y)
+
         # Draw object
         obj = Path2D.new()
         obj.arc(0, 0, 12, 0, 2*np.pi)
         ctx.translate(xobj[0], xobj[1])
         ctx.fillStyle = color
         ctx.fill(obj)
-        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*1.0)
+        ctx.setTransform(scaling_factor, 0, 0, -scaling_factor, canvas.width * 0.5, offset_y)
 
     def draw_spline(spline):
+        dimension = min(canvas.width, canvas.height)
+        offset_y = canvas.height - (canvas.height - dimension) * 0.5
+
         ctx.setLineDash([])
-        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*1.0)
+        ctx.setTransform(scaling_factor, 0, 0, -scaling_factor, canvas.width * 0.5, offset_y)
         path = Path2D.new()
         path.lineWidth = 0.005
         path.strokeStyle = '#FFA50066'#'rgba(1, 0, 0, 0.3)'
@@ -160,7 +206,10 @@
         ctx.stroke(path)
 
     def draw_ctr_pts(spline):
-        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*1.0)
+        dimension = min(canvas.width, canvas.height)
+        offset_y = canvas.height - (canvas.height - dimension) * 0.5
+
+        ctx.setTransform(scaling_factor, 0, 0, -scaling_factor, canvas.width * 0.5, offset_y)
         # Draw control points
         try:
             ctx.setLineDash([2, 6])
@@ -224,7 +273,10 @@
         if new_point:
             try:
                 # Add w and delta_w
-                spline.add_segment(np.copy(mouse[:2]))
+                point = np.copy(mouse[:2])
+                point[0] = max(min(point[0],450), -450)
+                point[1] = max(min(point[1],950), 50)
+                spline.add_segment(point)
                 selected_obj = spline.ctr_pts.shape[0] - 2
                 new_point = False
             except Exception as e:
@@ -303,7 +355,7 @@
         'reset': reset,
         'run': run,
         'cleanup': cleanup,
-        'output': 'output',
-        'errors': 'errors',
+        'output': 'workspace-output',
+        'errors': 'workspace-errors',
     })
 </script>

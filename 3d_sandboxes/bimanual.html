@@ -1,21 +1,41 @@
-﻿<div class="row">
-    <div class="col-sm-1"></div>
+﻿<style>
+    #viewer3d {
+        flex: 1;
+        height: 50%;
+    }
 
-    <div class="col-sm-5">
-        <h3>Bimanual robot</h3>
-        
-        <div class="card block" id="instructionBlock">
+    .editor-tools {
+        display: flex;
+        flex-direction: row;
+        padding-top: 4px;
+    }
+</style>
 
-            <div class="card-header">
-                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
-                    Instructions
-                </button>
-            </div>
 
-            <div id="instructions" class="collapse card-body instructions">
+<script id="workspace-title" type="html">
+    Bimanual robot
+</script>
+
+
+<script id="workspace-left-panel-content" type="html">
+    <ul class="nav nav-tabs" id="tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button aria-controls="instructions-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#instructions-tab-pane" data-bs-toggle="tab" id="instructions-tab" role="tab" type="button" style="color: orangered;">Instructions</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="ik-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#ik-tab-pane" data-bs-toggle="tab" id="ik-tab" role="tab" type="button">IK</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="prioritized-ik-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#prioritized-ik-tab-pane" data-bs-toggle="tab" id="prioritized-ik-tab" role="tab" type="button">Prioritized IK</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="tab-content">
+        <div aria-labelledby="instructions-tab" class="tab-pane fade" id="instructions-tab-pane" role="tabpanel" tabindex="0">
+            <div id="instructions" class="instructions">
                 <h5>General information</h5>
                 <p>
-                    Modify the code in the cell below and study how inverse kinematics (IK) works for bimanual robots.
+                    Modify the code in the editors on the other tabs and study how inverse kinematics (IK) works for bimanual robots.
                     You will find two different tabs showcasing different IK implementation:
                 </p>
                 
@@ -83,43 +103,28 @@
                     <li>To rotate the camera, press the left mouse button and drag the mouse. The right mouse button let you translate the camera. The mouse wheel let you zoom in/out.</li>
                 </ul>
             </div>
-
         </div>
 
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button aria-controls="ik-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#ik-tab-pane" data-bs-toggle="tab" id="ik-tab" role="tab" type="button">IK</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button aria-controls="prioritized-ik-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#prioritized-ik-tab-pane" data-bs-toggle="tab" id="prioritized-ik-tab" role="tab" type="button">Prioritized IK</button>
-            </li>
-        </ul>
-
-        <div class="tab-content" id="myTabContent">
-            <div aria-labelledby="ik-tab" class="tab-pane fade show active" id="ik-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-ik" src="user_code_ik"></editor>
-            </div>
-
-            <div aria-labelledby="prioritized-ik-tab" class="tab-pane fade show" id="prioritized-ik-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-prioritized-ik" src="user_code_prioritized_ik"></editor>
-            </div>
+        <div aria-labelledby="ik-tab" class="tab-pane fade code show active" id="ik-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-ik" src="user_code_ik"></editor>
         </div>
 
-        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
-            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
-            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
-        </div>
-
-        <pre id="errors" class="py-error"></pre>
-        <pre id="output" class="py-output"></pre>
-    </div>
-
-    <div class="col-sm-6">
-        <div class="sticky-sm-top" style="padding-top: 2rem;">
-            <div id="viewer3d" style="width: 100%; height: 400px;"></div>
+        <div aria-labelledby="prioritized-ik-tab" class="tab-pane fade code" id="prioritized-ik-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-prioritized-ik" src="user_code_prioritized_ik"></editor>
         </div>
     </div>
-</div>
+
+    <div class="editor-tools">
+        <span style="flex:1"></span>
+        <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+        <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer; margin-left: 6px;"></i>
+    </div>
+</script>
+
+
+<script id="workspace-right-top-panel-content" type="html">
+    <div id="viewer3d"></div>
+</script>
 
 
 <script id="user_code_ik" type="python">
@@ -199,7 +204,7 @@
 <script id="page_code" type="python">
     from viewer3d import Viewer3D, configs, logmap_S3, logmap, q2R, Shapes
     from js import document, three
-    from rcfs import configure, displayError, setAspectRatio
+    from rcfs import configure, displayError
     import numpy as np
 
     # The function that will be called once per frame
@@ -220,9 +225,6 @@
         except Exception as e:
             displayError(e)
 
-
-    # Resize the container of the Viewer3D to have a 1:1 aspect ratio
-    setAspectRatio('viewer3d', 1.0)
 
     # Create the Viewer3D
     element = document.getElementById('viewer3d')
@@ -296,7 +298,7 @@
     configure({
         'loop': loop,
         'run': run,
-        'output': 'output',
-        'errors': 'errors',
+        'output': 'workspace-output',
+        'errors': 'workspace-errors',
     })
 </script>

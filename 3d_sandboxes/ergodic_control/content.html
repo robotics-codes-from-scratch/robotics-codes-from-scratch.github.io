@@ -1,27 +1,53 @@
-<div class="row">
-    <div class="col-sm-1"></div>
+<style>
+    #viewer3d {
+        flex: 1;
+        height: 50%;
+    }
 
-    <div class="col-sm-6">
-        <h3>Ergodic control</h3>
-        <div class="card block" id="instructionBlock">
+    .editor-tools {
+        display: flex;
+        flex-direction: row;
+        padding-top: 4px;
+    }
+</style>
 
-            <div class="card-header">
-                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
-                    Instructions
-                </button>
-                <div class="commands">
-                    <div>
-                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/ergodic_control_SMC_1D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">SMC 1D example</a>
-                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/ergodic_control_SMC_2D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">SMC 2D example</a>
-                    </div>
-                    <div>
-                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/ergodic_control_HEDAC_1D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">HEDAC 1D example</a>
-                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/ergodic_control_HEDAC_2D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">HEDAC 2D example</a>
+
+<script id="workspace-title" type="html">
+    Ergodic control
+</script>
+
+
+<script id="workspace-left-panel-content" type="html">
+    <ul class="nav nav-tabs" id="tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button aria-controls="instructions-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#instructions-tab-pane" data-bs-toggle="tab" id="instructions-tab" role="tab" type="button" style="color: orangered;">Instructions</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="SMC-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#SMC-tab-pane"
+                    data-bs-toggle="tab" id="SMC-tab" role="tab" type="button">SMC</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="HEDAC-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#HEDAC-tab-pane"
+                    data-bs-toggle="tab" id="HEDAC-tab" role="tab" type="button">HEDAC</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="tab-content">
+        <div aria-labelledby="instructions-tab" class="tab-pane fade" id="instructions-tab-pane" role="tabpanel" tabindex="0">
+            <div id="instructions" class="instructions">
+                <div class="card-header">
+                    <div class="commands">
+                        <div>
+                            <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/ergodic_control_SMC_1D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">SMC 1D example</a>
+                            <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/ergodic_control_SMC_2D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">SMC 2D example</a>
+                        </div>
+                        <div>
+                            <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/ergodic_control_HEDAC_1D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">HEDAC 1D example</a>
+                            <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/ergodic_control_HEDAC_2D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">HEDAC 2D example</a>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div id="instructions" class="collapse card-body instructions">
                 <h5>General information</h5>
                 <p>
                     Ergodic control examples applied to a 3D manipulator with SMC or HEDAC.
@@ -42,7 +68,7 @@
                     </p>
 
                     <p>
-                        In the cell below, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
+                        In the code editors, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
                         You can also download the standalone Python example to test it on your machine.
                     </p>
 
@@ -92,50 +118,35 @@
                     <li>The target objects can be moved by dragging them with the mouse.</li>
                 </ul>
             </div>
-
-        </div>
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button aria-controls="SMC-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#SMC-tab-pane"
-                        data-bs-toggle="tab" id="SMC-tab" role="tab" type="button">SMC</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button aria-controls="HEDAC-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#HEDAC-tab-pane"
-                        data-bs-toggle="tab" id="HEDAC-tab" role="tab" type="button">HEDAC</button>
-            </li>
-        </ul>
-
-        <div class="tab-content" id="myTabContent">
-            <div aria-labelledby="SMC-tab" class="tab-pane fade show active" id="SMC-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-SMC" script="3d_sandboxes/ergodic_control/smc_example.py"></editor>
-            </div>
-            <div aria-labelledby="HEDAC-tab" class="tab-pane fade" id="HEDAC-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-HEDAC" script="3d_sandboxes/ergodic_control/hedac_example.py"></editor>
-            </div>
         </div>
 
-        <div style="float: right; padding-right: 0.5em;">
-            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
-            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        <div aria-labelledby="SMC-tab" class="tab-pane fade code show active" id="SMC-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-SMC" script="3d_sandboxes/ergodic_control/smc_example.py"></editor>
         </div>
 
-        <pre id="errors" class="py-error"></pre>
-        <pre id="output" class="py-output"></pre>
-    </div>
-
-    <div class="col-sm-5">
-        <div class="sticky-sm-top" style="padding-top: 2rem;">
-            <div id="viewer3d" style="width: 100%; height: 600px;"></div>
-            <div id="legend" style="margin-top: 40px; font-size: 70%; color: #777777;"></div>
+        <div aria-labelledby="HEDAC-tab" class="tab-pane fade code" id="HEDAC-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-HEDAC" script="3d_sandboxes/ergodic_control/hedac_example.py"></editor>
         </div>
     </div>
-</div>
+
+    <div class="editor-tools">
+        <span style="flex:1"></span>
+        <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+        <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer; margin-left: 6px;"></i>
+    </div>
+</script>
+
+
+<script id="workspace-right-top-panel-content" type="html">
+    <div id="viewer3d"></div>
+    <div id="legend" style="margin-top: 0px; font-size: 70%; color: #777777;"></div>
+</script>
 
 
 <script id="page_code" type="python">
     from viewer3d import Viewer3D, configs
     from js import document
-    from rcfs import configure, getScript, displayError, executePythonCode, setAspectRatio
+    from rcfs import configure, getScript, displayError, executePythonCode
 
 
     # The configuration of each tab
@@ -169,9 +180,6 @@
     output = document.getElementById('output')
     legend = document.getElementById('legend')
 
-
-    # Resize the container of the Viewer3D to have a 1:1 aspect ratio
-    setAspectRatio('viewer3d', 1.0)
 
     # Create the Viewer3D object
     viewer3D = Viewer3D(
@@ -259,7 +267,7 @@
         'run': run,
         'reset': tabChanged,
         'cleanup': cleanup,
-        'output': 'output',
-        'errors': 'errors',
+        'output': 'workspace-output',
+        'errors': 'workspace-errors',
     })
 </script>

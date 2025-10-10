@@ -1,20 +1,47 @@
-﻿<div class="row">
-    <div class="col-sm-1"></div>
+﻿<style>
+    #viewer3d {
+        flex: 1;
+        height: 50%;
+    }
 
-    <div class="col-sm-5">
-        <h3>Impedance control</h3>
-        <div class="card block" id="instructionBlock">
+    .editor-tools {
+        display: flex;
+        flex-direction: row;
+        padding-top: 4px;
+    }
+</style>
 
-            <div class="card-header">
-                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
-                    Instructions
-                </button>
-                <div class="commands">
-                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/impedance_control.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">Download standalone example (2D)</a>
+
+<script id="workspace-title" type="html">
+    Impedance control
+</script>
+
+
+<script id="workspace-left-panel-content" type="html">
+    <ul class="nav nav-tabs" id="tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button aria-controls="instructions-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#instructions-tab-pane" data-bs-toggle="tab" id="instructions-tab" role="tab" type="button" style="color: orangered;">Instructions</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="impedance-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#impedance-tab-pane" data-bs-toggle="tab" id="impedance-tab" role="tab" type="button">Impedance in joint space</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="taskimpedance-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#taskimpedance-tab-pane" data-bs-toggle="tab" id="taskimpedance-tab" role="tab" type="button">Impedance in task space</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="taskimpedance2-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#taskimpedance2-tab-pane" data-bs-toggle="tab" id="taskimpedance2-tab" role="tab" type="button">Impedance in task space with SDF</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="tab-content">
+        <div aria-labelledby="instructions-tab" class="tab-pane fade" id="instructions-tab-pane" role="tabpanel" tabindex="0">
+            <div id="instructions" class="instructions">
+                <div class="card-header">
+                    <div class="commands">
+                        <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/impedance_control.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">Download standalone example (2D)</a>
+                    </div>
                 </div>
-            </div>
 
-            <div id="instructions" class="collapse card-body instructions">
                 <h5>General information</h5>
                 <p>
                     This example illustrates the use of impedance control in (i) joint space, and (ii) task space.
@@ -25,7 +52,6 @@
                 <h5>Coding information</h5>
 
                 <div>
-                    
                     <p class="text-center">
                         <img style="width:80%;" src="static_images/code_schema.png"/>
                     </p>
@@ -35,7 +61,7 @@
                     </p>
 
                     <p>
-                        In the cell below, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
+                        In the code editors, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
                         You can also download the standalone Python example to test it on your machine.
                     </p>
 
@@ -90,49 +116,32 @@
                     <li>To rotate the camera, press the left mouse button and drag the mouse. The right mouse button let you translate the camera. The mouse wheel let you zoom in/out.</li>
                 </ul>
             </div>
-
-        </div>
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button aria-controls="impedance-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#impedance-tab-pane" data-bs-toggle="tab" id="impedance-tab" role="tab" type="button">Impedance in joint space</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button aria-controls="taskimpedance-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#taskimpedance-tab-pane" data-bs-toggle="tab" id="taskimpedance-tab" role="tab" type="button">Impedance in task space</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button aria-controls="taskimpedance2-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#taskimpedance2-tab-pane" data-bs-toggle="tab" id="taskimpedance2-tab" role="tab" type="button">Impedance in task space with SDF</button>
-            </li>
-        </ul>
-
-        <div class="tab-content" id="myTabContent">
-            <div aria-labelledby="impedance-tab" class="tab-pane fade show active" id="impedance-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-impedance" src="user_code_impedance"></editor>
-            </div>
-
-            <div aria-labelledby="taskimpedance-tab" class="tab-pane fade" id="taskimpedance-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-taskimpedance" src="user_code_taskimpedance"></editor>
-            </div>
-
-            <div aria-labelledby="taskimpedance2-tab" class="tab-pane fade" id="taskimpedance2-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-taskimpedance2" src="user_code_taskimpedance2"></editor>
-            </div>
         </div>
 
-        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
-            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
-            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        <div aria-labelledby="impedance-tab" class="tab-pane fade code show active" id="impedance-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-impedance" src="user_code_impedance"></editor>
         </div>
 
-        <pre id="errors" class="py-error"></pre>
-        <pre id="output" class="py-output"></pre>
-    </div>
+        <div aria-labelledby="taskimpedance-tab" class="tab-pane fade code" id="taskimpedance-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-taskimpedance" src="user_code_taskimpedance"></editor>
+        </div>
 
-    <div class="col-sm-6">
-        <div class="sticky-sm-top" style="padding-top: 2rem;">
-            <div id="viewer3d" style="width: 100%; height: 400px;"></div>
+        <div aria-labelledby="taskimpedance2-tab" class="tab-pane fade code" id="taskimpedance2-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-taskimpedance2" src="user_code_taskimpedance2"></editor>
         </div>
     </div>
-</div>
+
+    <div class="editor-tools">
+        <span style="flex:1"></span>
+        <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+        <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer; margin-left: 6px;"></i>
+    </div>
+</script>
+
+
+<script id="workspace-right-top-panel-content" type="html">
+    <div id="viewer3d"></div>
+</script>
 
 
 <script id="user_code_impedance" type="python">
@@ -212,7 +221,7 @@
 <script id="page_code" type="python">
     from viewer3d import Viewer3D, configs, logmap_S3, logmap, Shapes, Layers, Passes
     from js import document, SDFPass, three
-    from rcfs import configure, displayError, setAspectRatio, executePythonCode
+    from rcfs import configure, displayError, executePythonCode
     from pyodide.ffi import to_js
     import numpy as np
 
@@ -434,8 +443,10 @@
                 u = control(x, x_target)
             elif document.getElementById('taskimpedance2-tab').ariaSelected == 'true':
                 u = control(x)
-            else:
+            elif document.getElementById('taskimpedance-tab').ariaSelected == 'true':
                 u = control(x, f_target)
+            else:
+                u = defaultcontrol(x)
 
             ddx = u
             dx = np.copy(x[param.nbVarX:])
@@ -452,9 +463,6 @@
             displayError(e)
 
 
-    # Resize the container of the Viewer3D to have a 1:1 aspect ratio
-    setAspectRatio('viewer3d', 1.0)
-
     # Create the Viewer3D
     element = document.getElementById('viewer3d')
 
@@ -465,8 +473,6 @@
             'show_axes': True,
         }
     )
-
-    # viewer3D.setControlCallbacks(onControlStarted, onControlEnded)
 
 
     # Placeholder for the function to implement
@@ -594,7 +600,7 @@
         'loop': loop,
         'reset': reset,
         'run': run,
-        'output': 'output',
-        'errors': 'errors',
+        'output': 'workspace-output',
+        'errors': 'workspace-errors',
     })
 </script>

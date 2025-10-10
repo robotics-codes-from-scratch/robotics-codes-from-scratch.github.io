@@ -96,7 +96,10 @@ def draw_histograms():
     if wt is None:
         return
 
-    ctx_histogram.setTransform(canvas_histogram.width, 0, 0, -canvas_histogram.height, 0, canvas_histogram.height)
+    ctx_histogram.setTransform(
+        histogram_area_rect[2], 0, 0, -histogram_area_rect[3],
+        histogram_area_rect[0], histogram_area_rect[3] + histogram_area_rect[1]
+    )
 
     w_min = np.min(param.w_hat)
     w_max = np.max(param.w_hat)
@@ -140,3 +143,9 @@ def draw_histograms():
     ctx_histogram.moveTo(left, bottom)
     ctx_histogram.lineTo(right, bottom)
     ctx_histogram.stroke()
+
+    element = document.getElementsByClassName('legend-left')[0]
+    element.style.paddingLeft = f'{histogram_area_rect[0]}px'
+
+    element = document.getElementsByClassName('legend-right')[0]
+    element.style.paddingRight = f'{histogram_area_rect[0]}px'

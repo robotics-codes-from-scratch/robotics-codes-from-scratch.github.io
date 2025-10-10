@@ -1,28 +1,80 @@
-﻿<div class="row">
-    <div class="col-sm-1"></div>
+﻿<style>
+    #canvas {
+        flex: 1;
+        height: 50%;
+        width: 100%;
+    }
 
-    <div class="col-sm-7">
-        <h3>iLQR for car</h3>
-        <div class="card block" id="instructionBlock">
+    .editor-tools {
+        display: flex;
+        flex-direction: row;
+        padding-top: 4px;
+    }
 
-            <div class="card-header">
-                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
-                    Instructions
-                </button>
-                <div class="commands">
-                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/iLQR_car.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">Download standalone example</a>
+    #workspace-right-top-panel .panel-content {
+        container-type: inline-size;
+        overflow: auto;
+    }
+
+    .controls {
+        display: grid;
+        grid-template-columns: auto 1fr 70px auto 1fr 70px;
+        grid-template-rows: repeat(4, auto);
+        gap: 8px 12px;
+        font-size: 0.8em;
+        width: 100%;
+    }
+
+    @container (max-width: 500px) {
+        .controls {
+            grid-template-columns: auto 1fr 70px;
+        }
+    }
+
+    .controls label {
+        text-align: right;
+        font-style: italic;
+    }
+
+    .controls input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 4px 8px;
+    }
+</style>
+
+
+<script id="workspace-title" type="html">
+   iLQR for car
+</script>
+
+
+<script id="workspace-left-panel-content" type="html">
+    <ul class="nav nav-tabs" id="tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button aria-controls="instructions-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#instructions-tab-pane" data-bs-toggle="tab" id="instructions-tab" role="tab" type="button" style="color: orangered;">Instructions</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="code-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#code-tab-pane" data-bs-toggle="tab" id="code-tab" role="tab" type="button">Code</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="tab-content">
+        <div aria-labelledby="instructions-tab" class="tab-pane fade" id="instructions-tab-pane" role="tabpanel" tabindex="0">
+            <div id="instructions" class="instructions">
+                <div class="card-header">
+                    <div class="commands">
+                        <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/iLQR_car.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">Download standalone example</a>
+                    </div>
                 </div>
-            </div>
 
-            <div id="instructions" class="collapse card-body instructions">
                 <h5>General information</h5>
 
                 <p>
-                    Modify the code in the cell below and study how different Q matrices affect the iLQR algorithm used for a car parking problem.
+                    Modify the code in the editors on the other tabs and study how different Q matrices affect the iLQR algorithm used for a car parking problem.
                     You also have sliders and checkboxes to modify iLQR targets.
                 </p>
 
-                
                 <p>See <a href="#S8">iLQR optimization</a> for more information about iLQR.</p>
 
                 <h5>Coding information</h5>
@@ -30,7 +82,7 @@
                 <div>
 
                     <p>
-                        In the cell below, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
+                        In the code editors, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
                         You can also download the standalone Python example to test it on your machine.
                     </p>
 
@@ -58,42 +110,50 @@
                     <li>The target objects can be moved by dragging them with the mouse. They can also be rotated using either the sliders below or the mouse wheel while hovering them.</li>
                 </ul>
             </div>
-
-        </div>
-        <editor id="editor" src="user_code"></editor>
-
-        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
-            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
-            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
         </div>
 
-        <form style="margin-bottom: 20px;">
-            <div class="row">
-                <div class="col-md"><label>Car 1 orientation</label><input class="w-72" id="car_angle0" max="3.14159" min="-3.14159" oninput="this.nextElementSibling.value = this.value" step="0.0001" style="vertical-align:middle;" type="range" value="0"/> <output>0.0</output></div>
-                <div class="col-md"><label>Car 2 orientation</label><input class="w-72" id="car_angle1" max="3.14159" min="-3.14159" oninput="this.nextElementSibling.value = this.value" step="0.0001" style="vertical-align:middle;" type="range" value="1.57079"/> <output>1.57079</output></div>
-            </div>
-            <div class="row">
-                <div class="col-md"><label>Wheels 1 orientation</label><input class="w-72" id="wheels_angle0" max="1.57079" min="-1.57079" oninput="this.nextElementSibling.value = this.value" step="0.0001" style="vertical-align:middle;" type="range" value="0"/> <output>0.0</output></div>
-                <div class="col-md"><label>Wheels 2 orientation</label><input class="w-72" id="wheels_angle1" max="1.57079" min="-1.57079" oninput="this.nextElementSibling.value = this.value" step="0.0001" style="vertical-align:middle;" type="range" value="0"/> <output>0.0</output></div>
-            </div>
-            <div class="row">
-                <div class="col-md"><label>Simulation speed</label><input class="w-72" id="simulation_speed" max="20" min="0" oninput="this.nextElementSibling.value = this.value" step="0.01" style="vertical-align:middle;" type="range" value="10"/> <output>10.0</output></div>
-            </div>
-            <div class="row">
-                <div class="col-md"><label>Cost</label><span id="cost"></span></div>
-            </div>
-        </form>
-        
-        <pre id="errors" class="py-error"></pre>
-        <pre id="output" class="py-output"></pre>
-    </div>
-
-    <div class="col-sm-4">
-        <div class="sticky-sm-top" style="padding-top: 2rem;">
-            <canvas height="700px" id="canvas" style="width:100%;" width="900px"></canvas>
+        <div aria-labelledby="code-tab" class="tab-pane fade code show active" id="code-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor" src="user_code"></editor>
         </div>
     </div>
-</div>
+
+    <div class="editor-tools">
+        <span style="flex:1"></span>
+        <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+        <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer; margin-left: 6px;"></i>
+    </div>
+</script>
+
+
+<script id="workspace-right-top-panel-content" type="html">
+    <canvas id="canvas" width="900px" height="700px"></canvas>
+
+    <div class="controls">
+        <label>Car #1 orientation</label>
+        <input id="car_angle0" max="3.14159" min="-3.14159" oninput="this.nextElementSibling.value = this.value" step="0.0001" type="range" value="0"/>
+        <output>0.0</output>
+
+        <label>Car #2 orientation</label>
+        <input id="car_angle1" max="3.14159" min="-3.14159" oninput="this.nextElementSibling.value = this.value" step="0.0001" type="range" value="1.57079"/>
+        <output>1.57079</output>
+
+        <label>Wheels #1 orientation</label>
+        <input id="wheels_angle0" max="1.57079" min="-1.57079" oninput="this.nextElementSibling.value = this.value" step="0.0001" type="range" value="0"/>
+        <output>0.0</output>
+
+        <label>Wheels #2 orientation</label>
+        <input id="wheels_angle1" max="1.57079" min="-1.57079" oninput="this.nextElementSibling.value = this.value" step="0.0001" type="range" value="1.57079"/>
+        <output>0.0</output>
+
+        <label>Simulation speed</label>
+        <input id="simulation_speed" max="20" min="0" oninput="this.nextElementSibling.value = this.value" step="0.01" type="range" value="10"/>
+        <output>10.0</output>
+
+        <label>Cost</label>
+        <span id="cost"></span>
+        <div></div>
+    </div>
+</script>
 
 
 <script id="user_code" type="python">
@@ -300,9 +360,18 @@
     selected_obj = -1
 
     def clear_screen():
+        global scaling_factor
+
+        canvas.width = canvas.clientWidth
+        canvas.height = canvas.clientHeight
+
         ctx.setTransform(1, 0, 0, 1, 0, 0) # Reset transformation to identity
         ctx.fillStyle = 'white'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+        scale_y = canvas.height / 700
+        scale_x = canvas.width / 900
+        scaling_factor = min(scale_x, scale_y) * 2.0
 
 
     def draw_car(x, color='#000000', selectable=False, id=0):
@@ -416,7 +485,7 @@
     configure({
         'loop': loop,
         'cleanup': cleanup,
-        'output': 'output',
-        'errors': 'errors',
+        'output': 'workspace-output',
+        'errors': 'workspace-errors',
     })
 </script>

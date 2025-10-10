@@ -1,8 +1,24 @@
 ﻿<style>
+    :root {
+        --workspace-right-panel-min-width: 420px;
+        --workspace-top-panel-min-height: 290px;
+    }
+
+    .editor-tools
+    {
+        display: flex;
+        flex-direction: row;
+        padding-top: 4px;
+    }
+
+    #viewer3d {
+        flex: 1;
+        height: 50%;
+    }
+
     table#results {
         border-collapse: collapse;
-        margin-bottom: 20px;
-        margin-top: 40px;
+        margin-top: 10px;
         font-size: 0.6em;
         width: 100%;
     }
@@ -43,85 +59,24 @@
 </style>
 
 
-<div class="row">
-    <div class="col-sm-1"></div>
+<script id="workspace-title" type="html">
+    Challenge: Manipulate the leg
+</script>
 
-    <div class="col-sm-5">
-        <h3>Challenge: Manipulate the leg</h3>
 
-        <editor id="editor" src="user_code"></editor>
+<script id="workspace-left-panel-content" type="html">
+    <ul class="nav nav-tabs" id="tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button aria-controls="instructions-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#instructions-tab-pane" data-bs-toggle="tab" id="instructions-tab" role="tab" type="button">Instructions</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="code-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#code-tab-pane" data-bs-toggle="tab" id="code-tab" role="tab" type="button">Code</button>
+        </li>
+    </ul>
 
-        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
-            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
-            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
-        </div>
-
-        <table id="results" style="display: none;">
-            <tr>
-                <th></th>
-                <th style="color: #FF3399;">Right target</th>
-                <th style="color: #FF9933;">Left Target</th>
-                <th class="tools" rowspan="4">
-                    <div>
-                        <button id="btn_reset">Reset</button>
-                    </div>
-                    <div>
-                        <button id="btn_pause_control">Pause control</button>
-                    </div>
-                    <div>
-                        <button id="btn_resume_control" disabled="1">Resume control</button>
-                    </div>
-                </th>
-            </tr>
-            <tr>
-                <td>Position (x, y, z)</td>
-                <td id="right_pos"></td>
-                <td id="left_pos"></td>
-            </tr>
-            <tr>
-                <td>Orientation (x, y, z, w)</td>
-                <td id="right_quat"></td>
-                <td id="left_quat"></td>
-            </tr>
-            <tr>
-                <td>Place at</td>
-                <td id="right_tools">
-                    <div>
-                        <button id="btn_snap_right_thigh_top">Thigh top</button>
-                        <button id="btn_snap_right_thigh_bottom">Thigh bottom</button>
-                    </div>
-                    <div>
-                        <button id="btn_snap_right_calf_top">Calf top</button>
-                        <button id="btn_snap_right_calf_bottom">Calf bottom</button>
-                    </div>
-                    <div>
-                        <button id="btn_snap_right_foot_bottom">Foot bottom</button>
-                    </div>
-                </td>
-                <td id="left_tools">
-                    <div>
-                        <button id="btn_snap_left_thigh_top">Thigh top</button>
-                        <button id="btn_snap_left_thigh_bottom">Thigh bottom</button>
-                    </div>
-                    <div>
-                        <button id="btn_snap_left_calf_top">Calf top</button>
-                        <button id="btn_snap_left_calf_bottom">Calf bottom</button>
-                    </div>
-                    <div>
-                        <button id="btn_snap_left_foot_bottom">Foot bottom</button>
-                    </div>
-                </td>
-            </tr>
-        </table>
-
-        <div style="margin-bottom: 10px;">
-            <button class="btn btn-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="false" aria-controls="instructions">
-                Instructions
-            </button>
-        </div>
-
-        <div id="instructions" class="collapse instructions show">
-            <div class="card card-body">
+    <div class="tab-content" id="tab-content">
+        <div aria-labelledby="instructions-tab" class="tab-pane fade show active" id="instructions-tab-pane" role="tabpanel" tabindex="0">
+            <div id="instructions" class="instructions">
                 <h5>Task</h5>
                 <p>Use both hands of the robot to manipulate the leg.</p>
 
@@ -162,16 +117,80 @@
             </div>
         </div>
 
-        <pre id="errors" class="py-error"></pre>
-        <pre id="output" class="py-output"></pre>
-    </div>
+        <div aria-labelledby="code-tab" class="tab-pane fade code" id="code-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor" src="user_code"></editor>
 
-    <div class="col-sm-6">
-        <div class="sticky-sm-top" style="padding-top: 2rem;">
-            <div id="viewer3d" style="width: 100%; height: 400px;"></div>
+            <div class="editor-tools">
+                <span style="flex:1"></span>
+                <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+                <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer; margin-left: 6px;"></i>
+            </div>
         </div>
     </div>
-</div>
+</script>
+
+
+<script id="workspace-right-top-panel-content" type="html">
+    <div id="viewer3d"></div>
+
+    <table id="results" style="display: none;">
+        <tr>
+            <th></th>
+            <th style="color: #FF3399;">Right target</th>
+            <th style="color: #FF9933;">Left Target</th>
+            <th class="tools" rowspan="4">
+                <div>
+                    <button id="btn_reset">Reset</button>
+                </div>
+                <div>
+                    <button id="btn_pause_control">Pause control</button>
+                </div>
+                <div>
+                    <button id="btn_resume_control" disabled="1">Resume control</button>
+                </div>
+            </th>
+        </tr>
+        <tr>
+            <td>Position (x, y, z)</td>
+            <td id="right_pos"></td>
+            <td id="left_pos"></td>
+        </tr>
+        <tr>
+            <td>Orientation (x, y, z, w)</td>
+            <td id="right_quat"></td>
+            <td id="left_quat"></td>
+        </tr>
+        <tr>
+            <td>Place at</td>
+            <td id="right_tools">
+                <div>
+                    <button id="btn_snap_right_thigh_top">Thigh top</button>
+                    <button id="btn_snap_right_thigh_bottom">Thigh bottom</button>
+                </div>
+                <div>
+                    <button id="btn_snap_right_calf_top">Calf top</button>
+                    <button id="btn_snap_right_calf_bottom">Calf bottom</button>
+                </div>
+                <div>
+                    <button id="btn_snap_right_foot_bottom">Foot bottom</button>
+                </div>
+            </td>
+            <td id="left_tools">
+                <div>
+                    <button id="btn_snap_left_thigh_top">Thigh top</button>
+                    <button id="btn_snap_left_thigh_bottom">Thigh bottom</button>
+                </div>
+                <div>
+                    <button id="btn_snap_left_calf_top">Calf top</button>
+                    <button id="btn_snap_left_calf_bottom">Calf bottom</button>
+                </div>
+                <div>
+                    <button id="btn_snap_left_foot_bottom">Foot bottom</button>
+                </div>
+            </td>
+        </tr>
+    </table>
+</script>
 
 
 <script id="user_code" type="python">
@@ -218,7 +237,7 @@
 <script id="page_code" type="python">
     from viewer3d import Viewer3D, configs, logmap_S3, logmap, q2R, Shapes, Object3D
     from js import document, three
-    from rcfs import configure, displayError, setAspectRatio
+    from rcfs import configure, displayError
     import numpy as np
 
     # The function that will be called once per frame
@@ -244,9 +263,6 @@
         except Exception as e:
             displayError(e)
 
-
-    # Resize the container of the Viewer3D to have a 1:1 aspect ratio
-    setAspectRatio('viewer3d', 1.0)
 
     # Create the Viewer3D
     element = document.getElementById('viewer3d')
@@ -325,7 +341,18 @@
     document.getElementById('results').style.display = 'table'
 
     
-    # Placeholder for the function to implement
+    # Placeholder for the functions to implement
+    def reset():
+        # Initial leg state
+        leg.jointPositions = [0.707, -1.5]
+
+        # Returns the initial robot state
+        return [
+            0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0.
+        ]
+
     def control(x, dt):
         return np.zeros(x.shape)
 
@@ -418,7 +445,7 @@
         'loop': loop,
         'run': run,
         'cleanup': cleanup,
-        'output': 'output',
-        'errors': 'errors',
+        'output': 'workspace-output',
+        'errors': 'workspace-errors',
     })
 </script>

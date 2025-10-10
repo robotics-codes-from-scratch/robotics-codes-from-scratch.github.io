@@ -26,42 +26,50 @@
             {
                 "title": "Forward kinematics (FK)",
                 "hash": "2d_fk",
-                "page": "FK.html"
+                "page": "FK.html",
+                "workspace": true
             },
             {
                 "title": "Inverse kinematics (IK)",
                 "hash": "2d_ik",
-                "page": "IK.html"
+                "page": "IK.html",
+                "workspace": true
             },
             {
                 "title": "Bimanual robot",
                 "hash": "2d_bimanual",
-                "page": "bimanual.html"
+                "page": "bimanual.html",
+                "workspace": true
             },
             {
                 "title": "Humanoid robot (CoM and coordination matrix)",
                 "hash": "2d_humanoid",
-                "page": "humanoid.html"
+                "page": "humanoid.html",
+                "workspace": true
             },
             {
                 "title": "Iterative linear quadratic regulator (iLQR)",
                 "hash": "2d_iLQR",
-                "page": "iLQR.html"
+                "page": "iLQR.html",
+                "workspace": true
             },
             {
                 "title": "iLQR for car",
                 "hash": "2d_iLQR_car",
-                "page": "iLQR_car.html"
+                "page": "iLQR_car.html",
+                "workspace": true
             },
             {
                 "title": "iLQR for bicopter",
                 "hash": "2d_iLQR_bicopter",
-                "page": "iLQR_bicopter.html"
+                "page": "iLQR_bicopter.html",
+                "workspace": true
             },
             {
                 "title": "Impedance control",
                 "hash": "2d_impedance",
-                "page": "impedance.html"
+                "page": "impedance.html",
+                "workspace": true
             },
             {
                 "title": "Jacobian",
@@ -72,6 +80,7 @@
                 "title": "Ergodic control",
                 "hash": "2d_ergodic_control",
                 "page": "ergodic_control/content.html",
+                "workspace": true,
                 "assets": {
                     "scripts": [
                         "ergodic_control/smc_1d.py",
@@ -100,6 +109,7 @@
                 "title": "Splines",
                 "hash": "splines",
                 "page": "splines/splines.html",
+                "workspace": true,
                 "assets": {
                     "scripts": [
                         "splines/bezier_polycurves.py"
@@ -119,6 +129,7 @@
                 "title": "Inverse kinematics (IK)",
                 "hash": "3d_ik",
                 "page": "IK.html",
+                "workspace": true,
                 "assets": {
                     "robots": [
                         "panda"
@@ -132,6 +143,7 @@
                 "title": "Inverse kinematics (IK) - UR5 robot",
                 "hash": "3d_ik_ur5",
                 "page": "IK_UR5.html",
+                "workspace": true,
                 "visibility": "rli",
                 "assets": {
                     "robots": [
@@ -146,6 +158,7 @@
                 "title": "Humanoid robot",
                 "hash": "3d_bimanual",
                 "page": "bimanual.html",
+                "workspace": true,
                 "assets": {
                     "robots": [
                         "g1"
@@ -159,6 +172,7 @@
                 "title": "Impedance control",
                 "hash": "3d_impedance",
                 "page": "impedance.html",
+                "workspace": true,
                 "assets": {
                     "robots": [
                         "panda"
@@ -176,6 +190,7 @@
                 "title": "Ergodic control",
                 "hash": "3d_ergodic_control",
                 "page": "ergodic_control/content.html",
+                "workspace": true,
                 "assets": {
                     "robots": [
                         "panda"
@@ -197,6 +212,7 @@
                 "title": "Physics",
                 "hash": "3d_physics",
                 "page": "physics.html",
+                "workspace": true,
                 "assets": {
                     "robots": [
                         "panda"
@@ -223,6 +239,7 @@
                 "title": "Signed distance function",
                 "hash": "3d_sdf",
                 "page": "sdf.html",
+                "workspace": true,
                 "assets": {
                     "scenes": [
                         "scenes/empty.xml"
@@ -326,6 +343,7 @@
                 "title": "Move the cube (Panda)",
                 "hash": "challenge01",
                 "page": "01.html",
+                "workspace": true,
                 "assets": {
                     "robots": [
                         "panda"
@@ -339,20 +357,7 @@
                 "title": "Move the cube (Panda) - Solution",
                 "hash": "challenge01_solution",
                 "page": "01.html",
-                "visibility": "rli",
-                "assets": {
-                    "robots": [
-                        "panda"
-                    ],
-                    "scenes": [
-                        "scenes/01.xml"
-                    ]
-                }
-            },
-            {
-                "title": "Move the cube (Panda) - UI Improvement",
-                "hash": "challenge01_ui",
-                "page": "01b.html",
+                "workspace": true,
                 "visibility": "rli",
                 "assets": {
                     "robots": [
@@ -367,6 +372,7 @@
                 "title": "Move the cube (Humanoid)",
                 "hash": "challenge02",
                 "page": "02.html",
+                "workspace": true,
                 "assets": {
                     "robots": [
                         "g1"
@@ -380,6 +386,7 @@
                 "title": "Move the cube (Humanoid) - Solution",
                 "hash": "challenge02_solution",
                 "page": "02.html",
+                "workspace": true,
                 "visibility": "rli",
                 "assets": {
                     "robots": [
@@ -394,6 +401,7 @@
                 "title": "Manipulate a leg (Humanoid)",
                 "hash": "challenge03",
                 "page": "03.html",
+                "workspace": true,
                 "assets": {
                     "robots": [
                         "g1"

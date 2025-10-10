@@ -1,137 +1,146 @@
-﻿<div class="row">
-    <div class="col-sm-1"></div>
+﻿<style>
+    #canvas {
+        flex: 1;
+        height: 50%;
+        width: 100%;
+    }
 
-    <div class="col-sm-7">
-        <h3>Humanoid robot (CoM and coordination matrix)</h3>
-        <div class="card block" id="instructionBlock">
-        <div class="card-header">
-            <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
-                Instructions
-            </button>
-        </div>
+    .editor-tools {
+        display: flex;
+        flex-direction: row;
+        padding-top: 4px;
+    }
+</style>
 
-        <div id="instructions" class="collapse card-body instructions">
-            <h5>General information</h5>
 
-            <p>
-                Modify the code in the cell below and study how inverse kinematics (IK) works for an humanoid robot. 
-                You will find two different tabs showcasing different IK implementation:
-            </p>
-            
-            <ul>
-                <li>
-                    Coordinated IK: where we impose a correlation between joints.
-                </li>
-                <li>
-                    CoM tracking: where we prioritize CoM tracking over position tracking.
-                </li>
-            </ul>
+<script id="workspace-title" type="html">
+    Humanoid robot (CoM and coordination matrix)
+</script>
 
-            <p>
-                See <a href="#S5">Inverse kinematics (IK) for a planar robot manipulator</a> for more information about inverse kinematics,
-                and <a href="#S9-sec:SS5">Center of mass</a> for details about the center of mass of an humanoid robot.
-            </p>
 
-            <h5>Coding information</h5>
+<script id="workspace-left-panel-content" type="html">
+    <ul class="nav nav-tabs" id="tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button aria-controls="instructions-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#instructions-tab-pane" data-bs-toggle="tab" id="instructions-tab" role="tab" type="button" style="color: orangered;">Instructions</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="IK1-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#IK1-tab-pane" data-bs-toggle="tab" id="IK1-tab" role="tab" type="button">Coordinated IK</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="IK2-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#IK2-tab-pane" data-bs-toggle="tab" id="IK2-tab" role="tab" type="button">CoM tracking</button>
+        </li>
+    </ul>
 
-            <div>
-                
-                <p class="text-center">
-                    <img style="width:80%;" src="static_images/code_schema.png"/>
-                </p>
+    <div class="tab-content" id="tab-content">
+        <div aria-labelledby="instructions-tab" class="tab-pane fade" id="instructions-tab-pane" role="tabpanel" tabindex="0">
+            <div id="instructions" class="instructions">
+                <h5>General information</h5>
 
                 <p>
-                    As described by the figure above, the <code class="inline_code">control</code> function in the cell below is called repeatedly at a fixed frequency.
+                    Modify the code in the editors on the other tabs and study how inverse kinematics (IK) works for an humanoid robot.
+                    You will find two different tabs showcasing different IK implementation:
                 </p>
 
-                <p>
-                    In the cell below, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
-                </p>
-
-                <p>
-                    The example is a smaller part of a larger Python script which is hidden from you. In order to properly interact with the script,
-                    we list below the funcitons and variables you can use in the interactive cell. 
-                </p>
-
-
-                <h6>Available functions</h6>
                 <ul>
                     <li>
-                        <code class="inline_code">fkin(x)</code>: this function performs the forward kinematics from a given joint configuration
-                        (i.e. the input parameter, a list of floats). It returns a list of float containing the end-effector positions
-                        (<code class="inline_code">[ee1_position_x, ee1_position_y]</code>).
+                        Coordinated IK: where we impose a correlation between joints.
                     </li>
                     <li>
-                        <code class="inline_code">fkin_CoM(x)</code>: this function performs the forward kinematics from a given joint configuration
-                        (i.e. the input parameter, a list of floats). It returns a list of float containing the center of mass positions
-                        (<code class="inline_code">[ee1_position_x, ee1_position_y]</code>).
-                    </li>
-                    <li>
-                        <code class="inline_code">Jkin(x)</code>: this function computes the robot's end effector jacobian matrix for a given joint configuration
-                        (i.e. the input parameter, a list of floats). It returns the jacobian matrix.
-                    </li>
-                    <li>
-                        <code class="inline_code">Jkin_CoM(x)</code>: this function computes the robot's center of mass jacobian matrix for a given joint configuration
-                        (i.e. the input parameter, a list of floats). It returns the jacobian matrix.
+                        CoM tracking: where we prioritize CoM tracking over position tracking.
                     </li>
                 </ul>
-                <h6>Global variables</h6>
+
+                <p>
+                    See <a href="#S5">Inverse kinematics (IK) for a planar robot manipulator</a> for more information about inverse kinematics,
+                    and <a href="#S9-sec:SS5">Center of mass</a> for details about the center of mass of an humanoid robot.
+                </p>
+
+                <h5>Coding information</h5>
+
+                <div>
+                    <p class="text-center">
+                        <img style="width:80%;" src="static_images/code_schema.png"/>
+                    </p>
+
+                    <p>
+                        As described by the figure above, the <code class="inline_code">control</code> function in the cell below is called repeatedly at a fixed frequency.
+                    </p>
+
+                    <p>
+                        In the code editors, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
+                    </p>
+
+                    <p>
+                        The example is a smaller part of a larger Python script which is hidden from you. In order to properly interact with the script,
+                        we list below the funcitons and variables you can use in the interactive cell.
+                    </p>
+
+
+                    <h6>Available functions</h6>
+                    <ul>
+                        <li>
+                            <code class="inline_code">fkin(x)</code>: this function performs the forward kinematics from a given joint configuration
+                            (i.e. the input parameter, a list of floats). It returns a list of float containing the end-effector positions
+                            (<code class="inline_code">[ee1_position_x, ee1_position_y]</code>).
+                        </li>
+                        <li>
+                            <code class="inline_code">fkin_CoM(x)</code>: this function performs the forward kinematics from a given joint configuration
+                            (i.e. the input parameter, a list of floats). It returns a list of float containing the center of mass positions
+                            (<code class="inline_code">[ee1_position_x, ee1_position_y]</code>).
+                        </li>
+                        <li>
+                            <code class="inline_code">Jkin(x)</code>: this function computes the robot's end effector jacobian matrix for a given joint configuration
+                            (i.e. the input parameter, a list of floats). It returns the jacobian matrix.
+                        </li>
+                        <li>
+                            <code class="inline_code">Jkin_CoM(x)</code>: this function computes the robot's center of mass jacobian matrix for a given joint configuration
+                            (i.e. the input parameter, a list of floats). It returns the jacobian matrix.
+                        </li>
+                    </ul>
+                    <h6>Global variables</h6>
+                    <ul>
+                        <li><code class="inline_code">x</code>: the current joint configuration of the robot as a list of floats.</li>
+                        <li><code class="inline_code">param</code>: a struct containing the example configuration. We recommend to only read this struct
+                            without modifying it. The most useful struct members are:
+                            <ul>
+                                <li><code class="inline_code">param.nbVarX</code>: the joint space dimension.</li>
+                                <li><code class="inline_code">param.nbVarF</code>: the task space dimension.</li>
+                                <li><code class="inline_code">param.Mu</code>: the target position.</li>
+                                <li><code class="inline_code">param.MuCoM</code>: the target center of mass position.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <h5>Control</h5>
+
                 <ul>
-                    <li><code class="inline_code">x</code>: the current joint configuration of the robot as a list of floats.</li>
-                    <li><code class="inline_code">param</code>: a struct containing the example configuration. We recommend to only read this struct 
-                        without modifying it. The most useful struct members are:
-                        <ul>
-                            <li><code class="inline_code">param.nbVarX</code>: the joint space dimension.</li>
-                            <li><code class="inline_code">param.nbVarF</code>: the task space dimension.</li>
-                            <li><code class="inline_code">param.Mu</code>: the target position.</li>
-                            <li><code class="inline_code">param.MuCoM</code>: the target center of mass position.</li>
-                        </ul>
-                    </li>
+                    <li>Click on the green run button to execute the code.</li>
+                    <li>Joints can be moved by dragging them with the mouse, or by using the mouse wheel while hovering them.</li>
                 </ul>
             </div>
-
-            <h5>Control</h5>
-
-            <ul>
-                <li>Click on the green run button to execute the code.</li>
-                <li>Joints can be moved by dragging them with the mouse, or by using the mouse wheel while hovering them.</li>
-            </ul>
-        </div>
-        </div>
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button aria-controls="IK1-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#IK1-tab-pane" data-bs-toggle="tab" id="IK1-tab" role="tab" type="button">Coordinated IK</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button aria-controls="IK2-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#IK2-tab-pane" data-bs-toggle="tab" id="IK2-tab" role="tab" type="button">CoM tracking</button>
-            </li>
-        </ul>
-
-        <div class="tab-content" id="myTabContent">
-            <div aria-labelledby="IK1-tab" class="tab-pane fade show active" id="IK1-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-ik1" src="user_code_ik1"></editor>
-            </div>
-
-            <div aria-labelledby="IK2-tab" class="tab-pane fade" id="IK2-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-ik2" src="user_code_ik2"></editor>
-            </div>
         </div>
 
-        <div style="float: right; padding-right: 0.5em; padding-left:0.5em;">
-            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
-            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        <div aria-labelledby="IK1-tab" class="tab-pane fade code show active" id="IK1-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-ik1" src="user_code_ik1"></editor>
         </div>
 
-        <pre id="errors" class="py-error"></pre>
-        <pre id="output" class="py-output"></pre>
-    </div>
-
-    <div class="col-sm-4">
-        <div class="sticky-sm-top" style="padding-top: 2rem;">
-            <canvas height="1000px" id="canvas" style="width:100%;" width="900px"></canvas>
+        <div aria-labelledby="IK2-tab" class="tab-pane fade code" id="IK2-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-ik2" src="user_code_ik2"></editor>
         </div>
     </div>
-</div>
+
+    <div class="editor-tools">
+        <span style="flex:1"></span>
+        <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+        <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer; margin-left: 6px;"></i>
+    </div>
+</script>
+
+
+<script id="workspace-right-top-panel-content" type="html">
+    <canvas id="canvas" width="900px" height="1000px"></canvas>
+</script>
 
 
 <script id="user_code_ik1" type="python">
@@ -252,6 +261,9 @@
 
     #########################################################################################
 
+    # GUI
+    scaling_factor = 1 # General scaling factor for rendering
+
     # Mouse events
     mouse0 = np.zeros(2)
     mouse = np.zeros(2)
@@ -264,16 +276,16 @@
         offset = canvas.getBoundingClientRect()
         mouse0[0] = (event.clientX - offset.x) * canvas.width / canvas.clientWidth
         mouse0[1] = (event.clientY - offset.y) * canvas.height / canvas.clientHeight
-        mouse[0] = (mouse0[0] - canvas.width * 0.5)
-        mouse[1] = -(mouse0[1] - canvas.height * 0.9)
+        mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
+        mouse[1] = -(mouse0[1] - canvas.height * 0.9) / scaling_factor
 
     def onTouchMove(event):
         global mouse, mouse0
         offset = event.target.getBoundingClientRect()
         mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / canvas.clientWidth
         mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / canvas.clientHeight
-        mouse[0] = (mouse0[0] - canvas.width * 0.5)
-        mouse[1] = -(mouse0[1] - canvas.height * 0.9)
+        mouse[0] = (mouse0[0] - canvas.width * 0.5) / scaling_factor
+        mouse[1] = -(mouse0[1] - canvas.height * 0.9) / scaling_factor
 
     def onMouseDown(event):
         global mousedown, move_joint, param2
@@ -310,10 +322,20 @@
     ctx = canvas.getContext('2d')
 
     def clear_screen():
+        global scaling_factor
+
+        canvas.width = canvas.clientWidth
+        canvas.height = canvas.clientHeight
+
         ctx.setTransform(1, 0, 0, 1, 0, 0)
         ctx.fillStyle = 'white'
         ctx.fillRect(0, 0, canvas.width, canvas.height)
-        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
+
+        scale_y = canvas.height / 1000
+        scale_x = canvas.width / 900
+        scaling_factor = min(scale_x, scale_y)
+
+        ctx.setTransform(scaling_factor, 0, 0, -scaling_factor, canvas.width*0.5, canvas.height*0.9)
 
 
     def draw_robot(x, color):
@@ -408,67 +430,6 @@
         ctx.stroke(obj)
         ctx.translate(-f[0], -f[1])
 
-    ## Standard control
-    #def control(x, param):
-    #   u = np.zeros(param.nbVarX)
-    #   f_CoM = fkin_CoM(x, param)
-    #   J_CoM = Jkin_CoM(x, param)
-    ##  u[:move_joint+1] = np.linalg.pinv(J) @ (mouse - f) * 5
-    #   pinvJ_CoM = np.linalg.inv(J_CoM.T @ J_CoM + np.eye(param.nbVarX) * 1E4) @ J_CoM.T # Damped pseudoinverse
-    #   u = pinvJ_CoM @ (param.Mu_CoM - f_CoM) * 5
-    #   if move_joint >= 0:
-    #       f = fkin(x[:move_joint+1], param2)
-    #       J = Jkin(x[:move_joint+1], param2)
-    ##      u[:move_joint+1] = np.linalg.pinv(J) @ (mouse - f) * 5
-    #       pinvJ = np.linalg.inv(J.T @ J + np.eye(param2.nbVarX) * 1E4) @ J.T # Damped pseudoinverse
-    #       u[:move_joint+1] += pinvJ @ (mouse - f) * 5
-    #   return u
-
-    ## Prioritized control (position tracking prioritized over CoM tracking)
-    #def control(x, param):
-    #   u = np.zeros(param.nbVarX)
-    #   if move_joint >= 0:
-    #       # Residual and Jacobian for primary task
-    #       df1 = (mouse - fkin(x[:move_joint+1], param2)) * 5
-    #       J1 = Jkin(x[:move_joint+1], param2)
-    #       J1 = np.hstack((J1, np.zeros([2,param.nbVarX-move_joint-1]))) # Augmented form
-    #       # Residual and Jacobian for secondary task
-    #       df2 = (param.Mu_CoM - fkin_CoM(x, param)) * 5
-    #       J2 = Jkin_CoM(x, param)
-    #       df2 = df2[0] # Track only horizontal location of CoM
-    #       J2 = J2[0,:].reshape([1,param.nbVarX]) # Track only horizontal location of CoM
-    #       # Prioritized control
-    #       pinvJ1 = np.linalg.inv(J1.T @ J1 + np.eye(J1.shape[1]) * 1e-1) @ J1.T # Damped pseudoinverse
-    #       N1 = np.eye(param.nbVarX) - pinvJ1 @ J1 # Nullspace projection operator
-    #       u1 = pinvJ1 @ df1 # Command for position tracking
-    #       J2N1 = J2 @ N1
-    #       pinvJ2N1 = J2N1.T @ np.linalg.inv(J2N1 @ J2N1.T + np.eye(J2N1.shape[0]) * 1e5) # Damped pseudoinverse
-    #       u2 = pinvJ2N1 @ (df2 - J2 @ u1) # Command for orientation tracking (with position tracking prioritized)
-    #       u = u1 + N1 @ u2 # Control commands
-    #   return u
-
-    ## Prioritized control (CoM tracking prioritized over position tracking)
-    #def control(x, param):
-    #   u = np.zeros(param.nbVarX)
-    #   if move_joint >= 0:
-    #       # Residuals and Jacobian for primary task
-    #       df1 = (param.Mu_CoM - fkin_CoM(x, param)) * 5
-    #       J1 = Jkin_CoM(x, param)
-    #       df1 = df1[:1] # Track only horizontal location of CoM
-    #       J1 = J1[:1,:] # Track only horizontal location of CoM
-    #       # Residual and Jacobian for secondary task
-    #       df2 = (mouse - fkin(x[:move_joint+1], param2)) * 5
-    #       J2 = Jkin(x[:move_joint+1], param2)
-    #       J2 = np.hstack((J2, np.zeros([2,param.nbVarX-move_joint-1]))) # Augmented form
-    #       # Prioritized control
-    #       pinvJ1 = np.linalg.inv(J1.T @ J1 + np.eye(J1.shape[1]) * 1e-1) @ J1.T # Damped pseudoinverse
-    #       N1 = np.eye(param.nbVarX) - pinvJ1 @ J1 # Nullspace projection operator
-    #       u1 = pinvJ1 @ df1 # Command for position tracking
-    #       J2N1 = J2 @ N1
-    #       pinvJ2N1 = np.linalg.inv(J2N1.T @ J2N1 + np.eye(J2N1.shape[1]) * 1e5) @ J2N1.T # Damped pseudoinverse
-    #       u2 = pinvJ2N1 @ (df2 - J2 @ u1) # Command for orientation tracking (with position tracking prioritized)
-    #       u = u1 + N1 @ u2 # Control commands
-    #   return u
 
     #########################################################################################
 
@@ -540,7 +501,7 @@
         'loop': loop,
         'reset': reset,
         'cleanup': cleanup,
-        'output': 'output',
-        'errors': 'errors',
+        'output': 'workspace-output',
+        'errors': 'workspace-errors',
     })
 </script>

@@ -9,6 +9,9 @@ mouse_pos = None
 manipulated_point = None
 paths = None
 listeners = {}
+area_rect = None
+histogram_area_rect = None
+
 
 ## Gaussians handling (using the mouse)
 # =====================================
@@ -18,15 +21,16 @@ def onMouseMove(event):
 
     rect = canvas.getBoundingClientRect()
 
-    mouse_pos = [
-        (event.clientX - rect.left) / (rect.right - rect.left),
-        1.0 - (event.clientY - rect.top) / (rect.bottom - rect.top)
-    ]
+    if area_rect is not None:
+        mouse_pos = [
+            (event.clientX - rect.left - area_rect[0]) / area_rect[2],
+            1.0 - (event.clientY - rect.top - area_rect[1]) / area_rect[3]
+        ]
 
-    mouse_pos[0] = max(min(mouse_pos[0], 1.0), 0.0)
-    mouse_pos[1] = max(min(mouse_pos[1], 1.0), 0.0)
+        if (mouse_pos[0] < 0.0) or (mouse_pos[0] > 1.0) or (mouse_pos[1] < 0.0) or (mouse_pos[1] > 1.0):
+            mouse_pos = None
 
-    if (manipulated_point is not None) and manipulated_point[2]:
+    if (mouse_pos is not None) and (manipulated_point is not None) and manipulated_point[2]:
         id, i, _ = manipulated_point
 
         if i == 0:
@@ -149,17 +153,57 @@ def create_gaussian_controls(param):
 # =====================================
 
 def clear_screen():
-    ctx.setTransform(canvas.width, 0, 0, -canvas.height, 0, canvas.height)
-    ctx.fillStyle = 'white'
-    ctx.fillRect(0, 0, 1, 1)
+    global area_rect, histogram_area_rect
 
-    ctx_histogram.setTransform(canvas_histogram.width, 0, 0, -canvas_histogram.height, 0, canvas_histogram.height)
+    canvas.width = canvas.clientWidth
+    canvas.height = canvas.clientHeight
+    canvas_histogram.width = canvas_histogram.clientWidth
+    canvas_histogram.height = canvas_histogram.clientHeight
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0)
+    ctx.fillStyle = 'white'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    ctx_histogram.setTransform(1, 0, 0, 1, 0, 0)
     ctx_histogram.fillStyle = 'white'
-    ctx_histogram.fillRect(0, 0, 1, 1)
+    ctx_histogram.fillRect(0, 0, canvas_histogram.width, canvas_histogram.height)
+
+    scale_y = canvas.height / 900
+    scale_x = canvas.width / 900
+    scaling_factor = min(scale_x, scale_y)
+
+    area_width = 900 * scaling_factor
+    area_height = 900 * scaling_factor
+    area_rect = (
+        (canvas.width - area_width) / 2,
+        (canvas.height - area_height) / 2,
+        area_width,
+        area_height
+    )
+
+    ctx.beginPath()
+    ctx.rect(*area_rect)
+    ctx.clip()
+
+    ctx.strokeStyle = 'rgb(200, 200, 200)'
+    ctx.strokeRect(*area_rect)
+
+    scale_y = canvas_histogram.height / 450
+    scale_x = canvas_histogram.width / 900
+    scaling_factor = min(scale_x, scale_y)
+
+    histogram_area_width = 900 * scaling_factor
+    histogram_area_height = 450 * scaling_factor
+    histogram_area_rect = (
+        (canvas_histogram.width - histogram_area_width) / 2,
+        canvas_histogram.height - histogram_area_height,
+        histogram_area_width,
+        histogram_area_height
+    )
 
 
 def draw_Gaussian(id, gaussians, color, color2):
-    ctx.setTransform(canvas.width, 0, 0, -canvas.height, 0, canvas.height)
+    ctx.setTransform(area_rect[2], 0, 0, -area_rect[3], area_rect[0], area_rect[3] + area_rect[1])
     ctx.translate(gaussians.Mu[0,id], gaussians.Mu[1,id])
 
     s, U = np.linalg.eig(gaussians.Sigma[:2, :2, id])
@@ -185,7 +229,7 @@ def draw_Gaussian(id, gaussians, color, color2):
 
 
 def draw_Gaussian_controls(controls, color, color2):
-    ctx.setTransform(canvas.width, 0, 0, -canvas.height, 0, canvas.height)
+    ctx.setTransform(area_rect[2], 0, 0, -area_rect[3], area_rect[0], area_rect[3] + area_rect[1])
 
     for id in range(controls.nbGaussian):
         is_manipulating_gaussian = (manipulated_point is not None) and (id == manipulated_point[0]) and manipulated_point[2]
@@ -210,6 +254,8 @@ def draw_Gaussian_controls(controls, color, color2):
 
 
 def draw_scene(param):
+    ctx.save()
+
     clear_screen()
 
     # Draw Gaussians
@@ -217,7 +263,7 @@ def draw_scene(param):
         draw_Gaussian(k, gaussians, '#FFA50066', '#FFA500')
 
     # Draw initial points
-    ctx.setTransform(canvas.width, 0, 0, -canvas.height, 0, canvas.height)
+    ctx.setTransform(area_rect[2], 0, 0, -area_rect[3], area_rect[0], area_rect[3] + area_rect[1])
     ctx.fillStyle = 'black'
     ctx.lineWidth = '0.01'
     if len(param.x0.shape) == 1:
@@ -240,3 +286,4 @@ def draw_scene(param):
     # Draw the controls allowing to manipulate the gaussians
     draw_Gaussian_controls(controls, '#AA1166', '#FFFF00')
 
+    ctx.restore()

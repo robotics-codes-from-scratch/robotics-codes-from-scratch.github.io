@@ -19,6 +19,7 @@
   <link href="css/katex.min.css" rel="stylesheet"/>
   <link href="https://pyscript.net/releases/2024.8.2/core.css" rel="stylesheet"/>
   <link href="css/main-template.css" rel="stylesheet"/>
+  <link href="css/workspace.css" rel="stylesheet"/>
   <script src="js/jquery-3.6.4.min.js">
   </script>
   <script src="js/jquery-ui-1.14.1.min.js">
@@ -213,6 +214,7 @@
         const loadedScenes = [];
         const loadedScripts = {};
         const loadedData = {};
+        let loadedWorkspace = null;
 
         const tasks = [];
         let isExecutingTasks = false;
@@ -396,6 +398,7 @@
                         url: category.id + '/' + entry.page,
                         requirements: requirements,
                         assets: assets,
+                        workspace: entry.workspace,
                     });
                 });
 
@@ -422,6 +425,18 @@
             {
                 navigate('home');
                 return;
+            }
+
+            if (pageEntry.workspace && (loadedWorkspace == null))
+            {
+                const response2 = await fetch(baseUrl + '/resources/workspace.html');
+                if (!response2.ok)
+                {
+                    navigate('home');
+                    return;
+                }
+
+                loadedWorkspace = await response2.text();
             }
 
             await stopContentLoop();
@@ -587,7 +602,50 @@
             }
 
             tasks.push(async () => {
-                contentDiv.innerHTML = await response.text();
+                if (pageEntry.workspace)
+                {
+                    let content = await response.text();
+
+                    let id_position = content.indexOf('"workspace-title"');
+                    let script_tag_start = content.lastIndexOf('\x3Cscript', id_position);
+                    let script_tag_end = content.indexOf('>', id_position) + 1;
+                    let end_script_tag_start = content.indexOf('\x3C/script>', script_tag_end);
+                    let end_script_tag_end = content.indexOf('>', end_script_tag_start) + 1;
+
+                    let script_content = content.substring(script_tag_end, end_script_tag_start);
+                    content = content.substring(0, script_tag_start) + content.substring(end_script_tag_end);
+
+                    let workspace = loadedWorkspace.replace('TITLE', script_content);
+
+                    id_position = content.indexOf('"workspace-left-panel-content"');
+                    script_tag_start = content.lastIndexOf('\x3Cscript', id_position);
+                    script_tag_end = content.indexOf('>', id_position) + 1;
+                    end_script_tag_start = content.indexOf('\x3C/script>', script_tag_end);
+                    end_script_tag_end = content.indexOf('>', end_script_tag_start) + 1;
+
+                    script_content = content.substring(script_tag_end, end_script_tag_start);
+                    content = content.substring(0, script_tag_start) + content.substring(end_script_tag_end);
+
+                    workspace = workspace.replace('LEFTPANEL', script_content);
+
+                    id_position = content.indexOf('"workspace-right-top-panel-content"');
+                    script_tag_start = content.lastIndexOf('\x3Cscript', id_position);
+                    script_tag_end = content.indexOf('>', id_position) + 1;
+                    end_script_tag_start = content.indexOf('\x3C/script>', script_tag_end);
+                    end_script_tag_end = content.indexOf('>', end_script_tag_start) + 1;
+
+                    script_content = content.substring(script_tag_end, end_script_tag_start);
+                    content = content.substring(0, script_tag_start) + content.substring(end_script_tag_end);
+
+                    workspace = workspace.replace('RIGHTTOPPANEL', script_content);
+
+                    contentDiv.innerHTML = workspace + content;
+                }
+                else
+                {
+                    contentDiv.innerHTML = await response.text();
+                }
+
                 closeMenuButton.click();
 
                 if (document._clearOutputTargets != undefined)
@@ -989,7 +1047,12 @@
             {
                 const navlink_target_id = active_navlink.getAttribute('data-bs-target').substr(1);
                 const navlink_target = document.getElementById(navlink_target_id);
-                return navlink_target.getElementsByClassName('python-editor')[0].editor;
+
+                const editors = navlink_target.getElementsByClassName('python-editor');
+                if (editors.length != 0)
+                    return editors[0].editor;
+
+                return null;
             }
 
             return document.getElementsByClassName('python-editor')[0].editor;
@@ -1016,20 +1079,36 @@
 
         async function onTabChanged(event)
         {
-            if (btnOpen)
+            const editor = getActiveEditor();
+
+            if (editor)
             {
-                if (window.localStorage.getItem(getStorageKey()) != null)
-                    btnOpen.style.display = 'inline';
-                else
+                if (btnOpen)
+                {
+                    if (window.localStorage.getItem(getStorageKey()) != null)
+                        btnOpen.style.display = 'inline';
+                    else
+                        btnOpen.style.display = 'none';
+                }
+
+                if (btnSave)
+                    btnSave.style.display = 'inline';
+            }
+            else
+            {
+                if (btnOpen)
                     btnOpen.style.display = 'none';
+
+                if (btnSave)
+                    btnSave.style.display = 'none';
             }
 
             document._clearOutputTargets();
 
-            if (currentPageParams.has('reset'))
+            if (editor && currentPageParams.has('reset'))
             {
                 const active_navlink = document.getElementsByClassName('nav-link active')[0];
-                await currentPageParams.get('reset')(active_navlink.id, getActiveEditor());
+                await currentPageParams.get('reset')(active_navlink.id, editor);
             }
         }
 

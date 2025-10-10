@@ -1,0 +1,35 @@
+<div id="workspace-container" class="row">
+    <div class="col-sm-1"></div>
+
+    <div class="col-sm-11 content-column">
+        <h3 id="workspace-title">TITLE</h3>
+
+        <div id="workspace">
+            <div id="workspace-left-panel" class="resizable" data-handler="workspace-horizontal-handler">
+                <div class="panel-content">
+LEFTPANEL
+                </div>
+            </div>
+
+            <div id="workspace-horizontal-handler" class="ui-resizable-handle ui-resizable-e"></div>
+            
+            <div id="workspace-right-panel">
+                <div id="workspace-right-top-panel" class="resizable" data-handler="workspace-vertical-handler">
+                    <div class="panel-content">
+RIGHTTOPPANEL
+                    </div>
+                </div>
+
+                <div id="workspace-vertical-handler" class="ui-resizable-handle ui-resizable-s"></div>
+
+                <div id="workspace-right-bottom-panel">
+                    <div id="workspace-console" class="panel-content">
+                        <span class="console-placeholder">Output and errors</span>
+                        <pre id="workspace-errors" class="py-error"></pre>
+                        <pre id="workspace-output" class="py-output"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

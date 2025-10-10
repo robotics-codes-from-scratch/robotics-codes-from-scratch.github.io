@@ -1,27 +1,64 @@
-<div class="row">
-    <div class="col-sm-1"></div>
+<style>
+    #canvas {
+        flex: 1;
+        height: 50%;
+        width: 100%;
+    }
 
-    <div class="col-sm-6">
-        <h3>Ergodic control</h3>
-        <div class="card block" id="instructionBlock">
+    #canvas_histogram {
+        flex: 0.5;
+        height: 25%;
+        width: 100%;
+    }
 
-            <div class="card-header">
-                <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#instructions" aria-expanded="true" aria-controls="instructions">
-                    Instructions
-                </button>
-                <div class="commands">
-                    <div>
-                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/ergodic_control_SMC_1D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">SMC 1D example</a>
-                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/ergodic_control_SMC_2D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">SMC 2D example</a>
-                    </div>
-                    <div>
-                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/ergodic_control_HEDAC_1D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">HEDAC 1D example</a>
-                    <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/ergodic_control_HEDAC_2D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">HEDAC 2D example</a>
+    .editor-tools {
+        display: flex;
+        flex-direction: row;
+        padding-top: 4px;
+    }
+</style>
+
+
+<script id="workspace-title" type="html">
+    Ergodic control
+</script>
+
+
+<script id="workspace-left-panel-content" type="html">
+    <ul class="nav nav-tabs" id="tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button aria-controls="instructions-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#instructions-tab-pane" data-bs-toggle="tab" id="instructions-tab" role="tab" type="button" style="color: orangered;">Instructions</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="SMC1D-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#SMC1D-tab-pane"
+                    data-bs-toggle="tab" id="SMC1D-tab" role="tab" type="button">SMC (1D)</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="SMC2D-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#SMC2D-tab-pane"
+                    data-bs-toggle="tab" id="SMC2D-tab" role="tab" type="button">SMC (2D)</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button aria-controls="HEDAC-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#HEDAC-tab-pane"
+                    data-bs-toggle="tab" id="HEDAC-tab" role="tab" type="button">HEDAC (2D)</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="tab-content">
+        <div aria-labelledby="instructions-tab" class="tab-pane fade" id="instructions-tab-pane" role="tabpanel" tabindex="0">
+            <div id="instructions" class="instructions">
+                <div class="card-header">
+                    <div class="commands">
+                        <div>
+                            <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/ergodic_control_SMC_1D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">SMC 1D example</a>
+                            <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/ergodic_control_SMC_2D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">SMC 2D example</a>
+                        </div>
+                        <div>
+                            <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/ergodic_control_HEDAC_1D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">HEDAC 1D example</a>
+                            <a href="https://gitlab.idiap.ch/rli/robotics-codes-from-scratch/-/blob/master/python/ergodic_control_HEDAC_2D.py?ref_type=heads" class="btn btn-dark btn-sm active" role="button" aria-pressed="true" target="_blank">HEDAC 2D example</a>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div id="instructions" class="collapse card-body instructions">
                 <h5>General information</h5>
                 <p>
                     1D and 2D ergodic control examples with SMC or HEDAC.
@@ -42,7 +79,7 @@
                     </p>
 
                     <p>
-                        In the cell below, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
+                        In the code editors, some parts of the code might be commented. Do not hesitate to uncomment them and analyze what they are doing!
                         You can also download the standalone Python example to test it on your machine.
                     </p>
 
@@ -69,53 +106,34 @@
                     <li>The target objects can be moved by dragging them with the mouse.</li>
                 </ul>
             </div>
-
         </div>
 
-        <ul class="nav nav-tabs" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button aria-controls="SMC1D-tab-pane" aria-selected="true" class="nav-link active" data-bs-target="#SMC1D-tab-pane"
-                        data-bs-toggle="tab" id="SMC1D-tab" role="tab" type="button">SMC (1D)</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button aria-controls="SMC2D-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#SMC2D-tab-pane"
-                        data-bs-toggle="tab" id="SMC2D-tab" role="tab" type="button">SMC (2D)</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button aria-controls="HEDAC-tab-pane" aria-selected="false" class="nav-link" data-bs-target="#HEDAC-tab-pane"
-                        data-bs-toggle="tab" id="HEDAC-tab" role="tab" type="button">HEDAC (2D)</button>
-            </li>
-        </ul>
-
-        <div class="tab-content" id="myTabContent">
-            <div aria-labelledby="SMC1D-tab" class="tab-pane fade show active" id="SMC1D-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-SMC1D" script="2d_sandboxes/ergodic_control/smc_1d_example.py"></editor>
-            </div>
-            <div aria-labelledby="SMC2D-tab" class="tab-pane fade" id="SMC2D-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-SMC2D" script="2d_sandboxes/ergodic_control/smc_2d_example.py"></editor>
-            </div>
-            <div aria-labelledby="HEDAC-tab" class="tab-pane fade" id="HEDAC-tab-pane" role="tabpanel" tabindex="0">
-                <editor id="editor-HEDAC" script="2d_sandboxes/ergodic_control/hedac_example.py"></editor>
-            </div>
+        <div aria-labelledby="SMC1D-tab" class="tab-pane fade code show active" id="SMC1D-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-SMC1D" script="2d_sandboxes/ergodic_control/smc_1d_example.py"></editor>
         </div>
 
-        <div style="float: right; padding-right: 0.5em;">
-            <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
-            <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer;"></i>
+        <div aria-labelledby="SMC2D-tab" class="tab-pane fade code" id="SMC2D-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-SMC2D" script="2d_sandboxes/ergodic_control/smc_2d_example.py"></editor>
         </div>
 
-        <pre id="errors" class="py-error"></pre>
-        <pre id="output" class="py-output"></pre>
-    </div>
-
-    <div class="col-sm-5">
-        <div class="sticky-sm-top" style="padding-top: 2rem;">
-            <canvas id="canvas" style="width:100%;" width="900px" height="900px"></canvas>
-            <canvas id="canvas_histogram" style="width:100%;" width="900px" height="450px"></canvas>
-            <div id="legend" style="margin-top: 0px; font-size: 70%; color: #777777;"></div>
+        <div aria-labelledby="HEDAC-tab" class="tab-pane fade code" id="HEDAC-tab-pane" role="tabpanel" tabindex="0">
+            <editor id="editor-HEDAC" script="2d_sandboxes/ergodic_control/hedac_example.py"></editor>
         </div>
     </div>
-</div>
+
+    <div class="editor-tools">
+        <span style="flex:1"></span>
+        <i id="btn-open" title="Load the previously saved code" class="bi bi-folder2-open" style="cursor: pointer; display: none;"></i>
+        <i id="btn-save" title="Save the code" class="bi bi-floppy" style="cursor: pointer; margin-left: 6px;"></i>
+    </div>
+</script>
+
+
+<script id="workspace-right-top-panel-content" type="html">
+    <canvas id="canvas" width="900px" height="900px"></canvas>
+    <canvas id="canvas_histogram" width="900px" height="450px"></canvas>
+    <div id="legend" style="margin-top: 0px; font-size: 70%; color: #777777;"></div>
+</script>
 
 
 <script id="page_code" type="python">
@@ -142,7 +160,7 @@
                 'common': 'common.py',
             },
             'texts': {
-                'legend': '<span style="text-align:center; width: 50%; display: inline-block"><code>w_hat</code></span><span style="text-align:center; width: 50%; display: inline-block"><code>w</code></span>',
+                'legend': '<span class="legend-left" style="text-align:center; width: 50%; display: inline-block"><code>w_hat</code></span><span class="legend-right" style="text-align:center; width: 50%; display: inline-block"><code>w</code></span>',
             },
             'has_histogram': True,
         },
@@ -165,15 +183,20 @@
     ctx = canvas.getContext('2d')
     ctx_histogram = canvas_histogram.getContext('2d')
     legend = document.getElementById('legend')
+    has_histogram = False
 
 
     def switch_to_tab(id, editor=None):
+        global has_histogram
+
         entry = config[id]
 
         if ('has_histogram' in entry) and entry['has_histogram']:
             canvas_histogram.style.display = 'inline'
+            has_histogram = True
         else:
             canvas_histogram.style.display = 'none'
+            has_histogram = False
 
         texts = entry['texts']
         legend.innerHTML = texts['legend']
@@ -207,6 +230,9 @@
 
             # Update the rendering
             draw_scene(param)
+
+            if has_histogram:
+                draw_histograms()
         except Exception as e:
             displayError(e)
 
@@ -252,7 +278,7 @@
         'run': run,
         'reset': tabChanged,
         'cleanup': cleanup,
-        'output': 'output',
-        'errors': 'errors',
+        'output': 'workspace-output',
+        'errors': 'workspace-errors',
     })
 </script>
