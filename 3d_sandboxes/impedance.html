@@ -91,6 +91,12 @@
                         <li>
                             <code class="inline_code">quaternionToMatrix(Q)</code>: convert a quaternion into a full three-dimensional rotation matrix..
                         </li>
+                        <li>
+                            <code class="inline_code">print(message)</code>: prints the specified message in the bottom-left panel
+                        </li>
+                        <li>
+                            <code class="inline_code">clear()</code>: clear the content of the bottom-left panel
+                        </li>
                     </ul>
                     <h6>Global variables</h6>
                     <ul>
@@ -219,7 +225,7 @@
 
 
 <script id="page_code" type="python">
-    from viewer3d import Viewer3D, configs, logmap_S3, logmap, Shapes, Layers, Passes
+    from viewer3d import Viewer3D, logmap_S3, logmap, Shapes, Layers, Passes, SceneBuilder, Robots, Tools
     from js import document, SDFPass, three
     from rcfs import configure, displayError, executePythonCode
     from pyodide.ffi import to_js
@@ -501,13 +507,35 @@
         viewer3D.removePoint('point')
         viewer3D.removeArrow('arrow')
 
-        # Load the scene and retrieve the robot
-        if id == 'impedance-tab':
-            viewer3D.loadScene('/scenes/panda_ghost.xml')
-        else:
-            viewer3D.loadScene('/scenes/panda.xml')
+        # Setup the scene
+        builder = SceneBuilder('/scenes/empty.xml')
 
+        builder.addRobot(
+            'panda', Robots.Panda,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            Tools.FrankaHand
+        )
+
+        if id == 'impedance-tab':
+            builder.addRobot(
+                'ghost', Robots.Panda,
+                [0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 1.0],
+                Tools.FrankaHand,
+                {
+                    'collisionsEnabled': False,
+                    'controlsEnabled': False,
+                    'use_light_toon_shader': True,
+                    'color': [1.0, 0.5, 0.8],
+                    'layer': Layers.NoShadows,
+                }
+            )
+
+        # Load the scene and retrieve the robot
+        viewer3D.loadScene(builder)
         viewer3D.translateCamera([0.0, 0.0, 0.3])
+        robot = viewer3D.getRobot('panda')
 
         if editor is not None:
             executePythonCode(editor.getContent())
@@ -520,16 +548,7 @@
         arrow = None
 
         if id == 'impedance-tab':
-            ghost = viewer3D.createRobot(
-                'ghost',
-                configs.Panda.new(),
-                'ghost_',
-                {
-                    'use_light_toon_shader': True,
-                    'color': [1.0, 0.5, 0.8],
-                    'controlsEnabled': False,
-                }
-            )
+            ghost = viewer3D.getRobot('ghost')
         elif id == 'taskimpedance2-tab':
             if sdfPass is None:
                 sdfPass = SDFPass.new(viewer3D.viewer)
@@ -551,11 +570,6 @@
 
         viewer3D.activateLayer(Layers.Base)
 
-        if id == 'impedance-tab':
-            robot = viewer3D.createRobot('panda', configs.Panda.new(), 'panda_')
-        else:
-            robot = viewer3D.createRobot('panda', configs.Panda.new())
-
         # Disable the manipulation of the end-effector
         viewer3D.endEffectorManipulationEnabled = False
 
@@ -565,9 +579,6 @@
             ghost.jointPositions = x_target[:param.nbVarX]
 
         viewer3D.setRenderingCallback(update, 0.01)
-
-        # Start the physics simulation
-        viewer3D.physicsSimulatorPaused = False
 
 
     async def setup():

@@ -32,7 +32,7 @@
 
 
 <script id="impedance3d_joint_page_code" type="python">
-    from viewer3d import Viewer3D, configs, logmap_S3, logmap, Layers
+    from viewer3d import Viewer3D, logmap_S3, logmap, Layers, Robots, Tools, SceneBuilder
     from js import document
     from rcfs import configure, displayError, setAspectRatio, ImpedancePlanarIKControls
     from pyodide.ffi import to_js
@@ -128,26 +128,36 @@
 
         viewer3D.setRenderingCallback(None)
 
-        # Load the scene and retrieve the robot
-        viewer3D.loadScene('/scenes/panda_ghost.xml')
-        viewer3D.translateCamera([0.0, 0.0, 0.3])
+        # Setup the scene
+        builder = SceneBuilder('/scenes/empty.xml')
 
-        viewer3D.activateLayer(Layers.NoShadows)
+        builder.addRobot(
+            'panda', Robots.Panda,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            Tools.FrankaHand
+        )
 
-        ghost = viewer3D.createRobot(
-            'ghost',
-            configs.Panda.new(),
-            'ghost_',
+        builder.addRobot(
+            'ghost', Robots.Panda,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            Tools.FrankaHand,
             {
+                'collisionsEnabled': False,
+                'controlsEnabled': False,
                 'use_light_toon_shader': True,
                 'color': [1.0, 0.5, 0.8],
-                'controlsEnabled': False,
+                'layer': Layers.NoShadows,
             }
         )
 
-        viewer3D.activateLayer(Layers.Base)
+        # Load the scene and retrieve the robot
+        viewer3D.loadScene(builder)
+        viewer3D.translateCamera([0.0, 0.0, 0.3])
 
-        robot = viewer3D.createRobot('panda', configs.Panda.new(), 'panda_')
+        robot = viewer3D.getRobot('panda')
+        ghost = viewer3D.getRobot('ghost')
 
         # Disable the manipulation of the end-effector
         viewer3D.endEffectorManipulationEnabled = False
@@ -156,9 +166,6 @@
         ghost.jointPositions = x_target[:param.nbVarX]
 
         viewer3D.setRenderingCallback(update, 0.01)
-
-        # Start the physics simulation
-        viewer3D.physicsSimulatorPaused = False
 
 
     async def loop(delta, time):

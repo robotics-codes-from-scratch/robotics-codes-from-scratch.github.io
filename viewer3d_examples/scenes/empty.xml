@@ -1,6 +1,12 @@
 <?xml version="1.0"?>
 <mujoco model="empty scene">
-    <statistic center="0.3 0 0.4" extent="1.5"/>
+    <option cone="elliptic" impratio="10" noslip_iterations="20" timestep="0.001" integrator="implicitfast">
+        <flag multiccd="enable"/>
+    </option>
+
+    <default>
+        <geom friction="0.8 0.1 0.1" solimp="0.95 0.99 0.0001" solref="0.005 1"/>
+    </default>
 
     <visual>
         <headlight diffuse="0 0 0" ambient="1 1 1"/>

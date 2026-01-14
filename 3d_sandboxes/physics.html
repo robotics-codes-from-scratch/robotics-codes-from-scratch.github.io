@@ -61,6 +61,16 @@
                         The example is a smaller part of a larger Python script that is hidden from you. To properly interact with the script, we list below the functions and variables you can use in the interactive cell.
                     </p>
 
+                    <h6>Available functions</h6>
+                    <ul>
+                        <li>
+                            <code class="inline_code">print(message)</code>: prints the specified message in the bottom-left panel
+                        </li>
+                        <li>
+                            <code class="inline_code">clear()</code>: clear the content of the bottom-left panel
+                        </li>
+                    </ul>
+
                     <h6>Global variables</h6>
                     <ul>
                         <li><code class="inline_code">x</code>: the current joint configuration of the robot as a list of floats.</li>
@@ -112,7 +122,7 @@
 
 
 <script id="page_code" type="python">
-    from viewer3d import Viewer3D, configs
+    from viewer3d import Viewer3D, SceneBuilder, Robots, Tools
     from js import document
     from rcfs import configure, displayError
     import numpy as np
@@ -135,10 +145,48 @@
     def reset():
         global robot
 
-        viewer3D.loadScene('/scenes/physics.xml')
-        viewer3D.translateCamera([0.0, 0.0, 0.3])
-        robot = viewer3D.createRobot('panda', configs.Panda.new())
-        viewer3D.physicsSimulatorPaused = False
+        # Setup the scene
+        builder = SceneBuilder('/scenes/empty.xml')
+        builder.camera.azimuth = 120
+        builder.camera.elevation = -20
+
+        builder.addRobot(
+            'panda', Robots.Panda,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            Tools.FrankaHand
+        )
+
+        builder.addBox(
+            'box1',
+            [0.0, 0.4, 0.4],
+            [0.0, 0.0, 0.0, 1.0],
+            [0.1, 0.1, 0.4],
+            [0.98, 0.59, 0.17, 1.0],
+            0.1
+        )
+
+        builder.addBox(
+            'box2',
+            [-0.5, 0.4, 0.4],
+            [0.0, 0.0, 0.0, 1.0],
+            [0.1, 0.1, 0.4],
+            [0.59, 0.98, 0.17, 1.0],
+            0.1
+        )
+
+        builder.addBox(
+            'box3',
+            [-1.0, 0.4, 0.4],
+            [0.0, 0.0, 0.0, 1.0],
+            [0.1, 0.1, 0.4],
+            [0.17, 0.59, 0.98, 1.0],
+            0.1
+        )
+
+        # Load the scene and retrieve the robot
+        viewer3D.loadScene(builder)
+        robot = viewer3D.getRobot('panda')
 
 
     # Create the Viewer3D

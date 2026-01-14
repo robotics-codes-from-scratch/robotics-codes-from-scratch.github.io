@@ -73,15 +73,9 @@ SPDX-License-Identifier: MIT
     <!-- Create the Viewer3D from JavaScript -->
     <script type="module">
         import * as THREE from 'three';
-        import { Viewer3D, downloadFiles, getURL, readFile } from '../../viewer3d/viewer3d.js';
+        import { Viewer3D, downloadFile, getURL, readFile } from '../../viewer3d/viewer3d.js';
 
-        await downloadFiles(
-            '/data',
-            '../data/',
-            [
-                'trajectory.txt',
-            ]
-        );
+        await downloadFile(getURL('data/trajectory.txt'), '/data');
 
         const SCALE = 4.0;
 

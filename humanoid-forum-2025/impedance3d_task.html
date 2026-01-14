@@ -36,7 +36,7 @@
 
 
 <script id="impedance3d_task_page_code" type="python">
-    from viewer3d import Viewer3D, configs, logmap_S3, logmap, Layers
+    from viewer3d import Viewer3D, logmap_S3, logmap, Layers, Robots, Tools, SceneBuilder
     from js import document
     from rcfs import configure, displayError, setAspectRatio, ImpedancePlanarIKControls
     from pyodide.ffi import to_js
@@ -168,11 +168,20 @@
         viewer3D.removePoint('point')
         viewer3D.removeArrow('arrow')
 
-        # Load the scene and retrieve the robot
-        viewer3D.loadScene('/scenes/panda.xml')
-        viewer3D.translateCamera([0.0, 0.0, 0.3])
+        # Setup the scene
+        builder = SceneBuilder('/scenes/empty.xml')
 
-        robot = viewer3D.createRobot('panda', configs.Panda.new())
+        builder.addRobot(
+            'panda', Robots.Panda,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            Tools.FrankaHand
+        )
+
+        # Load the scene and retrieve the robot
+        viewer3D.loadScene(builder)
+        viewer3D.translateCamera([0.0, 0.0, 0.3])
+        robot = viewer3D.getRobot('panda')
 
         f_target = fkin(x_target)
 
@@ -194,9 +203,6 @@
         robot.jointPositions = x[:param.nbVarX]
 
         viewer3D.setRenderingCallback(update, 0.01)
-
-        # Start the physics simulation
-        viewer3D.physicsSimulatorPaused = False
 
 
     async def loop(delta, time):

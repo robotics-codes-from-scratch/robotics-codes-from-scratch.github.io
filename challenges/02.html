@@ -401,11 +401,12 @@
 
         # Once the cube is released, go up one last time
         elif step == STEP_RELEASE_CUBE:
-            step = STEP_GO_UP_FINAL
-            destination = right_chain.fkin(chain_x)
-            destination[2] += 0.15
-            ik = IK(right_chain, destination)
-            return right_chain.project(ik.process(chain_x, dt))
+            if robot.isGripperOpen(0):
+                step = STEP_GO_UP_FINAL
+                destination = right_chain.fkin(chain_x)
+                destination[2] += 0.15
+                ik = IK(right_chain, destination)
+                return right_chain.project(ik.process(chain_x, dt))
 
         # By default: no movement
         return np.zeros(x.shape)  # Velocity in rad/s
@@ -545,11 +546,12 @@
 
         # Once the cube is released, go up one last time
         elif step == STEP_RELEASE_CUBE:
-            step = STEP_GO_UP_FINAL
-            destination = left_chain.fkin(chain_x)
-            destination[2] += 0.15
-            ik = IK(left_chain, destination)
-            return left_chain.project(ik.process(chain_x, dt))
+            if robot.isGripperOpen(1):
+                step = STEP_GO_UP_FINAL
+                destination = left_chain.fkin(chain_x)
+                destination[2] += 0.15
+                ik = IK(left_chain, destination)
+                return left_chain.project(ik.process(chain_x, dt))
 
         # By default: no movement
         return np.zeros(x.shape)  # Velocity in rad/s
@@ -564,7 +566,7 @@
 
 
 <script id="page_code" type="python">
-    from viewer3d import Viewer3D, configs, logmap_S3, logmap, readFile, writeFile
+    from viewer3d import Viewer3D, logmap_S3, logmap, readFile, writeFile, SceneBuilder, Robots, Tools
     from js import document, three
     from pyodide.ffi import create_proxy
     from rcfs import configure, displayError
@@ -705,14 +707,28 @@
         }
     )
 
-    viewer3D.loadScene('/scenes/02.xml')
+    # Setup the scene
+    builder = SceneBuilder('/scenes/02.xml')
+
+    builder.addRobot(
+        'robot', Robots.G1_FixedLegs,
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+        [
+            Tools.UnitreeRightDex3_1,
+            Tools.UnitreeLeftDex3_1,
+        ]
+    )
+
+    # Load the scene
+    viewer3D.loadScene(builder)
     viewer3D.translateCamera([0.0, 0.0, 0.3])
-    
+
     # Retrieve the robot, the kinematic chains and the initial joint positions
-    robot = viewer3D.createRobot('g1', configs.G1WithHandsUpperBody.new())
+    robot = viewer3D.getRobot('robot')
     right_chain = robot.getKinematicChainForTool(0)
     left_chain = robot.getKinematicChainForTool(1)
-    initial_robot_joint_positions = [ 0., 0., 0., 0., 0.2, 0., 1.28, 0., 0., 0., 0., -0.2, 0., 1.28, 0., 0., 0. ] #robot.jointPositions
+    initial_robot_joint_positions = [ 0., 0., 0., 0., 0.2, 0., 1.28, 0., 0., 0., 0., -0.2, 0., 1.28, 0., 0., 0. ]
 
     # Retrieve the cube and its initial transforms
     cube = viewer3D.getPhysicalBody('redcube')

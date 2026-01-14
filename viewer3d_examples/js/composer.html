@@ -52,12 +52,26 @@ SPDX-License-Identifier: MIT
 
     <!-- Create the Viewer3D from JavaScript -->
     <script type="module">
-        import { Viewer3D, Shapes, downloadScene, downloadPandaRobot, PandaConfiguration, OutlinePass, Layers, Passes } from '../../viewer3d/viewer3d.js';
+        import {
+            Viewer3D,
+            downloadScene,
+            downloadRobot,
+            downloadTool,
+            SceneBuilder,
+            Robots,
+            Tools,
+            OutlinePass,
+            Layers,
+            Passes,
+            Shapes
+        } from '../../viewer3d/viewer3d.js';
+
         import * as THREE from 'three';
 
         // Download the assets
-        await downloadPandaRobot();
-        await downloadScene('../scenes/panda_box.xml');
+        await downloadRobot(Robots.Panda);
+        await downloadTool(Tools.FrankaHand);
+        await downloadScene('../scenes/empty.xml');
 
         const viewer3D = new Viewer3D(
             document.getElementById('viewer3d'),
@@ -67,14 +81,18 @@ SPDX-License-Identifier: MIT
             }
         );
 
-        // Load the scene
-        viewer3D.loadScene('/scenes/panda_box.xml');
+        // Setup the scene
+        const builder = new SceneBuilder('/scenes/empty.xml');
+        builder.addRobot(
+            'panda', Robots.Panda,
+            new THREE.Vector3(0.0, 0.0, 0.0),
+            new THREE.Quaternion(0.0, 0.0, 0.0, 1.0),
+            Tools.FrankaHand
+        );
 
-        // Retrieve the robot
-        const robot = viewer3D.createRobot('panda', new PandaConfiguration());
-
-        // Start the physics simulation
-        viewer3D.physicsSimulator.paused = false;
+        // Load the scene and retrieve the robot
+        viewer3D.loadScene(builder);
+        const robot = viewer3D.getRobot('panda');
 
         // Add some targets in layer 'NoShadows'
         viewer3D.activateLayer(Layers.NoShadows);

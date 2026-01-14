@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <mujoco model="panda scene">
-    <include file="unitree_g1/g1_with_hands_upperbody.xml"/>
-
     <statistic center="0.3 0 0.4" extent="1.5"/>
-    <option noslip_iterations="1"/>
+
+    <option cone="elliptic" impratio="10" noslip_iterations="20" timestep="0.001" integrator="implicitfast">
+        <flag multiccd="enable"/>
+    </option>
 
     <default>
         <default class="cube">
@@ -28,12 +29,10 @@
         <geom name="floor" size="5 5 0.1" type="plane" material="groundplane"/>
 
         <body name="box1" pos="0.4 -0.3 0.4">
-            <!-- <freejoint/> -->
             <geom type="box" size=".1 .1 .4" rgba=".98 .59 .17 1" mass="0.1"/>
         </body>
 
         <body name="box2" pos="0.4 0.3 0.4">
-            <!-- <freejoint/> -->
             <geom type="box" size=".1 .1 .4" rgba=".59 .98 .17 1" mass="0.1"/>
         </body>
 

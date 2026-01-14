@@ -42,38 +42,49 @@ SPDX-License-Identifier: MIT
 
     <!-- Create the Viewer3D from JavaScript -->
     <script type="module">
-        import { Viewer3D, downloadScene, downloadPandaRobot, PandaConfiguration, PandaNoHandConfiguration, Layers } from '../../viewer3d/viewer3d.js';
+        import { Viewer3D, downloadScene, downloadRobot, downloadTool, SceneBuilder, Robots, Tools, Layers } from '../../viewer3d/viewer3d.js';
 
         // Download the assets
-        await downloadPandaRobot();
-        await downloadScene('../scenes/ghost_panda.xml');
+        await downloadRobot(Robots.Panda);
+        await downloadTool(Tools.FrankaHand);
+        await downloadScene('../scenes/empty.xml');
 
         // Create the Viewer3D
         const viewer3D = new Viewer3D(document.getElementById('viewer3d'));
 
-        // Load the scene and retrieve the robots
-        viewer3D.loadScene('/scenes/ghost_panda.xml');
+        // Setup the scene
+        const builder = new SceneBuilder('/scenes/empty.xml');
 
-        const robot = viewer3D.createRobot('panda', new PandaConfiguration(), 'panda_');
+        builder.addRobot(
+            'panda', Robots.Panda,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            Tools.FrankaHand
+        );
 
-        viewer3D.activateLayer(Layers.NoShadows);
-        const ghost = viewer3D.createRobot(
-            'ghost',
-            new PandaConfiguration(),
-            'ghost_',
+        builder.addRobot(
+            'ghost', Robots.Panda,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            Tools.FrankaHand,
             {
+                collisionsEnabled: false,
+                controlsEnabled: false,
                 use_light_toon_shader: true,
                 color: [1.0, 0.5, 0.8],
-                controlsEnabled: false,
+                layer: Layers.NoShadows,
             }
         );
 
+        // Load the scene and retrieve the robot and the ghost
+        viewer3D.loadScene(builder);
+        const robot = viewer3D.getRobot('panda');
+        const ghost = viewer3D.getRobot('ghost');
+
+        // Change the joint position of the ghost
         let pos = ghost.getJointPositions();
         pos[0] = -1.5;
         ghost.setJointPositions(pos);
-
-        // Start the physics simulation
-        viewer3D.physicsSimulator.paused = false;
     </script>
 </body>
 </html>

@@ -56,11 +56,22 @@ SPDX-License-Identifier: MIT
 
     <!-- Import the viewer3d.js library -->
     <script type="module">
-        import { downloadScene, downloadPandaRobot, initPyScript } from '../../viewer3d/viewer3d.js';
+        import {
+            downloadScene,
+            downloadFiles,
+            downloadRobot,
+            downloadTool,
+            Robots,
+            Tools,
+            initPyScript
+        } from '../../viewer3d/viewer3d.js';
 
         // Download the assets
-        await downloadPandaRobot();
-        await downloadScene('../scenes/panda_shelf.xml');
+        await downloadRobot(Robots.Panda);
+        await downloadTool(Tools.FrankaHand);
+        await downloadScene('../scenes/empty.xml');
+        await downloadScene('../scenes/parts/shelf.xml', '/scenes/parts/');
+        await downloadScene('../scenes/parts/targetbox.xml', '/scenes/parts/');
 
         // Now PyScript can be initialised
         initPyScript();
@@ -68,10 +79,11 @@ SPDX-License-Identifier: MIT
 
 
     <py-script>
-        from viewer3d import Viewer3D, Shapes, configs
+        from viewer3d import Viewer3D, SceneBuilder, Robots, Tools, Shapes
         from js import document
         from pyodide.ffi import create_proxy
         from scipy.spatial.transform import Rotation as R
+        import math
 
         document.getElementById('loader-container').style.display = 'none';
 
@@ -89,17 +101,56 @@ SPDX-License-Identifier: MIT
             orientation *= R.from_euler('XYZ', [0.0, 0.0, 90.0 * delta], degrees=True)
             greencube.orientation = orientation.as_quat()
 
+            cyancube.orientation = [0, 0, math.sin(time / 2), math.cos(time / 2)]
+
 
         # Create the Viewer3D
         viewer3D = Viewer3D(document.getElementById('viewer3d'))
         viewer3D.setRenderingCallback(update)
 
-        # Load the scene and retrieve the robot
-        viewer3D.loadScene('/scenes/panda_shelf.xml')
-        robot = viewer3D.createRobot('panda', configs.Panda.new())
+        # Setup the scene
+        builder = SceneBuilder('/scenes/empty.xml')
 
-        # Start the physics simulation
-        viewer3D.physicsSimulatorPaused = False
+        builder.addRobot(
+            'panda', Robots.Panda,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            Tools.FrankaHand
+        )
+
+        builder.addPart(
+            'shelf', '/scenes/parts/shelf.xml',
+            [0.0, 0.5, 0.0],
+            [0.0, 0.0, 0.0, 1.0]
+        )
+
+        builder.addPart(
+            'targetbox', '/scenes/parts/targetbox.xml',
+            [0.0, -0.5, 0.0],
+            [0.0, 0.0, 0.0, 1.0]
+        )
+
+        cubes = [
+            [ 'redcube',    [0.15, 0.6, 0.42],  [1, 0, 0, 1] ],
+            [ 'greencube',  [0.0, 0.6, 0.42],   [0, 1, 0, 1] ],
+            [ 'bluecube',   [-0.15, 0.6, 0.42], [0, 0, 1, 1] ],
+            [ 'yellowcube', [0.15, 0.4 ,0.32],  [1, 1, 0, 1] ],
+            [ 'cyancube',   [0.0, 0.4, 0.32],   [0, 1, 1, 1] ],
+            [ 'pinkcube',   [-0.15, 0.4, 0.32], [1, 0, 1, 1] ],
+        ]
+
+        for infos in cubes:
+            builder.addBox(
+                infos[0],
+                infos[1],
+                [0.0, 0.0, 0.0, 1.0],
+                [0.02, 0.02, 0.02],
+                infos[2],
+                0.01
+            )
+
+        # Load the scene and retrieve the robot
+        viewer3D.loadScene(builder)
 
         # Retrieve the cubes (and add axes to them)
         def getCube(name):
@@ -110,9 +161,7 @@ SPDX-License-Identifier: MIT
         redcube = getCube('redcube')
         greencube = getCube('greencube')
         bluecube = getCube('bluecube')
-        yellowcube = getCube('yellowcube')
         cyancube = getCube('cyancube')
-        pinkcube = getCube('pinkcube')
 
         redcube.nextActionTime = 1.0;
         bluecube.nextActionTime = 1.0;

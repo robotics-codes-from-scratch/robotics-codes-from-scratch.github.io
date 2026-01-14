@@ -51,36 +51,46 @@ SPDX-License-Identifier: MIT
 
     <!-- Create the Viewer3D from JavaScript -->
     <script type="module">
-        import { Viewer3D, downloadScene, RobotBuilder } from '../../viewer3d/viewer3d.js';
+        import { Viewer3D, downloadScene, SceneBuilder, RobotBuilder } from '../../viewer3d/viewer3d.js';
 
         // Download the assets
         await downloadScene('../scenes/empty.xml');
 
         // Create the Viewer3D
-        const viewer3D = new Viewer3D(document.getElementById('viewer3d'), {'show_axes': true});
+        const viewer3D = new Viewer3D(
+            document.getElementById('viewer3d'),
+            {
+                'show_axes': true
+            }
+        );
 
         // Define the robot using DH parameters
-        const builder = new RobotBuilder("robot");
+        const robotBuilder = new RobotBuilder("robot");
 
-        builder.q = [0, 0, 0, 0, 0, 0, 0, 0]; // Angle about previous z
-        builder.q_offset = [0, 0, 0, 0, 0, 0, 0, 0, 0]; // Offset on articulatory joints
-        builder.alpha = [0, -Math.PI/2, Math.PI/2, Math.PI/2, -Math.PI/2, Math.PI/2, Math.PI/2, 0]; // Angle about common normal
-        builder.d = [0.333, 0, 0.316, 0, 0.384, 0, 0, 0.107]; // Offset along previous z to the common normal
-        builder.r = [0, 0, 0, 0.0825, -0.0825, 0, 0.088, 0]; // Length of the common normal
+        robotBuilder.q = [0, 0, 0, 0, 0, 0, 0, 0]; // Angle about previous z
+        robotBuilder.q_offset = [0, 0, 0, 0, 0, 0, 0, 0, 0]; // Offset on articulatory joints
+        robotBuilder.alpha = [0, -Math.PI/2, Math.PI/2, Math.PI/2, -Math.PI/2, Math.PI/2, Math.PI/2, 0]; // Angle about common normal
+        robotBuilder.d = [0.333, 0, 0.316, 0, 0.384, 0, 0, 0.107]; // Offset along previous z to the common normal
+        robotBuilder.r = [0, 0, 0, 0.0825, -0.0825, 0, 0.088, 0]; // Length of the common normal
 
-        builder.defaultPose = [0, 0, 0, -Math.PI/2, 0, Math.PI/2, 0];
+        robotBuilder.defaultPose = [0, 0, 0, -Math.PI/2, 0, Math.PI/2, 0];
 
-        builder.colors = [  // As many as you want, links will alternate between those colors
+        robotBuilder.colors = [  // As many as you want, links will alternate between those colors
             "0.9 0.9 0.9 1",
             "0.85 0.85 0.85 1",
         ];
 
-        // Load the scene and retrieve the robot
-        viewer3D.loadScene('/scenes/empty.xml', [builder]);
-        const robot = viewer3D.createRobot('robot', builder.getConfiguration());
+        // Setup the scene
+        const builder = new SceneBuilder('/scenes/empty.xml');
+        builder.buildRobot(
+            'robot', robotBuilder,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0]
+        );
 
-        // Start the physics simulation
-        viewer3D.physicsSimulator.paused = false;
+        // Load the scene and retrieve the robot
+        viewer3D.loadScene(builder);
+        const robot = viewer3D.getRobot('robot');
     </script>
 </body>
 </html>

@@ -56,11 +56,12 @@ SPDX-License-Identifier: MIT
 
     <!-- Import the viewer3d.js library -->
     <script type="module">
-        import { downloadScene, downloadPandaRobot, initPyScript } from '../../viewer3d/viewer3d.js';
+        import { downloadScene, downloadRobot, downloadTool, Robots, Tools, initPyScript } from '../../viewer3d/viewer3d.js';
 
         // Download the assets
-        await downloadPandaRobot();
-        await downloadScene('../scenes/ghost_panda.xml');
+        await downloadRobot(Robots.Panda);
+        await downloadTool(Tools.FrankaHand);
+        await downloadScene('../scenes/empty.xml');
 
         // Now PyScript can be initialised
         initPyScript();
@@ -68,7 +69,7 @@ SPDX-License-Identifier: MIT
 
 
     <py-script>
-        from viewer3d import Viewer3D, Layers, configs
+        from viewer3d import Viewer3D, SceneBuilder, Robots, Tools, Layers
         from js import document
 
         document.getElementById('loader-container').style.display = 'none';
@@ -76,29 +77,39 @@ SPDX-License-Identifier: MIT
         # Create the Viewer3D
         viewer3D = Viewer3D(document.getElementById('viewer3d'))
 
-        # Load the scene and retrieve the robota
-        viewer3D.loadScene('/scenes/ghost_panda.xml')
+        # Setup the scene
+        builder = SceneBuilder('/scenes/empty.xml')
 
-        robot = viewer3D.createRobot('panda', configs.Panda.new(), 'panda_')
+        builder.addRobot(
+            'panda', Robots.Panda,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            Tools.FrankaHand
+        )
 
-        viewer3D.activateLayer(Layers.NoShadows);
-        ghost = viewer3D.createRobot(
-            'ghost',
-            configs.Panda.new(),
-            'ghost_',
+        builder.addRobot(
+            'ghost', Robots.Panda,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            Tools.FrankaHand,
             {
+                'collisionsEnabled': False,
+                'controlsEnabled': False,
                 'use_light_toon_shader': True,
                 'color': [1.0, 0.5, 0.8],
-                'controlsEnabled': False,
+                'layer': Layers.NoShadows,
             }
         )
 
+        # Load the scene and retrieve the robot and the ghost
+        viewer3D.loadScene(builder)
+        robot = viewer3D.getRobot('panda')
+        ghost = viewer3D.getRobot('ghost')
+
+        # Change the joint position of the ghost
         pos = ghost.jointPositions
         pos[0] = -1.5
         ghost.jointPositions = pos
-
-        # Start the physics simulation
-        viewer3D.physicsSimulatorPaused = False
     </py-script>
 </body>
 </html>

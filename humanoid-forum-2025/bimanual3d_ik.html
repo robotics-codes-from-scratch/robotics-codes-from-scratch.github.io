@@ -53,7 +53,7 @@
 
 
 <script id="bimanual3d_ik_page_code" type="python">
-    from viewer3d import Viewer3D, configs, logmap_S3, logmap, q2R, Shapes
+    from viewer3d import Viewer3D, logmap_S3, logmap, q2R, Shapes, Robots, Tools, SceneBuilder
     from js import document, three
     from rcfs import configure, displayError, setAspectRatio
     import numpy as np
@@ -102,17 +102,30 @@
 
     viewer3D.setRenderingCallback(ikUpdate, 0.01)
 
+    # Setup the scene
+    builder = SceneBuilder('/scenes/empty.xml')
+    builder.camera.azimuth = 120
+    builder.camera.elevation = -20
+
+    builder.addRobot(
+        'robot', Robots.G1_FixedLegs,
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+        [
+            Tools.UnitreeRightHand,
+            Tools.UnitreeLeftHand,
+        ]
+    )
+
     # Load the scene and retrieve the robot
-    viewer3D.loadScene('/scenes/g1_upperbody.xml')
+    viewer3D.loadScene(builder)
     viewer3D.translateCamera([0.0, 0.0, 0.3])
 
-    robot = viewer3D.createRobot('panda', configs.G1UpperBody.new())
+    robot = viewer3D.getRobot('robot')
 
     # Disable the manipulation of the joints
     viewer3D.jointsManipulationEnabled = False
     viewer3D.endEffectorManipulationEnabled = False
-
-    viewer3D.physicsSimulatorPaused = False
 
     # Add the targets
     parameters = {

@@ -66,11 +66,12 @@ SPDX-License-Identifier: MIT
 
     <!-- Import the viewer3d.js library -->
     <script type="module">
-        import { downloadScene, downloadPandaRobot, initPyScript } from '../../viewer3d/viewer3d.js';
+        import { downloadScene, downloadRobot, downloadTool, Robots, Tools, initPyScript } from '../../viewer3d/viewer3d.js';
 
         // Download the assets
-        await downloadPandaRobot();
-        await downloadScene('../scenes/panda_box.xml');
+        await downloadRobot(Robots.Panda);
+        await downloadTool(Tools.FrankaHand);
+        await downloadScene('../scenes/empty.xml');
 
         // Now PyScript can be initialised
         initPyScript();
@@ -78,7 +79,7 @@ SPDX-License-Identifier: MIT
 
 
     <py-script>
-        from viewer3d import Viewer3D, Shapes, Layers, Passes, OutlinePass, configs
+        from viewer3d import Viewer3D, SceneBuilder, Robots, Tools, Shapes, Layers, Passes, OutlinePass
         from js import document
         from js import three
         from pyodide.ffi import to_js
@@ -96,14 +97,18 @@ SPDX-License-Identifier: MIT
             parameters=parameters
         )
 
-        # Load the scene
-        viewer3D.loadScene('/scenes/panda_box.xml')
+        # Setup the scene
+        builder = SceneBuilder('/scenes/empty.xml')
+        builder.addRobot(
+            'panda', Robots.Panda,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            Tools.FrankaHand
+        )
 
-        # Retrieve the robot
-        robot = viewer3D.createRobot('panda', configs.Panda.new())
-
-        # Start the physics simulation
-        viewer3D.physicsSimulatorPaused = False
+        # Load the scene and retrieve the robot
+        viewer3D.loadScene(builder)
+        robot = viewer3D.getRobot('panda')
 
         # Add some targets in layer 'NoShadows'
         viewer3D.activateLayer(Layers.NoShadows);

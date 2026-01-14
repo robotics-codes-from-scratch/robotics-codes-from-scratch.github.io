@@ -56,10 +56,10 @@ SPDX-License-Identifier: MIT
 
     <!-- Import the viewer3d.js library -->
     <script type="module">
-        import { downloadScene, downloadPandaRobot, initPyScript } from '../../viewer3d/viewer3d.js';
+        import { downloadScene, downloadRobot, SceneBuilder, Robots, initPyScript } from '../../viewer3d/viewer3d.js';
 
         // Download the assets
-        await downloadPandaRobot();
+        await downloadRobot(Robots.Panda);
         await downloadScene('../scenes/panda.xml');
 
         // Now PyScript can be initialised
@@ -68,21 +68,21 @@ SPDX-License-Identifier: MIT
 
 
     <py-script>
-        from viewer3d import Viewer3D, Shapes, configs
+        from viewer3d import Viewer3D, SceneBuilder, Robots, Tools, Shapes
         from js import document
-        from pyodide.ffi import create_proxy
 
         document.getElementById('loader-container').style.display = 'none';
 
         # Create the Viewer3D
         viewer3D = Viewer3D(document.getElementById('viewer3d'))
 
-        # Load the scene and retrieve the robot
-        viewer3D.loadScene('/scenes/panda.xml')
-        robot = viewer3D.createRobot('panda', configs.Panda.new())
+        # Setup the scene
+        builder = SceneBuilder('/scenes/panda.xml')
+        builder.declareRobot('panda', Robots.Panda)
 
-        # Start the physics simulation
-        viewer3D.physicsSimulatorPaused = False
+        # Load the scene and retrieve the robot
+        viewer3D.loadScene(builder)
+        robot = viewer3D.getRobot('panda')
 
         # Add a target
         target = viewer3D.addTarget('target', [0.0, -0.4, 0.5], [-0.707, 0.707, 0.0, 0.0])

@@ -8,6 +8,9 @@
 
 from js import Viewer3Djs
 from js import three
+from js import SceneBuilder as SceneBuilderjs
+from js import Robots
+from js import Tools
 from js import Shapes
 from js import Layers
 from js import Passes
@@ -22,12 +25,11 @@ from pyodide.ffi import create_proxy
 from pyodide.ffi import to_js
 import numpy as np
 import math
-import time
 
 
 class Viewer3D:
-    """Python entry point for the 'viewer3d.js' library, used to display and interact with a 3D
-    representation of the Panda robotic arm.
+    """Python entry point for the 'viewer3d.js' library, which creates a three.js scene, camera,
+    effect composer and ties the MuJoCo physics imulator to rendering and user interaction.
 
     This class mainly acts as a bridge between the Python and JavaScript worlds, handling all the
     needed type conversions.
@@ -48,18 +50,15 @@ class Viewer3D:
         somewhere in the DOM (see 'Viewer3D.domElement').
 
         Optional parameters:
-            joint_position_colors (list):
-                the colors to use for the visual indicators around the joints (see
-                "show_joint_positions", default: all 0xff0000)
-
-            joint_position_layer (int):
-                the layer on which the joint position helpers are rendered (default: 0)
-
             shadows (bool):
                 enable the rendering of the shadows (default: true)
 
             show_joint_positions (bool):
                 enable the display of an visual indicator around each joint (default: false)
+
+            joint_position_colors (list):
+                the colors to use for the visual indicators around the joints (see
+                "show_joint_positions", default: all 0xff0000)
 
             statistics (bool):
                 enable the display of statistics about the rendering performance (default: false)
@@ -68,34 +67,37 @@ class Viewer3D:
                 indicates that the rendering frequency is controlled by the user application (default: false)
 
         Composition:
-            3D objects can be put on different layers, each rendered on top of the previous one.
-            Each layer has its own set of settings affecting the way it is rendered. Those
-            settings are:
+            This is an advanced topic that is only relevant if you need to customize the rendering
+            beyond the standard features of viewer3d.js.
 
-                clear_depth (bool):
-                    whether to clear the depth buffer before rendering the layer (default: false)
+            3D objects can be put on different layers, each rendered separately. Additionaly,
+            the rendering is based on three.js' EffectComposer, allowing the user to apply additional
+            effects as needed (by adding/removing render passes).
 
-                effect (str):
-                    the effect applied to this layer. Supported values: 'outline' (default: null)
+            4 layers are pre-defined:
 
-                effect_parameters (dict):
-                    the parameters of the effect applied to this layer
+                - Layers.Base (0): most objects should be put in that layer. This is the only layer
+                                in which objects are casting shadows.
+                - Layers.NoShadows (1): Objects that should not cast shadows should be put in that
+                                        layer
+                - Layers.Top (2): objects that should be rendered after clearing the depth buffer
+                                (= "on top of everything else") should be put in that layer
+                - Layers.Labels (31): texts to be rendered in the 3D world must be in that layer
 
-            Example (apply the 'outline' effect on layer 1):
+            The user can add its own layers (starting at index 'Layers.User'), but will also need
+            to add corresponding render passes.
 
-                [
-                    {
-                        'layer': 1,
-                        'effect': 'outline',
-                    }
-                ]
+            The default passes used are:
 
-            Parameters for the 'outline' effect:
-                thickness (float):
-                    thickness of the outline (default: 0.003)
+                - Passes.BaseRenderPass (LayerRenderPass): render objects in layer 'Layers.Base'
+                - Passes.NoShadowsRenderPass (LayerRenderPass): render objects in layer 'Layers.NoShadows'
+                - Passes.TopRenderPass (LayerRenderPass): render objects in layer 'Layers.Top'.
+                                                        Note that the depth buffer is cleared by
+                                                        this pass.
+                - Passes.OutputPass (OutputPass): tone mapping, sRGB conversion
 
-                color (list of 4 floats):
-                    RGBA color of the outline (default: [0, 0, 0, 0])
+            Note that transparent objects might be rendered with incorrect colors due to an issue
+            in three.js. You might have to adjust their colors and/or opacity.
         """
         self.viewer = Viewer3Djs.new(
             domElement,
@@ -105,6 +107,7 @@ class Viewer3D:
 
 
     def dispose(self):
+        """Dispose of renderer resources. Call when the viewer is no longer needed"""
         self.viewer.dispose()
 
 
@@ -138,48 +141,37 @@ class Viewer3D:
         return self.viewer.transformControls
 
 
-    def loadScene(self, filename, robotBuilders=None):
-        if robotBuilders is not None:
-            for builder in robotBuilders:
-                builder.q = to_js(builder.q)
-                builder.q_offset = to_js(builder.q_offset)
-                builder.alpha = to_js(builder.alpha)
-                builder.d = to_js(builder.d)
-                builder.r = to_js(builder.r)
-                builder.defaultPose = to_js(builder.defaultPose)
-                builder.colors = to_js(builder.colors)
-                builder.position = to_js(builder.position)
-                builder.quaternion = to_js(builder.quaternion)
+    def loadScene(self, sceneBuilder):
+        """Load a scene built by SceneBuilder or a filename string. Destroys previous
+        scene, loads MuJoCo assets, creates robots and configures camera/fog.
 
-        self.viewer.loadScene(filename, to_js(robotBuilders))
+        Parameters:
+            sceneBuilder (SceneBuilder|string)
+        """
+        if isinstance(sceneBuilder, SceneBuilder):
+            sceneBuilder = sceneBuilder.builder
+
+        self.viewer.loadScene(sceneBuilder)
 
 
     @property
     def physicsSimulatorPaused(self):
-        return self.viewer.physicsSimulator.paused;
+        return self.viewer.physicsSimulator.paused
 
 
     @physicsSimulatorPaused.setter
     def physicsSimulatorPaused(self, paused):
-        self.viewer.physicsSimulator.paused = paused;
-
-
-    def createRobot(self, name, configuration, prefix=None, parameters=None):
-        robotjs = self.viewer.createRobot(name, to_js(configuration), prefix, to_js(parameters))
-        if robotjs is None:
-            return None
-
-        if robotjs.getNbEndEffectors() > 1:
-            return ComplexRobot(robotjs)
-        else:
-            return SimpleRobot(robotjs)
+        self.viewer.physicsSimulator.paused = paused
 
 
     def getRobot(self, name):
-        """Returns the robot
+        """Retrieve a robot instance by name.
 
+        Parameters:
+            name (str): robot name
+        
         Returns:
-            The robot (Robot)
+            The Robot instance or undefined if not found
         """
         robotjs = self.viewer.getRobot(name)
         if robotjs is None:
@@ -192,15 +184,13 @@ class Viewer3D:
 
 
     def setRenderingCallback(self, callback, timestep=-1.0):
-        """Register a function that should be called once per frame.
-
-        This callback function can for example be used to update the positions of the joints.
-
-        The signature of the callback function is: callback(delta), with 'delta' the time elapsed
-        since the last frame, in seconds.
-
-        Note that only one function can be registered at a time. If 'callback' is 'None', no
-        function is called anymore.
+        """Register a rendering callback called once per frame.
+        The callback can update joint positions or perform custom physics/logic.
+        Only one callback can be registered at a time.
+        
+        Parameters:
+            renderingCallback(delta, time): function called each frame or None to unregister
+            timestep (float): fixed timestep for callback; if >0 the callback will be called repeatedly to catch up if necessary
         """
         self.viewer.setRenderingCallback(
             create_proxy(callback) if callback is not None else None,
@@ -209,6 +199,12 @@ class Viewer3D:
 
 
     def setControlCallbacks(self, startCallback, endCallback):
+        """Set callbacks invoked when a user control interaction starts and ends.
+        
+        Parameters:
+            startCallback(): called when control interaction begins
+            endCallback(): called when control interaction ends
+        """
         self.viewer.setControlCallbacks(
             create_proxy(startCallback) if startCallback is not None else None,
             create_proxy(endCallback) if endCallback is not None else None
@@ -217,18 +213,18 @@ class Viewer3D:
 
     @property
     def controlsEnabled(self):
-        """Indicates if the manipulation controls are enabled
+        """Indicates whether manipulation controls are enabled
 
-        Manipulation controls include the end-effector and the target manipulators.
+        Manipulation controls include end-effector and target manipulators.
         """
         self.viewer.areControlsEnabled()
 
 
     @controlsEnabled.setter
     def controlsEnabled(self, enabled):
-        """Enables/disables the manipulation controls
+        """Enable or disable manipulation controls (transform widgets).
 
-        Manipulation controls include the end-effector and the target manipulators.
+        Manipulation controls include end-effector and target manipulators.
         """
         self.viewer.enableControls(enabled)
 
@@ -323,25 +319,34 @@ class Viewer3D:
 
     @property
     def forceImpulsesEnabled(self):
+        """Enable or disable application of force impulses to links when clicked.
+
+        Parameters:
+            enabled (bool)
+            amount (float): magnitude of applied impulses
+        """
         return self.viewer.areForceImpulsesEnabled()
 
 
     def enableForceImpulses(self, enabled, amount=0.0):
+        """Returns whether force impulses are enabled."""
         self.viewer.enableForceImpulses(enabled, amount)
 
 
     @property
     def robotToolsEnabled(self):
+        """"Returns whether robot tools (grippers) are enabled."""
         return self.viewer.areRobotToolsEnabled()
 
 
     @robotToolsEnabled.setter
     def robotToolsEnabled(self, enabled):
+        """Enable or disable robot tools (grippers) for all robots."""
         self.viewer.enableRobotTools(enabled)
 
 
     def activateLayer(self, layer):
-        """Change the layer on which new objects are created.
+        """Activate the layer where newly created objects will be placed.
 
         Parameters:
             layer (int): Index of the layer
@@ -349,10 +354,22 @@ class Viewer3D:
         self.viewer.activateLayer(layer)
 
     def addPassBefore(self, newPass, standardPassId):
+        """Insert a render pass before a standard pass in the composer.
+        
+        Parameters:
+            pass (Pass): an EffectComposer pass instance
+            standardPassId (int): an ID from Passes
+        """
         self.viewer.addPassBefore(newPass, standardPassId)
 
 
     def addPassAfter(self, newPass, standardPassId):
+        """Insert a render pass after a standard pass in the composer.
+        
+        Parameters:
+            pass (Pass): an EffectComposer pass instance
+            standardPassId (int): an ID from Passes
+        """
         self.viewer.addPassAfter(newPass, standardPassId)
 
 
@@ -683,6 +700,11 @@ class Viewer3D:
 
 
     def translateCamera(self, delta):
+        """Translate the camera target by a delta vector and update controls.
+
+        Parameters:
+            delta (list/NumpPy array): the delta vector
+        """
         if isinstance(delta, np.ndarray):
             delta = list(delta)
 
@@ -690,6 +712,14 @@ class Viewer3D:
 
 
     def enableLogmap(self, robot, target, position='left', size=None):
+        """Enable the logmap overlay for a robot/target pair.
+
+        Parameters:
+            robot (string|Robot): robot name or instance
+            target (string|Target): target name or instance
+            position (string): 'left' or 'right', placement of the logmap
+            size (tuple): optional size (width, height)
+        """
         if isinstance(robot, Robot):
             robot = robot.name
 
@@ -700,6 +730,7 @@ class Viewer3D:
 
 
     def disableLogmap(self):
+        """Disable any active logmap overlay."""
         self.viewer.disableLogmap()
 
 
@@ -718,16 +749,243 @@ class Viewer3D:
 
 
     def render(self):
+        """Render a frame. This is the main loop entry point and is called repeatedly
+        when 'external_loop' is false.
+        """
         self.viewer.render()
 
 
     async def stop(self):
+        """Stop the viewer render loop and wait until it has fully stopped.
+        
+        When using external_loop=true this is a no-op and returns immediately.
+        """
         await self.viewer.stop()
 
 
 
+class SceneBuilder:
+    """High-level scene builder to assemble MuJoCo scenes programmatically and
+    generate processed XML files in the MuJoCo filesystem under '/scenes/...'.
+    """
+
+    def __init__(self, mujocoSceneFilename):
+        """Constructor
+
+        Parameters:
+            scenePath (string): path to the base XML scene file
+        """
+        self.builder = SceneBuilderjs.new(mujocoSceneFilename)
+
+    def addRobot(self, name, configuration, position=None, orientation=None, toolsConfiguration=None, parameters=None):
+        """Add a robot specification to the scene builder.
+
+        Parameters:
+            name (string) - robot name
+            configuration (Object|string): robot configuration object or path
+            position (list/NumpPy array)
+            orientation (list/NumpPy array): quaternion
+            toolsConfiguration (Object|None)
+            parameters (dict|None)
+        """
+        (position, orientation) = self._convertPositionAndOrientation(position, orientation)
+        self.builder.addRobot(name, configuration, position, orientation, to_js(toolsConfiguration), to_js(parameters))
+
+    def declareRobot(self, name, configuration, toolsConfiguration=None, parameters=None):
+        """Declare a robot already existing in the Mujoco scene.
+
+        Parameters:
+            name (string) - robot name
+            configuration (Object|string): robot configuration object or path
+            toolsConfiguration (Object|None)
+            parameters (dict|None)
+        """
+        self.builder.declareRobot(name, configuration, to_js(toolsConfiguration), to_js(parameters))
+
+    def buildRobot(self, name, robotBuilder, position=None, orientation=None):
+        """Build a robot XML using a RobotBuilder and add it to the scene.
+
+        The generated XML is stored under /scenes/generated/.
+        
+        Parameters:
+            name (string) - robot name
+            robotBuilder (RobotBuilder)
+            position (list/NumpPy array)
+            orientation (list/NumpPy array): quaternion
+        """
+        (position, orientation) = self._convertPositionAndOrientation(position, orientation)
+        self.builder.buildRobot(name, robotBuilder, position, orientation)
+
+    def addBox(self, name, position, orientation, halfSize, color, mass=None):
+        """Add a box collision/visual body to the scene builder.
+
+        Parameters:
+            name (string) - body name
+            position (list/NumpPy array)
+            orientation (list/NumpPy array): quaternion
+            halfSize (list/NumpPy array)
+            color (list/NumpPy array): rgba or rgb
+            mass (float|None): If None, the body isn't movable
+        """
+        (position, orientation) = self._convertPositionAndOrientation(position, orientation)
+        halfSize = self._convertVector3(halfSize)
+        color = self._convertColor(color)
+        self.builder.addBox(name, position, orientation, halfSize, color, mass)
+
+    def addCapsule(self, name, position, orientation, radius, halfLength, color, mass=None):
+        """Add a capsule body.
+
+        Parameters:
+            name (string) - body name
+            position (list/NumpPy array)
+            orientation (list/NumpPy array): quaternion
+            radius (float)
+            halfLength (float)
+            color (list/NumpPy array): rgba or rgb
+            mass (float|None): If None, the body isn't movable
+        """
+        (position, orientation) = self._convertPositionAndOrientation(position, orientation)
+        color = self._convertColor(color)
+        self.builder.addCapsule(name, position, orientation, radius, halfLength, color, mass)
+
+    def addCylinder(self, name, position, orientation, radius, halfLength, color, mass=None):
+        """Add a cylinder body.
+
+        Parameters:
+            name (string) - body name
+            position (list/NumpPy array)
+            orientation (list/NumpPy array): quaternion
+            radius (float)
+            halfLength (float)
+            color (list/NumpPy array): rgba or rgb
+            mass (float|None): If None, the body isn't movable
+        """
+        (position, orientation) = self._convertPositionAndOrientation(position, orientation)
+        color = self._convertColor(color)
+        self.builder.addCylinder(name, position, orientation, radius, halfLength, color, mass)
+
+    def addEllipsoid(self, name, position, orientation, radiuses, color, mass=None):
+        """Add an ellipsoid body.
+
+        Parameters:
+            name (string) - body name
+            position (list/NumpPy array)
+            orientation (list/NumpPy array): quaternion
+            radiuses (list/NumpPy array): 2 radiuses
+            color (list/NumpPy array): rgba or rgb
+            mass (float|None): If None, the body isn't movable
+        """
+        (position, orientation) = self._convertPositionAndOrientation(position, orientation)
+        radiuses = self._convertVector3(radiuses)
+        color = self._convertColor(color)
+        self.builder.addEllipsoid(name, position, orientation, radiuses, color, mass)
+
+    def addPlane(self, name, position, orientation, halfSizeX, halfSizeY, spacing, color):
+        """Add a plane body.
+
+        Note that planes are infinite and not movable, even if you must specify dimensions
+        for rendering purposes.
+
+        Parameters:
+            name (string) - body name
+            position (list/NumpPy array)
+            orientation (list/NumpPy array): quaternion
+            halfSizeX (float)
+            halfSizeY (float)
+            spacing (float): spacing between vertices
+            color (list/NumpPy array): rgba or rgb
+        """
+        (position, orientation) = self._convertPositionAndOrientation(position, orientation)
+        color = self._convertColor(color)
+        self.builder.addPlane(name, position, orientation, halfSizeX, halfSizeY, spacing, color)
+
+    def addSphere(self, name, position, orientation, radius, color, mass=None):
+        """Add a sphere body.
+
+        Parameters:
+            name (string) - body name
+            position (list/NumpPy array)
+            orientation (list/NumpPy array): quaternion
+            radius (float)
+            color (list/NumpPy array): rgba or rgb
+            mass (float|None): If None, the body isn't movable
+        """
+        (position, orientation) = self._convertPositionAndOrientation(position, orientation)
+        color = self._convertColor(color)
+        self.builder.addSphere(name, position, orientation, radius, color, mass)
+
+    def addMesh(
+        self, name, position, orientation, filename, color, mass=None,
+        meshPosition=None, meshOrientation=None, collision=None
+    ):
+        """Add a mesh body referencing an external mesh file.
+
+        Parameters:
+            name (string) - body name
+            position (list/NumpPy array)
+            orientation (list/NumpPy array): quaternion
+            filename (string)
+            color (list/NumpPy array): rgba or rgb
+            mass (float|None): If None, the body isn't movable
+            meshPosition (list/NumpPy array|None): offset position of the mesh relative to the body
+            meshOrientation (list/NumpPy array|None): offset quaternion of the mesh relative to the body
+            collision (list/dict|None): the collision shapes to use instead of a convex hull of the mesh
+        """
+        (position, orientation) = self._convertPositionAndOrientation(position, orientation)
+        (meshPosition, meshOrientation) = self._convertPositionAndOrientation(meshPosition, meshOrientation)
+        color = self._convertColor(color)
+        self.builder.addMesh(
+            name, position, orientation, filename, color, mass, meshPosition, meshOrientation,
+            to_js(collision)
+        )
+
+    def addPart(self, name, filename, position=None, orientation=None, body=None):
+        """Add a part defined in an external XML file and optionally reference a body name.
+
+        Parameters:
+            name (string) - body name
+            filename (string)
+            position (list/NumpPy array)
+            orientation (list/NumpPy array): quaternion
+            body (string): the name of the root body in the external XML file
+        """
+        (position, orientation) = self._convertPositionAndOrientation(position, orientation)
+        self.builder.addPart(name, filename, position, orientation, body)
+
+    @property
+    def camera(self):
+        return self.builder.camera
+
+    def _convertPositionAndOrientation(self, position, orientation):
+        if isinstance(orientation, np.ndarray):
+            orientation = list(orientation)
+
+        return (
+            self._convertVector3(position),
+            three.Quaternion.new(*orientation) if orientation is not None else None,
+        )
+
+    def _convertVector3(self, vector):
+        if isinstance(vector, np.ndarray):
+            vector = list(vector)
+
+        if isinstance(vector, list):
+            return three.Vector3.new(*vector)
+
+        return vector
+
+    def _convertColor(self, color):
+        if isinstance(color, np.ndarray):
+            color = list(color)
+
+        return to_js(color)
+
+
+
 class KinematicChain:
-    """A kinematic chain of a robot"""
+    """Represents a kinematic chain (a sequence of joints/actuators) inside a robot.
+       Provides FK, IK and jacobian utilities restricted to that chain.
+    """
 
     def __init__(self, chainjs):
         """Constructor, for internal use only"""
@@ -735,14 +993,12 @@ class KinematicChain:
 
 
     def sample(self, values):
-        """Given a list of joint positions or control values for the whole robot,
-        returns only the elements concerning this kinematic chain.
+        """Extract values corresponding to this kinematic chain from a full-robot vector.
 
         To perform the opposite operation, use 'project()'.
 
         Parameters:
-            values (list/NumpPy array): The joint positions or control values of
-                                        the whole robot
+            values (list/NumpPy array): full robot joint/control values
 
         Returns:
             A Numpy array containing the values concerning this kinematic chain
@@ -754,10 +1010,7 @@ class KinematicChain:
 
 
     def project(self, values):
-        """Given a list of joint positions or control values for this
-        kinematic chain, returns a list for the whole robot, with the
-        elements concerning this kinematic chain in the correct places
-        and the other values set to 0.
+        """Project chain-local values into a full-robot vector (others set to 0).
 
         To perform the opposite operation, use 'sample()'.
 
@@ -775,12 +1028,13 @@ class KinematicChain:
 
 
     def fkin(self, positions, offset=None):
-        """Forward kinematics computation given some joint positions
+        """Compute forward kinematics for this chain.
 
         Parameters:
             positions (list/NumpPy array): the joint positions. If a 2D Numpy array is
                                            provided, one forward kinematics computation
                                            is performed for each column
+            offset (list/NumpPy array|None): optional offset from last joint
 
         Returns:
             A Numpy array containing the position and orientation of the end-effector
@@ -808,6 +1062,20 @@ class KinematicChain:
 
 
     def ik(self, mu, nbJoints=None, offset=None, limit=None, dt=0.01, successDistance=1e-4, damping=False):
+        """Solve inverse kinematics to reach target pose mu.
+
+        Parameters:
+            mu (list/NumpPy array): target (3D position, 4D quat, or 7D transform)
+            nbJoints (int|None): Number of joints to use
+            offset (list/NumpPy array|None): optional offset from last joint
+            limit (int): max iterations
+            dt (float)
+            successDistance (float)
+            damping (bool)
+        
+        Returns:
+            True if converged
+        """
         x = self.control
         startx = x.copy()
 
@@ -863,6 +1131,10 @@ class KinematicChain:
 
     def Jkin(self, positions, offset=None):
         """Jacobian with numerical computation, on a subset of the joints
+
+        Parameters:
+            positions (list/NumpPy array): the joint positions
+            offset (list/NumpPy array|None): optional offset from last joint
         """
         eps = 1e-6
         D = len(positions)
@@ -1119,11 +1391,6 @@ class Robot:
         return self.robot._isGripperHoldingSomeObject(index)
 
 
-    def _gripperAbduction(self, index=0):
-        """Returns the current abduction of the gripper, between 0.0 (closed) and 1.0 (fully open)"""
-        return self.robot._getGripperAbduction(index)
-
-
     def _openGripper(self, index=0):
         """Opens the gripper (will take some time to complete)"""
         self.robot._openGripper(index)
@@ -1215,12 +1482,6 @@ class SimpleRobot(Robot):
         return self._isGripperHoldingSomeObject()
 
 
-    @property
-    def gripperAbduction(self):
-        """Returns the current abduction of the gripper, between 0.0 (closed) and 1.0 (fully open)"""
-        return self._getGripperAbduction()
-
-
     def openGripper(self):
         """Opens the gripper (will take some time to complete)"""
         self._openGripper()
@@ -1308,11 +1569,6 @@ class ComplexRobot(Robot):
 
     def isGripperHoldingSomeObject(self, index=0):
         return self._isGripperHoldingSomeObject(index)
-
-
-    def gripperAbduction(self, index=0):
-        """Returns the current abduction of the gripper, between 0.0 (closed) and 1.0 (fully open)"""
-        return self._getGripperAbduction(index)
 
 
     def openGripper(self, index=0):

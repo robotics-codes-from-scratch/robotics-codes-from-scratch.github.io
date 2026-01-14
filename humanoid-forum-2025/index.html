@@ -294,7 +294,7 @@
 
     <script type="module">
         import Reveal from '../js/reveal/reveal.esm.js';
-        import { initViewer3D, initPyScript, downloadScene, downloadPandaRobot, downloadG1Robot } from '../viewer3d/viewer3d.js';
+        import { initViewer3D, initPyScript, downloadScene, downloadRobot, downloadTool, Robots, Tools } from '../viewer3d/viewer3d.js';
         import * as THREE from 'three';
         import * as math from 'mathjs';
 
@@ -708,13 +708,16 @@
 
         initViewer3D();
 
-        await downloadScene('../3d_sandboxes/scenes/panda.xml');
-        await downloadScene('../3d_sandboxes/scenes/panda_ghost.xml');
-        await downloadScene('../3d_sandboxes/scenes/g1_upperbody.xml');
-        await downloadScene('../3d_sandboxes/scenes/g1.xml');
-        await downloadScene('./scenes/humanoid3d_3.xml');
-        await downloadPandaRobot();
-        await downloadG1Robot();
+        await downloadScene('../3d_sandboxes/scenes/empty.xml');
+        await downloadScene('scenes/humanoid3d_3.xml');
+        await downloadRobot(Robots.Panda);
+        await downloadRobot(Robots.G1);
+        await downloadRobot(Robots.G1_FixedLegs);
+        await downloadTool(Tools.FrankaHand);
+        await downloadTool(Tools.UnitreeRightHand);
+        await downloadTool(Tools.UnitreeLeftHand);
+        await downloadTool(Tools.UnitreeRightDex3_1);
+        await downloadTool(Tools.UnitreeLeftDex3_1);
 
         initPyScript();
     </script>

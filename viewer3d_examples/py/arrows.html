@@ -62,11 +62,12 @@ SPDX-License-Identifier: MIT
 
     <!-- Import the viewer3d.js library -->
     <script type="module">
-        import { downloadScene, downloadPandaRobot, initPyScript } from '../../viewer3d/viewer3d.js';
+        import { downloadScene, downloadRobot, downloadTool, SceneBuilder, Robots, Tools, initPyScript } from '../../viewer3d/viewer3d.js';
 
         // Download the assets
-        await downloadPandaRobot();
-        await downloadScene('../scenes/panda.xml');
+        await downloadRobot(Robots.Panda);
+        await downloadTool(Tools.FrankaHand);
+        await downloadScene('../scenes/empty.xml');
 
         // Now PyScript can be initialised
         initPyScript();
@@ -74,7 +75,7 @@ SPDX-License-Identifier: MIT
 
 
     <py-script>
-        from viewer3d import Viewer3D, configs
+        from viewer3d import Viewer3D, SceneBuilder, Robots, Tools
         from js import document
         from scipy.spatial.transform import Rotation as R
         import math
@@ -99,12 +100,18 @@ SPDX-License-Identifier: MIT
         viewer3D = Viewer3D(document.getElementById('viewer3d'))
         viewer3D.setRenderingCallback(update)
 
-        # Load the scene and retrieve the robot
-        viewer3D.loadScene('/scenes/panda.xml')
-        robot = viewer3D.createRobot('panda', configs.Panda.new())
+        # Setup the scene
+        builder = SceneBuilder('/scenes/empty.xml')
+        builder.addRobot(
+            'panda', Robots.Panda,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            Tools.FrankaHand
+        )
 
-        # Start the physics simulation
-        viewer3D.physicsSimulatorPaused = False
+        # Load the scene and retrieve the robot
+        viewer3D.loadScene(builder)
+        robot = viewer3D.getRobot('panda')
 
         # Add some arrows
         arrow1 = viewer3D.addArrow(

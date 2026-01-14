@@ -25,7 +25,7 @@
 
 
 <script id="page_code" type="python">
-    from viewer3d import Viewer3D, configs, logmap_S3, logmap, Layers, Passes, OutlinePass
+    from viewer3d import Viewer3D, logmap_S3, logmap, Layers, Passes, OutlinePass, SceneBuilder, Robots, Tools
     from rcfs import configure, setAspectRatio
     from js import document, katex, three
     import numpy as np
@@ -134,19 +134,26 @@
             show_joint_positions=True,
             joint_position_colors=joint_colors,
             joint_position_layer=2,
-            robot_use_light_toon_shader=True,
             external_loop=True,
         )
     )
 
     viewer3D.setRenderingCallback(update, 0.01)
 
-    # Load the scene and retrieve the robot
-    viewer3D.loadScene('/scenes/panda.xml')
-    viewer3D.translateCamera([0, 0, 0.3])
+    # Setup the scene
+    builder = SceneBuilder('/scenes/empty.xml')
+    builder.addRobot(
+        'panda', Robots.Panda,
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+        Tools.FrankaHand,
+        parameters=dict(use_light_toon_shader=True)
+    )
 
-    viewer3D.activateLayer(Layers.NoShadows)
-    robot = viewer3D.createRobot('panda', configs.Panda.new(), parameters=dict(use_light_toon_shader=True))
+    # Load the scene and retrieve the robot
+    viewer3D.loadScene(builder)
+    viewer3D.translateCamera([0.0, 0.0, 0.3])
+    robot = viewer3D.getRobot('panda')
 
     # Disable the manipulation of the robot by the user
     viewer3D.controlsEnabled = False

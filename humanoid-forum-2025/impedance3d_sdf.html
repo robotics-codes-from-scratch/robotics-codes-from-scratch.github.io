@@ -45,7 +45,7 @@
 
 
 <script id="impedance3d_sdf_page_code" type="python">
-    from viewer3d import Viewer3D, configs, logmap_S3, logmap, Layers, Passes
+    from viewer3d import Viewer3D, logmap_S3, logmap, Layers, Passes, Robots, Tools, SceneBuilder
     from js import document, SDFPass, three
     from rcfs import configure, displayError, setAspectRatio, ImpedancePlanarIKControls
     from pyodide.ffi import to_js
@@ -313,11 +313,20 @@
         viewer3D.setRenderingCallback(None)
         viewer3D.removeArrow('arrow')
 
-        # Load the scene and retrieve the robot
-        viewer3D.loadScene('/scenes/panda.xml')
-        viewer3D.translateCamera([0.0, 0.0, 0.3])
+        # Setup the scene
+        builder = SceneBuilder('/scenes/empty.xml')
 
-        viewer3D.activateLayer(Layers.NoShadows)
+        builder.addRobot(
+            'panda', Robots.Panda,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            Tools.FrankaHand
+        )
+
+        # Load the scene and retrieve the robot
+        viewer3D.loadScene(builder)
+        viewer3D.translateCamera([0.0, 0.0, 0.3])
+        robot = viewer3D.getRobot('panda')
 
         arrow = None
 
@@ -325,19 +334,12 @@
             sdfPass = SDFPass.new(viewer3D.viewer)
             viewer3D.addPassBefore(sdfPass, Passes.TopRenderPass)
 
-        viewer3D.activateLayer(Layers.Base)
-
-        robot = viewer3D.createRobot('panda', configs.Panda.new())
-
         # Disable the manipulation of the end-effector
         viewer3D.endEffectorManipulationEnabled = False
 
         robot.jointPositions = x[:param.nbVarX]
 
         viewer3D.setRenderingCallback(update, 0.01)
-
-        # Start the physics simulation
-        viewer3D.physicsSimulatorPaused = False
 
 
     async def loop(delta, time):

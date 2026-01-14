@@ -1,6 +1,12 @@
 <?xml version="1.0"?>
-<mujoco model="panda scene">
-    <statistic center="0.0 0 0.4" extent="1.5"/>
+<mujoco model="empty scene">
+    <option cone="elliptic" impratio="10" noslip_iterations="20" timestep="0.001" integrator="implicitfast">
+        <flag multiccd="enable"/>
+    </option>
+
+    <default>
+        <geom friction="0.8 0.1 0.1" solimp="0.95 0.99 0.0001" solref="0.005 1"/>
+    </default>
 
     <visual>
         <headlight diffuse="0 0 0" ambient="1 1 1"/>
@@ -14,7 +20,7 @@
 
     <worldbody>
         <light pos="0 0 3" diffuse="1 1 1" castshadow="false" directional="true" intensity="2"/>
-        <light pos="3 4 3" dir="-3 -4 -3" diffuse="1 1 1" directional="false" intensity="30"/>
-        <geom name="floor" size="1.5 1.5 0.1" type="plane" material="groundplane"/>
+        <light pos="2 -3 3" dir="-2 3 -3" diffuse="1 1 1" directional="false" intensity="30"/>
+        <geom name="floor" size="5 5 0.1" type="plane" material="groundplane"/>
     </worldbody>
 </mujoco>

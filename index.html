@@ -179,8 +179,7 @@
   </div>
   <script type="module">
    import {
-            initViewer3D, initPyScript, downloadScene,
-            downloadPandaRobot, downloadG1Robot, downloadUR5Robot
+            initViewer3D, initPyScript, downloadScene, downloadRobot, downloadTool
         } from './viewer3d/viewer3d.js';
 
         // Retrieve the base URL of the page
@@ -211,6 +210,7 @@
         };
 
         const loadedRobots = [];
+        const loadedTools = [];
         const loadedScenes = [];
         const loadedScripts = {};
         const loadedData = {};
@@ -384,6 +384,9 @@
                         if (entry.assets.robots != null)
                             assets.robots = entry.assets.robots;
 
+                        if (entry.assets.tools != null)
+                            assets.tools = entry.assets.tools;
+
                         if (entry.assets.scenes != null)
                             assets.scenes = entry.assets.scenes.map((x) => category.id + '/' + x);
 
@@ -469,6 +472,7 @@
             if (pageEntry.assets != null)
             {
                 let robotsToLoad = [];
+                let toolsToLoad = [];
                 let scenesToLoad = [];
                 let scriptsToLoad = [];
                 let dataToLoad = [];
@@ -479,6 +483,15 @@
                     {
                         if (loadedRobots.indexOf(robot) == -1)
                             robotsToLoad.push(robot);
+                    }
+                }
+
+                if (pageEntry.assets.tools != null)
+                {
+                    for (let tool of pageEntry.assets.tools)
+                    {
+                        if (loadedTools.indexOf(tool) == -1)
+                            toolsToLoad.push(tool);
                     }
                 }
 
@@ -518,14 +531,14 @@
                     tasks.push(async () => {
                         for (let robot of robotsToLoad)
                         {
-                            if (robot == "panda")
-                                await downloadPandaRobot();
-                            else if (robot == "g1")
-                                await downloadG1Robot();
-                            else if (robot == "ur5")
-                                await downloadUR5Robot();
-
+                            await downloadRobot(robot);
                             loadedRobots.push(robot);
+                        }
+
+                        for (let tool of toolsToLoad)
+                        {
+                            await downloadTool(tool);
+                            loadedTools.push(tool);
                         }
 
                         for (let scene of scenesToLoad)
@@ -997,7 +1010,6 @@
             element.style.height = '' + (element.clientWidth * ratio) + 'px';
         }
 
-
         function updateWorkspaceStyleVariables() {
             const workspace = document.querySelector('#workspace');
             if (workspace) {
@@ -1013,13 +1025,27 @@
             }
 
             updateWorkspaceStyleVariables();
-        };
+        }
+
+        function updateOutputScrollPosition(id)
+        {
+            const container = document.getElementById(id);
+            if (container.children.length == 0)
+                return;
+
+            const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + container.children[0].clientHeight;
+
+            if (isAtBottom)
+                container.scrollTop = container.scrollHeight;
+        }
+
 
         globalThis._configure = configure;
         globalThis._getScript = getScript;
         globalThis._getData = getData;
         globalThis._setAspectRatio = setAspectRatio;
         globalThis._createEditors = createEditors;
+        globalThis._updateOutputScrollPosition = updateOutputScrollPosition;
 
 
         function getStorageKey()
@@ -1179,6 +1205,7 @@
         from js import _getData as _jsGetData
         from js import _createEditors as _jsCreateEditors
         from js import _setAspectRatio as _jsSetAspectRatio
+        from js import _updateOutputScrollPosition as _jsUpdateOutputScrollPosition
         import types
         import sys
         import traceback
@@ -1202,7 +1229,17 @@
             _display(*kargs, **kwargs)
             console.log(*[ repr(x) for x in kargs ])
 
+            if 'target' in kwargs:
+                _jsUpdateOutputScrollPosition(kwargs['target'])
+
         print = display
+
+
+        def clear():
+            if _output:
+                el = document.getElementById(_output)
+                if el:
+                    el.innerText = ''
 
 
         def _displayError(exception):

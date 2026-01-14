@@ -43,11 +43,12 @@ SPDX-License-Identifier: MIT
     <!-- Create the Viewer3D from JavaScript -->
 
     <script type="module">
-        import { Viewer3D, downloadScene, downloadPandaRobot, PandaConfiguration } from '../../viewer3d/viewer3d.js';
+        import { Viewer3D, downloadScene, downloadRobot, downloadTool, SceneBuilder, Robots, Tools } from '../../viewer3d/viewer3d.js';
 
         // Download the assets
-        await downloadPandaRobot();
-        await downloadScene('../scenes/panda.xml');
+        await downloadRobot(Robots.Panda);
+        await downloadTool(Tools.FrankaHand);
+        await downloadScene('../scenes/empty.xml');
 
         // Create the Viewer3D
         const viewer3D = new Viewer3D(
@@ -58,12 +59,18 @@ SPDX-License-Identifier: MIT
             }
         );
 
-        // Load the scene and retrieve the robot
-        viewer3D.loadScene('/scenes/panda.xml');
-        const robot = viewer3D.createRobot('panda', new PandaConfiguration());
+        // Setup the scene
+        const builder = new SceneBuilder('/scenes/empty.xml');
 
-        // Start the physics simulation
-        viewer3D.physicsSimulator.paused = false;
+        builder.addRobot(
+            'panda', Robots.Panda,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            Tools.FrankaHand
+        );
+
+        // Load the scene
+        viewer3D.loadScene(builder);
     </script>
 </body>
 </html>

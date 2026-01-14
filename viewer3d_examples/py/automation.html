@@ -58,11 +58,21 @@ SPDX-License-Identifier: MIT
 
     <!-- Import the viewer3d.js library -->
     <script type="module">
-        import { downloadScene, downloadPandaRobot, initPyScript } from '../../viewer3d/viewer3d.js';
+        import {
+            downloadScene,
+            downloadRobot,
+            downloadTool,
+            Robots,
+            Tools,
+            initPyScript
+        } from '../../viewer3d/viewer3d.js';
 
         // Download the assets
-        await downloadPandaRobot();
-        await downloadScene('../scenes/panda_shelf.xml');
+        await downloadRobot(Robots.Panda);
+        await downloadTool(Tools.FrankaHand);
+        await downloadScene('../scenes/empty.xml');
+        await downloadScene('../scenes/parts/shelf.xml', '/scenes/parts/');
+        await downloadScene('../scenes/parts/targetbox.xml', '/scenes/parts/');
 
         // Now PyScript can be initialised
         initPyScript();
@@ -70,7 +80,7 @@ SPDX-License-Identifier: MIT
 
 
     <py-script>
-        from viewer3d import Viewer3D, configs
+        from viewer3d import Viewer3D, SceneBuilder, Robots, Tools
         from js import document
         import math
 
@@ -175,12 +185,50 @@ SPDX-License-Identifier: MIT
         # Disable all controls (since the robot is controlled by our code)
         viewer3D.controlsEnabled = False
 
-        # Load the scene and retrieve the robot
-        viewer3D.loadScene('/scenes/panda_shelf.xml')
-        robot = viewer3D.createRobot('panda', configs.Panda.new())
+        # Setup the scene
+        builder = SceneBuilder('/scenes/empty.xml')
 
-        # Start the physics simulation
-        viewer3D.physicsSimulatorPaused = False
+        builder.addRobot(
+            'panda', Robots.Panda,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            Tools.FrankaHand
+        )
+
+        builder.addPart(
+            'shelf', '/scenes/parts/shelf.xml',
+            [0.0, 0.5, 0.0],
+            [0.0, 0.0, 0.0, 1.0]
+        )
+
+        builder.addPart(
+            'targetbox', '/scenes/parts/targetbox.xml',
+            [0.0, -0.5, 0.0],
+            [0.0, 0.0, 0.0, 1.0]
+        )
+
+        cubes = [
+            [ 'redcube',    [0.15, 0.6, 0.42],  [1, 0, 0, 1] ],
+            [ 'greencube',  [0.0, 0.6, 0.42],   [0, 1, 0, 1] ],
+            [ 'bluecube',   [-0.15, 0.6, 0.42], [0, 0, 1, 1] ],
+            [ 'yellowcube', [0.15, 0.4 ,0.32],  [1, 1, 0, 1] ],
+            [ 'cyancube',   [0.0, 0.4, 0.32],   [0, 1, 1, 1] ],
+            [ 'pinkcube',   [-0.15, 0.4, 0.32], [1, 0, 1, 1] ],
+        ]
+
+        for infos in cubes:
+            builder.addBox(
+                infos[0],
+                infos[1],
+                [0.0, 0.0, 0.0, 1.0],
+                [0.02, 0.02, 0.02],
+                infos[2],
+                0.01
+            )
+
+        # Load the scene and retrieve the robot
+        viewer3D.loadScene(builder)
+        robot = viewer3D.getRobot('panda')
     </py-script>
 </body>
 </html>

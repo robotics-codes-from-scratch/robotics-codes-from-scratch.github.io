@@ -61,11 +61,12 @@ SPDX-License-Identifier: MIT
 
     <!-- Import the viewer3d.js library -->
     <script type="module">
-        import { downloadScene, downloadPandaRobot, initPyScript } from '../../viewer3d/viewer3d.js';
+        import { downloadScene, downloadRobot, downloadTool, Robots, Tools, initPyScript } from '../../viewer3d/viewer3d.js';
 
         // Download the assets
-        await downloadPandaRobot();
-        await downloadScene('../scenes/panda.xml');
+        await downloadRobot(Robots.Panda);
+        await downloadTool(Tools.FrankaHand);
+        await downloadScene('../scenes/empty.xml');
 
         // Now PyScript can be initialised
         initPyScript();
@@ -73,7 +74,7 @@ SPDX-License-Identifier: MIT
 
 
     <py-script>
-        from viewer3d import Viewer3D, configs, Shapes, logmap
+        from viewer3d import Viewer3D, SceneBuilder, Robots, Tools, Shapes, logmap
         from js import document
         from pyodide.ffi import create_proxy
         import numpy as np
@@ -216,9 +217,18 @@ SPDX-License-Identifier: MIT
         viewer3D = Viewer3D(document.getElementById('viewer3d'))
         viewer3D.setRenderingCallback(update)
 
+        # Setup the scene
+        builder = SceneBuilder('/scenes/empty.xml')
+        builder.addRobot(
+            'panda', Robots.Panda,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            Tools.FrankaHand
+        )
+
         # Load the scene and retrieve the robot
-        viewer3D.loadScene('/scenes/panda.xml')
-        robot = viewer3D.createRobot('panda', configs.Panda.new())
+        viewer3D.loadScene(builder)
+        robot = viewer3D.getRobot('panda')
 
         # Disable the manipulation of the joints and the end-effector (since the robot is controlled by our code)
         viewer3D.jointsManipulationEnabled = False
@@ -226,7 +236,12 @@ SPDX-License-Identifier: MIT
 
         # Add some targets
         target1 = viewer3D.addTarget('target1', [0.6, 0.0, 0.2], [1.0, 0.0, 0.0, 0.0], '#0000aa', Shapes.Cone)
+        axes1 = viewer3D.addAxes('axes1')
+        target1.add(axes1)
+
         target2 = viewer3D.addTarget('target2', [0.3, -0.5, 0.3], [0.0, -1.0, 0.0, 0.0], '#00aa00', Shapes.Cone)
+        axes2 = viewer3D.addAxes('axes2')
+        target2.add(axes2)
 
         # Handle clicks on the 'recompute' button
         document.getElementById('btnCompute').addEventListener('click', create_proxy(recompute))

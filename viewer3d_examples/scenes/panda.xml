@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <mujoco model="panda scene">
-    <include file="franka_emika_panda/panda.xml"/>
+    <include file="franka_emika/panda/panda.xml"/>
 
     <statistic center="0.3 0 0.4" extent="1.5"/>
 

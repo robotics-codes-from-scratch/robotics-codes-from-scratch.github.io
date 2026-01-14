@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
 <mujoco model="panda scene">
-    <include file="unitree_g1/g1_with_hands_upperbody.xml"/>
-
     <statistic center="0.3 0 0.4" extent="1.5"/>
 
     <option cone="elliptic" impratio="10" noslip_iterations="20" timestep="0.001" integrator="implicitfast">

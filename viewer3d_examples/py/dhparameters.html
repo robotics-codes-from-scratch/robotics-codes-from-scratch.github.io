@@ -76,7 +76,7 @@ SPDX-License-Identifier: MIT
 
 
     <py-script>
-        from viewer3d import Viewer3D, RobotBuilder
+        from viewer3d import Viewer3D, SceneBuilder, RobotBuilder
         from js import document
         import math
 
@@ -86,27 +86,31 @@ SPDX-License-Identifier: MIT
         viewer3D = Viewer3D(document.getElementById('viewer3d'))
 
         # Define the robot using DH parameters
-        builder = RobotBuilder.new('robot');
+        robotBuilder = RobotBuilder.new('robot');
 
-        builder.q = [0, 0, 0, 0, 0, 0, 0, 0] # Angle about previous z
-        builder.q_offset = [0, 0, 0, 0, 0, 0, 0, 0, 0] # Offset on articulatory joints
-        builder.alpha = [0, -math.pi/2, math.pi/2, math.pi/2, -math.pi/2, math.pi/2, math.pi/2, 0] # Angle about common normal
-        builder.d = [0.333, 0, 0.316, 0, 0.384, 0, 0, 0.107] # Offset along previous z to the common normal
-        builder.r = [0, 0, 0, 0.0825, -0.0825, 0, 0.088, 0] # Length of the common normal
+        robotBuilder.q = [0, 0, 0, 0, 0, 0, 0, 0] # Angle about previous z
+        robotBuilder.q_offset = [0, 0, 0, 0, 0, 0, 0, 0, 0] # Offset on articulatory joints
+        robotBuilder.alpha = [0, -math.pi/2, math.pi/2, math.pi/2, -math.pi/2, math.pi/2, math.pi/2, 0] # Angle about common normal
+        robotBuilder.d = [0.333, 0, 0.316, 0, 0.384, 0, 0, 0.107] # Offset along previous z to the common normal
+        robotBuilder.r = [0, 0, 0, 0.0825, -0.0825, 0, 0.088, 0] # Length of the common normal
 
-        builder.defaultPose = [0, 0, 0, -math.pi/2, 0, math.pi/2, 0]
+        robotBuilder.defaultPose = [0, 0, 0, -math.pi/2, 0, math.pi/2, 0]
 
-        builder.colors = [  # As many as you want, links will alternate between those colors
+        robotBuilder.colors = [  # As many as you want, links will alternate between those colors
             '0.9 0.9 0.9 1',
             '0.7 0.7 0.7 1',
         ]
 
-        # Load the scene and retrieve the robot
-        viewer3D.loadScene('/scenes/empty.xml', [builder])
-        robot = viewer3D.createRobot('robot', builder.getConfiguration())
+        # Setup the scene
+        builder = SceneBuilder('/scenes/empty.xml')
+        builder.buildRobot(
+            'robot', robotBuilder,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0]
+        )
 
-        # Start the physics simulation
-        viewer3D.physicsSimulatorPaused = False
+        # Load the scene
+        viewer3D.loadScene(builder)
     </py-script>
 </body>
 </html>

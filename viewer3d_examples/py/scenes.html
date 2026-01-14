@@ -37,23 +37,15 @@ SPDX-License-Identifier: MIT
 
     <label for="scenes">Choose a scene:</label>
 
-    <select id="scenes">
-      <option value="panda.xml">Panda robot</option>
-      <option value="panda_box.xml">Panda robot with one box to push</option>
-      <option value="panda_shelf.xml">Panda robot with a shelf</option>
-      <option value="two_pandas.xml">Two panda robots</option>
-      <option value="three_pandas.xml">Three panda robots</option>
-      <option value="ur5.xml">UR5 robot</option>
-      <option value="ur5_gripper.xml">UR5 robot with gripper</option>
-      <option disabled>──────────</option>
+    <select id="scenes" style="margin-bottom: 20px;">
       <option value="mujoco/humanoid.xml">(MuJoCo) humanoid</option>
       <option value="mujoco/mug/mug.xml">(MuJoCo) mug</option>
       <option value="mujoco/composite/particle.xml">(MuJoCo) particle</option>
       <option disabled>──────────</option>
-      <option value="test_no_skybox_no_fog.xml">(test) No skybox, no fog</option>
-      <option value="test_skybox_no_haze.xml">(test) Skybox, no haze</option>
-      <option value="test_skybox.xml">(test) Skybox</option>
-      <option value="test_fog.xml">(test) Fog</option>
+      <option value="test/no_skybox_no_fog.xml">(test) No skybox, no fog</option>
+      <option value="test/skybox_no_haze.xml">(test) Skybox, no haze</option>
+      <option value="test/skybox.xml">(test) Skybox</option>
+      <option value="test/fog.xml">(test) Fog</option>
     </select>
 
     <br/>
@@ -85,16 +77,13 @@ SPDX-License-Identifier: MIT
     <!-- Create the Viewer3D from JavaScript -->
     <script type="module">
         import {
-            downloadScene, downloadPandaRobot, downloadUR5Robot, downloadFiles, initPyScript
+            downloadScene, downloadRobot, Robots, initPyScript
         } from '../../viewer3d/viewer3d.js';
 
         const selector = document.getElementById('scenes');
 
         // Download the assets
-        await downloadPandaRobot();
-        await downloadUR5Robot();
-        await downloadFiles('/scenes/mujoco/composite', '../scenes/mujoco/composite/', ['scene.xml', 'marble.png']);
-        await downloadFiles('/scenes/mujoco/mug', '../scenes/mujoco/mug/', ['mug.obj', 'mug.png']);
+        await downloadRobot(Robots.Panda);
 
         for (const option of selector.options) {
             if (option.disabled)
@@ -117,7 +106,7 @@ SPDX-License-Identifier: MIT
 
 
     <py-script>
-        from viewer3d import Viewer3D, configs
+        from viewer3d import Viewer3D
         from js import document
         from pyodide.ffi import create_proxy
 
@@ -125,32 +114,7 @@ SPDX-License-Identifier: MIT
 
         # Function to load the scene selected by the user
         def loadSelectedScene(evt=None):
-            # Load the scene and retrieve the robot (if any)
             viewer3D.loadScene('/scenes/' + selector.value)
-
-            if selector.value.find('panda') >= 0:
-                robot = viewer3D.createRobot('panda', configs.Panda.new())
-
-                if robot is None:
-                    i = 1
-                    while True:
-                        robot = viewer3D.createRobot(f'panda{i}', configs.Panda.new(), f'panda{i}_')
-                        if robot is None:
-                            robot = viewer3D.createRobot(f'panda{i}', configs.PandaNoHand.new(), f'panda{i}_')
-
-                        if robot is None:
-                            break
-
-                        i += 1
-
-            elif selector.value.find('ur5') >= 0:
-                if selector.value.find('gripper') >= 0:
-                    viewer3D.createRobot('ur5', configs.UR5WithGripper.new())
-                else:
-                    viewer3D.createRobot('ur5', configs.UR5.new())
-
-            # Start the physics simulation
-            viewer3D.physicsSimulatorPaused = False
 
         # Create the Viewer3D
         viewer3D = Viewer3D(document.getElementById('viewer3d'))

@@ -315,11 +315,12 @@
 
         # Once the cube is released, go up one last time
         elif step == STEP_RELEASE_CUBE:
-            step = STEP_GO_UP_FINAL
-            destination = fkin(x)
-            destination[2] += 0.15
-            ik = IK(destination)
-            return ik.process(x, dt)
+            if robot.isGripperOpen:
+                step = STEP_GO_UP_FINAL
+                destination = fkin(x)
+                destination[2] += 0.15
+                ik = IK(destination)
+                return ik.process(x, dt)
 
         # By default: no movement
         return np.zeros(x.shape)
@@ -327,7 +328,7 @@
 
 
 <script id="page_code" type="python">
-    from viewer3d import Viewer3D, configs, logmap_S3, logmap, readFile, writeFile
+    from viewer3d import Viewer3D, logmap_S3, logmap, readFile, writeFile, SceneBuilder, Robots, Tools
     from js import document, three
     from pyodide.ffi import create_proxy
     from rcfs import configure, displayError
@@ -464,12 +465,21 @@
         }
     )
 
+    # Setup the scene
+    builder = SceneBuilder('/scenes/01.xml')
+    builder.addRobot(
+        'panda', Robots.Panda,
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+        Tools.FrankaHand
+    )
+
     # Load the scene
-    viewer3D.loadScene('/scenes/01.xml')
+    viewer3D.loadScene(builder)
     viewer3D.translateCamera([0.0, 0.0, 0.3])
 
     # Retrieve the robot and its initial joint position
-    robot = viewer3D.createRobot('panda', configs.Panda.new())
+    robot = viewer3D.getRobot('panda')
     initial_robot_joint_positions = robot.jointPositions
 
     # Retrieve the cube and its initial transforms

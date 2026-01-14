@@ -235,7 +235,7 @@
 
 
 <script id="page_code" type="python">
-    from viewer3d import Viewer3D, configs, logmap_S3, logmap, q2R, Shapes, Object3D
+    from viewer3d import Viewer3D, logmap_S3, logmap, q2R, Shapes, Object3D, SceneBuilder, Robots, Tools, configs
     from js import document, three
     from rcfs import configure, displayError
     import numpy as np
@@ -276,17 +276,38 @@
 
     viewer3D.setRenderingCallback(ikUpdate, 0.01)
 
-    # Load the scene and retrieve the robot
-    viewer3D.loadScene('/scenes/03.xml')
-    viewer3D.translateCamera([0.0, 0.0, 0.3])
+    # Setup the scene
+    builder = SceneBuilder('/scenes/03.xml')
 
-    robot = viewer3D.createRobot('g1', configs.G1UpperBody.new())
+    builder.addRobot(
+        'robot', Robots.G1_FixedLegs,
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+        [
+            Tools.UnitreeRightHand,
+            Tools.UnitreeLeftHand,
+        ]
+    )
 
-    # Initialise the leg
+    default_tool_config = configs.ToolConfiguration.new()
+    default_tool_config.tcpSite = 'foot_bottom'
+
     leg_config = configs.RobotConfiguration.new()
     leg_config.robotRoot = 'leg'
+    leg_config.defaultToolConfigurations = [default_tool_config];
 
-    leg = viewer3D.createRobot('leg', leg_config)
+    builder.declareRobot(
+        'leg', leg_config
+    )
+
+    # Load the scene and retrieve the robot
+    viewer3D.loadScene(builder)
+    viewer3D.translateCamera([0.0, 0.0, 0.3])
+
+    robot = viewer3D.getRobot('robot')
+    leg = viewer3D.getRobot('leg')
+
+    # Initialise the leg
     leg.jointPositions = [0.707, -1.5]
 
     leg_slots = { slot : Object3D(viewer3D.viewer.physicsSimulator.getSite(slot)) for slot in [
@@ -315,7 +336,7 @@
     rightTarget = viewer3D.addTarget(
         'rightTarget', [0.3, -0.25,  1.0], [0.76, 0.1, 0.5, -0.4], '#FF3399', shape=Shapes.Mesh,
         parameters={
-            'url': 'viewer3d/models/unitree_g1/assets/right_rubber_hand.STL',
+            'url': 'viewer3d/models/unitree/hands/assets/right_rubber_hand.STL',
             'offset': -transforms[:3],
             'orientation': [-transforms[3], -transforms[4], -transforms[5], transforms[6]],
         }
@@ -326,7 +347,7 @@
     leftTarget = viewer3D.addTarget(
         'leftTarget', [0.3, 0.3, 0.9], [0.67, 0.22, 0.016, 0.7], '#FF9933', shape=Shapes.Mesh,
         parameters={
-            'url': 'viewer3d/models/unitree_g1/assets/left_rubber_hand.STL',
+            'url': 'viewer3d/models/unitree/hands/assets/left_rubber_hand.STL',
             'offset': -transforms[:3],
             'orientation': [-transforms[3], -transforms[4], -transforms[5], transforms[6]],
         }

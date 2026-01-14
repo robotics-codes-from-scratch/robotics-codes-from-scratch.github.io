@@ -132,25 +132,13 @@
                 "workspace": true,
                 "assets": {
                     "robots": [
-                        "panda"
+                        "Panda"
+                    ],
+                    "tools": [
+                        "FrankaHand"
                     ],
                     "scenes": [
-                        "scenes/panda.xml"
-                    ]
-                }
-            },
-            {
-                "title": "Inverse kinematics (IK) - UR5 robot",
-                "hash": "3d_ik_ur5",
-                "page": "IK_UR5.html",
-                "workspace": true,
-                "visibility": "rli",
-                "assets": {
-                    "robots": [
-                        "ur5"
-                    ],
-                    "scenes": [
-                        "scenes/ur5_gripper.xml"
+                        "scenes/empty.xml"
                     ]
                 }
             },
@@ -161,10 +149,14 @@
                 "workspace": true,
                 "assets": {
                     "robots": [
-                        "g1"
+                        "G1_FixedLegs"
+                    ],
+                    "tools": [
+                        "UnitreeRightHand",
+                        "UnitreeLeftHand"
                     ],
                     "scenes": [
-                        "scenes/g1_upperbody.xml"
+                        "scenes/empty.xml"
                     ]
                 }
             },
@@ -175,11 +167,13 @@
                 "workspace": true,
                 "assets": {
                     "robots": [
-                        "panda"
+                        "Panda"
+                    ],
+                    "tools": [
+                        "FrankaHand"
                     ],
                     "scenes": [
-                        "scenes/panda.xml",
-                        "scenes/panda_ghost.xml"
+                        "scenes/empty.xml"
                     ],
                     "scripts": [
                         "postprocessing/sdfpass.js"
@@ -193,10 +187,13 @@
                 "workspace": true,
                 "assets": {
                     "robots": [
-                        "panda"
+                        "Panda"
+                    ],
+                    "tools": [
+                        "FrankaHand"
                     ],
                     "scenes": [
-                        "scenes/ergodic_control.xml"
+                        "scenes/empty.xml"
                     ],
                     "scripts": [
                         "ergodic_control/smc.py",
@@ -215,10 +212,13 @@
                 "workspace": true,
                 "assets": {
                     "robots": [
-                        "panda"
+                        "Panda"
+                    ],
+                    "tools": [
+                        "FrankaHand"
                     ],
                     "scenes": [
-                        "scenes/physics.xml"
+                        "scenes/empty.xml"
                     ]
                 }
             },
@@ -228,10 +228,13 @@
                 "page": "jacobian.html",
                 "assets": {
                     "robots": [
-                        "panda"
+                        "Panda"
+                    ],
+                    "tools": [
+                        "FrankaHand"
                     ],
                     "scenes": [
-                        "scenes/panda.xml"
+                        "scenes/empty.xml"
                     ]
                 }
             },
@@ -346,7 +349,10 @@
                 "workspace": true,
                 "assets": {
                     "robots": [
-                        "panda"
+                        "Panda"
+                    ],
+                    "tools": [
+                        "FrankaHand"
                     ],
                     "scenes": [
                         "scenes/01.xml"
@@ -361,7 +367,10 @@
                 "visibility": "rli",
                 "assets": {
                     "robots": [
-                        "panda"
+                        "Panda"
+                    ],
+                    "tools": [
+                        "FrankaHand"
                     ],
                     "scenes": [
                         "scenes/01.xml"
@@ -375,7 +384,11 @@
                 "workspace": true,
                 "assets": {
                     "robots": [
-                        "g1"
+                        "G1_FixedLegs"
+                    ],
+                    "tools": [
+                        "UnitreeRightDex3_1",
+                        "UnitreeLeftDex3_1"
                     ],
                     "scenes": [
                         "scenes/02.xml"
@@ -390,7 +403,11 @@
                 "visibility": "rli",
                 "assets": {
                     "robots": [
-                        "g1"
+                        "G1_FixedLegs"
+                    ],
+                    "tools": [
+                        "UnitreeRightDex3_1",
+                        "UnitreeLeftDex3_1"
                     ],
                     "scenes": [
                         "scenes/02.xml"
@@ -404,7 +421,11 @@
                 "workspace": true,
                 "assets": {
                     "robots": [
-                        "g1"
+                        "G1_FixedLegs"
+                    ],
+                    "tools": [
+                        "UnitreeRightHand",
+                        "UnitreeLeftHand"
                     ],
                     "scenes": [
                         "scenes/03.xml"

@@ -41,19 +41,23 @@ SPDX-License-Identifier: MIT
 
     <!-- Create the Viewer3D from JavaScript -->
     <script type="module">
-        import { Viewer3D, Shapes, downloadScene, downloadPandaRobot, PandaConfiguration } from '../../viewer3d/viewer3d.js';
+        import { Viewer3D, downloadScene, downloadRobot, SceneBuilder, Robots } from '../../viewer3d/viewer3d.js';
         import * as THREE from 'three';
 
         // Download the assets
-        await downloadPandaRobot();
+        await downloadRobot(Robots.Panda);
         await downloadScene('../scenes/panda.xml');
 
         // Create the Viewer3D
         const viewer3D = new Viewer3D(document.getElementById('viewer3d'));
 
+        // Setup the scene (we use one in which the robot is already included)
+        const builder = new SceneBuilder('/scenes/panda.xml');
+        builder.declareRobot('panda', Robots.Panda);
+
         // Load the scene and retrieve the robot
-        viewer3D.loadScene('/scenes/panda.xml');
-        const robot = viewer3D.createRobot('panda', new PandaConfiguration());
+        viewer3D.loadScene(builder);
+        const robot = viewer3D.getRobot('panda');
 
         // Add a target
         const target = viewer3D.addTarget(
@@ -81,9 +85,6 @@ SPDX-License-Identifier: MIT
 
         const axes3 = viewer3D.addAxes('axes3');
         point.add(axes3);
-
-        // Start the physics simulation
-        viewer3D.physicsSimulator.paused = false;
     </script>
 </body>
 </html>

@@ -56,11 +56,17 @@ SPDX-License-Identifier: MIT
 
     <!-- Import the viewer3d.js library -->
     <script type="module">
-        import { downloadScene, downloadPandaRobot, initPyScript } from '../../viewer3d/viewer3d.js';
+        import { downloadScene, downloadRobot, downloadTool, Robots, Tools, initPyScript } from '../../viewer3d/viewer3d.js';
 
         // Download the assets
-        await downloadPandaRobot();
-        await downloadScene('../scenes/three_pandas.xml');
+        await downloadRobot(Robots.Panda);
+        await downloadRobot(Robots.G1_FixedLegs);
+        await downloadRobot(Robots.UR5);
+        await downloadTool(Tools.FrankaHand);
+        await downloadTool(Tools.Robotiq_2F85);
+        await downloadTool(Tools.UnitreeRightDex3_1);
+        await downloadTool(Tools.UnitreeLeftDex3_1);
+        await downloadScene('../scenes/empty.xml');
 
         // Now PyScript can be initialised
         initPyScript();
@@ -68,7 +74,7 @@ SPDX-License-Identifier: MIT
 
 
     <py-script>
-        from viewer3d import Viewer3D, configs
+        from viewer3d import Viewer3D, SceneBuilder, Robots, Tools
         from js import document
 
         document.getElementById('loader-container').style.display = 'none';
@@ -76,14 +82,35 @@ SPDX-License-Identifier: MIT
         # Create the Viewer3D
         viewer3D = Viewer3D(document.getElementById('viewer3d'))
 
-        # Load the scene and retrieve the robots
-        viewer3D.loadScene('/scenes/three_pandas.xml')
-        robot1 = viewer3D.createRobot('panda1', configs.Panda.new(), 'panda1_')
-        robot2 = viewer3D.createRobot('panda2', configs.Panda.new(), 'panda2_')
-        robot3 = viewer3D.createRobot('panda3', configs.PandaNoHand.new(), 'panda3_')
+        # Setup the scene
+        builder = SceneBuilder('/scenes/empty.xml')
 
-        # Start the physics simulation
-        viewer3D.physicsSimulatorPaused = False
+        builder.addRobot(
+            'panda', Robots.Panda,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            Tools.FrankaHand
+        )
+
+        builder.addRobot(
+            'ur5', Robots.UR5,
+            [0.0, -0.6, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            Tools.Robotiq_2F85
+        )
+
+        builder.addRobot(
+            'g1', Robots.G1_FixedLegs,
+            [0.0, 0.6, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            [
+                Tools.UnitreeRightDex3_1,
+                Tools.UnitreeLeftDex3_1,
+            ]
+        )
+
+        # Load the scene
+        viewer3D.loadScene(builder)
     </py-script>
 </body>
 </html>

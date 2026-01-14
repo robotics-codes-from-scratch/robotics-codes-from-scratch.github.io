@@ -88,6 +88,12 @@
                         <li>
                             <code class="inline_code">logmap_S3(mu,f)</code>: same as  <code class="inline_code">logmap(mu,f)</code>, but it only computes the orientation residual.
                         </li>
+                        <li>
+                            <code class="inline_code">print(message)</code>: prints the specified message in the bottom-left panel
+                        </li>
+                        <li>
+                            <code class="inline_code">clear()</code>: clear the content of the bottom-left panel
+                        </li>
                     </ul>
                     <h6>Global variables</h6>
                     <ul>
@@ -202,7 +208,7 @@
 
 
 <script id="page_code" type="python">
-    from viewer3d import Viewer3D, configs, logmap_S3, logmap, q2R, Shapes
+    from viewer3d import Viewer3D, logmap_S3, logmap, q2R, Shapes, SceneBuilder, Robots, Tools
     from js import document, three
     from rcfs import configure, displayError
     import numpy as np
@@ -238,17 +244,29 @@
 
     viewer3D.setRenderingCallback(ikUpdate, 0.01)
 
-    # Load the scene and retrieve the robot
-    viewer3D.loadScene('/scenes/g1_upperbody.xml')
-    viewer3D.translateCamera([0.0, 0.0, 0.3])
+    # Setup the scene
+    builder = SceneBuilder('/scenes/empty.xml')
+    builder.camera.azimuth = 120
+    builder.camera.elevation = -20
 
-    robot = viewer3D.createRobot('panda', configs.G1UpperBody.new())
+    builder.addRobot(
+        'robot', Robots.G1_FixedLegs,
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+        [
+            Tools.UnitreeRightHand,
+            Tools.UnitreeLeftHand,
+        ]
+    )
+
+    # Load the scene and retrieve the robot
+    viewer3D.loadScene(builder)
+    viewer3D.translateCamera([0.0, 0.0, 0.3])
+    robot = viewer3D.getRobot('robot')
 
     # Disable the manipulation of the joints
     viewer3D.jointsManipulationEnabled = False
     viewer3D.endEffectorManipulationEnabled = False
-
-    viewer3D.physicsSimulatorPaused = False
 
     # Add the targets
     transforms = robot.endEffectorLocalTransforms(0)
@@ -256,7 +274,7 @@
     rightTarget = viewer3D.addTarget(
         'rightTarget', [0.3, -0.25,  1.0], [0.76, 0.1, 0.5, -0.4], '#FF3399', shape=Shapes.Mesh,
         parameters={
-            'url': 'viewer3d/models/unitree_g1/assets/right_rubber_hand.STL',
+            'url': 'viewer3d/models/unitree/hands/assets/right_rubber_hand.STL',
             'offset': -transforms[:3],
             'orientation': [-transforms[3], -transforms[4], -transforms[5], transforms[6]],
         }
@@ -267,7 +285,7 @@
     leftTarget = viewer3D.addTarget(
         'leftTarget', [0.3, 0.3, 0.9], [0.67, 0.22, 0.016, 0.7], '#FF9933', shape=Shapes.Mesh,
         parameters={
-            'url': 'viewer3d/models/unitree_g1/assets/left_rubber_hand.STL',
+            'url': 'viewer3d/models/unitree/hands/assets/left_rubber_hand.STL',
             'offset': -transforms[:3],
             'orientation': [-transforms[3], -transforms[4], -transforms[5], transforms[6]],
         }

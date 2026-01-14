@@ -41,11 +41,8 @@ const mujoco = await load_mujoco();
 
 
 function readFile(filename, binary=false) {
-    try {
-        const stat = mujoco.FS.stat(filename);
-    } catch (ex) {
+    if (!fileExists(filename))
         return null;
-    }
 
     const content = mujoco.FS.readFile(filename);
 
@@ -64,26 +61,89 @@ function writeFile(filename, content) {
 }
 
 
-function mkdir(path) {
-    const parts = path.split("/");
+function readXmlFile(filename) {
+    const content = readFile(filename, false);
+    if (content == null)
+        return null;
 
-    let current = parts[0];
-    if (path[0] == "/")
-        current = "/" + current;
+    const parser = new DOMParser();
+    return parser.parseFromString(content, "text/xml");
+}
 
-    let i = 0;
 
-    while (i < parts.length) {
-        try {
-            const stat = mujoco.FS.stat(current);
-        } catch (ex) {
-            mujoco.FS.mkdir(current);
-        }
-
-        i++;
-        if (i < parts.length)
-            current += "/" + parts[i];
+function fileExists(filename) {
+    try {
+        const stat = mujoco.FS.stat(filename);
+        return true;
+    } catch (ex) {
+        return false;
     }
+}
+
+
+function pathJoin() {
+    let result = '';
+
+    for (var i = 0; i < arguments.length; ++i) {
+        let part = arguments[i];
+        if (part.length == 0)
+            continue;
+
+        if (part[part.length - 1] == '/')
+            part = part.substring(0, part.length - 1);
+
+        if (i > 0)
+            result += '/';
+
+        result += part;
+    }
+
+    return result;
+}
+
+/*
+ * SPDX-FileCopyrightText: Copyright © 2023 Idiap Research Institute <contact@idiap.ch>
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
+
+
+
+function getURL(path) {
+    let url = new URL(import.meta.url);
+    return url.href.substring(0, url.href.lastIndexOf('/')) + '/' + path;
+}
+
+
+function getFirstElementByTag(parent, name) {
+    const elements = parent.getElementsByTagName(name);
+    if (elements.length > 0)
+        return elements[0];
+
+    return null;
+}
+
+
+function getElementByTagAndName(parent, tag, name) {
+    const elements = parent.getElementsByTagName(tag);
+
+    for (let i = 0; i < elements.length; ++i)
+    {
+        if (elements[i].getAttribute('name') == name)
+            return elements[i];      
+    }
+
+    return null;
+}
+
+
+function getUniqueId(length=32) {
+    let id = URL.createObjectURL(new Blob()).substr(-36);
+    id = id.replaceAll('-', '');
+    return id.substr(-length);
 }
 
 /*
@@ -205,6 +265,10 @@ const _tmpQuaternion$2 = new THREE.Quaternion();
 
 
 
+/**
+ * Represents a kinematic chain (a sequence of joints/actuators) inside a robot.
+ * Provides FK, IK and jacobian utilities restricted to that chain.
+ */
 class KinematicChain {
 
     constructor(robot, joint=null, tool=null) {
@@ -237,18 +301,14 @@ class KinematicChain {
     }
 
 
-    /* Given a list of joint positions or control values for the whole robot,
-    returns only the elements concerning this kinematic chain.
-
-    To perform the opposite operation, use 'project()'.
-
-    Parameters:
-        values (array): The joint positions or control values of the whole
-                        robot
-
-    Returns:
-        The values concerning this kinematic chain
-    */
+    /**
+     * Extract values corresponding to this kinematic chain from a full-robot vector.
+     *
+     * To perform the opposite operation, use 'project()'.
+     *
+     * @param {Array<number>} values - full robot joint/control values
+     * @returns {Array<number>}
+     */
     sample(values) {
         return this.joints.map(
             (v, i) => values[this.robot.joints.indexOf(v)]
@@ -256,12 +316,11 @@ class KinematicChain {
     }
 
 
-    /* Given a list of joint positions or control values for this
-    kinematic chain, returns a list for the whole robot, with the
-    elements concerning this kinematic chain in the correct places
-    and the other values set to 0.
-
-    To perform the opposite operation, use 'sample()'.
+    /**
+     * Project chain-local values into a full-robot vector (others set to 0).
+     *
+     * To perform the opposite operation, use 'sample()'.
+     *
 
     Parameters:
         values (array): The joint positions or control values of this
@@ -288,15 +347,12 @@ class KinematicChain {
     }
 
 
-    /* Performs Forward Kinematics, on a subset of the joints
-
-    Parameters:
-        positions (array): The joint positions
-        offset (Vector3): Optional, an offset from the last joint
-
-    Returns:
-        A tuple of a Vector3 and a Quaternion: (position, orientation)
-    */
+    /**
+     * Compute forward kinematics for this chain.
+     * @param {Array<number>|math.Matrix} positions - local joint positions
+     * @param {THREE.Vector3|null} [offset=null] - optional offset from last joint
+     * @returns {Array<number>} [px,py,pz,qx,qy,qz,qw]
+     */
     fkin(positions, offset=null) {
         if (math.typeOf(positions) == 'DenseMatrix')
             positions = positions.toArray();
@@ -346,6 +402,17 @@ class KinematicChain {
     }
 
 
+    /**
+     * Solve inverse kinematics to reach target pose mu.
+     * @param {Array|math.Matrix} mu - target (3D position, 4D quat, or 7D transform)
+     * @param {number|null} [nbJoints=null]
+     * @param {THREE.Vector3|null} [offset=null]
+     * @param {number} [limit=5] - max iterations
+     * @param {number} [dt=0.01]
+     * @param {number} [successDistance=1e-4]
+     * @param {boolean} [damping=false]
+     * @returns {boolean} true if converged
+     */
     ik(mu, nbJoints=null, offset=null, limit=5, dt=0.01, successDistance=1e-4, damping=false) {
         let x = math.matrix(Array.from(this.getControl()));
         const startx = math.matrix(x);
@@ -431,8 +498,12 @@ class KinematicChain {
     }
 
 
-    /* Jacobian with numerical computation, on a subset of the joints
-    */
+    /**
+     * Numerical Jacobian for this chain.
+     * @param {Array|math.Matrix|number} positions
+     * @param {THREE.Vector3|null} [offset=null]
+     * @returns {math.Matrix}
+     */
     Jkin(positions, offset=null) {
         const eps = 1e-6;
 
@@ -469,16 +540,29 @@ class KinematicChain {
     }
 
 
+    /**
+     * Get joint positions for this chain.
+     * @returns {Array<number>}
+     */
     getJointPositions() {
         return this.robot._simulator.getJointPositions(this.joints);
     }
 
 
+    /**
+     * Get actuator controls for this chain.
+     * @returns {Array<number>}
+     */
     getControl() {
         return this.robot._simulator.getControl(this.actuators);
     }
 
 
+    /**
+     * Set local actuator controls (clamped), optionally updating joint positions when paused.
+     * @param {Array<number>} control
+     * @returns {void}
+     */
     setControl(control) {
         const ctrl = control.map(
             (v, i) => (Math.abs(this.limits[i][0]) > 1e-6) || (Math.abs(this.limits[i][1]) > 1e-6) ?
@@ -488,6 +572,7 @@ class KinematicChain {
 
         const nbJoints = control.length;
 
+        // If the simulator is paused, setting the control command doesn't have any effect
         if (this.robot._simulator.paused)
             this.robot._simulator.setJointPositions(ctrl, this.joints.slice(0, nbJoints));
 
@@ -574,8 +659,23 @@ class JointPositionGeometry extends THREE.BufferGeometry {
 
 
 
+/**
+ * Visual helper showing a joint's allowable motion (circular arc) and a label.
+ * Extends THREE.Object3D and is added to the scene at construction time.
+ */
 class JointPositionHelper extends THREE.Object3D {
 
+    /**
+     * @param {THREE.Scene} scene - scene where the helper will be attached
+     * @param {number} layer - rendering layer to use
+     * @param {number} jointId - MuJoCo joint id
+     * @param {number} jointIndex - index used in label (human-friendly)
+     * @param {THREE.Vector3} axis - joint axis
+     * @param {number} jointPosition - initial position angle
+     * @param {boolean} [invert=false]
+     * @param {number|string} [color=0xff0000]
+     * @param {number} [offset=0.0]
+     */
     constructor(scene, layer, jointId, jointIndex, axis, jointPosition, invert=false, color=0xff0000, offset=0.0) {
         super();
 
@@ -744,19 +844,175 @@ class JointPositionHelper extends THREE.Object3D {
 }
 
 /*
- * SPDX-FileCopyrightText: Copyright © 2023 Idiap Research Institute <contact@idiap.ch>
+ * SPDX-FileCopyrightText: Copyright © 2025 Idiap Research Institute <contact@idiap.ch>
  *
  * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
  *
  * SPDX-License-Identifier: MIT
- *
  */
 
 
 
-function getURL(path) {
-    let url = new URL(import.meta.url);
-    return url.href.substring(0, url.href.lastIndexOf('/')) + '/' + path;
+/**
+ * Base class describing a tool attached to a robot (visuals, joints, tcp).
+ */
+class Tool {
+
+    /**
+     * Create an empty tool instance. Subclasses populate joints/visuals/etc.
+     */
+    constructor() {
+        this.type = 'generic';
+
+        this.joints = [];
+        this.actuators = [];
+        this.links = [];
+
+        this.tcp = null;
+        this.tcpTarget = null;
+
+        this.names = {
+            joints: [],
+            actuators: [],
+            links: [],
+        };
+
+        this.visual = {
+            joints: [],
+            links: [],
+            meshes: [],
+        };
+
+        this.parent = -1;
+    }
+
+}
+
+
+/**
+ * Gripper tool with animated open/close sequences. Uses TWEEN for animations.
+ * @extends Tool
+ */
+class Gripper extends Tool {
+
+    /**
+     * @param {Object} configuration - tool configuration describing states/closed joints
+     */
+    constructor(configuration) {
+        super();
+
+        this.type = 'gripper';
+
+        this.state = null;
+        this.holdingSomeObject = false;
+
+        this.states = structuredClone(configuration.states);
+        this.closedJoints = structuredClone(configuration.closedJoints);
+        this.holdingThreshold = configuration.holdingThreshold;
+
+        this.button = {
+            object: null,
+            element: null,
+        };
+
+        this.ctrl = [];
+    }
+
+
+    open() {
+        this.state = 'opening';
+        this.holdingSomeObject = false;
+
+        const tool = this;
+
+        const tweens = this._createTweens(this.states.opening);
+
+        tweens[tweens.length - 1].onComplete(() => {
+            tool.state = 'opened';
+        });
+
+        tweens[0].start();
+    }
+
+
+    close(simulator) {
+        this.state = 'closing';
+        this.holdingSomeObject = false;
+
+        const tool = this;
+
+        const tweens = this._createTweens(this.states.closing);
+
+        tweens[tweens.length - 1].onComplete(() => {
+            setTimeout(() => {
+                    tool.state = 'closed';
+
+                    const pos = simulator.getJointPositions(tool.joints);
+                    let diff = 0.0;
+                    for (let i = 0; i < tool.joints.length; ++i)
+                        diff += Math.abs(pos[i] - tool.closedJoints[i]);
+
+                    tool.holdingSomeObject = diff > tool.holdingThreshold;
+                },
+                100
+            );
+        });
+
+        tweens[0].start();
+    }
+
+
+    isOpen() {
+        return (this.state == 'opened');
+    }
+
+
+    isClosed() {
+        return (this.state == 'closed');
+    }
+
+
+    isHoldingSomeObject() {
+        return this.holdingSomeObject;
+    }
+
+
+    _createTweens(steps) {
+        const tool = this;
+
+        const start = {};
+        for (let i = 0; i < this.actuators.length; ++i)
+            start['actuator_' + i] = this.ctrl[i];
+
+        const tweens = [];
+
+        for (let j = 0; j < steps.length; ++j) {
+            const step = steps[j];
+
+            const end = {};
+            for (let i = 0; i < this.actuators.length; ++i)
+                end['actuator_' + i] = step[0][i];
+
+            const tween = new TWEEN.Tween(start)
+                .to(end, step[1])
+                .onUpdate(object => {
+                    for (let i = 0; i < tool.actuators.length; ++i)
+                        tool.ctrl[i] = object['actuator_' + i];
+                });
+
+            if (j == steps.length - 1)
+                tween.easing(TWEEN.Easing.Quadratic.Out);
+            else
+                tween.easing(TWEEN.Easing.Linear.None);
+
+            if (j > 0)
+                tweens[j - 1].chain(tween);
+
+            tweens.push(tween);
+        }
+
+        return tweens;
+    }
 }
 
 /*
@@ -780,8 +1036,17 @@ const _tmpQuaternion2 = new THREE.Quaternion();
 
 
 
+/**
+ * Base Robot wrapper that exposes high-level API for joint/control/IK operations.
+ * Instances are created by the PhysicsSimulator when a MuJoCo scene is loaded.
+ */
 class Robot {
 
+    /**
+     * @param {string} name
+     * @param {Object} configuration
+     * @param {PhysicsSimulator} physicsSimulator
+     */
     constructor(name, configuration, physicsSimulator) {
         this.name = name;
         this.configuration = configuration;
@@ -817,6 +1082,10 @@ class Robot {
     }
 
 
+    /**
+     * Clean up robot visuals and toolbar resources. Call before removing robot.
+     * @returns {void}
+     */
     destroy() {
         for (const tool of this.tools) {
             if ((tool.button != null) && (tool.button.element != null))
@@ -839,6 +1108,10 @@ class Robot {
     }
 
 
+    /**
+     * Return an array of all THREE.Mesh objects composing the robot visuals and tools.
+     * @returns {Array<THREE.Mesh>}
+     */
     getMeshes() {
         return this.segments.map((segment) => segment.visual.meshes).flat().concat(
                     this.tools.map((tool) => tool.visual.meshes).flat()
@@ -846,11 +1119,20 @@ class Robot {
     }
 
 
+    /**
+     * Get current joint positions (array of numbers).
+     * @returns {Array<number>}
+     */
     getJointPositions() {
         return this._simulator.getJointPositions(this.joints);
     }
 
 
+    /**
+     * Set joint positions, clamped to joint limits, and update actuators.
+     * @param {Array<number>} positions
+     * @returns {void}
+     */
     setJointPositions(positions) {
         const limits = this.segments.map((segment) => segment.limits).flat();
 
@@ -867,11 +1149,20 @@ class Robot {
     }
 
 
+    /**
+     * Get current actuator control values.
+     * @returns {Array<number>}
+     */
     getControl() {
         return this._simulator.getControl(this.actuators);
     }
 
 
+    /**
+     * Set actuator control values (with limit clamping). If simulator is paused, sets joint positions instead.
+     * @param {Array<number>} control
+     * @returns {void}
+     */
     setControl(control) {
         const limits = this.segments.map((segment) => segment.limits).flat();
 
@@ -883,6 +1174,17 @@ class Robot {
 
         const nbJoints = control.length;
 
+        // Don't use control commands too close to whatever is already used in the simulation,
+        // as it can lead to instabilities
+        const ref = this.getControl().slice(0, nbJoints);
+        const diff = ref.map(
+            (v, i) => Math.abs(v - ctrl[i])
+        );
+
+        if (math.norm(Array.from(diff)) < 1e-2)
+            return;
+
+        // If the simulator is paused, setting the control command doesn't have any effect
         if (this._simulator.paused)
             this._simulator.setJointPositions(ctrl, this.joints.slice(0, nbJoints));
 
@@ -890,17 +1192,29 @@ class Robot {
     }
 
 
+    /**
+     * Get current joint velocities.
+     * @returns {Array<number>}
+     */
     getJointVelocities() {
         return this._simulator.getJointVelocities(this.joints);
     }
 
 
+    /**
+     * Return the center of mass of the robot's subtree rooted at robotRoot.
+     * @returns {THREE.Vector3}
+     */
     getCoM() {
         const bodyIdx = this.names.links.indexOf(this.configuration.robotRoot);
         return this._simulator.getSubtreeCoM(this.links[bodyIdx]);
     }
 
 
+    /**
+     * Return the robot's default joint pose as a Float32Array.
+     * @returns {Float32Array}
+     */
     getDefaultPose() {
         const pose = new Float32Array(this.joints.length);
         pose.fill(0.0);
@@ -912,18 +1226,29 @@ class Robot {
     }
 
 
+    /**
+     * Apply the robot's default joint pose immediately.
+     * @returns {void}
+     */
     applyDefaultPose() {
         this.setJointPositions(this.getDefaultPose());
     }
 
 
+    /**
+     * Map actuators to their indices in this robot.
+     * @param {Array<number>} actuators
+     * @returns {Array<number>}
+     */
     getActuatorIndices(actuators) {
         return actuators.map((actuator) => this.actuators.indexOf(actuator));
     }
 
 
-    /* Returns the number of end-effectors of the robot
-    */
+    /**
+     * Number of attached tools/end-effectors.
+     * @returns {number}
+     */
     getNbEndEffectors() {
         return this.tools.length;
     }
@@ -1120,11 +1445,21 @@ class Robot {
     }
 
 
+    /**
+     * Create a KinematicChain instance for a joint index or name.
+     * @param {number|string} joint
+     * @returns {KinematicChain}
+     */
     getKinematicChainForJoint(joint) {
         return new KinematicChain(this, joint);
     }
 
 
+    /**
+     * Create a KinematicChain for the tool at the given index.
+     * @param {number} [index=0]
+     * @returns {KinematicChain}
+     */
     getKinematicChainForTool(index=0) {
         return new KinematicChain(this, null, index);
     }
@@ -1135,7 +1470,7 @@ class Robot {
         if (tool.type != 'gripper')
             return false;
 
-        return (tool.state == 'opened') && (this.getGripperAbduction(index) >= tool.max);
+        return tool.isOpen();
     }
 
 
@@ -1144,7 +1479,7 @@ class Robot {
         if (tool.type != 'gripper')
             return false;
 
-        return (tool.state == 'closed') && (this.getGripperAbduction(index) <= tool.min);
+        return tool.isClosed();
     }
 
 
@@ -1153,51 +1488,7 @@ class Robot {
         if (tool.type != 'gripper')
             return false;
 
-        return (tool.state == 'closed') && (tool._stateCounter >= 5);
-    }
-
-
-    _getGripperAbduction(index=0) {
-        const tool = this.tools[index];
-        if (tool.type != 'gripper')
-            return 0.0;
-
-        if (tool.actuators.length === 0)
-            return 0.0;
-
-        // Average abduction of all tool joints
-        let abduction = 0.0;
-        let N = 0;
-        const qpos = this._simulator.getJointPositions(tool.joints);
-
-        for (let i = 0; i < tool.joints.length; ++i) {
-            const joint = tool.joints[i];
-
-            if (tool.ignoredJoints.indexOf(joint) >= 0)
-                continue;
-
-            const actuator = this._simulator.getJointActuator(joint);
-
-            if (tool.ignoredActuators.indexOf(actuator) >= 0)
-                continue;
-
-            const range = this._simulator.jointRange(joint);
-
-            let rel = (qpos[i] - range[0]) / (range[1] - range[0]);
-
-            if ((tool.invertedJoints.indexOf(joint) >= 0) ||
-                (tool.invertedActuators.indexOf(actuator) >= 0))
-            {
-                rel = 1.0 - rel;
-            }
-
-            abduction += rel;
-
-            ++N;
-        }
-        abduction /= N;
-
-        return abduction;
+        return tool.isHoldingSomeObject();
     }
 
 
@@ -1287,24 +1578,6 @@ class Robot {
                 root.getWorldQuaternion(_tmpQuaternion2);
                 tool.tcpTarget.quaternion.multiplyQuaternions(_tmpQuaternion2.invert(), _tmpQuaternion$1);
             }
-
-            // Update the internal state of the tool
-            if ((tool.type == 'gripper') && (tool.state == 'closed')) {
-                const abduction = this.getGripperAbduction(i);
-                if ((abduction > tool.min) && (Math.abs(abduction - tool._previousAbduction) < 1e-3)) {
-                    tool._stateCounter++;
-
-                    if (tool._stateCounter == 5) {
-                        this.getGripperAbduction(i);
-
-                        const pos = this._simulator.getJointPositions(tool.actuators);
-                        this._simulator.setControl(pos, tool.actuators);
-                    }
-                } else {
-                    tool._stateCounter = 0;
-                    tool._previousAbduction = abduction;
-                }
-            }
         }
 
         // Update the buttons allowing to toggle the tools (if necessary)
@@ -1365,23 +1638,6 @@ class Robot {
         for (let i = 0; i < this.tools.length; ++i) {
             const tool = this.tools[i];
 
-            // Retrieve the actuator values representing the states of the tools (if any)
-            for (let actuator of tool.actuators) {
-                const range = this._simulator.actuatorRange(actuator);
-
-                if (tool.invertedActuators.indexOf(actuator) >= 0) {
-                    tool.states.push({
-                        closed: range[1],
-                        opened: range[0],
-                    });
-                } else {
-                    tool.states.push({
-                        closed: range[0],
-                        opened: range[1],
-                    });
-                }
-            }
-
             // Retrieve the list of all visual links (=groups) of the tool
             tool.visual.links = tool.links.map((b) => this._simulator.bodies[b]);
 
@@ -1397,14 +1653,7 @@ class Robot {
             // Tool-specific actions (if necessary)
             if (tool.type == 'gripper') {
                 // Initialise the internal state
-                if (this.configuration.tools[i].state != null) {
-                    tool.state = this.configuration.tools[i].state;
-                } else {
-                    if (this.getGripperAbduction(i) >= tool.max)
-                        tool.state = 'opened';
-                    else
-                        tool.state = 'closed';
-                }
+                tool.state = this.configuration.tools[i].state;
 
                 // Create the button to use the tool
                 const img = document.createElement('img');
@@ -1432,8 +1681,7 @@ class Robot {
 
                 tool.visual.links[0].add(tool.button.object);
 
-                tool._previousAbduction = this.getGripperAbduction(i);
-                tool._stateCounter = 0;
+                tool.ctrl = this._simulator.getControl(tool.actuators);
             }
         }
 
@@ -1461,55 +1709,10 @@ class Robot {
         if (this.toolbar != null)
             this.toolbar.disable();
 
-        if (tool.actuators.length - tool.ignoredActuators.length > 0) {
-            const N = tool.actuators.length - tool.ignoredActuators.length;
-            const ctrl = new Float32Array(N);
-            const actuators = [];
-
-            for (let i = 0, j = 0; i < tool.actuators.length; ++i) {
-                const actuator = tool.actuators[i];
-                if (tool.ignoredActuators.indexOf(actuator) >= 0)
-                    continue;
-
-                ctrl[j] = tool.states[i][stateName];
-                actuators.push(actuator);
-
-                ++j;
-            }
-
-            this._simulator.setControl(ctrl, actuators);
-        }
-
-        if (this._simulator.paused) {
-            const start = {};
-            const target = {};
-
-            const qpos = this._simulator.getJointPositions(tool.joints);
-
-            for (let i = 0; i < tool.joints.length; ++i) {
-                const name = tool.names.joints[i];
-                start[name] = qpos[i];
-                target[name] = this._simulator.jointRange(tool.joints[i])[rangeIndex];
-            }
-
-            let tween = new TWEEN.Tween(start)
-                .to(target, 500.0)
-                .easing(TWEEN.Easing.Quadratic.Out);
-
-            tween.onUpdate(object => {
-                const x = new Float32Array(tool.joints.length);
-
-                for (const name in object)
-                    x[tool.names.joints.indexOf(name)] = object[name];
-
-                this._simulator.setJointPositions(x, tool.joints);
-            });
-
-            tween.start();
-        }
-
-        tool.state = stateName;
-        tool._stateCounter = 0;
+        if (stateName == 'closed')
+            tool.close(this._simulator);
+        else
+            tool.open();
     }
 
 
@@ -1666,7 +1869,7 @@ class Robot {
                     if (tool.type == 'gripper') {
                         if (this.isGripperOpen(i)) {
                             this.toolbar.update(false);
-                        } else if (this.isGripperClosed(i) || this.isGripperHoldingSomeObject(i)) {
+                        } else if (this.isGripperClosed(i)) { // || this.isGripperHoldingSomeObject(i)) {
                             this.toolbar.update(true);
                         }
                     }
@@ -1720,59 +1923,17 @@ class Robot {
 
 
     _createTool(tcp, body, configuration) {
-        let tool = {
-            type: configuration.type,
+        let tool = null;
 
-            joints: [],
-            actuators: [],
-            links: [],
+        if (configuration.type == "gripper")
+            tool = new Gripper(configuration);
+        else
+            tool = new Tool();
 
-            tcp: tcp,
-            tcpTarget: null,
-
-            names: {
-                joints: [],
-                actuators: [],
-                links: [],
-            },
-
-            visual: {
-                joints: [],
-                links: [],
-                meshes: [],
-            },
-
-            parent: -1,
-        };
+        tool.tcp = tcp;
 
         if (body != null)
             tool.links.push(body);
-
-        if (configuration.type == "gripper") {
-            const additions = {
-                states: [],
-                state: null,
-
-                ignoredActuators: [],
-                invertedActuators: [],
-
-                ignoredJoints: [],
-                invertedJoints: [],
-
-                button: {
-                    object: null,
-                    element: null,
-                },
-
-                min: (configuration.min != undefined ? configuration.min : 0.01),
-                max: (configuration.max != undefined ? configuration.min : 0.99),
-
-                _previousAbduction: null,
-                _stateCounter: 0,
-            };
-
-            tool = {...tool, ...additions};
-        }
 
         this.tools.push(tool);
 
@@ -1930,11 +2091,6 @@ class SimpleRobot extends Robot {
     }
 
 
-    getGripperAbduction() {
-        return this._getGripperAbduction();
-    }
-
-
     closeGripper() {
         this._closeGripper();
     }
@@ -2082,11 +2238,6 @@ class ComplexRobot extends Robot {
 
     isGripperHoldingSomeObject(index=0) {
         this._isGripperHoldingSomeObject(index);
-    }
-
-
-    getGripperAbduction(index=0) {
-        return this._getGripperAbduction(index);
     }
 
 
@@ -2242,46 +2393,51 @@ class PhysicalBody extends THREE.Object3D {
 
 
 
-function loadScene(filename, robotBuilders=null) {
+/**
+ * Load a MuJoCo scene XML and create a PhysicsSimulator instance.
+ *
+ * @param {string} filename - path to the XML file inside MuJoCo FS
+ * @param {Object|null} lightIntensities - optional mapping of light intensities
+ * @returns {PhysicsSimulator|null}
+ */
+function loadScene(filename, lightIntensities) {
     // Retrieve some infos from the XML file (not exported by the MuJoCo API)
-    const xmlDoc = loadXmlFile(filename);
+    const xmlDoc = readXmlFile(filename);
     if (xmlDoc == null)
         return null;
-
-    filename += ".processed";
-
-    const serializer = new XMLSerializer();
-    mujoco.FS.writeFile(filename, serializer.serializeToString(xmlDoc));
 
     const freeCameraSettings = getFreeCameraSettings(xmlDoc);
     const statistics = getStatistics(xmlDoc);
     const fogSettings = getFogSettings(xmlDoc);
     const headlightSettings = getHeadlightSettings(xmlDoc, filename);
-    const lightIntensities = getLightIntensities(xmlDoc, filename);
-
-    // Add the robot if a builder was provided
-    if ((robotBuilders != null) && (robotBuilders.length > 0)) {
-        for (const builder of robotBuilders)
-            generateRobot(xmlDoc, filename, builder);
-    }
-
-    // Preprocess the included files if necessary
-    let includedLightIntensities = preprocessIncludedFiles(xmlDoc, filename, (robotBuilders != null) && (robotBuilders.length > 0));
-
-    includedLightIntensities = includedLightIntensities.concat(lightIntensities);
 
     // Load in the state from XML
     let model = new mujoco.Model(filename);
 
     return new PhysicsSimulator(
-        model, freeCameraSettings, statistics, fogSettings, headlightSettings, includedLightIntensities
+        model, freeCameraSettings, statistics, fogSettings, headlightSettings, lightIntensities
     );
 }
 
 
 
+/**
+ * Wrapper around MuJoCo model/state/simulation exposing helpers to step the
+ * physics, synchronize transforms into THREE objects and create Robot wrappers.
+ */
 class PhysicsSimulator {
 
+    /**
+     * PhysicsSimulator wraps a MuJoCo Model/State/Simulation and provides
+     * helpers to step the physics and synchronize transforms to THREE objects.
+     *
+     * @param {Object} model - MuJoCo Model instance (from mujoco.Model)
+     * @param {Object} freeCameraSettings - parsed free camera settings from XML
+     * @param {Object|null} statistics - optional statistics overrides from XML
+     * @param {Object} fogSettings - fog/haze settings parsed from XML
+     * @param {Object} headlightSettings - headlight settings parsed from XML
+     * @param {Object|null} lightIntensities - optional mapping of light intensities
+     */
     constructor(model, freeCameraSettings, statistics, fogSettings, headlightSettings, lightIntensities) {
         this.model = model;
         this.state = new mujoco.State(model);
@@ -2302,7 +2458,7 @@ class PhysicsSimulator {
         this.sites = {};
         this.infinitePlanes = [];
         this.infinitePlane = null;
-        this.paused = true;
+        this.paused = false;
         this.time = 0.0;
 
         // Decode the null-terminated string names
@@ -2361,6 +2517,11 @@ class PhysicsSimulator {
     }
 
 
+    /**
+     * Free underlying MuJoCo objects and resources.
+     * This should be called when the simulator is no longer needed.
+     * @returns {void}
+     */
     destroy() {
         this.simulation.delete();
         this.state.delete();
@@ -2368,6 +2529,13 @@ class PhysicsSimulator {
     }
 
 
+    /**
+     * Step the simulation forward to match the provided time and apply any
+     * per-step physical updates (e.g. applied forces reset).
+     *
+     * @param {number} time - target time (seconds) to update the simulation to
+     * @returns {void}
+     */
     update(time) {
         for (let b = 1; b < this.model.nbody; ++b) {
             const body = this.bodies[b];
@@ -2400,6 +2568,13 @@ class PhysicsSimulator {
     }
 
 
+    /**
+     * Synchronize the THREE.js scene objects with the current MuJoCo state.
+     * This updates body/world transforms, light targets and any physical body
+     * proxy objects.
+     *
+     * @returns {void}
+     */
     synchronize() {
         // Update body transforms
         const pos = new THREE.Vector3();
@@ -2452,6 +2627,13 @@ class PhysicsSimulator {
     }
 
 
+    /**
+     * Return the names of bodies.
+     * If indices is provided, returns the names for the requested body indices.
+     *
+     * @param {Array<number>|null} indices - optional array of body indices
+     * @returns {Array<string>} array of body names
+     */
     bodyNames(indices=null) {
         const names = [];
 
@@ -2469,6 +2651,13 @@ class PhysicsSimulator {
     }
 
 
+    /**
+     * Return the names of joints.
+     * If indices is provided, returns the names for the requested joint indices.
+     *
+     * @param {Array<number>|null} indices - optional array of joint indices
+     * @returns {Array<string>} array of joint names
+     */
     jointNames(indices=null) {
         const names = [];
 
@@ -2486,6 +2675,13 @@ class PhysicsSimulator {
     }
 
 
+    /**
+     * Return the names of actuators.
+     * If indices is provided, returns the names for the requested actuator indices.
+     *
+     * @param {Array<number>|null} indices - optional array of actuator indices
+     * @returns {Array<string>} array of actuator names
+     */
     actuatorNames(indices=null) {
         const names = [];
 
@@ -2503,16 +2699,34 @@ class PhysicsSimulator {
     }
 
 
-    jointRange(jointId) {
+    /**
+     * Return the [min, max] range for a joint.
+     *
+     * @param {number} jointId - joint index
+     * @returns {Array<number>} two-element array [min, max]
+     */
+     jointRange(jointId) {
         return this.model.jnt_range.slice(jointId * 2, jointId * 2 + 2);
     }
 
 
+    /**
+     * Return the control range [min, max] for an actuator.
+     *
+     * @param {number} actuatorId - actuator index
+     * @returns {Array<number>} two-element array [min, max]
+     */
     actuatorRange(actuatorId) {
         return this.model.actuator_ctrlrange.slice(actuatorId * 2, actuatorId * 2 + 2);
     }
 
 
+    /**
+     * Return the actuator index associated with a joint, or -1 if none.
+     *
+     * @param {number} jointId - joint index
+     * @returns {number} actuator index or -1
+     */
     getJointActuator(jointId) {
         const index = this.model.actuator_trnid.indexOf(jointId);
         if (index != -1)
@@ -2522,6 +2736,12 @@ class PhysicsSimulator {
     }
 
 
+    /**
+     * Get joint positions (qpos) for all joints or a subset.
+     *
+     * @param {Array<number>|null} indices - optional joint indices to query
+     * @returns {Float64Array} positions array (length = nb joints or indices.length)
+     */
     getJointPositions(indices=null) {
         if (indices == null)
             return new Float64Array(this.simulation.qpos);
@@ -2537,6 +2757,14 @@ class PhysicsSimulator {
     }
 
 
+    /**
+     * Set joint positions (qpos) for all joints or for a subset.
+     * When setting a subset, positions is expected to be ordered according to indices.
+     *
+     * @param {Float64Array|Array<number>} positions - positions to assign
+     * @param {Array<number>|null} indices - optional joint indices to set
+     * @returns {void}
+     */
     setJointPositions(positions, indices=null) {
         if (indices == null) {
             this.simulation.qpos.set(positions);
@@ -2550,6 +2778,12 @@ class PhysicsSimulator {
     }
 
 
+    /**
+     * Get actuator control signals for all actuators or a subset.
+     *
+     * @param {Array<number>|null} indices - optional actuator indices to query
+     * @returns {Float64Array} control values
+     */
     getControl(indices=null) {
         if (indices == null)
             return new Float64Array(this.simulation.ctrl);
@@ -2565,6 +2799,13 @@ class PhysicsSimulator {
     }
 
 
+    /**
+     * Set actuator control signals for all actuators or a subset.
+     *
+     * @param {Float64Array|Array<number>} ctrl - control values to set
+     * @param {Array<number>|null} indices - optional actuator indices to set
+     * @returns {void}
+     */
     setControl(ctrl, indices=null) {
         if (indices == null) {
             this.simulation.ctrl.set(ctrl);
@@ -2578,6 +2819,12 @@ class PhysicsSimulator {
     }
 
 
+    /**
+     * Get joint velocities (qvel) for all joints or a subset.
+     *
+     * @param {Array<number>|null} indices - optional joint indices to query
+     * @returns {Float64Array} velocities array
+     */
     getJointVelocities(indices=null) {
         if (indices == null)
             return new Float64Array(this.simulation.qvel);
@@ -2593,6 +2840,12 @@ class PhysicsSimulator {
     }
 
 
+    /**
+     * Return a PhysicalBody instance by name, or null if not found.
+     *
+     * @param {string} name - body name
+     * @returns {PhysicalBody|null}
+     */
     getPhysicalBody(name) {
         for (let b = 1; b < this.model.nbody; ++b) {
             const body = this.bodies[b];
@@ -2608,6 +2861,12 @@ class PhysicsSimulator {
     }
 
 
+    /**
+     * Return the body index for a given body name, or null if not found.
+     *
+     * @param {string} name - body name
+     * @returns {number|null} body index or null
+     */
     getBodyId(name) {
         for (let b = 0; b < this.model.nbody; ++b) {
             const bodyName = this.names[this.model.name_bodyadr[b]];
@@ -2620,6 +2879,12 @@ class PhysicsSimulator {
     }
 
 
+    /**
+     * Return the world position of a body as a THREE.Vector3.
+     *
+     * @param {number} bodyId - body index
+     * @returns {THREE.Vector3} position vector
+     */
     getBodyPosition(bodyId) {
         const pos = new THREE.Vector3();
         this._getPosition(this.simulation.xpos, bodyId, pos);
@@ -2627,6 +2892,14 @@ class PhysicsSimulator {
     }
 
 
+    /**
+     * Set the world position for a body. This writes into the simulator qpos
+     * and zeros the corresponding velocity components.
+     *
+     * @param {number} bodyId - body index
+     * @param {THREE.Vector3} position - new world position
+     * @returns {void}
+     */
     setBodyPosition(bodyId, position) {
         const jntadr = this.model.body_jntadr[bodyId];
 
@@ -2642,6 +2915,12 @@ class PhysicsSimulator {
     }
 
 
+    /**
+     * Return the world orientation of a body as a THREE.Quaternion.
+     *
+     * @param {number} bodyId - body index
+     * @returns {THREE.Quaternion} orientation quaternion
+     */
     getBodyOrientation(bodyId) {
         const quat = new THREE.Quaternion();
         this._getQuaternion(this.simulation.xquat, bodyId, quat);
@@ -2649,6 +2928,14 @@ class PhysicsSimulator {
     }
 
 
+    /**
+     * Set the world orientation (quaternion) for a body in the simulator qpos
+     * and zero the corresponding angular velocity components.
+     *
+     * @param {number} bodyId - body index
+     * @param {THREE.Quaternion} orientation - quaternion (w,x,y,z)
+     * @returns {void}
+     */
     setBodyOrientation(bodyId, orientation) {
         const jntadr = this.model.body_jntadr[bodyId];
 
@@ -2665,6 +2952,12 @@ class PhysicsSimulator {
     }
 
 
+    /**
+     * Return a THREE.Object3D representing the named site, or null if not found.
+     *
+     * @param {string} name - site name
+     * @returns {THREE.Object3D|null}
+     */
     getSite(name) {
         for (let s = 0; s < this.model.nsite; ++s) {
             const siteName = this.names[this.model.name_siteadr[s]];
@@ -2677,6 +2970,27 @@ class PhysicsSimulator {
     }
 
 
+    /**
+     * Return the names of all lights defined in the MuJoCo model.
+     *
+     * @returns {Array<string>} array of light names
+     */
+    lightNames() {
+        const names = [];
+
+        for (let j = 0; j < this.model.nlight; ++j)
+            names.push(this.names[this.model.name_lightadr[j]]);
+
+        return names;
+    }
+
+
+    /**
+     * Return the center of mass of the subtree rooted at the given body.
+     *
+     * @param {number} bodyId - body index
+     * @returns {THREE.Vector3} subtree center of mass
+     */
     getSubtreeCoM(bodyId) {
         const pos = new THREE.Vector3();
         this._getPosition(this.simulation.subtree_com, bodyId, pos);
@@ -2684,17 +2998,25 @@ class PhysicsSimulator {
     }
 
 
-    createRobot(name, configuration, prefix=null) {
+    /**
+     * Create a high-level Robot wrapper (SimpleRobot or ComplexRobot) based on
+     * the provided infos. The returned robot object exposes convenience
+     * methods to access joint indices, actuators and tools.
+     *
+     * @param {Object} infos - robot information object (name, configuration, ...)
+     * @returns {SimpleRobot|ComplexRobot|null} robot instance or null on failure
+     */
+    createRobot(infos) {
         const sim = this;
 
-        function _getChildBodies(bodyIdx, children) {
+        function _getChildBodies(bodyIdx, children, configuration) {
             for (let b = bodyIdx + 1; b < sim.model.nbody; ++b) {
-                if (sim.names[sim.model.name_bodyadr[b]] == configuration.toolRoot)
+                if (sim.names[sim.model.name_bodyadr[b]] == configuration.root)
                     continue;
 
                 if (sim.model.body_parentid[b] == bodyIdx) {
                     children.push(b);
-                    _getChildBodies(b, children);
+                    _getChildBodies(b, children, configuration);
                 }
             }
         }
@@ -2752,42 +3074,40 @@ class PhysicsSimulator {
         }
 
 
-        // Modify the configuration if a prefix was provided
-        if (prefix != null)
-            configuration = configuration.addPrefix(prefix);
-
         // Create the robot
-        const robot = configuration.tools.length > 1 ?
-                        new ComplexRobot(name, configuration, this) :
-                        new SimpleRobot(name, configuration, this);
+        const robot = infos.configuration.tools.length > 1 ?
+                        new ComplexRobot(infos.name, infos.configuration, this) :
+                        new SimpleRobot(infos.name, infos.configuration, this);
 
         // Retrieve all the tools of the robot
         const toolBodies = [];
-        for (let j = 0; j < configuration.tools.length; ++j) {
+        for (let j = 0; j < infos.configuration.tools.length; ++j) {
+            const cfg = infos.configuration.tools[j];
+
             let body = null;
-            if (configuration.tools[j].root != null)
+            if (cfg.root != null)
             {
-                body = _getBody(configuration.tools[j].root);
+                body = _getBody(cfg.root);
                 if (body == null) {
-                    console.error("Failed to create the robot: link '" + configuration.tools[j].root + "' not found");
+                    console.error("Failed to create the robot: link '" + cfg.root + "' not found");
                     return null;
                 }
 
                 toolBodies.push(body);
             }
 
-            const tcp = _getSite(configuration.tools[j].tcpSite);
+            const tcp = _getSite(cfg.tcpSite);
 
-            const tool = robot._createTool(tcp, body, configuration.tools[j]);
+            const tool = robot._createTool(tcp, body, cfg);
 
             if (body != null)
-                _getChildBodies(body, tool.links);
+                _getChildBodies(body, tool.links, cfg);
         }
 
         // Retrieve all the segments of the robot
-        const rootBody = _getBody(configuration.robotRoot);
+        const rootBody = _getBody(infos.configuration.robotRoot);
         if (rootBody == null) {
-            console.error("Failed to create the robot: link '" + configuration.robotRoot + "' not found");
+            console.error("Failed to create the robot: link '" + infos.configuration.robotRoot + "' not found");
             return null;
         }
 
@@ -2873,15 +3193,6 @@ class PhysicsSimulator {
 
                     if (tool.joints.indexOf(id) >= 0) {
                         tool.actuators.push(a);
-
-                        const cfg = configuration.tools[j];
-
-                        if ((cfg.ignoredActuators != undefined) && (cfg.ignoredActuators.indexOf(this.actuatorNames([a])[0]) >= 0))
-                            tool.ignoredActuators.push(a);
-
-                        if ((cfg.invertedActuators != undefined) && (cfg.invertedActuators.indexOf(this.actuatorNames([a])[0]) >= 0))
-                            tool.invertedActuators.push(a);
-
                         break;
                     }
                 }
@@ -2911,15 +3222,6 @@ class PhysicsSimulator {
 
                             if (tool.joints.indexOf(jointId) >= 0) {
                                 tool.actuators.push(a);
-
-                                const cfg = configuration.tools[j];
-
-                                if ((cfg.ignoredActuators != undefined) && (cfg.ignoredActuators.indexOf(this.actuatorNames([a])[0]) >= 0))
-                                    tool.ignoredActuators.push(a);
-
-                                if ((cfg.invertedActuators != undefined) && (cfg.invertedActuators.indexOf(this.actuatorNames([a])[0]) >= 0))
-                                    tool.invertedActuators.push(a);
-
                                 break;
                             }
                         }
@@ -2933,9 +3235,10 @@ class PhysicsSimulator {
         // Retrieve the parent segment of each tool
         for (let j = 0; j < robot.tools.length; ++j) {
             const tool = robot.tools[j];
+            const cfg = infos.configuration.tools[j];
 
             let parentBody = null;
-            if (configuration.tools[j].root != null)
+            if (cfg.root != null)
                 parentBody = this.model.body_parentid[tool.links[0]];
             else
                 parentBody = this.model.site_bodyid[tool.tcp.site_id];
@@ -2943,7 +3246,6 @@ class PhysicsSimulator {
             tool.parent = robot._getSegmentOfBody(parentBody);
 
             // Convert the ignored and inverted joint names to indices
-            const cfg = configuration.tools[j];
             const jointNames = this.jointNames();
 
             if (cfg.ignoredJoints != undefined) {
@@ -2955,6 +3257,8 @@ class PhysicsSimulator {
                 for (let k = 0; k < cfg.invertedJoints.length; ++k)
                     tool.invertedJoints.push(jointNames.indexOf(cfg.invertedJoints[k]));
             }
+
+            tool.ctrl = this.getControl(tool.actuators);
         }
 
         // Let the robot initialise its internal state
@@ -2964,6 +3268,12 @@ class PhysicsSimulator {
     }
 
 
+    /**
+     * Return the skybox/background texture(s) if present, otherwise null.
+     * Skybox textures are returned as an array of 6 DataTexture objects.
+     *
+     * @returns {THREE.Texture|Array<THREE.Texture>|null}
+     */
     getBackgroundTextures() {
         for (let t = 0; t < this.model.ntex; ++t) {
             if (this.model.tex_type[t] == mujoco.mjtTexture.mjTEXTURE_SKYBOX.value)
@@ -3183,7 +3493,7 @@ class PhysicsSimulator {
             }
 
             // Create the mesh
-            let mesh = new THREE.Mesh();
+            let mesh = null;
             if (type == mujoco.mjtGeom.mjGEOM_PLANE.value) {
                 // mesh = new Reflector(new THREE.PlaneGeometry(100, 100), {
                 //     clipBias: 0.003,
@@ -3311,10 +3621,12 @@ class PhysicsSimulator {
 
         const dir = new THREE.Vector3();
 
+        const names = this.lightNames();
+
         for (let l = 0; l < this.model.nlight; ++l) {
             let light = null;
 
-            const intensity = lightIntensities[l];
+            const intensity = lightIntensities[names[l]];
 
             if (this.model.light_directional[l])
                 light = new THREE.DirectionalLight(0xffffff, intensity != null ? intensity : 3);
@@ -3338,8 +3650,6 @@ class PhysicsSimulator {
             );
 
             if (!this.model.light_directional[l]) {
-                // light.distance = this.model.light_attenuation[l * 3 + 1];
-                // light.decay = this.model.light_attenuation[l * 3 + 1];
                 light.penumbra = 0.5;
                 light.angle = this.model.light_cutoff[l] * Math.PI / 180.0;
             }
@@ -3645,23 +3955,6 @@ class PhysicsSimulator {
 }
 
 
-
-function loadXmlFile(filename) {
-    try {
-        const stat = mujoco.FS.stat(filename);
-    } catch (ex) {
-        return null;
-    }
-
-    const textDecoder = new TextDecoder("utf-8");
-    const data = textDecoder.decode(mujoco.FS.readFile(filename));
-
-    const parser = new DOMParser();
-    return parser.parseFromString(data, "text/xml");
-}
-
-
-
 function getFreeCameraSettings(xmlDoc) {
     const settings = {
         fovy: 45.0,
@@ -3671,11 +3964,11 @@ function getFreeCameraSettings(xmlDoc) {
         zfar: 50,
     };
 
-    const xmlVisual = getFirstElementByTagName(xmlDoc, "visual");
+    const xmlVisual = getFirstElementByTag(xmlDoc, "visual");
     if (xmlVisual == null)
         return settings;
 
-    const xmlGlobal = getFirstElementByTagName(xmlVisual, "global");
+    const xmlGlobal = getFirstElementByTag(xmlVisual, "global");
     if (xmlGlobal != null) {
         let value = xmlGlobal.getAttribute("fovy");
         if (value != null)
@@ -3690,7 +3983,7 @@ function getFreeCameraSettings(xmlDoc) {
             settings.elevation = Number(value);
     }
 
-    const xmlMap = getFirstElementByTagName(xmlVisual, "map");
+    const xmlMap = getFirstElementByTag(xmlVisual, "map");
     if (xmlMap != null) {
         let value = xmlMap.getAttribute("znear");
         if (value != null)
@@ -3714,7 +4007,7 @@ function getStatistics(xmlDoc) {
         meaninertia: null,
     };
 
-    const xmlStatistic = getFirstElementByTagName(xmlDoc, "statistic");
+    const xmlStatistic = getFirstElementByTag(xmlDoc, "statistic");
     if (xmlStatistic == null)
         return statistics;
 
@@ -3756,11 +4049,11 @@ function getFogSettings(xmlDoc) {
         hazeProportion: 0.3,
     };
 
-    const xmlVisual = getFirstElementByTagName(xmlDoc, "visual");
+    const xmlVisual = getFirstElementByTag(xmlDoc, "visual");
     if (xmlVisual == null)
         return settings;
 
-    const xmlRgba = getFirstElementByTagName(xmlVisual, "rgba");
+    const xmlRgba = getFirstElementByTag(xmlVisual, "rgba");
     if (xmlRgba != null) {
         let value = xmlRgba.getAttribute("fog");
         if (value != null) {
@@ -3777,7 +4070,7 @@ function getFogSettings(xmlDoc) {
         }
     }
 
-    const xmlMap = getFirstElementByTagName(xmlVisual, "map");
+    const xmlMap = getFirstElementByTag(xmlVisual, "map");
     if (xmlMap != null) {
         let value = xmlMap.getAttribute("fogstart");
         if (value != null) {
@@ -3811,13 +4104,13 @@ function getHeadlightSettings(xmlDoc, filename) {
         active: true,
     };
 
-    const xmlVisual = getFirstElementByTagName(xmlDoc, "visual");
+    const xmlVisual = getFirstElementByTag(xmlDoc, "visual");
     if (xmlVisual == null)
         return settings;
 
     let modified = false;
 
-    const xmlHeadlight = getFirstElementByTagName(xmlVisual, "headlight");
+    const xmlHeadlight = getFirstElementByTag(xmlVisual, "headlight");
     if (xmlHeadlight != null) {
         let value = xmlHeadlight.getAttribute("ambient");
         if (value != null) {
@@ -3858,387 +4151,214 @@ function getHeadlightSettings(xmlDoc, filename) {
     return settings;
 }
 
-
-function getLightIntensities(xmlDoc, filename=null) {
-    const intensities = [];
-
-    const xmlWorldBody = getFirstElementByTagName(xmlDoc, "worldbody");
-    if (xmlWorldBody == null)
-        return intensities;
-
-    const xmlLights = xmlWorldBody.getElementsByTagName("light");
-    if (xmlLights.length == 0)
-        return intensities;
-
-    let modified = false;
-
-    for (let i = 0; i < xmlLights.length; ++i) {
-        const xmlLight = xmlLights[i];
-
-        let value = xmlLight.getAttribute("intensity");
-        if (value != null) {
-            intensities.push(Number(value));
-            xmlLight.removeAttribute("intensity");
-            modified = true;
-        } else {
-            intensities.push(null);
-        }
-    }
-
-    if (modified && (filename != null)) {
-        const serializer = new XMLSerializer();
-        mujoco.FS.writeFile(filename, serializer.serializeToString(xmlDoc));
-    }
-
-    return intensities;
-}
+/*
+ * SPDX-FileCopyrightText: Copyright © 2025 Idiap Research Institute <contact@idiap.ch>
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ */
 
 
-function generateRobot(xmlDoc, filename, robotBuilder) {
-    // Add an include element in the XML document
-    const xmlInclude = xmlDoc.createElement("include");
-    xmlInclude.setAttribute("file", "generated/" + robotBuilder.name + ".xml");
-    xmlInclude.setAttribute("pos", robotBuilder.position.join(" "));
-    xmlInclude.setAttribute("quat", robotBuilder.quaternion.join(" "));
 
-    if (robotBuilder.prefix != null)
-        xmlInclude.setAttribute("prefix", robotBuilder.prefix);
+let Path$1 = class Path {
+    constructor(path) {
+        if (path instanceof Path)
+            path = path.toString();
 
-    const xmlIncludes = xmlDoc.getElementsByTagName("include");
-    if (xmlIncludes.length == 0)
-        xmlDoc.children[0].prepend(xmlInclude);
-    else
-        xmlIncludes[xmlIncludes.length - 1].after(xmlInclude);
-
-    // Generate the XML file declaring the robot
-    const xmlRobotDoc = robotBuilder.generateXMLDocument();
-
-    const offset = filename.lastIndexOf('/');
-    const folder = filename.substring(0, offset + 1);
-    const path = folder + "/generated";
-
-    try {
-        const stat = mujoco.FS.stat(path);
-    } catch (ex) {
-        mujoco.FS.mkdir(path);
-    }
-
-    const serializer = new XMLSerializer();
-    mujoco.FS.writeFile(
-        path + "/" + robotBuilder.name + ".xml",
-        serializer.serializeToString(xmlRobotDoc)
-    );
-}
-
-
-function preprocessIncludedFiles(xmlDoc, filename, modified=false) {
-    const offset = filename.lastIndexOf('/');
-    const folder = filename.substring(0, offset + 1);
-    const [subfolder, _] = filename.substring(offset + 1).split(".");
-
-    const serializer = new XMLSerializer();
-
-    const knownFiles = [];
-
-    let intensities = [];
-
-    // Search for include directives with a prefix
-    const xmlIncludes = xmlDoc.getElementsByTagName("include");
-    for (let xmlInclude of xmlIncludes) {
-        let includedFile = xmlInclude.getAttribute("file");
-
-        const known = (knownFiles.indexOf(includedFile) != -1);
-        if (!known)
-            knownFiles.push(includedFile);
-
-        const prefix = xmlInclude.getAttribute("prefix");
-        const pos = xmlInclude.getAttribute("pos");
-        const quat = xmlInclude.getAttribute("quat");
-        const ghost = xmlInclude.getAttribute("ghost");
-
-        const [xmlContent, intensities2] = preprocessIncludedFile(folder + includedFile, prefix, pos, quat, ghost, known);
-
-        if (intensities2.length > 0)
-            intensities = intensities.concat(intensities2);
-
-        if ((prefix != null) || (pos != null) || (quat != null) || (ghost != null) || (intensities2.length > 0)) {
-            const offset = includedFile.lastIndexOf('/');
-            const path = subfolder + "/" + includedFile.substring(0, offset + 1);
-            includedFile = path + (prefix != null ? prefix : "") + includedFile.substring(offset + 1);
-
-            mkdir(folder + path);
-
-            mujoco.FS.writeFile(folder + includedFile, serializer.serializeToString(xmlContent));
-            xmlInclude.setAttribute("file", includedFile);
-            xmlInclude.removeAttribute("prefix");
-            xmlInclude.removeAttribute("pos");
-            xmlInclude.removeAttribute("quat");
-            xmlInclude.removeAttribute("ghost");
-
-            modified = true;
-        }
-    }
-
-    if (modified)
-        mujoco.FS.writeFile(filename, serializer.serializeToString(xmlDoc));
-
-    return intensities;
-}
-
-
-function getFirstElementByTagName(xmlParent, name) {
-    const xmlElements = xmlParent.getElementsByTagName(name);
-    if (xmlElements.length > 0)
-        return xmlElements[0];
-
-    return null;
-}
-
-
-function preprocessIncludedFile(filename, prefix, pos, quat, ghost, removeCommons=false) {
-    const xmlDoc = loadXmlFile(filename);
-    if (xmlDoc == null) {
-        console.error('Missing file: ' + filename);
-        return;
-    }
-
-    // Retrieve the model name
-    const xmlRoot = getFirstElementByTagName(xmlDoc, "mujoco");
-
-    // Process all prefix-related changes
-    if (prefix != null) {
-        const modelName = xmlRoot.getAttribute("model").replaceAll(' ' , '_');
-
-        if (!removeCommons) {
-            // Process defaults
-            const xmlDefaults = getFirstElementByTagName(xmlRoot, "default");
-            if (xmlDefaults != null)
-                changeDefaultClassNames(xmlDefaults, modelName + '_');
-
-            // Process assets
-            const xmlAssets = getFirstElementByTagName(xmlRoot, "asset");
-            if (xmlAssets != null)
-                changeAssetNames(xmlAssets, modelName + '_');
-        } else {
-            const xmlDefaults = getFirstElementByTagName(xmlRoot, "default");
-            if (xmlDefaults != null)
-                xmlRoot.removeChild(xmlDefaults);
-
-            const xmlAssets = getFirstElementByTagName(xmlRoot, "asset");
-            if (xmlAssets != null)
-                xmlRoot.removeChild(xmlAssets);
+        if (typeof path !== "string") {
+            throw new TypeError("The path must be a string");
         }
 
-        const elements = ["worldbody", "tendon", "equality", "actuator", "contact", "sensor"];
-        for (let name of elements) {
-            const xmlElement = getFirstElementByTagName(xmlRoot, name);
-            if (xmlElement != null)
-                changeNames(xmlElement, prefix, modelName);
-        }
+        this.separator = "/";
+        this.isAbsolute = path.startsWith(this.separator);
+
+        const rawParts = path.split(this.separator).filter(p => p.length > 0);
+        this.parts = this._normalizeParts(rawParts, this.isAbsolute);
     }
 
-    // Process all transforms-related changes
-    const xmlWorldBody = getFirstElementByTagName(xmlRoot, "worldbody");
-    if (xmlWorldBody != null) {
-        if (pos != null) {
-            for (let xmlChild of xmlWorldBody.children) {
-                const v = pos.split(" ");
-                const finalPos = new THREE.Vector3(Number(v[0]), Number(v[1]), Number(v[2]));
+    /**
+     * Normalise the parts of a path, handling "." and ".."
+     * @param {string[]} parts
+     * @param {boolean} absolute
+     * @returns {string[]}
+     */
+    _normalizeParts(parts, absolute) {
+        const stack = [];
 
-                const origPos = xmlChild.getAttribute("pos");
-                if (origPos != null) {
-                    const v = origPos.split(" ");
-                    finalPos.x += Number(v[0]);
-                    finalPos.y += Number(v[1]);
-                    finalPos.z += Number(v[2]);
+        for (const part of parts) {
+            if (part === "." || part === "") {
+                continue;
+            } else if (part === "..") {
+                if (stack.length > 0 && stack[stack.length - 1] !== "..") {
+                    stack.pop();
+                } else if (!absolute) {
+                    stack.push("..");
                 }
-
-                xmlChild.setAttribute("pos", "" + finalPos.x + " " + finalPos.y + " " + finalPos.z);
+            } else {
+                stack.push(part);
             }
         }
 
-        if (quat != null) {
-            let useDegrees = false;
-            let eulerSeq = "XYZ";
+        return stack;
+    }
 
-            const xmlCompiler = getFirstElementByTagName(xmlRoot, "compiler");
-            if (xmlCompiler != null) {
-                let value = xmlCompiler.getAttribute("angle");
-                useDegrees = (value == "degree");
+    /**
+     * Join a variable number of parts to the path and return the new path
+     * @param  {...(string|Path)} parts
+     * @returns {Path}
+     */
+    join(...parts) {
+        let newParts = [...this.parts];
+        let isAbsolute = this.isAbsolute;
 
-                value = xmlCompiler.getAttribute("eulerseq");
-                if (value != null)
-                    eulerSeq = value.toUpperCase();
+        for (const part of parts) {
+            let segmentParts;
+
+            if (part instanceof Path) {
+                segmentParts = part.parts;
+            } else if (typeof part === "string") {
+                segmentParts = part.split(this.separator).filter(p => p.length > 0);
+            } else {
+                throw new TypeError("Joined parts must be either strings or Paths");
             }
 
-            for (let xmlChild of xmlWorldBody.children) {
-                const v = quat.split(" ");
-                const finalQuat = new THREE.Quaternion(Number(v[1]), Number(v[2]), Number(v[3]), Number(v[0]));
+            newParts.push(...segmentParts);
+        }
 
-                const origQuat = xmlChild.getAttribute("quat");
-                const origAxisAngle = xmlChild.getAttribute("axisangle");
-                const origEuler = xmlChild.getAttribute("euler");
-                const origXYAxes = xmlChild.getAttribute("xyaxes");
-                const origZAxis = xmlChild.getAttribute("zaxis");
+        const normalized = this._normalizeParts(newParts, isAbsolute);
+        const prefix = isAbsolute ? this.separator : "";
 
-                if (origQuat != null) {
-                    const v = origQuat.split(" ");
-                    const quat = new THREE.Quaternion(Number(v[1]), Number(v[2]), Number(v[3]), Number(v[0]));
-                    finalQuat.multiply(quat);
+        return new Path(prefix + normalized.join(this.separator));
+    }
 
-                } else if (origAxisAngle != null) {
-                    const v = origAxisAngle.split(" ");
-                    const x = Number(v[0]);
-                    const y = Number(v[1]);
-                    const z = Number(v[2]);
-                    let a = Number(v[3]);
+    /**
+     * Returns the parent folder
+     * @returns {Path}
+     */
+    dirname() {
+        if (this.parts.length === 0) {
+            return new Path(this.isAbsolute ? "/" : ".");
+        }
+        const dirParts = this.parts.slice(0, -1);
+        const prefix = this.isAbsolute ? this.separator : "";
+        return new Path(prefix + dirParts.join(this.separator));
+    }
 
-                    if (useDegrees)
-                        a = a * Math.PI / 180.0;
+    /**
+     * Returns the last segment (either a filename or a folder)
+     * @returns {string}
+     */
+    basename() {
+        if (this.parts.length === 0) return this.isAbsolute ? "/" : ".";
+        return this.parts[this.parts.length - 1];
+    }
 
-                    if (a != 0.0) {
-                        const s = Math.sin(a * 0.5);
-                        const quat = new THREE.Quaternion(x * s, y * s, z * s, Math.cos(a * 0.5));
-                        finalQuat.multiply(quat);
-                    }
+    /**
+     * Returns the extension of the file (including the point)
+     * @returns {string}
+     */
+    extname() {
+        const base = this.basename();
+        const idx = base.lastIndexOf(".");
+        if (idx <= 0) return "";
+        return base.slice(idx);
+    }
 
-                    xmlChild.removeAttribute("axisangle");
+    isDirectory() {
+        const base = this.basename();
+        const idx = base.lastIndexOf(".");
+        return (idx <= 0);
+    }
 
-                } else if (origEuler != null) {
-                    const v = origEuler.split(" ");
-                    const x = Number(v[0]);
-                    const y = Number(v[1]);
-                    const z = Number(v[2]);
+    /**
+     * Compute the relative path from another one
+     * @param {string|Path} base
+     * @returns {Path}
+     */
+    relativeTo(base) {
+        if (typeof base === "string") base = new Path(base);
+        if (!(base instanceof Path)) {
+            throw new TypeError("The argument must be a Path or a string");
+        }
 
-                    const euler = new THREE.Euler(x, y, z, eulerSeq);
+        // Both paths must be either absolute or relatives
+        if (this.isAbsolute !== base.isAbsolute) {
+            throw new Error("Both paths must be either absolute or relatives");
+        }
 
-                    const quat = new THREE.Quaternion();
-                    quat.setFromEuler(euler);
+        // Find the first point of divergence
+        let i = 0;
+        while (i < this.parts.length && i < base.parts.length && this.parts[i] === base.parts[i]) {
+            i++;
+        }
 
-                    finalQuat.multiply(quat);
+        // Go up for each folder remaining in the base
+        const up = base.parts.slice(i).map(() => "..");
 
-                    xmlChild.removeAttribute("euler");
+        // Add the remaining parts from this path
+        const down = this.parts.slice(i);
 
-                } else if (origXYAxes != null) {
-                    const v = origXYAxes.split(" ");
-                    const x = new THREE.Vector3(Number(v[0]), Number(v[1]), Number(v[2]));
-                    const y = new THREE.Vector3(Number(v[3]), Number(v[4]), Number(v[5]));
+        const relativeParts = [...up, ...down];
+        return new Path(relativeParts.join(this.separator) || ".");
+    }
 
-                    x.normalize();
-                    y.normalize();
+    /**
+     * Returns the string representation of the path
+     */
+    toString() {
+        const prefix = this.isAbsolute ? this.separator : "";
+        return prefix + this.parts.join(this.separator);
+    }
 
-                    const z = new THREE.Vector3();
-                    z.crossVectors(x, y);
+    mkdir() {
+        if (!this.isAbsolute)
+            throw new Error("The path must be absolute");
 
-                    const matrix = new THREE.Matrix4();
-                    matrix.makeBasis(x, y, z);
+        if (!this.isDirectory()) {
+            this.dirname().mkdir();
+            return;
+        }
 
-                    const quat = new THREE.Quaternion();
-                    quat.setFromRotationMatrix(matrix);
+        let current = this.separator + this.parts[0];
 
-                    quat.set(quat.x, quat.y, quat.z, quat.w);
+        let i = 0;
+        while (i < this.parts.length) {
+            if (!fileExists(current))
+                mujoco.FS.mkdir(current);
 
-                    finalQuat.multiply(quat);
-
-                    xmlChild.removeAttribute("xyaxes");
-
-                } else if (origZAxis != null) {
-                    const v = origZAxis.split(" ");
-                    const to = new THREE.Vector3(Number(v[0]), Number(v[1]), Number(v[2]));
-                    const from = new THREE.Vector3(0, 0, 1);
-
-                    to.normalize();
-
-                    const quat = new THREE.Quaternion();
-                    quat.setFromUnitVectors(from, to);
-
-                    quat.set(quat.x, quat.y, quat.z, quat.w);
-
-                    finalQuat.multiply(quat);
-
-                    xmlChild.removeAttribute("zaxis");
-                }
-
-                xmlChild.setAttribute("quat", "" + -finalQuat.w + " " + -finalQuat.x + " " + -finalQuat.y + " " + finalQuat.z);
-            }
+            i++;
+            if (i < this.parts.length)
+                current += this.separator + this.parts[i];
         }
     }
 
-    // Process all ghost-related changes
-    if ((xmlWorldBody != null) && (ghost == "true"))
-    {
-        const xmlGeoms = Array.from(xmlWorldBody.getElementsByTagName("geom"));
-        for (let xmlGeom of xmlGeoms) {
-            if (xmlGeom.getAttribute("class").search("collision") >= 0)
-                xmlGeom.parentElement.removeChild(xmlGeom);
-        }
+    exists() {
+        return fileExists(this.toString());
     }
 
-    const intensities = getLightIntensities(xmlDoc);
+    read(binary=false) {
+        if (this.isDirectory())
+            return null;
 
-    return [xmlDoc, intensities];
-}
-
-
-function addPrefix(xmlElement, attr, prefix) {
-    if (xmlElement.hasAttribute(attr))
-        xmlElement.setAttribute(attr, prefix + xmlElement.getAttribute(attr));
-}
-
-
-function changeNames(xmlElement, prefix, modelName) {
-    addPrefix(xmlElement, "name", prefix);
-    addPrefix(xmlElement, "joint", prefix);
-    addPrefix(xmlElement, "joint1", prefix);
-    addPrefix(xmlElement, "joint2", prefix);
-    addPrefix(xmlElement, "tendon", prefix);
-    addPrefix(xmlElement, "geom1", prefix);
-    addPrefix(xmlElement, "geom2", prefix);
-    addPrefix(xmlElement, "site", prefix);
-    addPrefix(xmlElement, "target", prefix);
-    addPrefix(xmlElement, "prefix", prefix);
-
-    addPrefix(xmlElement, "childclass", modelName + "_");
-    addPrefix(xmlElement, "class", modelName + "_");
-    addPrefix(xmlElement, "mesh", modelName + "_");
-    addPrefix(xmlElement, "material", modelName + "_");
-    addPrefix(xmlElement, "hfield", modelName + "_");
-
-    for (let xmlChild of xmlElement.children)
-        changeNames(xmlChild, prefix, modelName);
-}
-
-
-function changeDefaultClassNames(xmlElement, prefix) {
-    addPrefix(xmlElement, "class", prefix);
-
-    for (let xmlChild of xmlElement.children)
-        changeDefaultClassNames(xmlChild, prefix);
-}
-
-
-function changeAssetNames(xmlElement, prefix) {
-    addPrefix(xmlElement, "name", prefix);
-    addPrefix(xmlElement, "class", prefix);
-    addPrefix(xmlElement, "texture", prefix);
-    addPrefix(xmlElement, "material", prefix);
-    addPrefix(xmlElement, "body", prefix);
-
-    if ((xmlElement.tagName == "texture") || (xmlElement.tagName == "hfield") ||
-        (xmlElement.tagName == "mesh") || (xmlElement.tagName == "skin")) {
-        if (!xmlElement.hasAttribute("name")) {
-            const file = xmlElement.getAttribute("file");
-            if (file != null) {
-                const offset = file.lastIndexOf('/');
-                const offset2 = file.lastIndexOf('.');
-                xmlElement.setAttribute("name", prefix + file.substring(offset + 1, offset2));
-            }
-        }
+        return readFile(this.toString(), binary);
     }
 
-    for (let xmlChild of xmlElement.children)
-        changeAssetNames(xmlChild, prefix);
-}
+    readXML() {
+        if (this.isDirectory())
+            return null;
+
+        return readXmlFile(this.toString());
+    }
+
+    write(content) {
+        if (this.isDirectory())
+            return null;
+
+        writeFile(this.toString(), content);
+        return true;
+    }
+};
 
 /*
  * SPDX-FileCopyrightText: Copyright © 2025 Idiap Research Institute <contact@idiap.ch>
@@ -4251,6 +4371,15 @@ function changeAssetNames(xmlElement, prefix) {
 
 
 
+async function downloadFile(url, dstFolder) {
+    const offset = url.lastIndexOf('/');
+    const srcFolderUrl = url.substring(0, offset);
+    const filename = url.substring(offset + 1);
+
+    await downloadFiles(srcFolderUrl, dstFolder, [ filename ]);
+}
+
+
 /* Download some files and store them in Mujoco's filesystem
 
 Parameters:
@@ -4258,7 +4387,7 @@ Parameters:
     srcFolderUrl (string): The URL of the folder in which all the files are located
     filenames ([string]): List of the filenames
 */
-async function downloadFiles(dstFolder, srcFolderUrl, filenames) {
+async function downloadFiles(srcFolderUrl, dstFolder, filenames) {
     const FS = mujoco.FS;
 
     if (dstFolder[0] != '/') {
@@ -4276,11 +4405,8 @@ async function downloadFiles(dstFolder, srcFolderUrl, filenames) {
         for (let i = 0; i < parts.length; ++i) {
             path += '/' + parts[i];
 
-            try {
-                const stat = FS.stat(path);
-            } catch (ex) {
+            if (!fileExists(path))
                 FS.mkdir(path);
-            }
         }
     }
 
@@ -4289,13 +4415,23 @@ async function downloadFiles(dstFolder, srcFolderUrl, filenames) {
 
     for (let i = 0; i < filenames.length; ++i) {
         const filename = filenames[i];
-        const data = await fetch(srcFolderUrl + filename);
 
-        const contentType = data.headers.get("content-type");
-        if ((contentType == 'application/xml') || (contentType == 'text/plain')) {
-            mujoco.FS.writeFile(dstFolder + '/' + filename, await data.text());
+        const srcFilenameUrl = pathJoin(srcFolderUrl, filename);
+        const dstFilename = pathJoin(dstFolder, filename);
+
+        if (fileExists(dstFilename))
+            continue;
+
+        const data = await fetch(srcFilenameUrl);
+        if (data.ok) {
+            const contentType = data.headers.get("content-type");
+            if ((contentType == 'application/xml') || (contentType == 'text/plain')) {
+                mujoco.FS.writeFile(dstFilename, await data.text());
+            } else {
+                mujoco.FS.writeFile(dstFilename, new Uint8Array(await data.arrayBuffer()));
+            }
         } else {
-            mujoco.FS.writeFile(dstFolder + '/' + filename, new Uint8Array(await data.arrayBuffer()));
+            console.error("Failed to download the file: '" + srcFilenameUrl + "'");
         }
     }
 }
@@ -4307,8 +4443,113 @@ async function downloadFiles(dstFolder, srcFolderUrl, filenames) {
 The scenes are stored in Mujoco's filesystem at '/scenes'
 */
 async function downloadScene(url, destFolder='/scenes') {
+    // Download the XML file of the scene
     const offset = url.lastIndexOf('/');
-    await downloadFiles(destFolder, url.substring(0, offset), [ url.substring(offset + 1) ]);
+    const srcFolderUrl = url.substring(0, offset);
+    const filename = url.substring(offset + 1);
+
+    if (!(destFolder instanceof Path$1))
+        destFolder = new Path$1(destFolder);
+
+    const dstFilename = destFolder.join(filename);
+
+    if (dstFilename.exists())
+        return;
+
+    await downloadFile(url, destFolder.toString());
+
+    // Load the XML document
+    let xmlDoc = dstFilename.readXML();
+    if (xmlDoc == null)
+    {
+        console.error("Failed to load the file '" + dstFilename.toString() + "'");
+        return;
+    }
+
+    // Download all the assets used by the scene
+    const assets = getSceneAssets(xmlDoc);
+    for (let folder in assets) {
+        if (folder != '.')
+            await downloadFiles(pathJoin(srcFolderUrl, folder), destFolder.join(folder).toString(), assets[folder]);
+        else
+            await downloadFiles(srcFolderUrl, destFolder.toString(), assets[folder]);
+    }
+
+    // Download all the included XML scenes
+    const includedFiles = getIncludedFiles(xmlDoc);
+    for (let includedFile of includedFiles) {
+        includedFile = new Path$1(includedFile);
+        if (!includedFile.isAbsolute)
+            await downloadScene(pathJoin(srcFolderUrl, includedFile.toString()), destFolder.join(includedFile.dirname()));
+    }
+}
+
+
+
+function getSceneAssets(xmlDoc) {
+    const result = {};
+
+    // Get assets folders
+    let meshdir = null;
+    let texturedir = null;
+
+    let xmlCompiler = getFirstElementByTag(xmlDoc, 'compiler');
+    if (xmlCompiler != null) {
+        if (xmlCompiler.hasAttribute('meshdir'))
+            meshdir = xmlCompiler.getAttribute('meshdir');
+
+        if (xmlCompiler.hasAttribute('texturedir'))
+            texturedir = xmlCompiler.getAttribute('texturedir');
+    }
+
+    // Get all meshes
+    getAllAssetsOfType(xmlDoc, 'mesh', meshdir, result);
+
+    // Get all textures
+    getAllAssetsOfType(xmlDoc, 'texture', texturedir, result);
+
+    return result;
+}
+
+
+
+function getAllAssetsOfType(xmlDoc, assetsType, assetsFolder, result) {
+    const xmlAssets = xmlDoc.getElementsByTagName(assetsType);
+    for (let xmlAsset of xmlAssets) {
+        if (!xmlAsset.hasAttribute('file'))
+            continue;
+
+        let filename = xmlAsset.getAttribute('file');
+        if (assetsFolder != null)
+            filename = pathJoin(assetsFolder, filename);
+
+        const offset = filename.lastIndexOf('/');
+        let folder = '.';
+
+        if (offset != -1) {
+            folder = filename.substring(0, offset);
+            filename = filename.substring(offset + 1);
+        }
+
+        if (result[folder] == undefined)
+            result[folder] = [];
+
+        result[folder].push(filename);
+    }
+}
+
+
+
+function getIncludedFiles(xmlDoc) {
+    const result = [];
+
+    const xmlIncludes = xmlDoc.getElementsByTagName('include');
+    for (let xmlInclude of xmlIncludes) {
+        let filename = xmlInclude.getAttribute('file');
+        result.push(filename);
+    }
+
+    return result;
 }
 
 /*
@@ -4327,6 +4568,16 @@ async function downloadScene(url, destFolder='/scenes') {
 Buttons are displayed when a transformation is in progress, to switch between
 translation/rotation and world/local coordinates.
 */
+/**
+ * Manager/wrapper around three.js TransformControls that provides a small
+ * toolbar to switch modes (translate/rotate/scale) and space (local/world).
+ *
+ * It also exposes a simple listener API for transform changes.
+ *
+ * @example
+ * const manager = new TransformControlsManager(toolbar, renderer.domElement, camera, scene);
+ * manager.attach(object, true, (obj, dragging) => {});
+ */
 class TransformControlsManager {
 
     /* Construct the manager.
@@ -4377,15 +4628,23 @@ class TransformControlsManager {
     }
 
 
-    /* Sets up a function that will be called whenever the specified event happens
-    */
+    /**
+     * Forwards event listeners to the underlying TransformControls instance.
+     *
+     * @param {string} name - Event name (e.g. 'change', 'dragging-changed')
+     * @param {Function} fct - Callback
+     */
     addEventListener(name, fct) {
         this.transformControls.addEventListener(name, fct);
     }
 
 
-    /* Enables/disables the controls
-    */
+    /**
+     * Enable or disable the transform controls UI.
+     * @param {boolean} enabled
+     * @param {boolean} [withScaling=false] - show scaling option when true
+     * @returns {void}
+     */
     enable(enabled, withScaling=false) {
         this.enabled = enabled && (this.transformControls.object != null);
         this.used = false;
@@ -4410,22 +4669,28 @@ class TransformControlsManager {
     }
 
 
-    /* Indicates whether or not the controls are enabled
-    */
+    /**
+     * Returns whether transform controls are enabled.
+     * @returns {boolean}
+     */
     isEnabled() {
         return this.enabled;
     }
 
 
-    /* Indicates whether or not dragging is currently performed
-    */
+    /**
+     * Returns whether a drag transform is currently active.
+     * @returns {boolean}
+     */
     isDragging() {
         return this.transformControls.dragging;
     }
 
 
-    /* Indicates whether or not the controls were just used
-    */
+    /**
+     * Returns true if the controls were used since the last call, and resets the flag.
+     * @returns {boolean}
+     */
     wasUsed() {
         const result = this.used;
         this.used = false;
@@ -4433,11 +4698,13 @@ class TransformControlsManager {
     }
 
 
-    /* Sets the 3D object that should be transformed and ensures the controls UI is visible.
-
-    Parameters:
-        object (Object3D): The 3D object that should be transformed
-    */
+    /**
+     * Attach a THREE.Object3D to the transform controls and show the UI.
+     *
+     * @param {THREE.Object3D} object - object to transform
+     * @param {boolean} [withScaling=false] - show scaling option
+     * @param {Function|null} [listener=null] - optional listener called (object, isActive)
+     */
     attach(object, withScaling=false, listener=null) {
         if (this.listener != null)
         {
@@ -4475,6 +4742,10 @@ class TransformControlsManager {
     }
 
 
+    /**
+     * Return the currently attached object (or null).
+     * @returns {THREE.Object3D|null}
+     */
     getAttachedObject() {
         return this.transformControls.object;
     }
@@ -4606,6 +4877,17 @@ class TransformControlsManager {
 
 
 
+/**
+ * Small helper that provides planar IK support for dragging links.
+ *
+ * The class defines an infinite plane and when a raycaster intersects that
+ * plane it computes an IK update using the provided KinematicChain.
+ *
+ * @example
+ * const pik = new PlanarIKControls();
+ * pik.setup(robot, offset, kinematicChain, startPosition, planeDirection);
+ * pik.process(raycaster);
+ */
 class PlanarIKControls {
 
     constructor() {
@@ -4620,6 +4902,15 @@ class PlanarIKControls {
     }
 
 
+    /**
+     * Configure the planar IK helper.
+     * @param {Robot} robot
+     * @param {THREE.Vector3} offset - local offset from link to target
+     * @param {KinematicChain} kinematicChain - solver used to perform IK
+     * @param {THREE.Vector3} startPosition - initial point on the plane
+     * @param {THREE.Vector3} planeDirection - plane normal direction
+     * @returns {void}
+     */
     setup(robot, offset, kinematicChain, startPosition, planeDirection) {
         this.robot = robot;
         this.offset = offset;
@@ -4632,6 +4923,11 @@ class PlanarIKControls {
     }
 
 
+    /**
+     * Process a raycaster intersection with the planar workspace and run IK if hit.
+     * @param {THREE.Raycaster} raycaster
+     * @returns {void}
+     */
     process(raycaster) {
         let intersects = raycaster.intersectObject(this.plane, false);
 
@@ -4646,6 +4942,10 @@ class PlanarIKControls {
         }
     }
 
+    /**
+     * Reset internal state (no-op currently).
+     * @returns {void}
+     */
     reset() {
     }
 
@@ -4950,6 +5250,11 @@ class Logmap {
  */
 
 
+/**
+ * Available target shapes.
+ * @readonly
+ * @enum {symbol}
+ */
 const Shapes = Object.freeze({
     Cube: Symbol("cube"),
     Cone: Symbol("cone"),
@@ -4959,27 +5264,24 @@ const Shapes = Object.freeze({
 
 
 
-/* Represents a target, an object that can be manipulated by the user that can for example
-be used to define a destination position and orientation for the end-effector of the robot.
-
-A target is an Object3D, so you can manipulate it like one.
-
-Note: Targets are top-level objects, so their local position and orientation are also their
-position and orientation in world space. 
-*/
+/**
+ * A manipulable target object used to define desired poses for tools/end-effectors.
+ * Extends THREE.Object3D and is intended to be attached to TransformControls.
+ *
+ * @extends THREE.Object3D
+ */
 class Target extends THREE.Object3D {
-
-    /* Constructs the 3D viewer
-
-    Parameters:
-        name (str): Name of the target
-        position (Vector3): The position of the target
-        orientation (Quaternion): The orientation of the target
-        color (int/str): Color of the target (by default: 0x0000aa)
-        shape (Shapes): Shape of the target (by default: Shapes.Cube)
-        listener (function): Function to call when the target is moved/rotated using the mouse
-        parameters (dict): Additional shape-dependent parameters (radius, width, height, ...) and opacity
-    */
+    /**
+     * Create a new Target.
+     * @param {string} name
+     * @param {THREE.Vector3} position
+     * @param {THREE.Quaternion} orientation
+     * @param {number|string} [color=0x0000aa]
+     * @param {Shapes} [shape=Shapes.Cube]
+     * @param {(target:Object)=>void|null} [listener=null]
+     * @param {Map|Object|null} [parameters=null]
+     * @param {Object|null} [targetslist=null] - optional target list to register meshes
+     */
     constructor(
         name, position, orientation, color=0x0000aa, shape=Shapes.Cube, listener=null, parameters=null,
         targetslist=null
@@ -5073,9 +5375,10 @@ class Target extends THREE.Object3D {
     }
 
 
-    /* Returns the position and orientation of the target in an array of the form:
-    [px, py, pz, qx, qy, qz, qw]
-    */
+    /**
+     * Return the world transforms of the target as an array [px,py,pz,qx,qy,qz,qw].
+     * @returns {number[]}
+     */
     transforms() {
         return [
             this.position.x, this.position.y, this.position.z,
@@ -5084,9 +5387,10 @@ class Target extends THREE.Object3D {
     }
 
 
-    /* Frees the GPU-related resources allocated by this instance. Call this method whenever this
-    instance is no longer used in your app.
-    */
+    /**
+     * Free GPU resources used by this target (geometries/materials).
+     * @returns {void}
+     */
     dispose() {
         if (this.mesh) {
             this.mesh.geometry.dispose();
@@ -5325,21 +5629,22 @@ const axis = new THREE.Vector3();
 
 An arrow is an Object3D, so you can manipulate it like one.
 */
+/**
+ * Visual arrow helper composed of a cylinder + cone. Extends THREE.Object3D.
+ */
 class Arrow extends THREE.Object3D {
 
-    /* Constructor
-
-    Parameters:
-        name (str): Name of the arrow
-        origin (Vector3): Point at which the arrow starts
-        direction (Vector3): Direction from origin (must be a unit vector)
-        length (Number): Length of the arrow (default is 1)
-        color (int/str): Color of the arrow (by default: 0xffff00)
-        shading (bool): Indicates if the arrow must be affected by lights (by default: false)
-        headLength (Number): The length of the head of the arrow (default is 0.2 * length)
-        headWidth (Number): The width of the head of the arrow (default is 0.2 * headLength)
-        radius (Number): The radius of the line part of the arrow (default is 0.1 * headWidth)
-    */
+    /**
+     * @param {string} name
+     * @param {THREE.Vector3} origin
+     * @param {THREE.Vector3} direction - unit vector
+     * @param {number} [length=1]
+     * @param {number|string} [color=0xffff00]
+     * @param {boolean} [shading=false]
+     * @param {number} [headLength=length*0.2]
+     * @param {number} [headWidth=headLength*0.2]
+     * @param {number} [radius=headWidth*0.3]
+     */
     constructor(name, origin, direction, length=1, color=0xffff00, shading=false, headLength=length * 0.2,
         headWidth=headLength * 0.2, radius=headWidth*0.1
     ) {
@@ -5384,6 +5689,11 @@ class Arrow extends THREE.Object3D {
 
     /* Sets the direction of the arrow
     */
+    /**
+     * Set the arrow direction. Expects a unit vector.
+     * @param {THREE.Vector3} direction
+     * @returns {void}
+     */
     setDirection(direction) {
         // 'direction' is assumed to be normalized
         if (direction.y > 0.99999) {
@@ -5398,14 +5708,14 @@ class Arrow extends THREE.Object3D {
     }
 
 
-    /* Sets the dimensions of the arrow
-
-    Parameters:
-        length (Number): Length of the arrow
-        headLength (Number): The length of the head of the arrow (default is 0.2 * length)
-        headWidth (Number): The width of the head of the arrow (default is 0.2 * headLength)
-        radius (Number): The radius of the line part of the arrow (default is 0.1 * headWidth)
-    */
+    /**
+     * Set the length and relative head size of the arrow.
+     * @param {number} length
+     * @param {number} [headLength=length*0.2]
+     * @param {number} [headWidth=headLength*0.2]
+     * @param {number} [radius=headWidth*0.3]
+     * @returns {void}
+     */
     setDimensions(length, headLength=length * 0.2, headWidth=headLength * 0.2, radius=headWidth*0.3) {
 
         this.cylinder.scale.set(
@@ -5422,17 +5732,21 @@ class Arrow extends THREE.Object3D {
     }
 
 
-    /* Sets the color of the arrow
-    */
+    /**
+     * Set the arrow color.
+     * @param {number|string} color
+     * @returns {void}
+     */
     setColor(color) {
         this.line.material.color.set(color);
         this.cone.material.color.set(color);
     }
 
 
-    /* Frees the GPU-related resources allocated by this instance. Call this method whenever this
-    instance is no longer used in your app.
-    */
+    /**
+     * Dispose GPU resources used by this arrow.
+     * @returns {void}
+     */
     dispose() {
         if (this.cylinder.geometry != CYLINDER_GEOMETRY)
             this.cylinder.geometry.dispose();
@@ -5474,16 +5788,18 @@ const AXES_GEOMETRIES = [];
 
 Axes are an Object3D, so you can manipulate them like one.
 */
+/**
+ * Simple 3-axis visual helper (X:red, Y:green, Z:blue).
+ * Extends THREE.Object3D.
+ */
 class Axes extends THREE.Object3D {
 
-    /* Constructor
-
-    Parameters:
-        name (str): Name of the axes
-        position (Vector3): Position of the axes (default is [0, 0, 0])
-        orientation (Quaternion): The orientation of the axes (default is [1, 0, 0, 0])
-        length (Number): The length of the axis (default is 0.01)
-    */
+    /**
+     * @param {string} name
+     * @param {THREE.Vector3|null} [position=null]
+     * @param {THREE.Quaternion|null} [orientation=null]
+     * @param {number} [length=0.1]
+     */
     constructor(name, position=null, orientation=null, length=0.1) {
         super();
 
@@ -5583,19 +5899,21 @@ class Axes extends THREE.Object3D {
 
 A path is an Object3D, so you can manipulate it like one.
 */
+/**
+ * Visual representation of a path (tube) defined by an ordered list of points.
+ * Extends THREE.Object3D.
+ */
 class Path extends THREE.Object3D {
 
-    /* Constructor
-
-    Parameters:
-        name (str): Name of the path
-        points (list or Vector3/list of lists of 3 numbers): Points defining the path
-        radius (Number): The radius of the path (default is 0.01)
-        color (int/str): Color of the path (by default: 0xffff00)
-        shading (bool): Indicates if the path must be affected by lights (by default: false)
-        transparent (bool): Indicates if the path must be transparent (by default: false)
-        opacity (Number): Opacity level for transparent paths (between 0 and 1, default: 0.5)
-    */
+    /**
+     * @param {string} name
+     * @param {Array<THREE.Vector3|number[]>} points
+     * @param {number} [radius=0.01]
+     * @param {number|string} [color=0xffff00]
+     * @param {boolean} [shading=false]
+     * @param {boolean} [transparent=false]
+     * @param {number} [opacity=0.5]
+     */
     constructor(name, points, radius=0.01, color=0xffff00, shading=false, transparent=false, opacity=0.5) {
         super();
 
@@ -5646,9 +5964,10 @@ class Path extends THREE.Object3D {
     }
 
 
-    /* Frees the GPU-related resources allocated by this instance. Call this method whenever this
-    instance is no longer used in your app.
-    */
+    /**
+     * Dispose GPU resources used by the path.
+     * @returns {void}
+     */
     dispose() {
         this.mesh.geometry.dispose();
         this.startSphere.geometry.dispose();
@@ -5687,20 +6006,23 @@ class Path extends THREE.Object3D {
 
 A path is an Object3D, so you can manipulate it like one.
 */
+/**
+ * Visual representation of a single point (sphere) with optional KaTeX label.
+ * Extends THREE.Object3D.
+ */
 class Point extends THREE.Object3D {
 
-    /* Constructor
-
-    Parameters:
-        name (str): Name of the point
-        position (Vector3): Position of the point
-        radius (Number): The radius of the point (default is 0.01)
-        color (int/str): Color of the point (by default: 0xffff00)
-        label (str): LaTeX text to display near the point (by default: null)
-        shading (bool): Indicates if the point must be affected by lights (by default: false)
-        transparent (bool): Indicates if the point must be transparent (by default: false)
-        opacity (Number): Opacity level for transparent points (between 0 and 1, default: 0.5)
-    */
+    /**
+     * Create a point marker.
+     * @param {string} name
+     * @param {THREE.Vector3} position
+     * @param {number} [radius=0.01]
+     * @param {number|string} [color=0xffff00]
+     * @param {string|null} [label=null] - LaTeX string rendered with KaTeX
+     * @param {boolean} [shading=false]
+     * @param {boolean} [transparent=false]
+     * @param {number} [opacity=0.5]
+     */
     constructor(name, position, radius=0.01, color=0xffff00, label=null, shading=false,
                 transparent=false, opacity=0.5) {
         super();
@@ -5756,15 +6078,21 @@ class Point extends THREE.Object3D {
     }
 
 
+    /**
+     * Set the texture of the point's material from a URL.
+     * @param {string} url
+     * @returns {void}
+     */
     setTexture(url) {
         const texture = new THREE.TextureLoader().load(url);
         this.mesh.material.map = texture;
     }
 
 
-    /* Frees the GPU-related resources allocated by this instance. Call this method whenever this
-    instance is no longer used in your app.
-    */
+    /**
+     * Dispose GPU resources used by this point.
+     * @returns {void}
+     */
     dispose() {
         this.mesh.geometry.dispose();
         this.mesh.material.dispose();
@@ -5800,6 +6128,12 @@ Parameters:
     quaternion (Quaternion): The orientation
     scale (Vector3): The scale
 */
+/**
+ * Compute covariance matrix sigma from an orientation quaternion and a scale vector.
+ * @param {THREE.Quaternion} quaternion
+ * @param {THREE.Vector3} scale
+ * @returns {THREE.Matrix3}
+ */
 function sigmaFromQuaternionAndScale(quaternion, scale) {
     let rot4x4 = new THREE.Matrix4().makeRotationFromQuaternion(quaternion);
 
@@ -5820,6 +6154,11 @@ function sigmaFromQuaternionAndScale(quaternion, scale) {
 
 /* Computes the covariance matrix of a gaussian from a rotation and scaling matrix
 */
+/**
+ * Compute covariance sigma = RG * RG^T from a 3x3 rotation-scale matrix.
+ * @param {THREE.Matrix3} matrix
+ * @returns {THREE.Matrix3}
+ */
 function sigmaFromMatrix3(matrix) {
     let RG = new THREE.Matrix3().copy(matrix);
 
@@ -5835,6 +6174,11 @@ function sigmaFromMatrix3(matrix) {
 /* Computes the covariance matrix of a gaussian from the rotation and scaling parts of a matrix
 (the upper 3x3 part)
 */
+/**
+ * Compute covariance from the upper-left 3x3 part of a Matrix4.
+ * @param {THREE.Matrix4} matrix
+ * @returns {THREE.Matrix3}
+ */
 function sigmaFromMatrix4(matrix) {
     let RG = new THREE.Matrix3().setFromMatrix4(matrix);
 
@@ -5849,6 +6193,13 @@ function sigmaFromMatrix4(matrix) {
 
 /* Computes the rotation and scaling matrix corresponding to the covariance matrix of a gaussian
 */
+/**
+ * Given a covariance matrix (Matrix3) compute a rotation-scale matrix RG such that
+ * sigma = RG * RG^T. Uses eigen-decomposition via mathjs.
+ *
+ * @param {THREE.Matrix3} sigma
+ * @returns {THREE.Matrix3}
+ */
 function matrixFromSigma(sigma) {
     const sigma2 = math.reshape(math.matrix(sigma.elements), [3, 3]);
 
@@ -5877,6 +6228,12 @@ function matrixFromSigma(sigma) {
 A gaussian is an Object3D, so you can manipulate it like one. Modifying the orientation and scale
 of the gaussian modifies its covariance matrix.
 */
+/**
+ * Visual representation of a 3D Gaussian. The object's scale and rotation encode
+ * the covariance matrix, and the position encodes the mean (mu).
+ *
+ * @extends THREE.Object3D
+ */
 class Gaussian extends THREE.Object3D {
 
     /* Constructor
@@ -6133,8 +6490,17 @@ class HazeGeometry extends THREE.BufferGeometry {
 
 /* Truncated cone for haze rendering
 */
+/**
+ * Haze/top-of-skybox helper implemented as a truncated cone mesh with vertex colors.
+ * Extends THREE.Object3D.
+ */
 class Haze extends THREE.Object3D {
 
+    /**
+     * @param {number} nbSlices
+     * @param {number} proportion
+     * @param {{r:number,g:number,b:number}} color
+     */
     constructor(nbSlices, proportion, color) {
         super();
 
@@ -6326,7 +6692,7 @@ class GripperToolbarSection {
 }
 
 /*
- * SPDX-FileCopyrightText: Copyright © 2023 Idiap Research Institute <contact@idiap.ch>
+ * SPDX-FileCopyrightText: Copyright © 2025 Idiap Research Institute <contact@idiap.ch>
  * SPDX-FileCopyrightText: Copyright © 2022 Nikolas Dahn
  *
  * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
@@ -6340,25 +6706,10 @@ class GripperToolbarSection {
 
 class RobotConfiguration {
     constructor() {
+        this.filename = null;
+
         // Root link of the robot
         this.robotRoot = null;
-
-        this.tools = [
-            // Each entry should have this structure
-            // {
-            //     root: null,              // Root link of the tool of the robot (can be null if no tool)
-            //     tcpSite: null,           // Site to use as the TCP
-            //     tcpSize: 0.1,            // Size of the TCP collision object
-            //     type: null,              // Type of the tool ("generic", "gripper")
-            //
-            // For grippers:
-            //     buttonOffset: [0, 0, 0], // Location of the button, relative to the tcp
-            //     ignoredActuators: [],    // Names of the actuators to ignore when opening/closing
-            //     invertedActuators: [],   // Names of the actuators to invert when opening/closing
-            //     ignoredJoints: [],       // Names of the joints to ignore when opening/closing
-            //     invertedJoints: [],      // Names of the joints to invert when opening/closing
-            // }
-        ];
 
         // Default pose of the robot
         this.defaultPose = {
@@ -6371,25 +6722,17 @@ class RobotConfiguration {
             // Joint position helpers that must be inverted
             inverted: [],
         };
+
+        this.defaultToolConfigurations = null;
     }
 
 
     addPrefix(prefix) {
         const configuration = new RobotConfiguration();
 
+        configuration.filename = this.filename;
+
         configuration.robotRoot = prefix + this.robotRoot;
-
-        for (const tool of this.tools) {
-            let tool2 = {
-                root: (tool.root != null ? prefix + tool.root : null),
-                tcpSite: (tool.tcpSite != null ? prefix + tool.tcpSite : null),
-                tcpSize: tool.tcpSize,
-                type: tool.type,
-                buttonOffset: tool.buttonOffset,
-            };
-
-            configuration.tools.push(tool2);
-        }
 
         for (let name in this.defaultPose)
             configuration.defaultPose[prefix + name] = this.defaultPose[name];
@@ -6400,7 +6743,84 @@ class RobotConfiguration {
         for (let name of this.jointPositionHelpers.inverted)
             configuration.jointPositionHelpers.inverted.push(prefix + name);
 
+        if (this.defaultToolConfigurations != null) {
+            configuration.defaultToolConfigurations = [];
+
+            for (let i = 0; i < this.defaultToolConfigurations.length; ++i)
+                configuration.defaultToolConfigurations.push(this.defaultToolConfigurations[i].addPrefix(prefix));
+        }
+
         return configuration;
+    }
+}
+
+
+class ToolConfiguration {
+    constructor() {
+        this.filename = null;
+
+        // Root link of the tool of the robot (can be null)
+        this.root = null;
+
+        // Site to use as the tool control point
+        this.tcpSite = null;
+
+        // Size of the TCP collision object
+        this.tcpSize = 0.1;
+
+        // Type of the tool ("generic", "gripper")
+        this.type = "generic";
+    }
+
+
+    addPrefix(prefix, destination=null) {
+        if (destination == null)
+            destination = new ToolConfiguration();
+
+        destination.filename = this.filename;
+        destination.root = (this.root != null ? prefix + this.root : null);
+        destination.tcpSite = (this.tcpSite != null ? prefix + this.tcpSite : null);
+        destination.tcpSize = this.tcpSize;
+
+        return destination;
+    }
+}
+
+
+class GripperConfiguration extends ToolConfiguration {
+    constructor() {
+        super();
+
+        this.type = "gripper";
+
+        // Location of the button, relative to the tcp
+        this.buttonOffset = [0, 0, 0];
+
+        this.state = "closed";
+
+        this.states = {
+            opened: [],
+            closed: [],
+            opening: [],
+            closing: [],
+        };
+
+        this.closedJoints = [];
+        this.holdingThreshold = 1e-2;
+    }
+
+
+    addPrefix(prefix, destination=null) {
+        if (destination == null)
+            destination = new GripperConfiguration();
+
+        destination.buttonOffset = this.buttonOffset;
+        destination.state = this.state;
+        destination.states = this.states;
+        destination.closedJoints = this.closedJoints;
+        destination.holdingThreshold = this.holdingThreshold;
+
+        return super.addPrefix(prefix, destination);
     }
 }
 
@@ -6423,17 +6843,9 @@ class PandaConfiguration extends RobotConfiguration {
     constructor() {
         super();
 
-        this.robotRoot = "link0";
+        this.filename = 'franka_emika/panda/panda.xml';
 
-        this.tools = [
-            {
-                root: "hand",
-                tcpSite: "tcp",
-                tcpSize: 0.1,
-                type: "gripper",
-                buttonOffset: [0, -0.11, 0.05,]
-            }
-        ];
+        this.robotRoot = "link0";
 
         this.defaultPose = {
             joint1: 0.5,
@@ -6455,60 +6867,191 @@ class PandaConfiguration extends RobotConfiguration {
             'joint4',
             'joint5',
             'joint6',
+        ];
+
+        this.defaultToolConfigurations = [
+            new DefaultPandaToolConfiguration()
         ];
     }
 }
 
+
+class DefaultPandaToolConfiguration extends ToolConfiguration {
+    constructor() {
+        super();
+
+        this.tcpSite = 'attachment_site';
+    }
+}
+
+
+class FrankaHandConfiguration extends GripperConfiguration {
+    constructor() {
+        super();
+
+        this.filename = 'franka_emika/hand/hand.xml';
+
+        this.root = "hand";
+        this.tcpSite = "tcp";
+        this.tcpSize = 0.1;
+        this.buttonOffset = [0, -0.11, 0.05];
+
+        this.state = 'closed';
+
+        this.states = {
+            opened: [255],
+            closed: [0],
+            opening: [
+                [[255], 400],
+            ],
+            closing: [
+                [[0], 400],
+            ],
+        };
+
+        this.closedJoints = [0.0, 0.0];
+    }
+}
+
 /*
- * SPDX-FileCopyrightText: Copyright © 2023 Idiap Research Institute <contact@idiap.ch>
- * SPDX-FileCopyrightText: Copyright © 2022 Nikolas Dahn
+ * SPDX-FileCopyrightText: Copyright © 2025 Idiap Research Institute <contact@idiap.ch>
  *
  * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
- * SPDX-FileContributor: Nikolas Dahn
  *
  * SPDX-License-Identifier: MIT
- *
- * This file is a modification of the one implemented in https://github.com/ndahn/Rocksi
- *
  */
 
 
 
-class PandaNoHandConfiguration extends RobotConfiguration {
+class InspireRightRH56DFXConfiguration extends GripperConfiguration {
     constructor() {
         super();
 
-        this.robotRoot = "link0";
+        this.filename = 'inspire_robots/RH56DFX/right.xml';
 
-        this.tools = [
-            {
-                root: null,
-                tcpSite: "attachment_site",
-                type: "generic",
-            }
-        ];
+        this.root = 'hand';
+        this.tcpSite = 'tcp';
+        this.tcpSize = 0.08;
 
-        this.defaultPose = {
-            joint1: 0.5,
-            joint2: -0.3,
-            joint4: -1.8,
-            joint6: 1.5,
-            joint7: 1.0,
+        this.buttonOffset = [0.07, 0.0, -0.1];
+
+        this.state = "opened";
+
+        this.states = {
+            opened: [0.0, 0.0, 0.0, 0.0, 0.0, -0.0454, 0.0, -0.0454, 0.0 -0.0454, 0.0, -0.0454],
+            closed: [0.0, 0.0, 0.0, 0.0, 1.47, 1.56, 1.47, 1.56, 1.47, 1.56, 1.47, 1.56],
+            opening: [
+                [[0.0, 0.0, 0.0, 0.0, 1.47, -0.0454, 1.47, -0.0454, 1.47, -0.0454, 1.47, -0.0454], 200],
+                [[0.0, 0.0, 0.0, 0.0, 0.0, -0.0454, 0.0, -0.0454, 0.0 -0.0454, 0.0, -0.0454], 200],
+            ],
+            closing: [
+                [[0.0, 0.0, 0.0, 0.0, 1.47, -0.0454, 1.47, -0.0454, 1.47, -0.0454, 1.47, -0.0454], 200],
+                [[0.0, 0.0, 0.0, 0.0, 1.47, 1.56, 1.47, 1.56, 1.47, 1.56, 1.47, 1.56], 200],
+            ],
         };
 
-        this.jointPositionHelpers.offsets = {
-            joint1: -0.19,
-            joint3: -0.12,
-            joint5: -0.26,
-            joint6: -0.015,
-            joint7: 0.05,
+        this.closedJoints = [0.0, 0.0, 0.0, 0.0, 1.47, 1.56, 1.47, 1.56, 1.47, 1.56, 1.47, 1.56];
+        this.holdingThreshold = 0.2;
+    }
+}
+
+
+class InspireLeftRH56DFXConfiguration extends GripperConfiguration {
+    constructor() {
+        super();
+
+        this.filename = 'inspire_robots/RH56DFX/left.xml';
+
+        this.root = 'hand';
+        this.tcpSite = 'tcp';
+        this.tcpSize = 0.08;
+
+        this.buttonOffset = [0.07, 0.0, -0.1];
+
+        this.state = "opened";
+
+        this.states = {
+            opened: [0.0, 0.0, 0.0, 0.0, 0.0, -0.0454, 0.0, -0.0454, 0.0 -0.0454, 0.0, -0.0454],
+            closed: [0.0, 0.0, 0.0, 0.0, 1.47, 1.56, 1.47, 1.56, 1.47, 1.56, 1.47, 1.56],
+            opening: [
+                [[0.0, 0.0, 0.0, 0.0, 1.47, -0.0454, 1.47, -0.0454, 1.47, -0.0454, 1.47, -0.0454], 200],
+                [[0.0, 0.0, 0.0, 0.0, 0.0, -0.0454, 0.0, -0.0454, 0.0 -0.0454, 0.0, -0.0454], 200],
+            ],
+            closing: [
+                [[0.0, 0.0, 0.0, 0.0, 1.47, -0.0454, 1.47, -0.0454, 1.47, -0.0454, 1.47, -0.0454], 200],
+                [[0.0, 0.0, 0.0, 0.0, 1.47, 1.56, 1.47, 1.56, 1.47, 1.56, 1.47, 1.56], 200],
+            ],
         };
 
-        this.jointPositionHelpers.inverted = [
-            'joint4',
-            'joint5',
-            'joint6',
-        ];
+        this.closedJoints = [0.0, 0.0, 0.0, 0.0, 1.47, 1.56, 1.47, 1.56, 1.47, 1.56, 1.47, 1.56];
+        this.holdingThreshold = 0.2;
+    }
+}
+
+/*
+ * SPDX-FileCopyrightText: Copyright © 2025 Idiap Research Institute <contact@idiap.ch>
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+
+
+class Robotiq2F85Configuration extends GripperConfiguration {
+    constructor() {
+        super();
+
+        this.filename = 'robotiq/2f85/2f85.xml';
+
+        this.root = "base";
+        this.tcpSite = "tcp";
+        this.tcpSize = 0.1;
+        this.buttonOffset = [-0.11, 0, 0.05];
+
+        this.state = "opened";
+
+        this.states = {
+            opened: [0],
+            closed: [255],
+            opening: [
+                [[0], 400],
+            ],
+            closing: [
+                [[255], 400],
+            ],
+        };
+
+        this.closedJoints = [0.810, 0.810, 0.810, 0.810, 0.810, 0.810];
+    }
+}
+
+
+class RobotiqHandEConfiguration extends GripperConfiguration {
+    constructor() {
+        super();
+
+        this.filename = 'robotiq/hand-e/hande.xml';
+
+        this.root = "root";
+        this.tcpSite = "tcp";
+        this.tcpSize = 0.1;
+        this.buttonOffset = [-0.11, 0, 0.05];
+
+        this.state = "opened";
+
+        this.states = {
+            opened: [0],
+            closed: [255],
+            opening: [
+                [[0], 400],
+            ],
+            closing: [
+                [[255], 400],
+            ],
+        };
+
+        this.closedJoints = [0.0, 0.0];
     }
 }
 
@@ -6526,15 +7069,9 @@ class UR5Configuration extends RobotConfiguration {
     constructor() {
         super();
 
-        this.robotRoot = "base";
+        this.filename = 'universal_robots/ur5e/ur5e.xml';
 
-        this.tools = [
-            {
-                root: null,
-                tcpSite: "attachment_site",
-                type: "generic",
-            }
-        ];
+        this.robotRoot = "base";
 
         this.defaultPose = {
             shoulder_pan_joint: -1.5708,
@@ -6544,45 +7081,19 @@ class UR5Configuration extends RobotConfiguration {
             wrist_2_joint: -1.5708,
             wrist_3_joint: 0.0,
         };
+
+        this.defaultToolConfigurations = [
+            new DefaultUR5ToolConfiguration()
+        ];
     }
 }
 
 
-class UR5WithGripperConfiguration extends RobotConfiguration {
+class DefaultUR5ToolConfiguration extends ToolConfiguration {
     constructor() {
         super();
 
-        this.robotRoot = "base";
-
-        this.tools = [
-            {
-                root: "gripper_base",
-                tcpSite: "tcp",
-                tcpSize: 0.1,
-                type: "gripper",
-                buttonOffset: [0, -0.11, 0.05],
-                invertedActuators: ['fingers_actuator'],
-                ignoredJoints: [
-                    'left_spring_link_joint', 'left_follower',
-                    'right_spring_link_joint', 'right_follower_joint'
-                ],
-                invertedJoints: [
-                    'right_driver_joint', 'left_driver_joint'
-                ],
-                min: 0.25,
-                max: 0.9,
-                state: "opened",
-            }
-        ];
-
-        this.defaultPose = {
-            shoulder_pan_joint: -1.5708,
-            shoulder_lift_joint: -1.5708,
-            elbow_joint: 1.5708,
-            wrist_1_joint: -1.5708,
-            wrist_2_joint: -1.5708,
-            wrist_3_joint: 0.0,
-        };
+        this.tcpSite = 'attachment_site';
     }
 }
 
@@ -6600,140 +7111,138 @@ class G1Configuration extends RobotConfiguration {
     constructor() {
         super();
 
+        this.filename = 'unitree/g1/g1.xml';
+
         this.robotRoot = "pelvis";
 
-        this.tools = [
-            {
-                root: "right_hand",
-                tcpSite: "right_tcp",
-                tcpSize: 0.08,
-                type: "generic",
-            },
-            {
-                root: "left_hand",
-                tcpSite: "left_tcp",
-                tcpSize: 0.08,
-                type: "generic",
-            },
-            {
-                root: "right_foot",
-                tcpSite: "right_foot_tcp",
-                tcpSize: 0.08,
-                type: "generic",
-            },
-            {
-                root: "left_foot",
-                tcpSite: "left_foot_tcp",
-                tcpSize: 0.08,
-                type: "generic",
-            },
+        this.defaultToolConfigurations = [
+            new DefaultG1ToolConfiguration("right_tcp"),
+            new DefaultG1ToolConfiguration("left_tcp"),
+            new DefaultG1ToolConfiguration("right_foot_tcp"),
+            new DefaultG1ToolConfiguration("left_foot_tcp"),
         ];
     }
 }
 
 
-class G1UpperBodyConfiguration extends RobotConfiguration {
+class G1FixedLegsConfiguration extends RobotConfiguration {
     constructor() {
         super();
 
+        this.filename = 'unitree/g1/g1_fixed_legs.xml';
+
         this.robotRoot = "pelvis";
 
-        this.tools = [
-            {
-                root: "right_hand",
-                tcpSite: "right_tcp",
-                tcpSize: 0.08,
-                type: "generic",
-            },
-            {
-                root: "left_hand",
-                tcpSite: "left_tcp",
-                tcpSize: 0.08,
-                type: "generic",
-            },
+        this.defaultToolConfigurations = [
+            new DefaultG1ToolConfiguration("right_tcp"),
+            new DefaultG1ToolConfiguration("left_tcp"),
         ];
     }
 }
 
 
-class G1WithHandsConfiguration extends RobotConfiguration {
-    constructor() {
+class DefaultG1ToolConfiguration extends ToolConfiguration {
+    constructor(tcpSite) {
         super();
 
-        this.robotRoot = "pelvis";
-
-        this.tools = [
-            {
-                root: "right_hand",
-                tcpSite: "right_hand_tcp",
-                tcpSize: 0.08,
-                type: "gripper",
-                ignoredActuators: ['right_hand_thumb_0_joint'],
-                invertedActuators: [
-                    'right_hand_index_0_joint', 'right_hand_index_1_joint',
-                    'right_hand_middle_0_joint', 'right_hand_middle_1_joint'
-                ],
-                buttonOffset: [0.1, -0.07, 0],
-                state: "opened",
-            },
-            {
-                root: "left_hand",
-                tcpSite: "left_hand_tcp",
-                tcpSize: 0.08,
-                type: "gripper",
-                ignoredActuators: ['left_hand_thumb_0_joint'],
-                invertedActuators: ['left_hand_thumb_1_joint', 'left_hand_thumb_2_joint'],
-                buttonOffset: [0.1, 0.07, 0],
-                state: "opened",
-            },
-            {
-                root: "right_foot",
-                tcpSite: "right_foot_tcp",
-                tcpSize: 0.08,
-                type: "generic",
-            },
-            {
-                root: "left_foot",
-                tcpSite: "left_foot_tcp",
-                tcpSize: 0.08,
-                type: "generic",
-            },
-        ];
+        this.tcpSite = tcpSite;
+        this.tcpSize = 0.08;
     }
 }
 
 
-class G1WithHandsUpperBodyConfiguration extends RobotConfiguration {
+class UnitreeRightHandConfiguration extends ToolConfiguration {
     constructor() {
         super();
 
-        this.robotRoot = "pelvis";
+        this.filename = 'unitree/hands/right.xml';
 
-        this.tools = [
-            {
-                root: "right_hand",
-                tcpSite: "right_hand_tcp",
-                tcpSize: 0.08,
-                type: "gripper",
-                ignoredActuators: ['right_hand_thumb_0_joint'],
-                invertedActuators: [
-                    'right_hand_index_0_joint', 'right_hand_index_1_joint',
-                    'right_hand_middle_0_joint', 'right_hand_middle_1_joint'
-                ],
-                buttonOffset: [0.1, -0.07, 0],
-                state: "opened",
-            },
-            {
-                root: "left_hand",
-                tcpSite: "left_hand_tcp",
-                tcpSize: 0.08,
-                type: "gripper",
-                ignoredActuators: ['left_hand_thumb_0_joint'],
-                invertedActuators: ['left_hand_thumb_1_joint', 'left_hand_thumb_2_joint'],
-                buttonOffset: [0.1, 0.07, 0],
-                state: "opened",
-            },
-        ];
+        this.root = 'hand';
+        this.tcpSite = 'tcp';
+        this.tcpSize = 0.08;
+    }
+}
+
+
+class UnitreeLeftHandConfiguration extends ToolConfiguration {
+    constructor() {
+        super();
+
+        this.filename = 'unitree/hands/left.xml';
+
+        this.root = 'hand';
+        this.tcpSite = 'tcp';
+        this.tcpSize = 0.08;
+    }
+}
+
+
+class UnitreeRightDex31Configuration extends GripperConfiguration {
+    constructor() {
+        super();
+
+        this.filename = 'unitree/dex3_1/right.xml';
+
+        this.root = 'hand';
+        this.tcpSite = 'tcp';
+        this.tcpSize = 0.08;
+
+        this.buttonOffset = [0.1, -0.07, 0];
+
+        this.state = "opened";
+
+        this.states = {
+            opened: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            closed: [0.0, -1.05, -1.75, 1.57, 1.75, 1.57, 1.75],
+            opening: [
+                [[0.0, 0.0, -1, 1.57, 0.75, 1.57, 0.75], 200],
+                [[0.0, 0.0, -0.75, 0.0, 0.75, 0.0, 0.75], 200],
+                [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 100],
+            ],
+            closing: [
+                [[0.0, 0.0, -0.75, 0.0, 0.75, 0.0, 0.75], 100],
+                [[0.0, 0.0, -1, 1.57, 0.75, 1.57, 0.75], 200],
+                [[0.0, -1.05, -1.75, 1.57, 1.75, 1.57, 1.75], 200],
+            ],
+        };
+
+        this.closedJoints = [-0.012, 0.0, -1.03, -1.34, 1.57, 1.72, 1.57, 1.72];
+        this.holdingThreshold = 0.2;
+    }
+}
+
+
+class UnitreeLeftDex31Configuration extends GripperConfiguration {
+    constructor() {
+        super();
+
+        this.filename = 'unitree/dex3_1/left.xml';
+
+        this.root = 'hand';
+        this.tcpSite = 'tcp';
+        this.tcpSize = 0.08;
+
+        this.buttonOffset = [0.1, 0.07, 0];
+
+        this.state = "opened";
+
+        this.states = {
+            opened: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            closed: [0.0, 1.05, 1.75, -1.57, -1.75, -1.57, -1.75],
+            opening: [
+                [[0.0, 0.0, 1.0, -1.57, -0.75, -1.57, -0.75], 200],
+                [[0.0, 0.0, 0.75, -0, -0.75, -0, -0.75], 200],
+                [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 100],
+            ],
+            closing: [
+                [[0.0, 0.0, 0.75, 0.0, -0.75, 0.0, -0.75], 100],
+                [[0.0, 0.0, 1.0, -1.57, -0.75, -1.57, -0.75], 200],
+                [[0.0, 1.05, 1.75, -1.57, -1.75, -1.57, -1.75], 200],
+            ],
+        };
+
+        this.closedJoints = [0.012, 0.0, 1.03, 1.34, -1.57, -1.72, -1.57, -1.72];
+        this.holdingThreshold = 0.2;
     }
 }
 
@@ -6748,179 +7257,138 @@ class G1WithHandsUpperBodyConfiguration extends RobotConfiguration {
 
 
 
+const Robots = Object.freeze({
+    Panda: Symbol("Panda"),
+    G1: Symbol("G1"),
+    G1_FixedLegs: Symbol("G1_FixedLegs"),
+    UR5: Symbol("UR5"),
+});
+
+
+const Tools = Object.freeze({
+    FrankaHand: Symbol("FrankaHand"),
+    InspireRightRH56DFX: Symbol("InspireRightRH56DFX"),
+    InspireLeftRH56DFX: Symbol("InspireLeftRH56DFX"),
+    Robotiq_2F85: Symbol("Robotiq_2F85"),
+    RobotiqHandE: Symbol("RobotiqHandE"),
+    UnitreeRightHand: Symbol("UnitreeRightHand"),
+    UnitreeLeftHand: Symbol("UnitreeLeftHand"),
+    UnitreeRightDex3_1: Symbol("UnitreeRightDex3_1"),
+    UnitreeLeftDex3_1: Symbol("UnitreeLeftDex3_1"),
+});
+
+
+const Configurations = {};
+
+Configurations[Robots.Panda] = PandaConfiguration;
+Configurations[Robots.G1] = G1Configuration;
+Configurations[Robots.G1_FixedLegs] = G1FixedLegsConfiguration;
+Configurations[Robots.UR5] = UR5Configuration;
+
+Configurations[Tools.FrankaHand] = FrankaHandConfiguration;
+Configurations[Tools.InspireRightRH56DFX] = InspireRightRH56DFXConfiguration;
+Configurations[Tools.InspireLeftRH56DFX] = InspireLeftRH56DFXConfiguration;
+Configurations[Tools.Robotiq_2F85] = Robotiq2F85Configuration;
+Configurations[Tools.RobotiqHandE] = RobotiqHandEConfiguration;
+Configurations[Tools.UnitreeRightHand] = UnitreeRightHandConfiguration;
+Configurations[Tools.UnitreeLeftHand] = UnitreeLeftHandConfiguration;
+Configurations[Tools.UnitreeRightDex3_1] = UnitreeRightDex31Configuration;
+Configurations[Tools.UnitreeLeftDex3_1] = UnitreeLeftDex31Configuration;
+
+/*
+ * SPDX-FileCopyrightText: Copyright © 2025 Idiap Research Institute <contact@idiap.ch>
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
+
+
+
 /* Download all the files needed to simulate and display the Franka Emika Panda robot
 
-The files are stored in Mujoco's filesystem at '/scenes/franka_emika_panda'
+The files are stored in Mujoco's filesystem at '/scenes/franka_emika/panda'
 */
 async function downloadPandaRobot() {
-    const dstFolder = '/scenes/franka_emika_panda';
-    const srcURL = getURL('models/franka_emika_panda/');
+    const dstFolder = '/scenes/franka_emika/panda';
+    const srcURL = getURL('models/franka_emika/panda/');
 
-    await downloadFiles(
-        dstFolder,
-        srcURL,
-        [
-            'panda.xml',
-            'panda_nohand.xml'
-        ]
-    );
-
-    await downloadFiles(
-        dstFolder + '/assets',
-        srcURL + 'assets/',
-        [
-            'link0.stl',
-            'link0.stl',
-            'link1.stl',
-            'link2.stl',
-            'link3.stl',
-            'link4.stl',
-            'link5_collision_0.obj',
-            'link5_collision_1.obj',
-            'link5_collision_2.obj',
-            'link6.stl',
-            'link7.stl',
-            'hand.stl',
-            'link0_0.obj',
-            'link0_1.obj',
-            'link0_2.obj',
-            'link0_3.obj',
-            'link0_4.obj',
-            'link0_5.obj',
-            'link0_7.obj',
-            'link0_8.obj',
-            'link0_9.obj',
-            'link0_10.obj',
-            'link0_11.obj',
-            'link1.obj',
-            'link2.obj',
-            'link3_0.obj',
-            'link3_1.obj',
-            'link3_2.obj',
-            'link3_3.obj',
-            'link4_0.obj',
-            'link4_1.obj',
-            'link4_2.obj',
-            'link4_3.obj',
-            'link5_0.obj',
-            'link5_1.obj',
-            'link5_2.obj',
-            'link6_0.obj',
-            'link6_1.obj',
-            'link6_2.obj',
-            'link6_3.obj',
-            'link6_4.obj',
-            'link6_5.obj',
-            'link6_6.obj',
-            'link6_7.obj',
-            'link6_8.obj',
-            'link6_9.obj',
-            'link6_10.obj',
-            'link6_11.obj',
-            'link6_12.obj',
-            'link6_13.obj',
-            'link6_14.obj',
-            'link6_15.obj',
-            'link6_16.obj',
-            'link7_0.obj',
-            'link7_1.obj',
-            'link7_2.obj',
-            'link7_3.obj',
-            'link7_4.obj',
-            'link7_5.obj',
-            'link7_6.obj',
-            'link7_7.obj',
-            'hand_0.obj',
-            'hand_1.obj',
-            'hand_2.obj',
-            'hand_3.obj',
-            'hand_4.obj',
-            'finger_0.obj',
-            'finger_1.obj',
-        ]
-    );
+    await downloadScene(srcURL + 'panda.xml', dstFolder);
 }
 
+
+/* Download all the files needed to simulate and display the Franka Hand tool
+
+The files are stored in Mujoco's filesystem at '/scenes/franka_emika/hand'
+*/
+async function downloadFrankHandTool() {
+    const dstFolder = '/scenes/franka_emika/hand';
+    const srcURL = getURL('models/franka_emika/hand/');
+
+    await downloadScene(srcURL + 'hand.xml', dstFolder);
+}
 
 
 /* Download all the files needed to simulate and display the Unitree G1 robot
 
-The files are stored in Mujoco's filesystem at '/scenes/unitree_g1'
+The files are stored in Mujoco's filesystem at '/scenes/unitree/g1'
 */
 async function downloadG1Robot() {
-    const dstFolder = '/scenes/unitree_g1';
-    const srcURL = getURL('models/unitree_g1/');
+    const dstFolder = '/scenes/unitree/g1';
+    const srcURL = getURL('models/unitree/g1/');
 
-    await downloadFiles(
-        dstFolder,
-        srcURL,
-        [
-            'g1.xml',
-            'g1_upperbody.xml',
-            'g1_with_hands.xml',
-            'g1_with_hands_upperbody.xml',
-        ]
-    );
-
-    await downloadFiles(
-        dstFolder + '/assets',
-        srcURL + 'assets/',
-        [
-            'head_link.STL',
-            'left_ankle_pitch_link.STL',
-            'left_ankle_roll_link.STL',
-            'left_elbow_link.STL',
-            'left_hand_index_0_link.STL',
-            'left_hand_index_1_link.STL',
-            'left_hand_middle_0_link.STL',
-            'left_hand_middle_1_link.STL',
-            'left_hand_palm_link.STL',
-            'left_hand_thumb_0_link.STL',
-            'left_hand_thumb_1_link.STL',
-            'left_hand_thumb_2_link.STL',
-            'left_hip_pitch_link.STL',
-            'left_hip_roll_link.STL',
-            'left_hip_yaw_link.STL',
-            'left_knee_link.STL',
-            'left_rubber_hand.STL',
-            'left_shoulder_pitch_link.STL',
-            'left_shoulder_roll_link.STL',
-            'left_shoulder_yaw_link.STL',
-            'left_wrist_pitch_link.STL',
-            'left_wrist_roll_link.STL',
-            'left_wrist_yaw_link.STL',
-            'logo_link.STL',
-            'pelvis.STL',
-            'pelvis_contour_link.STL',
-            'right_ankle_pitch_link.STL',
-            'right_ankle_roll_link.STL',
-            'right_elbow_link.STL',
-            'right_hand_index_0_link.STL',
-            'right_hand_index_1_link.STL',
-            'right_hand_middle_0_link.STL',
-            'right_hand_middle_1_link.STL',
-            'right_hand_palm_link.STL',
-            'right_hand_thumb_0_link.STL',
-            'right_hand_thumb_1_link.STL',
-            'right_hand_thumb_2_link.STL',
-            'right_hip_pitch_link.STL',
-            'right_hip_roll_link.STL',
-            'right_hip_yaw_link.STL',
-            'right_knee_link.STL',
-            'right_rubber_hand.STL',
-            'right_shoulder_pitch_link.STL',
-            'right_shoulder_roll_link.STL',
-            'right_shoulder_yaw_link.STL',
-            'right_wrist_pitch_link.STL',
-            'right_wrist_roll_link.STL',
-            'right_wrist_yaw_link.STL',
-            'torso_link_rev_1_0.STL',
-            'waist_roll_link_rev_1_0.STL',
-            'waist_yaw_link_rev_1_0.STL',
-        ]
-    );
+    await downloadScene(srcURL + 'g1.xml', dstFolder);
+    await downloadScene(srcURL + 'g1_fixed_legs.xml', dstFolder);
 }
 
+
+/* Download all the files needed to simulate and display the right Inspire RH56DFX tool
+
+The files are stored in Mujoco's filesystem at '/scenes/inspire_robots/RH56DFX'
+*/
+async function downloadInspireRightRH56DFXTool() {
+    const dstFolder = '/scenes/inspire_robots/RH56DFX';
+    const srcURL = getURL('models/inspire_robots/RH56DFX/');
+
+    await downloadScene(srcURL + 'right.xml', dstFolder);
+}
+
+
+/* Download all the files needed to simulate and display the left Inspire RH56DFX tool
+
+The files are stored in Mujoco's filesystem at '/scenes/inspire_robots/RH56DFX'
+*/
+async function downloadInspireLeftRH56DFXTool() {
+    const dstFolder = '/scenes/inspire_robots/RH56DFX';
+    const srcURL = getURL('models/inspire_robots/RH56DFX/');
+
+    await downloadScene(srcURL + 'left.xml', dstFolder);
+}
+
+
+/* Download all the files needed to simulate and display the Robotiq 2F85 tool
+
+The files are stored in Mujoco's filesystem at '/scenes/robotiq/2f85'
+*/
+async function downloadRobotiq2F85Tool() {
+    const dstFolder = '/scenes/robotiq/2f85';
+    const srcURL = getURL('models/robotiq/2f85/');
+
+    await downloadScene(srcURL + '2f85.xml', dstFolder);
+}
+
+
+/* Download all the files needed to simulate and display the Robotiq Hand-e tool
+
+The files are stored in Mujoco's filesystem at '/scenes/robotiq/hand-e'
+*/
+async function downloadRobotiqHandETool() {
+    const dstFolder = '/scenes/robotiq/hand-e';
+    const srcURL = getURL('models/robotiq/hand-e/');
+
+    await downloadScene(srcURL + 'hande.xml', dstFolder);
+}
 
 
 /* Download all the files needed to simulate and display the Universel Robots UR5 robot
@@ -6928,64 +7396,99 @@ async function downloadG1Robot() {
 The files are stored in Mujoco's filesystem at '/scenes/universal_robots_ur5e'
 */
 async function downloadUR5Robot() {
-    const dstFolder = '/scenes/universal_robots_ur5e';
-    const srcURL = getURL('models/universal_robots_ur5e/');
+    const dstFolder = '/scenes/universal_robots/ur5e';
+    const srcURL = getURL('models/universal_robots/ur5e/');
 
-    await downloadFiles(
-        dstFolder,
-        srcURL,
-        [
-            'ur5e.xml',
-            'ur5e_gripper.xml',
-        ]
-    );
+    await downloadScene(srcURL + 'ur5e.xml', dstFolder);
+}
 
-    await downloadFiles(
-        dstFolder + '/assets',
-        srcURL + 'assets/',
-        [
-            'base_0.obj',
-            'base_1.obj',
-            'forearm_0.obj',
-            'forearm_1.obj',
-            'forearm_2.obj',
-            'forearm_3.obj',
-            'shoulder_0.obj',
-            'shoulder_1.obj',
-            'shoulder_2.obj',
-            'upperarm_0.obj',
-            'upperarm_1.obj',
-            'upperarm_2.obj',
-            'upperarm_3.obj',
-            'wrist1_0.obj',
-            'wrist1_1.obj',
-            'wrist1_2.obj',
-            'wrist2_0.obj',
-            'wrist2_1.obj',
-            'wrist2_2.obj',
-            'wrist3.obj',
-        ]
-    );
 
-    await downloadFiles(
-        dstFolder + '/assets/robotiq_2f85_v4/',
-        srcURL + 'assets/robotiq_2f85_v4/',
-        [
-            'base_coupling.stl',
-            'base.stl',
-            'c-a01-85-open.stl',
-            'coupler.stl',
-            'driver.stl',
-            'follower.stl',
-            'pad.stl',
-            'robotiq_fts300_base.stl',
-            'robotiq_fts300_coupling.stl',
-            'robotiq_fts300_top.stl',
-            'robotiq_fts300.stl',
-            'spring_link.stl',
-            'tongue.stl',
-        ]
-    );
+/* Download all the files needed to simulate and display the right Unitree hand tool
+
+The files are stored in Mujoco's filesystem at '/scenes/unitree/hands'
+*/
+async function downloadUnitreeRightHandTool() {
+    const dstFolder = '/scenes/unitree/hands';
+    const srcURL = getURL('models/unitree/hands/');
+
+    await downloadScene(srcURL + 'right.xml', dstFolder);
+}
+
+
+/* Download all the files needed to simulate and display the left Unitree hand tool
+
+The files are stored in Mujoco's filesystem at '/scenes/unitree/hands'
+*/
+async function downloadUnitreeLeftHandTool() {
+    const dstFolder = '/scenes/unitree/hands';
+    const srcURL = getURL('models/unitree/hands/');
+
+    await downloadScene(srcURL + 'left.xml', dstFolder);
+}
+
+
+/* Download all the files needed to simulate and display the right Unitree Dex3-1 tool
+
+The files are stored in Mujoco's filesystem at '/scenes/unitree/dex3_1'
+*/
+async function downloadUnitreeRightDex31Tool() {
+    const dstFolder = '/scenes/unitree/dex3_1';
+    const srcURL = getURL('models/unitree/dex3_1/');
+
+    await downloadScene(srcURL + 'right.xml', dstFolder);
+}
+
+
+/* Download all the files needed to simulate and display the left Unitree Dex3-1 tool
+
+The files are stored in Mujoco's filesystem at '/scenes/unitree/dex3_1'
+*/
+async function downloadUnitreeLeftDex31Tool() {
+    const dstFolder = '/scenes/unitree/dex3_1';
+    const srcURL = getURL('models/unitree/dex3_1/');
+
+    await downloadScene(srcURL + 'left.xml', dstFolder);
+}
+
+
+/* Download all the files needed to simulate and display a robot
+*/
+async function downloadRobot(name) {
+    if (typeof(name) == 'symbol')
+        name = name.description;
+ 
+    switch (name) {
+        case Robots.Panda.description: await downloadPandaRobot(); return;
+        case Robots.G1.description: await downloadG1Robot(); return;
+        case Robots.G1_FixedLegs.description: await downloadG1Robot(); return;
+        case Robots.UR5.description: await downloadUR5Robot(); return;
+
+        default:
+            console.error("Failed to download unknown robot: " + name);
+    }
+}
+
+
+/* Download all the files needed to simulate and display a tool
+*/
+async function downloadTool(name) {
+    if (typeof(name) == 'symbol')
+        name = name.description;
+ 
+    switch (name) {
+        case Tools.FrankaHand.description: await downloadFrankHandTool(); return;
+        case Tools.InspireRightRH56DFX.description: await downloadInspireRightRH56DFXTool(); return;
+        case Tools.InspireLeftRH56DFX.description: await downloadInspireLeftRH56DFXTool(); return;
+        case Tools.Robotiq_2F85.description: await downloadRobotiq2F85Tool(); return;
+        case Tools.RobotiqHandE.description: await downloadRobotiqHandETool(); return;
+        case Tools.UnitreeRightHand.description: await downloadUnitreeRightHandTool(); return;
+        case Tools.UnitreeLeftHand.description: await downloadUnitreeLeftHandTool(); return;
+        case Tools.UnitreeRightDex3_1.description: await downloadUnitreeRightDex31Tool(); return;
+        case Tools.UnitreeLeftDex3_1.description: await downloadUnitreeLeftDex31Tool(); return;
+
+        default:
+            console.error("Failed to download unknown tool: " + name);
+    }
 }
 
 /*
@@ -7009,8 +7512,6 @@ class RobotBuilder {
         this.r = [];                    // Length of the common normal
         this.defaultPose= [];           // Default pose of the robots
         this.colors = [];               // As many as you want, links will alternate between those colors
-        this.position = [0, 0, 0];      // Position of the robot
-        this.quaternion = [1, 0, 0, 0]; // Orientation of the robot, as a quaternion (w, x, y, z)
     }
 
     clone(name) {
@@ -7023,8 +7524,6 @@ class RobotBuilder {
         builder.r = [ ...this.r];
         builder.defaultPose = [ ...this.defaultPose];
         builder.colors = [ ...this.colors];
-        builder.position = [ ...this.position];
-        builder.quaternion = [ ...this.quaternion];
 
         return builder;
     }
@@ -7060,16 +7559,16 @@ class RobotBuilder {
         for (let n = 0; n < this.q.length + 1; ++n) {
             const xmlBody = this._createXmlBody(
                 xmlDoc,
-                this.name + "_link" + n,
+                "link" + n,
                 f, R, n,
-                (n > 0) && (n < this.q.length) ? this.name + "_joint" + n : null,
+                (n > 0) && (n < this.q.length) ? "joint" + n : null,
             );
             parent.append(xmlBody);
 
             if ((n > 0) && (n < this.q.length)) {
                 const xmlGeneral = xmlDoc.createElement("general");
-                xmlGeneral.setAttribute("name", this.name + "_actuator" + n);
-                xmlGeneral.setAttribute("joint", this.name + "_joint" + n);
+                xmlGeneral.setAttribute("name", "actuator" + n);
+                xmlGeneral.setAttribute("joint", "joint" + n);
                 xmlGeneral.setAttribute("gainprm", "4500");
                 xmlGeneral.setAttribute("biasprm", "0 -4500 -450");
                 xmlActuators.append(xmlGeneral);
@@ -7079,7 +7578,7 @@ class RobotBuilder {
         }
 
         const xmlSite = xmlDoc.createElement("site");
-        xmlSite.setAttribute("name", this.name + "_tcp");
+        xmlSite.setAttribute("name", "tcp");
         xmlSite.setAttribute("pos", "0 0 0");
         xmlSite.setAttribute("size", "0.001");
         parent.append(xmlSite);
@@ -7090,17 +7589,16 @@ class RobotBuilder {
     getConfiguration() {
         const config = new RobotConfiguration();
 
-        config.robotRoot = this.name + "_link0";
-        config.tcpSite = this.name + "_tcp";
-        config.tcpSize = 0.04;
+        config.robotRoot = "link0";
 
         config.defaultPose = {};
 
-        for (let i = 0; i < this.defaultPose.length; ++i)
-            config.defaultPose[this.name + "_joint" + (i + 1)] = this.defaultPose[i];
+        config.defaultToolConfigurations = [
+            new DefaultRobotBuilderToolConfiguration
+        ];
 
-        if (this.prefix != null)
-            config.addPrefix(this.prefix);
+        for (let i = 0; i < this.defaultPose.length; ++i)
+            config.defaultPose["joint" + (i + 1)] = this.defaultPose[i];
 
         return config;
     }
@@ -7109,7 +7607,7 @@ class RobotBuilder {
         const xmlDefaults = xmlDoc.createElement("default");
 
         const xmlVisualDefault = xmlDoc.createElement("default");
-        xmlVisualDefault.setAttribute("class", this.name + "_visual");
+        xmlVisualDefault.setAttribute("class", "visual");
         xmlDefaults.append(xmlVisualDefault);
 
         const xmlVisualGeomDefault = xmlDoc.createElement("geom");
@@ -7119,7 +7617,7 @@ class RobotBuilder {
         xmlVisualDefault.append(xmlVisualGeomDefault);
 
         const xmlCollisionDefault = xmlDoc.createElement("default");
-        xmlCollisionDefault.setAttribute("class", this.name + "_collision");
+        xmlCollisionDefault.setAttribute("class", "collision");
         xmlDefaults.append(xmlCollisionDefault);
 
         const xmlCollisionGeomDefault = xmlDoc.createElement("geom");
@@ -7163,28 +7661,28 @@ class RobotBuilder {
             xmlGeom.setAttribute("type", "cylinder");
             xmlGeom.setAttribute("size", radius + " 0.01");
             xmlGeom.setAttribute("mass", "1");
-            xmlGeom.setAttribute("class", this.name + "_visual");
+            xmlGeom.setAttribute("class", "visual");
             xmlGeom.setAttribute("rgba", color);
             xmlBody.append(xmlGeom);
 
             xmlGeom = xmlDoc.createElement("geom");
             xmlGeom.setAttribute("type", "sphere");
             xmlGeom.setAttribute("size", "0.01");
-            xmlGeom.setAttribute("class", this.name + "_collision");
+            xmlGeom.setAttribute("class", "collision");
             xmlBody.append(xmlGeom);
         } else {
             let xmlGeom = xmlDoc.createElement("geom");
             xmlGeom.setAttribute("type", "sphere");
             xmlGeom.setAttribute("size", "0.02");
             xmlGeom.setAttribute("mass", ".1");
-            xmlGeom.setAttribute("class", this.name + "_visual");
+            xmlGeom.setAttribute("class", "visual");
             xmlGeom.setAttribute("rgba", color);
             xmlBody.append(xmlGeom);
 
             xmlGeom = xmlDoc.createElement("geom");
             xmlGeom.setAttribute("type", "sphere");
             xmlGeom.setAttribute("size", "0.02");
-            xmlGeom.setAttribute("class", this.name + "_collision");
+            xmlGeom.setAttribute("class", "collision");
             xmlBody.append(xmlGeom);
         }
 
@@ -7197,7 +7695,7 @@ class RobotBuilder {
                 xmlGeom.setAttribute("size", "0.01");
                 xmlGeom.setAttribute("fromto", "0 0 0 " + p.join(" "));
                 xmlGeom.setAttribute("mass", "" + (1.0 * math.norm(p)));
-                xmlGeom.setAttribute("class", this.name + "_visual");
+                xmlGeom.setAttribute("class", "visual");
                 xmlGeom.setAttribute("rgba", color);
                 xmlBody.append(xmlGeom);
 
@@ -7208,7 +7706,7 @@ class RobotBuilder {
                 xmlGeom.setAttribute("type", "cylinder");
                 xmlGeom.setAttribute("size", "0.01");
                 xmlGeom.setAttribute("fromto", p1.join(" ") + " " + p2.join(" "));
-                xmlGeom.setAttribute("class", this.name + "_collision");
+                xmlGeom.setAttribute("class", "collision");
                 xmlBody.append(xmlGeom);
             }
         }
@@ -7260,6 +7758,1192 @@ class RobotBuilder {
         return q;
     }
 
+}
+
+
+class DefaultRobotBuilderToolConfiguration extends ToolConfiguration {
+    constructor() {
+        super();
+
+        this.tcpSite = "tcp";
+        this.tcpSize = 0.04;
+    }
+}
+
+/*
+ * SPDX-FileCopyrightText: Copyright © 2025 Idiap Research Institute <contact@idiap.ch>
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ *
+ */
+
+const InteractionStates = Object.freeze({
+    Default: Symbol("default"),
+    Manipulation: Symbol("manipulation"),
+    JointHovering: Symbol("joint_hovering"),
+    JointDisplacement: Symbol("joint_displacement"),
+    LinkDisplacement: Symbol("link_displacement"),
+});
+
+
+const Passes = Object.freeze({
+    BaseRenderPass: Symbol(0),
+    NoShadowsRenderPass: Symbol(1),
+    TopRenderPass: Symbol(2),
+    OutputPass: Symbol(3),
+});
+
+
+const Layers = Object.freeze({
+    Base: 0,
+    NoShadows: 1,
+    Top: 2,
+    User: 3,
+    Labels: 31,
+});
+
+/*
+ * SPDX-FileCopyrightText: Copyright © 2025 Idiap Research Institute <contact@idiap.ch>
+ *
+ * SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+
+
+const Bodies = Object.freeze({
+    Box: Symbol("box"),
+    Capsule: Symbol("capsule"),
+    Cylinder: Symbol("cylinder"),
+    Ellipsoid: Symbol("ellipsoid"),
+    Plane: Symbol("plane"),
+    Sphere: Symbol("sphere"),
+    Mesh: Symbol("mesh"),
+});
+
+
+class BaseInfos {
+
+    constructor(name, position, orientation) {
+        this.name = name;
+        this.position = position;
+        this.orientation = orientation;
+
+        if (this.position == null)
+            this.position = new THREE.Vector3(0.0, 0.0, 0.0);
+        else if (Array.isArray(this.position))
+            this.position = new THREE.Vector3(this.position[0], this.position[1], this.position[2]);
+
+        if (this.orientation == null)
+            this.orientation = new THREE.Quaternion(0.0, 0.0, 0.0, 1.0);
+        else if (Array.isArray(this.orientation))
+            this.orientation = new THREE.Quaternion(this.orientation[0], this.orientation[1], this.orientation[2], this.orientation[3]);
+    }
+
+}
+
+
+class RobotInfos extends BaseInfos {
+
+    constructor(name, configuration, position, orientation, parameters, declared=false) {
+        super(name, position, orientation);
+
+        this.configuration = configuration;
+        this.parameters = parameters;
+        this.declared = declared;
+        this.filename = null;
+
+        // Ensure the parameters have default values
+        if (this.parameters == null)
+            this.parameters = new Map();
+        else if (!(this.parameters instanceof Map))
+            this.parameters = new Map(Object.entries(this.parameters));
+
+        const defaults = new Map([
+            ['use_toon_shader', false],
+            ['use_light_toon_shader', false],
+            ['hue', null],
+            ['color', null],
+            ['controlsEnabled', true],
+            ['collisionsEnabled', true],
+            ['layer', Layers.Base],
+        ]);
+
+        this.parameters = new Map([...defaults, ...this.parameters]);
+    }
+
+}
+
+
+class PartInfos extends BaseInfos {
+
+    constructor(name, filename, position, orientation, body) {
+        super(name, position, orientation);
+
+        this.filename = filename;
+        this.body = body;
+    }
+
+}
+
+
+class BodyInfos extends BaseInfos {
+
+    constructor(type, name, position, orientation, color, mass) {
+        super(name, position, orientation);
+
+        this.type = type;
+        this.color = color;
+        this.mass = mass;
+
+        if (this.color.length == 3)
+            this.color = [this.color[0], this.color[1], this.color[2], 1.0];
+    }
+
+}
+
+
+class BoxInfos extends BodyInfos {
+
+    constructor(name, position, orientation, halfSize, color, mass) {
+        super(Bodies.Box, name, position, orientation, color, mass);
+
+        this.size = halfSize;
+
+        if (Array.isArray(this.size))
+            this.size = new THREE.Vector3(this.size[0], this.size[1], this.size[2]);
+    }
+
+}
+
+
+class CapsuleInfos extends BodyInfos {
+
+    constructor(name, position, orientation, radius, halfLength, color, mass) {
+        super(Bodies.Capsule, name, position, orientation, color, mass);
+
+        this.radius = radius;
+        this.halfLength = halfLength;
+    }
+
+}
+
+
+class CylinderInfos extends BodyInfos {
+
+    constructor(name, position, orientation, radius, halfLength, color, mass) {
+        super(Bodies.Cylinder, name, position, orientation, color, mass);
+
+        this.radius = radius;
+        this.halfLength = halfLength;
+    }
+
+}
+
+
+class EllipsoidInfos extends BodyInfos {
+
+    constructor(name, position, orientation, radiuses, color, mass) {
+        super(Bodies.Ellipsoid, name, position, orientation, color, mass);
+
+        this.radiuses = radiuses;
+
+        if (Array.isArray(this.radiuses))
+            this.radiuses = new THREE.Vector3(this.radiuses[0], this.radiuses[1], this.radiuses[2]);
+    }
+
+}
+
+
+class PlaneInfos extends BodyInfos {
+
+    constructor(name, position, orientation, halfSizeX, halfSizeY, spacing, color, mass) {
+        super(Bodies.Plane, name, position, orientation, color, mass);
+
+        this.halfSizeX = halfSizeX;
+        this.halfSizeY = halfSizeY;
+        this.spacing = spacing;
+    }
+
+}
+
+
+class SphereInfos extends BodyInfos {
+
+    constructor(name, position, orientation, radius, color, mass) {
+        super(Bodies.Sphere, name, position, orientation, color, mass);
+        this.radius = radius;
+    }
+
+}
+
+
+class MeshInfos extends BodyInfos {
+
+    constructor(name, position, orientation, filename, color, mass, meshPosition, meshOrientation, collision) {
+        super(Bodies.Mesh, name, position, orientation, color, mass);
+        this.filename = filename;
+        this.meshPosition = meshPosition;
+        this.meshOrientation = meshOrientation;
+
+        if (this.meshPosition == null)
+            this.meshPosition = new THREE.Vector3(0.0, 0.0, 0.0);
+        else if (Array.isArray(this.meshPosition))
+            this.meshPosition = new THREE.Vector3(this.meshPosition[0], this.meshPosition[1], this.meshPosition[2]);
+
+        if (this.meshOrientation == null)
+            this.meshOrientation = new THREE.Quaternion(0.0, 0.0, 0.0, 1.0);
+        else if (Array.isArray(this.meshOrientation))
+            this.meshOrientation = new THREE.Quaternion(this.meshOrientation[0], this.meshOrientation[1], this.meshOrientation[2], this.meshOrientation[3]);
+
+        if (collision != null) {
+            if (collision instanceof Array) {
+                this.collision = [];
+                for (let infos of collision) {
+                    if (infos.type == 'box') {
+                        this.collision.push(
+                            new BoxInfos(null, infos.position, infos.orientation, infos.halfSize, [0, 0, 0])
+                        );
+                    }
+                    else if (infos.type == 'capsule') {
+                        this.collision.push(
+                            new CapsuleInfos(
+                                null, infos.position, infos.orientation, infos.radius, infos.halfLength, [0, 0, 0]
+                            )
+                        );
+                    }
+                    else if (infos.type == 'cylinder') {
+                        this.collision.push(
+                            new CylinderInfos(
+                                null, infos.position, infos.orientation, infos.radius, infos.halfLength, [0, 0, 0]
+                            )
+                        );
+                    }
+                    else if (infos.type == 'ellipsoid') {
+                        this.collision.push(
+                            new EllipsoidInfos(
+                                null, infos.position, infos.orientation, infos.radiuses, [0, 0, 0]
+                            )
+                        );
+                    }
+                    else if (infos.type == 'sphere') {
+                        this.collision.push(
+                            new SphereInfos(
+                                null, infos.position, infos.orientation, infos.radius, [0, 0, 0]
+                            )
+                        );
+                    }
+                }
+            } else {
+                this.collision = collision;
+            }
+        } else {
+            this.collision = true;
+        }
+    }
+
+}
+
+
+/**
+ * High-level scene builder to assemble MuJoCo scenes programmatically and
+ * generate processed XML files in the MuJoCo filesystem under `/scenes/...`.
+ */
+class SceneBuilder {
+
+    /**
+     * @param {string} scenePath - path to the base XML scene file
+     */
+    constructor(scenePath) {
+        this.rootScenePath = new Path$1(scenePath);
+        this.robots = [];
+        this.bodies = [];
+        this.parts = [];
+
+        let xmlDoc = readXmlFile(this.rootScenePath.toString());
+        if (xmlDoc == null)
+        {
+            console.error("Failed to load the file '" + this.rootScenePath.toString() + "'");
+            return;
+        }
+
+        this.camera = getFreeCameraSettings(xmlDoc);
+    }
+
+    /**
+     * Add a robot specification to the scene builder.
+     * @param {string} name - robot name
+     * @param {Object|string} configuration - robot configuration object or path
+     * @param {THREE.Vector3|Array<number>|null} [position=null]
+     * @param {THREE.Quaternion|Array<number>|null} [orientation=null]
+     * @param {Object|null} [toolsConfiguration=null]
+     * @param {Object|null} [parameters=null]
+     * @returns {void}
+     */
+    addRobot(name, configuration, position=null, orientation=null, toolsConfiguration=null, parameters=null) {
+        configuration = processConfiguration(configuration, toolsConfiguration);
+        this.robots.push(new RobotInfos(name, configuration, position, orientation, parameters));
+    }
+
+    /**
+     * Declare a robot already existing in the Mujoco scene.
+     * @param {string} name
+     * @param {Object|string} configuration
+     * @param {Object|null} [toolsConfiguration=null]
+     * @param {Object|null} [parameters=null]
+     * @returns {void}
+     */
+    declareRobot(name, configuration, toolsConfiguration=null, parameters=null) {
+        configuration = processConfiguration(configuration, toolsConfiguration);
+        this.robots.push(new RobotInfos(name, configuration, null, null, parameters, true));
+    }
+
+    /**
+     * Build a robot XML using a RobotBuilder and add it to the scene.
+     * The generated XML is stored under /scenes/generated/.
+     * @param {string} name
+     * @param {RobotBuilder} robotBuilder
+     * @param {THREE.Vector3|Array<number>|null} [position=null]
+     * @param {THREE.Quaternion|Array<number>|null} [orientation=null]
+     * @returns {void}
+     */
+    buildRobot(name, robotBuilder, position=null, orientation=null) {
+        const folder = new Path$1('/scenes/generated/');
+        const filename = folder.join(robotBuilder.name + '.xml');
+
+        // Check that the folder exists
+        if (!folder.exists())
+            folder.mkdir();
+
+        // Generate the XML file of the robot if needed
+        if (!filename.exists()) {
+            const xmlRobotDoc = robotBuilder.generateXMLDocument();
+
+            const serializer = new XMLSerializer();
+            filename.write(serializer.serializeToString(xmlRobotDoc));
+        }
+
+        // Add the robot to the scene
+        const configuration = robotBuilder.getConfiguration();
+        configuration.filename = filename.relativeTo('/scenes/').toString();
+        this.addRobot(name, configuration, position, orientation);
+    }
+
+    /**
+     * Add a box collision/visual body to the scene builder.
+     * @param {string} name
+     * @param {THREE.Vector3|Array<number>} position
+     * @param {THREE.Quaternion|Array<number>} orientation
+     * @param {THREE.Vector3|Array<number>} halfSize
+     * @param {Array<number>} color - rgba or rgb
+     * @param {number|null} [mass=null] If null, the body isn't movable
+     * @returns {void}
+     */
+    addBox(name, position, orientation, halfSize, color, mass=null) {
+        this.bodies.push(new BoxInfos(name, position, orientation, halfSize, color, mass));
+    }
+
+    /**
+     * Add a capsule body.
+     */
+    addCapsule(name, position, orientation, radius, halfLength, color, mass=null) {
+        this.bodies.push(new CapsuleInfos(name, position, orientation, radius, halfLength, color, mass));
+    }
+
+    /**
+     * Add a cylinder body.
+     */
+    addCylinder(name, position, orientation, radius, halfLength, color, mass=null) {
+        this.bodies.push(new CylinderInfos(name, position, orientation, radius, halfLength, color, mass));
+    }
+
+    /**
+     * Add an ellipsoid body.
+     */
+    addEllipsoid(name, position, orientation, radiuses, color, mass=null) {
+        this.bodies.push(new EllipsoidInfos(name, position, orientation, radiuses, color, mass));
+    }
+
+    /**
+     * Add a plane body.
+     */
+    addPlane(name, position, orientation, halfSizeX, halfSizeY, spacing, color) {
+        this.bodies.push(
+            new PlaneInfos(name, position, orientation, halfSizeX, halfSizeY, spacing, color, null)
+        );
+    }
+
+    /**
+     * Add a sphere body.
+     */
+    addSphere(name, position, orientation, radius, color, mass=null) {
+        this.bodies.push(new SphereInfos(name, position, orientation, radius, color, mass));
+    }
+
+    /**
+     * Add a mesh body referencing an external mesh file.
+     */
+    addMesh(
+        name, position, orientation, filename, color, mass=null, meshPosition=null, meshOrientation=null,
+        collision=null
+    ) {
+        this.bodies.push(
+            new MeshInfos(
+                name, position, orientation, filename, color, mass, meshPosition, meshOrientation,
+                collision
+            )
+        );
+    }
+
+    /**
+     * Add a part defined in an external XML file and optionally reference a body name.
+     * @param {string} name
+     * @param {string} filename
+     * @param {THREE.Vector3|Array<number>|null} [position=null]
+     * @param {THREE.Quaternion|Array<number>|null} [orientation=null]
+     * @param {string|Object|null} [body=null]
+     * @returns {void}
+     */
+    addPart(name, filename, position=null, orientation=null, body=null) {
+        if (body == null) {
+            // Load the XML document
+            let xmlDoc = readXmlFile(filename);
+            if (xmlDoc == null)
+            {
+                console.error("Failed to load the file '" + filename + "'");
+                return;
+            }
+
+            // Retrieve the first body
+            let xmlBody = getFirstElementByTag(xmlDoc, 'body');
+            if (xmlBody == null)
+                return;
+
+            body = xmlBody.getAttribute('name');
+        }
+
+        this.parts.push(new PartInfos(name, filename, position, orientation, body));
+    }
+
+
+    /**
+     * Build the scene: process XML, copy assets into the MuJoCo filesystem and
+     * generate a processed scene XML under `/scenes/<id>/<id>.xml`.
+     * @returns {[string, Object]|[null,null]} tuple of generated filename and light intensities
+     */
+    build() {
+        // Load the XML document
+        let xmlDoc = readXmlFile(this.rootScenePath.toString());
+        if (xmlDoc == null)
+        {
+            console.error("Failed to load the file '" + this.rootScenePath.toString() + "'");
+            return [null, null];
+        }
+
+        // Generate the name of the processed file
+        const uniqueId = getUniqueId(36);
+
+        const rootDestFolder = new Path$1('/scenes/' + uniqueId);
+        const subFolder = this.rootScenePath.dirname().relativeTo('/scenes/');
+
+        const folder = rootDestFolder.join(subFolder);
+        folder.mkdir();
+
+        const filename = folder.join(uniqueId + '.xml');
+
+        // Retrieve needed elements from the XML document
+        const xmlRoot = getFirstElementByTag(xmlDoc, "mujoco");
+        const xmlWorldBody = getFirstElementByTag(xmlDoc, 'worldbody');
+
+        let xmlOption = getFirstElementByTag(xmlDoc, 'option');
+        const options = {};
+
+        if (xmlOption != null) {
+            for (let name of xmlOption.getAttributeNames())
+                options[name] = xmlOption.getAttribute(name);
+        }
+
+        // Complete or create the camera settings
+        completeCameraSettings(xmlDoc, this.camera);
+
+        // Retrieve or create the <asset> element
+        let xmlAssets = getFirstElementByTag(xmlDoc, 'asset');
+        if (xmlAssets == null) {
+            xmlAssets = xmlDoc.createElement('asset');
+            xmlRoot.insertBefore(xmlAssets, xmlWorldBody);
+        }
+
+        const lightIntensities = processLights(xmlWorldBody);
+
+        // Process the included files
+        const additionalLightIntensities = processIncludedFiles(xmlDoc, this.rootScenePath.dirname(), rootDestFolder);
+
+        for (let name in additionalLightIntensities)
+            lightIntensities[name] = additionalLightIntensities[name];
+
+        // Add the robots
+        for (let i = 0; i < this.robots.length; ++i) {
+            const additionalLightIntensities = addRobot(
+                this.robots[i], i, xmlDoc, xmlWorldBody, xmlAssets, options, rootDestFolder
+            );
+
+            for (let name in additionalLightIntensities)
+                lightIntensities[name] = additionalLightIntensities[name];
+        }
+
+        // Add the parts
+        for (let i = 0; i < this.parts.length; ++i)
+            addPart(this.parts[i], i, xmlDoc, xmlWorldBody, xmlAssets);
+
+        // Add the bodies
+        for (let i = 0; i < this.bodies.length; ++i)
+            addBody(this.bodies[i], xmlDoc, xmlWorldBody);
+        
+        // Put the merged options in the XML file
+        if (Object.keys(options).length > 0) {
+            if (xmlOption == null) {
+                xmlOption = xmlDoc.createElement('option');
+                xmlRoot.insertBefore(xmlOption, xmlRoot.children[0]);
+            }
+
+            for (let name in options)
+                xmlOption.setAttribute(name, options[name]);
+        }
+
+        // Adapt the 'meshdir' and 'texturedir' settings
+        let xmlCompiler = getOrCreateCompiler(xmlDoc);
+
+        xmlCompiler.setAttribute(
+            'meshdir',
+            this.rootScenePath.dirname().join(xmlCompiler.getAttribute('meshdir')).toString()
+        );
+
+        xmlCompiler.setAttribute(
+            'texturedir',
+            this.rootScenePath.dirname().join(xmlCompiler.getAttribute('texturedir')).toString()
+        );
+
+        // Save the scene XML file
+        const serializer = new XMLSerializer();
+        filename.write(serializer.serializeToString(xmlDoc));
+
+        return [filename.toString(), lightIntensities];
+    }
+
+}
+
+
+function processConfiguration(configuration, toolsConfiguration) {
+    if (typeof(configuration) == 'string')
+        configuration = Robots[configuration];
+
+    if (typeof(configuration) == 'symbol')
+        configuration = new Configurations[configuration]();
+
+    if (toolsConfiguration != null) {
+        if (!Array.isArray(toolsConfiguration))
+            toolsConfiguration = [toolsConfiguration];
+    } else {
+        toolsConfiguration = [];
+    }
+
+    while (toolsConfiguration.length < configuration.defaultToolConfigurations.length)
+        toolsConfiguration.push(null);
+
+    for (let i = 0; i < toolsConfiguration.length; ++i) {
+        if (toolsConfiguration[i] == null)
+            toolsConfiguration[i] = configuration.defaultToolConfigurations[i];
+
+        else if (typeof(toolsConfiguration[i]) == 'string')
+            toolsConfiguration[i] = Tools[toolsConfiguration[i]];
+
+        if (typeof(toolsConfiguration[i]) == 'symbol')
+            toolsConfiguration[i] = new Configurations[toolsConfiguration[i]]();
+    }
+
+    configuration.tools = toolsConfiguration;
+
+    return configuration;
+}
+
+
+function processIncludedFiles(xmlDoc, rootSrcFolder, rootDestFolder) {
+    const serializer = new XMLSerializer();
+
+    const lightIntensities = {};
+
+    // Search for include directives
+    const xmlIncludes = xmlDoc.getElementsByTagName("include");
+    for (let xmlInclude of xmlIncludes) {
+        let includedFile = new Path$1(xmlInclude.getAttribute("file"));
+
+        // Generate the name of the processed file
+        const uniqueId = getUniqueId(36);
+
+        const subFolder = rootSrcFolder.relativeTo('/scenes/');
+
+        const dstFolder = includedFile.isAbsolute ? includedFile.dirname() : rootDestFolder.join(subFolder, includedFile.dirname());
+        dstFolder.mkdir();
+
+        const dstFilename = dstFolder.join(uniqueId + '.xml');
+
+        // Load the XML document
+        const srcFilename = includedFile.isAbsolute ? includedFile : rootSrcFolder.join(includedFile);
+        const srcFolder = srcFilename.dirname();
+
+        let xmlIncludedDoc = readXmlFile(srcFilename.toString());
+        if (xmlIncludedDoc == null) {
+            console.error("Failed to load the file '" + srcFilename.toString() + "'");
+            continue;
+        }
+
+        // Adapt the 'meshdir' and 'texturedir' settings
+        let xmlCompiler = getOrCreateCompiler(xmlIncludedDoc);
+
+        xmlCompiler.setAttribute(
+            'meshdir',
+            srcFolder.join(xmlCompiler.getAttribute('meshdir')).toString()
+        );
+
+        xmlCompiler.setAttribute(
+            'texturedir',
+            srcFolder.join(xmlCompiler.getAttribute('texturedir')).toString()
+        );
+
+        // Process the lights
+        let additionalLightIntensities = processLights(xmlIncludedDoc);
+        for (let name in additionalLightIntensities)
+            lightIntensities[name] = additionalLightIntensities[name];
+
+        // Process the included files in that file
+        additionalLightIntensities = processIncludedFiles(xmlIncludedDoc, rootSrcFolder, rootDestFolder);
+        for (let name in additionalLightIntensities)
+            lightIntensities[name] = additionalLightIntensities[name];
+
+        dstFilename.write(serializer.serializeToString(xmlIncludedDoc));
+
+        xmlInclude.setAttribute("file", dstFilename.toString());
+    }
+
+    return lightIntensities;
+}
+
+
+function processLights(xmlWorldBody) {
+    let intensities = {};
+
+    const xmlLights = Array.from(xmlWorldBody.getElementsByTagName('light'));
+    for (let xmlLight of xmlLights) {
+        let intensity = xmlLight.getAttribute('intensity');
+        if (intensity != null) {
+            intensity = Number.parseFloat(intensity);
+            xmlLight.removeAttribute('intensity');
+        } else {
+            intensity = 1;
+        }
+
+        let name = xmlLight.getAttribute('name');
+        if (name == null) {
+            name = '__v3d_light_' + getUniqueId(12);
+            xmlLight.setAttribute('name', name);
+        }
+
+        intensities[name] = intensity;
+    }
+
+    return intensities;
+}
+
+
+function addRobot(robot, index, xmlDoc, xmlWorldBody, xmlAssets, options, rootDestFolder) {
+    if (robot.declared)
+        return;
+
+    const prefix = robot.name + '_';
+
+    let robotOptions = null;
+    let lightIntensities = null;
+    [robot.filename, robotOptions, lightIntensities] = processRobotXmlFile(robot, rootDestFolder);
+    if (robot.filename == null)
+        return;
+
+    // Merge the options
+    for (let name in robotOptions) {
+        if (!(name in options))
+            options[name] = robotOptions[name];
+    }
+
+    // Include the robot in the scene
+    const xmlModel = xmlDoc.createElement('model');
+    xmlModel.setAttribute('name', '_v3d_robot_' + index);
+    xmlModel.setAttribute('file', robot.filename);
+    xmlAssets.appendChild(xmlModel);
+
+    const xmlAttach = xmlDoc.createElement('attach');
+    xmlAttach.setAttribute('model', '_v3d_robot_' + index);
+    xmlAttach.setAttribute('body', robot.configuration.robotRoot);
+    xmlAttach.setAttribute('prefix', prefix);
+    xmlWorldBody.appendChild(xmlAttach);
+
+    // Update the prefixes in the configurations
+    const prefixedTools = [];
+    for (let j = 0; j < robot.configuration.tools.length; ++j) {
+        const cfg = robot.configuration.tools[j];
+        const toolPrefix = (cfg.filename != null ? prefix + 'tool_' + j + '_' : prefix);
+        prefixedTools.push(cfg.addPrefix(toolPrefix));
+    }
+
+    robot.configuration = robot.configuration.addPrefix(prefix);
+    robot.configuration.tools = prefixedTools;
+
+    // Update the prefixes of the lights
+    const prefixedLightIntensities = {};
+    for (let name in lightIntensities)
+        prefixedLightIntensities[prefix + name] = lightIntensities[name];
+
+    return prefixedLightIntensities;
+}
+
+
+function addPart(part, index, xmlDoc, xmlWorldBody, xmlAssets) {
+    const prefix = part.name + '_';
+
+    // Include the part in the scene
+    const xmlModel = xmlDoc.createElement('model');
+    xmlModel.setAttribute('name', '_v3d_part_' + index);
+    xmlModel.setAttribute('file', part.filename);
+    xmlAssets.appendChild(xmlModel);
+
+    const xmlBody = xmlDoc.createElement('body');
+    xmlBody.setAttribute('name', '_v3d_part_' + index + '_frame');
+    xmlBody.setAttribute('pos', '' + part.position.x + ' ' + part.position.y + ' ' + part.position.z);
+    xmlBody.setAttribute(
+        'quat',
+        '' + part.orientation.w + ' ' + part.orientation.x + ' ' + part.orientation.y + ' ' +
+        part.orientation.z
+    );
+    xmlWorldBody.appendChild(xmlBody);
+
+    const xmlAttach = xmlDoc.createElement('attach');
+    xmlAttach.setAttribute('model', '_v3d_part_' + index);
+    xmlAttach.setAttribute('body', part.body);
+    xmlAttach.setAttribute('prefix', prefix);
+    xmlBody.appendChild(xmlAttach);
+}
+
+
+function addBody(body, xmlDoc, xmlWorldBody) {
+    const xmlBody = xmlDoc.createElement('body');
+    xmlBody.setAttribute('name', body.name);
+    xmlBody.setAttribute('pos', '' + body.position.x + ' ' + body.position.y + ' ' + body.position.z);
+    xmlBody.setAttribute(
+        'quat',
+        '' + body.orientation.w + ' ' + body.orientation.x + ' ' + body.orientation.y + ' ' +
+        body.orientation.z
+    );
+
+    xmlWorldBody.appendChild(xmlBody);
+
+    if ((body.mass != null) && (body.type != Bodies.Plane)) {
+        const xmlFreeJoint = xmlDoc.createElement('freejoint');
+        xmlBody.appendChild(xmlFreeJoint);
+    }
+
+    const xmlGeom = xmlDoc.createElement('geom');
+    xmlGeom.setAttribute('type', body.type.description);
+    xmlGeom.setAttribute('rgba', '' + body.color[0] + ' ' + body.color[1] + ' ' + body.color[2] + ' ' + body.color[3]);
+    xmlBody.appendChild(xmlGeom);
+
+    setupGeometry(xmlGeom, body);
+
+    if (body.type == Bodies.Mesh) {
+        xmlGeom.setAttribute('pos', '' + body.meshPosition.x + ' ' + body.meshPosition.y + ' ' + body.meshPosition.z);
+
+        xmlGeom.setAttribute(
+            'quat',
+            '' + body.meshOrientation.w + ' ' + body.meshOrientation.x + ' ' + body.meshOrientation.y + ' ' +
+            body.meshOrientation.z
+        );
+
+        let xmlAsset = getFirstElementByTag(xmlDoc, 'asset');
+        if (xmlAsset == null) {
+            xmlAsset = xmlDoc.createElement('asset');
+            const xmlRoot = getFirstElementByTag(xmlDoc, 'mujoco');
+            xmlRoot.insertBefore(xmlAsset, xmlWorldBody);
+        }
+
+        const xmlMesh = xmlDoc.createElement('mesh');
+        xmlMesh.setAttribute('name', body.name);
+        xmlMesh.setAttribute('file', body.filename);
+        xmlAsset.appendChild(xmlMesh);
+
+        if (body.collision !== true) {
+            xmlGeom.setAttribute('contype', 0);
+            xmlGeom.setAttribute('conaffinity', 0);
+            xmlGeom.setAttribute('group', 2);
+        }
+
+        if (body.collision instanceof Array) {
+            for (let infos of body.collision) {
+                const xmlCollisionGeom = xmlDoc.createElement('geom');
+                xmlCollisionGeom.setAttribute('type', infos.type.description);
+                xmlCollisionGeom.setAttribute('group', 3);
+                xmlBody.appendChild(xmlCollisionGeom);
+
+                setupGeometry(xmlCollisionGeom, infos);
+
+                if (infos.position != null) {
+                    xmlCollisionGeom.setAttribute(
+                        'pos',
+                        '' + infos.position.x + ' ' + infos.position.y + ' ' + infos.position.z
+                    );
+                }
+
+                if (body.orientation != null) {
+                    xmlCollisionGeom.setAttribute(
+                        'quat',
+                        '' + infos.orientation.w + ' ' + infos.orientation.x + ' ' + infos.orientation.y + ' ' +
+                        infos.orientation.z
+                    );
+                }
+            }
+        }
+    }
+}
+
+
+function setupGeometry(xmlGeom, body) {
+    if (body.mass != null)
+        xmlGeom.setAttribute('mass', body.mass);
+
+    if (body.type == Bodies.Box) {
+        xmlGeom.setAttribute('size', '' + body.size.x + ' ' + body.size.y + ' ' + body.size.z);
+
+        // xmlGeom.setAttribute('friction', "10 10 10");
+        // xmlGeom.setAttribute('solimp', "0.95 0.99 0.001");
+        // xmlGeom.setAttribute('solref', "0.004 1");
+    }
+    else if (body.type == Bodies.Capsule) {
+        xmlGeom.setAttribute('size', '' + body.radius + ' ' + body.halfLength);
+    }
+    else if (body.type == Bodies.Cylinder) {
+        xmlGeom.setAttribute('size', '' + body.radius + ' ' + body.halfLength);
+    }
+    else if (body.type == Bodies.Ellipsoid) {
+        xmlGeom.setAttribute('size', '' + body.radiuses.x + ' ' + body.radiuses.y + ' ' + body.radiuses.z);
+    }
+    else if (body.type == Bodies.Plane) {
+        xmlGeom.setAttribute('size', '' + body.halfSizeX + ' ' + body.halfSizeY + ' ' + body.spacing);
+    }
+    else if (body.type == Bodies.Sphere) {
+        xmlGeom.setAttribute('size', '' + body.radius);
+    }
+    else if (body.type == Bodies.Mesh) {
+        xmlGeom.setAttribute('mesh', body.name);
+    }
+}
+
+
+function processRobotXmlFile(robot, rootDestFolder) {
+    // Load the XML document
+    let xmlRobotDoc = readXmlFile('/scenes/' + robot.configuration.filename);
+    if (xmlRobotDoc == null)
+    {
+        console.error("Failed to load the file '" + robot.configuration.filename + "'");
+        return [null, null, null];
+    }
+
+    // Retrieve the options
+    let xmlOption = getFirstElementByTag(xmlRobotDoc, 'option');
+    const options = {};
+
+    if (xmlOption != null) {
+        for (let name of xmlOption.getAttributeNames())
+            options[name] = xmlOption.getAttribute(name);
+    }
+
+    // Retrieve the lights
+    const lightIntensities = processLights(xmlRobotDoc);
+    let hasLights = false;
+    if (Object.keys(lightIntensities).length > 0) {
+        for (let name in lightIntensities) {
+            if (name.startsWith('__v3d_light_')) {
+                hasLights = true;
+                break;
+            }
+        }
+    }
+
+    // Check if there are no change to apply to the XML file, in which case we can use the original one
+    const hasTransforms = !robot.position.equals(new THREE.Vector3(0.0, 0.0, 0.0)) ||
+                          !robot.orientation.equals(new THREE.Quaternion(0.0, 0.0, 0.0));
+
+    let hasTools = false;
+    for (let i = 0; i < robot.configuration.tools.length; ++i)
+        hasTools |= (robot.configuration.tools[i].filename != null);
+
+    if (!hasTransforms && !hasTools && !hasLights && robot.parameters.get('collisionsEnabled')) {
+        return ['/scenes/' + robot.configuration.filename, options, lightIntensities];
+    }
+
+    // Update the 'meshdir' and 'texturedir' settings
+    const xmlCompiler = getFirstElementByTag(xmlRobotDoc, 'compiler');
+    if (xmlCompiler != null)
+    {
+        const offset = robot.configuration.filename.lastIndexOf('/');
+        xmlCompiler.setAttribute(
+            'meshdir',
+            '/scenes/' + robot.configuration.filename.substring(0, offset + 1) + xmlCompiler.getAttribute('meshdir')
+        );
+        xmlCompiler.setAttribute(
+            'texturedir',
+            '/scenes/' + robot.configuration.filename.substring(0, offset + 1) + xmlCompiler.getAttribute('texturedir')
+        );
+    }
+
+    // Retrieve or create the <assets> element
+    let xmlAssets = getFirstElementByTag(xmlRobotDoc, 'asset');
+    const xmlRoot = getFirstElementByTag(xmlRobotDoc, 'mujoco');
+    const xmlWorldBody = getFirstElementByTag(xmlRobotDoc, 'worldbody');
+    if (xmlAssets == null) {
+        xmlAssets = xmlRobotDoc.createElement('asset');
+        xmlRoot.insertBefore(xmlAssets, xmlWorldBody);
+    }
+
+    // Update the transforms (if necessary)
+    if (hasTransforms) {
+        const xmlBody = getElementByTagAndName(xmlWorldBody, 'body', robot.configuration.robotRoot);
+
+        const position = new THREE.Vector3(0.0, 0.0, 0.0);
+
+        const xmlPosition = xmlBody.getAttribute('pos');
+        if (xmlPosition) {
+            const parts = xmlPosition.split(' ');
+            position.x = Number.parseFloat(parts[0]);
+            position.y = Number.parseFloat(parts[1]);
+            position.z = Number.parseFloat(parts[2]);
+        }
+
+        position.add(robot.position);
+
+        xmlBody.setAttribute('pos', '' + position.x + ' ' + position.y + ' ' + position.z);
+
+        const orientation = new THREE.Quaternion(0.0, 0.0, 0.0, 1.0);
+
+        const xmlQuat = xmlBody.getAttribute('quat');
+        if (xmlQuat) {
+            const parts = xmlQuat.split(' ');
+            orientation.w = Number.parseFloat(parts[0]);
+            orientation.x = Number.parseFloat(parts[1]);
+            orientation.y = Number.parseFloat(parts[2]);
+            orientation.z = Number.parseFloat(parts[3]);
+        }
+
+        orientation.multiply(robot.orientation);
+
+        xmlBody.setAttribute(
+            'quat',
+            '' + orientation.w + ' ' + orientation.x + ' ' + orientation.y + ' ' + orientation.z
+        );
+    }
+
+    // Disable the collisions (if necessary)
+    if (!robot.parameters.get('collisionsEnabled')) {
+        const xmlGeoms = Array.from(xmlWorldBody.getElementsByTagName("geom"));
+        for (let xmlGeom of xmlGeoms) {
+            if (xmlGeom.getAttribute("class").search("collision") >= 0)
+                xmlGeom.parentElement.removeChild(xmlGeom);
+        }
+    }
+
+    // Generate unique filename
+    const uniqueId = getUniqueId(36);
+
+    const srcFilename = new Path$1(robot.configuration.filename);
+    const subFolder = srcFilename.dirname();
+
+    const dstFolder = rootDestFolder.join(subFolder);
+    dstFolder.mkdir();
+
+    const dstFilename = dstFolder.join(uniqueId + '.xml');
+
+    // Process the tools
+    for (let j = 0; j < robot.configuration.tools.length; ++j) {
+        const cfg = robot.configuration.tools[j];
+
+        if (cfg.filename == null)
+            continue;
+
+        const prefix = 'tool_' + j + '_';
+
+        // Process the XML file of the tool
+        let toolOptions = null;
+        let additionalLightIntensities = null;
+        [cfg.filename, toolOptions, additionalLightIntensities] = processToolXmlFile(cfg, j, robot.parameters, rootDestFolder);
+        if (cfg.filename == null)
+            continue;
+
+        // Merge the options
+        for (let name in toolOptions) {
+            if (!(name in options))
+                options[name] = toolOptions[name];
+        }
+
+        // Merge the lights
+        for (let name in additionalLightIntensities)
+            lightIntensities[prefix + name] = additionalLightIntensities[name];
+
+        // Include the tool in the robot
+        const xmlModel = xmlRobotDoc.createElement('model');
+        xmlModel.setAttribute('name', '_v3d_tool_' + j);
+        xmlModel.setAttribute('file', cfg.filename);
+        xmlAssets.appendChild(xmlModel);
+
+        const xmlAttach = xmlRobotDoc.createElement('attach');
+        xmlAttach.setAttribute('model', '_v3d_tool_' + j);
+        xmlAttach.setAttribute('body', cfg.root);
+        xmlAttach.setAttribute('prefix', prefix);
+
+        const xmlSite = getElementByTagAndName(
+            xmlRobotDoc, 'site', robot.configuration.defaultToolConfigurations[j].tcpSite
+        );
+        xmlSite.parentElement.insertBefore(xmlAttach, xmlSite);
+    }
+
+    // Save the robot XML file
+    const serializer = new XMLSerializer();
+    dstFilename.write(serializer.serializeToString(xmlRobotDoc));
+
+    return [dstFilename.toString(), options, lightIntensities];
+}
+
+
+function processToolXmlFile(configuration, index, parameters, rootDestFolder) {
+    // Load the XML document
+    let xmlToolDoc = readXmlFile('/scenes/' + configuration.filename);
+    if (xmlToolDoc == null)
+    {
+        console.error("Failed to load the file '" + configuration.filename + "'");
+        return [null, null, null];
+    }
+
+    // Retrieve the options
+    let xmlOption = getFirstElementByTag(xmlToolDoc, 'option');
+    const options = {};
+
+    if (xmlOption != null) {
+        for (let name of xmlOption.getAttributeNames())
+            options[name] = xmlOption.getAttribute(name);
+    }
+
+    // Retrieve the lights
+    const lightIntensities = processLights(xmlToolDoc);
+    let hasLights = false;
+    if (Object.keys(lightIntensities).length > 0) {
+        for (let name in lightIntensities) {
+            if (name.startsWith('__v3d_light_')) {
+                hasLights = true;
+                break;
+            }
+        }
+    }
+
+    // Check if there are no change to apply to the XML file, in which case we can use the original one
+    if (!hasLights && parameters.get('collisionsEnabled')) {
+        return ['/scenes/' + configuration.filename, options, lightIntensities];
+    }
+
+    // Update the 'meshdir' and 'texturedir' settings
+    const xmlCompiler = getFirstElementByTag(xmlToolDoc, 'compiler');
+    if (xmlCompiler != null)
+    {
+        const offset = configuration.filename.lastIndexOf('/');
+        xmlCompiler.setAttribute(
+            'meshdir',
+            '/scenes/' + configuration.filename.substring(0, offset + 1) + xmlCompiler.getAttribute('meshdir')
+        );
+        xmlCompiler.setAttribute(
+            'texturedir',
+            '/scenes/' + configuration.filename.substring(0, offset + 1) + xmlCompiler.getAttribute('texturedir')
+        );
+    }
+
+    // Disable the collisions (if necessary)
+    if (!parameters.get('collisionsEnabled')) {
+        const xmlWorldBody = getFirstElementByTag(xmlToolDoc, 'worldbody');
+        const xmlGeoms = Array.from(xmlWorldBody.getElementsByTagName("geom"));
+        for (let xmlGeom of xmlGeoms) {
+            if (xmlGeom.getAttribute("class").search("collision") >= 0)
+                xmlGeom.parentElement.removeChild(xmlGeom);
+        }
+    }
+
+    // Generate unique filename
+    const uniqueId = getUniqueId(36);
+
+    const srcFilename = new Path$1(configuration.filename);
+    const subFolder = srcFilename.dirname();
+
+    const dstFolder = rootDestFolder.join(subFolder);
+    dstFolder.mkdir();
+
+    const dstFilename = dstFolder.join(uniqueId + '.xml');
+
+    // Save the tool XML file
+    const serializer = new XMLSerializer();
+    dstFilename.write(serializer.serializeToString(xmlToolDoc));
+
+    return [dstFilename.toString(), options, lightIntensities];
+}
+
+
+function getOrCreateCompiler(xmlDoc) {
+    let xmlCompiler = getFirstElementByTag(xmlDoc, 'compiler');
+    if (xmlCompiler == null) {
+        xmlCompiler = xmlDoc.createElement('compiler');
+        const xmlMujoco = getFirstElementByTag(xmlDoc, 'mujoco');
+        xmlMujoco.insertBefore(xmlCompiler, xmlMujoco.children[0]);
+    }
+
+    if (!xmlCompiler.hasAttribute('meshdir'))
+        xmlCompiler.setAttribute('meshdir', '');
+
+    if (!xmlCompiler.hasAttribute('texturedir'))
+        xmlCompiler.setAttribute('texturedir', '');
+
+    return xmlCompiler;
+}
+
+
+function completeCameraSettings(xmlDoc, settings) {
+    let xmlVisual = getFirstElementByTag(xmlDoc, 'visual');
+    if (xmlVisual == null) {
+        xmlVisual = xmlDoc.createElement('visual');
+        const xmlMujoco = getFirstElementByTag(xmlDoc, 'mujoco');
+        xmlMujoco.insertBefore(xmlVisual, xmlMujoco.children[0]);
+    }
+
+    let xmlGlobal = getFirstElementByTag(xmlVisual, 'global');
+    if (xmlGlobal == null) {
+        xmlGlobal = xmlDoc.createElement('global');
+        xmlVisual.append(xmlGlobal);
+    }
+
+    xmlGlobal.setAttribute('fovy', settings.fovy);
+    xmlGlobal.setAttribute('azimuth', settings.azimuth);
+    xmlGlobal.setAttribute('elevation', settings.elevation);
+
+    let xmlMap = getFirstElementByTag(xmlVisual, "map");
+    if (xmlMap == null) {
+        xmlMap = xmlDoc.createElement('map');
+        xmlVisual.append(xmlMap);
+    }
+
+    xmlMap.setAttribute('znear', settings.znear);
+    xmlMap.setAttribute('zfar', settings.zfar);
 }
 
 /*
@@ -8025,35 +9709,29 @@ class LayerRenderPass extends Pass {
 
 
 
-const InteractionStates = Object.freeze({
-    Default: Symbol("default"),
-    Manipulation: Symbol("manipulation"),
-    JointHovering: Symbol("joint_hovering"),
-    JointDisplacement: Symbol("joint_displacement"),
-    LinkDisplacement: Symbol("link_displacement"),
-});
-
-
-const Passes = Object.freeze({
-    BaseRenderPass: Symbol(0),
-    NoShadowsRenderPass: Symbol(1),
-    TopRenderPass: Symbol(2),
-    OutputPass: Symbol(3),
-});
-
-
-const Layers = Object.freeze({
-    Base: 0,
-    NoShadows: 1,
-    Top: 2,
-    User: 3,
-    Labels: 31,
-});
-
-
-/* Entry point for the 'viewer3d.js' library, used to display and interact with a 3D
-representation of the Panda robotic arm.
-*/
+/**
+ * Entry point for the viewer3d.js library.
+ *
+ * Creates a three.js scene, camera, effect composer and ties the MuJoCo physics
+ * simulator to rendering and user interaction.
+ *
+ * Usage:
+ *   const v = new Viewer3D(domElement, parameters);
+ *
+ * Public surface (selected):
+ * - constructor(domElement, parameters)
+ * - setRenderingCallback(callback, timestep)
+ * - loadScene(sceneBuilder)
+ * - addTarget/removeTarget/getTarget
+ * - addArrow/removeArrow/getArrow
+ * - addPath/removePath/getPath
+ * - addPoint/removePoint/getPoint
+ * - addGaussian/removeGaussian/getGaussian
+ * - enableControls / enableEndEffectorManipulation / enableJointsManipulation
+ * - render()
+ *
+ * @class
+ */
 class Viewer3D {
 
     /* Constructs the 3D viewer
@@ -8108,17 +9786,16 @@ class Viewer3D {
             - Layers.Labels (31): texts to be rendered in the 3D world must be in that layer
 
         The user can add its own layers (starting at index 'Layers.User'), but will also need
-        to also add corresponding render passes.
+        to add corresponding render passes.
 
         The default passes used are:
 
-            - LayerRenderPass: render objects in layer 'Layers.Base' (id: Passes.BaseRenderPass)
-            - LayerRenderPass: render objects in layer 'Layers.NoShadows'
-                                 (id: Passes.NoShadowsRenderPass)
-            - LayerRenderPass: render objects in layer 'Layers.Top'
-                                 (id: Passes.TopRenderPass). Note that the depth buffer is cleared
-                                 by this pass.
-            - OutputPass: tone mapping, sRGB conversion (id: Passes.OutputPass)
+            - Passes.BaseRenderPass (LayerRenderPass): render objects in layer 'Layers.Base'
+            - Passes.NoShadowsRenderPass (LayerRenderPass): render objects in layer 'Layers.NoShadows'
+            - Passes.TopRenderPass (LayerRenderPass): render objects in layer 'Layers.Top'.
+                                                      Note that the depth buffer is cleared by
+                                                      this pass.
+            - Passes.OutputPass (OutputPass): tone mapping, sRGB conversion
 
         Note that transparent objects might be rendered with incorrect colors due to an issue
         in three.js. You might have to adjust their colors and/or opacity.
@@ -8210,21 +9887,24 @@ class Viewer3D {
     }
 
 
+    /**
+     * Dispose of renderer resources. Call when the viewer is no longer needed.
+     * @returns {void}
+     */
     dispose() {
         this.renderer.dispose();
     }
 
 
-    /* Register a function that should be called once per frame.
-
-    This callback function can for example be used to update the positions of the joints.
-
-    The signature of the callback function is: callback(delta), with 'delta' the time elapsed
-    since the last frame, in seconds.
-
-    Note that only one function can be registered at a time. If 'callback' is 'null', no
-    function is called anymore.
-    */
+    /**
+     * Register a rendering callback called once per frame.
+     * The callback can update joint positions or perform custom physics/logic.
+     * Only one callback can be registered at a time.
+     *
+     * @param {(delta:number, time?:number)=>void|null} renderingCallback - function called each frame or null to unregister
+     * @param {number} [timestep=-1.0] - fixed timestep for callback; if >0 the callback will be called repeatedly to catch up if necessary
+     * @returns {void}
+     */
     setRenderingCallback(renderingCallback, timestep=-1) {
         this.renderingCallback = renderingCallback;
         this.renderingCallbackTimestep = timestep;
@@ -8232,16 +9912,26 @@ class Viewer3D {
     }
 
 
+    /**
+     * Set callbacks invoked when a user control interaction starts and ends.
+     *
+     * @param {(void)=>void|null} startCallback - called when control interaction begins
+     * @param {(void)=>void|null} endCallback - called when control interaction ends
+     * @returns {void}
+     */
     setControlCallbacks(startCallback, endCallback) {
         this.controlStartedCallback = startCallback;
         this.controlEndedCallback = endCallback;
     }
 
 
-    /* Enables/disables the manipulation controls
-
-    Manipulation controls include the end-effector and the target manipulators.
-    */
+    /**
+     * Enable or disable manipulation controls (transform widgets).
+     * Manipulation controls include end-effector and target manipulators.
+     *
+     * @param {boolean} enabled
+     * @returns {void}
+     */
     enableControls(enabled) {
         this.controlsEnabled = enabled;
         this.transformControls.enable(enabled);
@@ -8249,50 +9939,50 @@ class Viewer3D {
     }
 
 
-    /* Indicates if the manipulation controls are enabled
-
-    Manipulation controls include the end-effector and the target manipulators.
-    */
+    /**
+     * Returns whether manipulation controls are enabled.
+     * @returns {boolean}
+     */
     areControlsEnabled() {
-        return this.this.controlsEnabled;
+        return this.controlsEnabled;
     }
 
 
-    /* Enables/disables the manipulation of the end effector (when the user clicks on it)
-
-    Note that if 'Viewer3D.controlsEnabled' is 'false', the end-effector can't be
-    manipulated regardless of the value of this property.
-    */
+    /**
+     * Enable or disable manipulation of the end-effector (click to move TCP).
+     * Note: control master flag (`controlsEnabled`) must also be true to allow manipulation.
+     *
+     * @param {boolean} enabled
+     * @returns {void}
+     */
     enableEndEffectorManipulation(enabled) {
         this.endEffectorManipulationEnabled = enabled && (this.planarIkControls != null);
 
         if (enabled) {
-            for (let name in self.robots) {
-                const robot = self.robots[name];
-                if (robot.controlsEnabled && robot.tools[0].tcpTarget == null)
-                    robot._createTcpTargets();
+            for (let name in this.robots) {
+                const robot = this.robots[name];
+                if (robot.controlsEnabled && robot.tools.length > 0 && robot.tools[0].tcpTarget == null)
+                    robot._createTcpTarget();
             }
         }
     }
 
 
-    /* Indicates if the manipulation of the end effector is enabled (when the user clicks
-    on it).
-
-    Note that if 'Viewer3D.controlsEnabled' is 'false', the end-effector can't be
-    manipulated regardless of the value of this property.
-    */
+    /**
+     * Returns whether end-effector manipulation is enabled.
+     * @returns {boolean}
+     */
     isEndEffectorManipulationEnabled() {
         return this.endEffectorManipulationEnabled;
     }
 
 
-    /* Enables/disables the manipulation of the joint positions (when the user clicks on
-    them or use the mouse wheel).
-
-    Note that if 'Viewer3D.controlsEnabled' is 'false', the position of the joints
-    can't be changed using the mouse regardless of the value of this property.
-    */
+    /**
+     * Enable or disable joint manipulation (click/drag on joints or mouse wheel).
+     *
+     * @param {boolean} enabled
+     * @returns {void}
+     */
     enableJointsManipulation(enabled) {
         this.jointsManipulationEnabled = enabled;
 
@@ -8304,26 +9994,22 @@ class Viewer3D {
     }
 
 
-    /* Indicates if the manipulation of the joint positions is enabled (when the user
-    clicks on them or use the mouse wheel).
-
-    Note that if 'Viewer3D.controlsEnabled' is 'false', the position of the joints
-    can't be changed using the mouse regardless of the value of this property.
-    */
+    /**
+     * Returns whether joint manipulation is enabled.
+     * @returns {boolean}
+     */
     isJointsManipulationEnabled() {
         return this.jointsManipulationEnabled;
     }
 
 
-    /* Enables/disables the manipulation of the links (by click and drag).
-
-    Note that if either 'Viewer3D.controlsEnabled' or 'Viewer3D.jointsManipulationEnabled'
-    are 'false', the links can't be manipulated using the mouse regardless of the
-    value of this property.
-
-    Likewise, links manipulation is only possible when a 'partial IK function' was
-    provided in the constructor.
-    */
+    /**
+     * Enable or disable link manipulation (drag links to move chains). Requires a planar IK
+     * implementation to be available.
+     *
+     * @param {boolean} enabled
+     * @returns {void}
+     */
     enableLinksManipulation(enabled) {
         this.linksManipulationEnabled = enabled && (this.planarIkControls != null);
 
@@ -8338,30 +10024,31 @@ class Viewer3D {
     }
 
 
-    /* Indicates if the manipulation of the links is enabled (by click and drag).
-
-    Note that if either 'Viewer3D.controlsEnabled' or 'Viewer3D.jointsManipulationEnabled'
-    are 'false', the links can't be manipulated using the mouse regardless of the
-    value of this property.
-
-    Likewise, links manipulation is only possible when a 'partial IK function' was
-    provided in the constructor.
-    */
+    /**
+     * Returns whether link manipulation is enabled.
+     * @returns {boolean}
+     */
     isLinksManipulationEnabled() {
         return this.linksManipulationEnabled;
     }
 
 
-    /* Enables/disables the manipulation of the objects (like the gaussians)
-
-    Note that if 'Viewer3D.controlsEnabled' is 'false', the transforms of the objects
-    can't be changed using the mouse regardless of the value of this property.
-    */
+    /**
+     * Enable or disable manipulation of scene objects (targets, gaussians, points).
+     * @param {boolean} enabled
+     * @returns {void}
+     */
     enableObjectsManipulation(enabled) {
         this.objectsManipulationEnabled = enabled;
     }
 
 
+    /**
+     * Enable or disable application of force impulses to links when clicked.
+     * @param {boolean} enabled
+     * @param {number} [amount=0.0] - magnitude of applied impulses
+     * @returns {void}
+     */
     enableForceImpulses(enabled, amount=0.0) {
         this.forceImpulsesEnabled = enabled && (amount > 0.0);
         this.forceImpulses = amount;
@@ -8377,39 +10064,51 @@ class Viewer3D {
     }
 
 
+    /**
+     * Returns whether force impulses are enabled.
+     * @returns {boolean}
+     */
     areForceImpulsesEnabled() {
         return this.forceImpulsesEnabled;
     }
 
 
-    /* Indicates if the manipulation of the objects (like the gaussians) is enabled
-
-    Note that if 'Viewer3D.controlsEnabled' is 'false', the transforms of the objects
-    can't be changed using the mouse regardless of the value of this property.
-    */
+    /**
+     * Returns whether object manipulation (targets/gaussians/points) is enabled.
+     * @returns {boolean}
+     */
     isObjectsManipulationEnabled() {
         return this.objectsManipulationEnabled;
     }
 
 
+    /**
+     * Enable or disable robot tools (grippers) for all robots.
+     * @param {boolean} enabled
+     * @returns {void}
+     */
     enableRobotTools(enabled) {
         this.toolsEnabled = enabled;
 
         for (const name in this.robots)
-            this.robots[name]._enableTools(this.toolsEnabled && this.controlsEnabled && robot.controlsEnabled);
+            this.robots[name]._enableTools(this.toolsEnabled && this.controlsEnabled && this.robots[name].controlsEnabled);
     }
 
 
+    /**
+     * Returns whether robot tools (grippers) are enabled.
+     * @returns {boolean}
+     */
     areRobotToolsEnabled() {
         return this.toolsEnabled;
     }
 
 
-    /* Change the layer in which new objects are created
-
-    Parameters:
-        layer (int): Index of the layer
-    */
+    /**
+     * Activate the layer where newly created objects will be placed.
+     * @param {number} layer - layer index
+     * @returns {void}
+     */
     activateLayer(layer) {
         this.activeLayer = layer;
 
@@ -8418,19 +10117,39 @@ class Viewer3D {
     }
 
 
+    /**
+     * Insert a render pass before a standard pass in the composer.
+     * @param {Pass} pass - an EffectComposer pass instance
+     * @param {symbol|number} standardPassId - an ID from Passes
+     * @returns {void}
+     */
     addPassBefore(pass, standardPassId) {
         let index = this.composer.passes.indexOf(this.passes[standardPassId]);
         this.composer.insertPass(pass, index);
     }
 
 
+    /**
+     * Insert a render pass after a standard pass in the composer.
+     * @param {Pass} pass - an EffectComposer pass instance
+     * @param {symbol|number} standardPassId - an ID from Passes
+     * @returns {void}
+     */
     addPassAfter(pass, standardPassId) {
         let index = this.composer.passes.indexOf(this.passes[standardPassId]);
         this.composer.insertPass(pass, index+1);
     }
 
 
-    loadScene(filename, robotBuilders=null) {
+    /**
+     * Load a scene built by SceneBuilder or a filename string. Destroys previous
+     * scene, loads MuJoCo assets, creates robots and configures camera/fog.
+     *
+     * @param {SceneBuilder|string} sceneBuilder
+     * @returns {void}
+     */
+    loadScene(sceneBuilder) {
+        // Destroy the previous scene (if any)
         if (this.physicsSimulator != null) {
             for (const name in this.robots)
                 this.robots[name].destroy();
@@ -8453,10 +10172,15 @@ class Viewer3D {
             this.transformControls.detach();
         }
 
-        this.physicsSimulator = loadScene(filename, robotBuilders);
+        // Load the scene
+        if (typeof(sceneBuilder) == 'string')
+            sceneBuilder = new SceneBuilder(sceneBuilder);
 
+        const [filename, lightIntensities] = sceneBuilder.build();
+        this.physicsSimulator = loadScene(filename, lightIntensities);
         this.scene.add(this.physicsSimulator.root);
 
+        // Retrieve the scene statistics
         const stats = this.physicsSimulator.statistics;
 
         // Fog
@@ -8525,23 +10249,26 @@ class Viewer3D {
                 this.scene.add(this.haze);
             }
         }
+
+        // Create the robots
+        for (let i = 0; i < sceneBuilder.robots.length; ++i) {
+            this._createRobot(sceneBuilder.robots[i]);
+        }
     }
 
 
-    createRobot(name, configuration, prefix=null, parameters=null) {
+    _createRobot(infos) {
         if (this.physicsSimulator == null)
             return null;
 
-        if (name in this.robots)
+        if (infos.name in this.robots)
             return null;
 
-        const robot = this.physicsSimulator.createRobot(name, configuration, prefix);
+        const robot = this.physicsSimulator.createRobot(infos);
         if (robot == null)
             return;
 
-        const robotParameters = this._checkRobotParameters(parameters);
-
-        robot.controlsEnabled = robotParameters.get('controlsEnabled');
+        robot.controlsEnabled = infos.parameters.get('controlsEnabled');
 
         const toolEnabled = this.toolsEnabled && this.controlsEnabled && robot.controlsEnabled;
 
@@ -8555,8 +10282,8 @@ class Viewer3D {
             }
         }
 
-        if (toolEnabled && (robotsWithControlsEnabled.length == 0) && (configuration.tools.length == 1) &&
-            (configuration.tools[0].root != null)) {
+        if (toolEnabled && (robotsWithControlsEnabled.length == 0) && (infos.configuration.tools.length == 1) &&
+            (infos.configuration.tools[0].root != null)) {
             robot.enableTool(toolEnabled, new GripperToolbarSection(this.toolbar, robot));
         } else {
             robot._enableTools(toolEnabled);
@@ -8565,10 +10292,12 @@ class Viewer3D {
         this.physicsSimulator.simulation.forward();
         this.physicsSimulator.synchronize();
 
+        this.activateLayer(infos.parameters.get('layer'));
+
         robot.layers.disableAll();
         robot.layers.enable(this.activeLayer);
 
-        this.robots[name] = robot;
+        this.robots[infos.name] = robot;
 
         if (this.parameters.get('show_joint_positions')) {
             robot.createJointPositionHelpers(
@@ -8579,8 +10308,8 @@ class Viewer3D {
             this.passes[Passes.TopRenderPass].enabled = true;
         }
 
-        if (robotParameters.get('color') != null) {
-            let color = robotParameters.get('color');
+        if (infos.parameters.get('color') != null) {
+            let color = infos.parameters.get('color');
             color = new THREE.Color().setRGB(color[0], color[1], color[2], THREE.SRGBColorSpace);
 
             for (let segment of robot.segments)
@@ -8590,14 +10319,14 @@ class Viewer3D {
                 tool.visual.meshes.forEach((mesh) => modifyMaterialColor(mesh, color));
         }
 
-        if (robotParameters.get('use_toon_shader')) {
+        if (infos.parameters.get('use_toon_shader')) {
             for (let segment of robot.segments)
                 segment.visual.meshes.forEach((mesh) => enableToonShading(mesh));
 
             for (let tool of robot.tools)
                 tool.visual.meshes.forEach((mesh) => enableToonShading(mesh));
 
-        } else if (robotParameters.get('use_light_toon_shader')) {
+        } else if (infos.parameters.get('use_light_toon_shader')) {
             for (let segment of robot.segments)
                 segment.visual.meshes.forEach((mesh) => enableLightToonShading(mesh));
 
@@ -8608,28 +10337,34 @@ class Viewer3D {
         if (this.endEffectorManipulationEnabled && robot.controlsEnabled)
             robot._createTcpTarget();
 
+        this.activateLayer(Layers.Base);
+
         return robot;
     }
 
 
+    /**
+     * Retrieve a robot instance by name.
+     * @param {string} name - robot name
+     * @returns {Robot|undefined} the Robot instance or undefined if not found
+     */
     getRobot(name) {
         return this.robots[name];
     }
 
-
-    /* Add a target to the scene, an object that can be manipulated by the user that can
-    be used to define a destination position and orientation for the end-effector of the
-    robot.
-
-    Parameters:
-        name (str): Name of the target
-        position (Vector3): The position of the target
-        orientation (Quaternion): The orientation of the target
-        color (int/str): Color of the target (by default: 0x0000aa)
-        shape (Shapes): Shape of the target (by default: Shapes.Cube)
-        listener (function): Function to call when the target is moved/rotated using the mouse
-        parameters (dict): Additional shape-dependent parameters (radius, width, height, ...) and opacity
-    */
+    /**
+     * Create and add a manipulable target to the scene.
+     * Targets are used as destination pose markers for end-effectors.
+     *
+     * @param {string} name - unique name of the target
+     * @param {THREE.Vector3|Array<number>} position - position vector or array
+     * @param {THREE.Quaternion|Array<number>} orientation - orientation quaternion or array
+     * @param {number|string} [color=0x0000aa]
+     * @param {Shapes} [shape=Shapes.Cube]
+     * @param {(target:Object)=>void|null} [listener=null] - called when the target is moved
+     * @param {Object|null} [parameters=null] - extra shape-dependent parameters
+     * @returns {Target}
+     */
     addTarget(name, position, orientation, color, shape=Shapes.Cube, listener=null, parameters=null) {
         const target = this.targets.create(name, position, orientation, color, shape, listener, parameters);
 
@@ -8641,11 +10376,11 @@ class Viewer3D {
     }
 
 
-    /* Remove a target from the scene.
-
-    Parameters:
-        name (str): Name of the target
-    */
+    /**
+     * Remove a target previously added.
+     * @param {string} name
+     * @returns {void}
+     */
     removeTarget(name) {
         const target = this.targets.get(name);
 
@@ -8656,29 +10391,29 @@ class Viewer3D {
     }
 
 
-    /* Returns a target from the scene.
-
-    Parameters:
-        name (str): Name of the target
-    */
+    /**
+     * Retrieve a target by name.
+     * @param {string} name
+     * @returns {Target|null}
+     */
     getTarget(name) {
         return this.targets.get(name);
     }
 
 
-    /* Add an arrow to the scene
-
-    Parameters:
-        name (str): Name of the arrow
-        origin (Vector3): Point at which the arrow starts
-        direction (Vector3): Direction from origin (must be a unit vector)
-        length (Number): Length of the arrow (default is 1)
-        color (int/str): Color of the arrow (by default: 0xffff00)
-        shading (bool): Indicates if the arrow must be affected by lights (by default: false)
-        headLength (Number): The length of the head of the arrow (default is 0.2 * length)
-        headWidth (Number): The width of the head of the arrow (default is 0.2 * headLength)
-        radius (Number): The radius of the line part of the arrow (default is 0.1 * headWidth)
-    */
+    /**
+     * Add a directional arrow helper to the scene.
+     * @param {string} name
+     * @param {THREE.Vector3|Array<number>} origin
+     * @param {THREE.Vector3|Array<number>} direction - should be normalized
+     * @param {number} [length=1]
+     * @param {number|string} [color=0xffff00]
+     * @param {boolean} [shading=false]
+     * @param {number} [headLength=length*0.2]
+     * @param {number} [headWidth=headLength*0.2]
+     * @param {number} [radius=headWidth*0.1]
+     * @returns {Arrow}
+     */
     addArrow(name, origin, direction, length=1, color=0xffff00, shading=false, headLength=length * 0.2,
              headWidth=headLength * 0.2, radius=headWidth*0.1
     ) {
@@ -8695,34 +10430,34 @@ class Viewer3D {
     }
 
 
-    /* Remove an arrow from the scene.
-
-    Parameters:
-        name (str): Name of the arrow
-    */
+    /**
+     * Remove an arrow helper by name.
+     * @param {string} name
+     * @returns {void}
+     */
     removeArrow(name) {
         this.arrows.destroy(name);
     }
 
 
-    /* Returns an arrow from the scene.
-
-    Parameters:
-        name (str): Name of the arrow
-    */
+    /**
+     * Get an arrow helper by name.
+     * @param {string} name
+     * @returns {Arrow|null}
+     */
     getArrow(name) {
         return this.arrows.get(name);
     }
 
 
-    /* Add axes to the scene
-
-    Parameters:
-        name (str): Name of the axes
-        position (Vector3): Position of the axes (default is [0, 0, 0])
-        orientation (Quaternion): The orientation of the axes (default is [1, 0, 0, 0])
-        length (Number): The length of the axis (default is 0.01)
-    */
+    /**
+     * Add a small axes helper at a location.
+     * @param {string} name
+     * @param {THREE.Vector3|Array<number>|null} [position=null]
+     * @param {THREE.Quaternion|Array<number>|null} [orientation=null]
+     * @param {number} [length=0.1]
+     * @returns {Axes}
+     */
     addAxes(name, position=null, orientation=null, length=0.1) {
         const axes = new Axes(name, position, orientation, length);
 
@@ -8735,37 +10470,37 @@ class Viewer3D {
     }
 
 
-    /* Remove axes from the scene.
-
-    Parameters:
-        name (str): Name of the axes
-    */
+    /**
+     * Remove axes helper by name.
+     * @param {string} name
+     * @returns {void}
+     */
     removeAxes(name) {
         this.axes.destroy(name);
     }
 
 
-    /* Returns some axes from the scene.
-
-    Parameters:
-        name (str): Name of the axes
-    */
+    /**
+     * Retrieve axes helper by name.
+     * @param {string} name
+     * @returns {Axes|null}
+     */
     getAxes(name) {
         return this.axes.get(name);
     }
 
 
-    /* Add a path to the scene
-
-    Parameters:
-        name (str): Name of the path
-        points (list of Vector3/list of lists of 3 numbers): Points defining the path
-        radius (Number): The radius of the path (default is 0.01)
-        color (int/str): Color of the path (by default: 0xffff00)
-        shading (bool): Indicates if the path must be affected by lights (by default: false)
-        transparent (bool): Indicates if the path must be transparent (by default: false)
-        opacity (Number): Opacity level for transparent paths (between 0 and 1, default: 0.5)
-    */
+    /**
+     * Add a polyline path to the scene.
+     * @param {string} name
+     * @param {Array<THREE.Vector3>|Array<Array<number>>} points
+     * @param {number} [radius=0.01]
+     * @param {number|string} [color=0xffff00]
+     * @param {boolean} [shading=false]
+     * @param {boolean} [transparent=false]
+     * @param {number} [opacity=0.5]
+     * @returns {Path}
+     */
     addPath(name, points, radius=0.01, color=0xffff00, shading=false, transparent=false, opacity=0.5) {
         const path = new Path(name, points, radius, color, shading, transparent, opacity);
 
@@ -8778,38 +10513,38 @@ class Viewer3D {
     }
 
 
-    /* Remove a path from the scene.
-
-    Parameters:
-        name (str): Name of the path
-    */
+    /**
+     * Remove a path by name.
+     * @param {string} name
+     * @returns {void}
+     */
     removePath(name) {
         this.paths.destroy(name);
     }
 
 
-    /* Returns a path from the scene.
-
-    Parameters:
-        name (str): Name of the path
-    */
+    /**
+     * Get a path by name.
+     * @param {string} name
+     * @returns {Path|null}
+     */
     getPath(name) {
         return this.paths.get(name);
     }
 
 
-    /* Add a point to the scene
-
-    Parameters:
-        name (str): Name of the point
-        position (Vector3): Position of the point
-        radius (Number): The radius of the point (default is 0.01)
-        color (int/str): Color of the point (by default: 0xffff00)
-        label (str): LaTeX text to display near the point (by default: null)
-        shading (bool): Indicates if the point must be affected by lights (by default: false)
-        transparent (bool): Indicates if the point must be transparent (by default: false)
-        opacity (Number): Opacity level for transparent points (between 0 and 1, default: 0.5)
-    */
+    /**
+     * Add a small point marker to the scene, optionally with a LaTeX label.
+     * @param {string} name
+     * @param {THREE.Vector3|Array<number>} position
+     * @param {number} [radius=0.01]
+     * @param {number|string} [color=0xffff00]
+     * @param {string|null} [label=null]
+     * @param {boolean} [shading=false]
+     * @param {boolean} [transparent=false]
+     * @param {number} [opacity=0.5]
+     * @returns {Point}
+     */
     addPoint(name, position, radius=0.01, color=0xffff00, label=null, shading=false, transparent=false, opacity=0.5) {
         const point = new Point(name, position, radius, color, label, shading, transparent, opacity);
 
@@ -8822,35 +10557,35 @@ class Viewer3D {
     }
 
 
-    /* Remove a point from the scene.
-
-    Parameters:
-        name (str): Name of the point
-    */
+    /**
+     * Remove a point marker by name.
+     * @param {string} name
+     * @returns {void}
+     */
     removePoint(name) {
         this.points.destroy(name);
     }
 
 
-    /* Returns a point from the scene.
-
-    Parameters:
-        name (str): Name of the point
-    */
+    /**
+     * Get a point marker by name.
+     * @param {string} name
+     * @returns {Point|null}
+     */
     getPoint(name) {
         return this.points.get(name);
     }
 
 
-    /* Add a gaussian to the scene
-
-    Parameters:
-        name (str): Name of the gaussian
-        mu (Vector3): Position of the gaussian
-        sigma (Matrix): Covariance matrix of the gaussian
-        color (int/str): Color of the gaussian (by default: 0xffff00)
-        listener (function): Function to call when the gaussian is modified using the mouse
-    */
+    /**
+     * Add a 3D Gaussian visualization to the scene.
+     * @param {string} name
+     * @param {THREE.Vector3|Array<number>} mu
+     * @param {THREE.Matrix3|THREE.Matrix4|Array<number>} sigma - covariance
+     * @param {number|string} [color=0xffff00]
+     * @param {(gaussian:Object)=>void|null} [listener=null]
+     * @returns {Gaussian}
+     */
     addGaussian(name, mu, sigma, color=0xffff00, listener=null) {
         const gaussian = new Gaussian(name, mu, sigma, color, listener);
 
@@ -8894,12 +10629,25 @@ class Viewer3D {
     }
 
 
+    /**
+     * Translate the camera target by a delta vector and update controls.
+     * @param {THREE.Vector3} delta
+     * @returns {void}
+     */
     translateCamera(delta) {
         this.cameraControl.target.add(delta);
         this.cameraControl.update();
     }
 
 
+    /**
+     * Enable the logmap overlay for a robot/target pair.
+     * @param {string|Robot} robot - robot name or instance
+     * @param {string|Target} target - target name or instance
+     * @param {string} [position='left'] - 'left' or 'right', placement of the logmap
+     * @param {Object|null} [size=null] - optional size {width,height}
+     * @returns {void}
+     */
     enableLogmap(robot, target, position='left', size=null) {
         if (typeof(robot) == "string")
             robot = this.getRobot(robot);
@@ -8911,11 +10659,20 @@ class Viewer3D {
     }
 
 
+    /**
+     * Disable any active logmap overlay.
+     * @returns {void}
+     */
     disableLogmap() {
         this.logmap = null;
     }
 
 
+    /**
+     * Stop the viewer render loop and wait until it has fully stopped.
+     * When using external_loop=true this is a no-op and returns immediately.
+     * @returns {Promise<void>} resolves once the loop has stopped
+     */
     async stop() {
         if (this.parameters.get('external_loop'))
             return;
@@ -8948,30 +10705,11 @@ class Viewer3D {
 
         const defaults = new Map([
             ['joint_position_colors', []],
-            ['joint_position_layer', null],
             ['shadows', true],
             ['show_joint_positions', false],
             ['show_axes', false],
             ['statistics', false],
             ['external_loop', false],
-        ]);
-
-        return new Map([...defaults, ...parameters]);
-    }
-
-
-    _checkRobotParameters(parameters) {
-        if (parameters == null)
-            parameters = new Map();
-        else if (!(parameters instanceof Map))
-            parameters = new Map(Object.entries(parameters));
-
-        const defaults = new Map([
-            ['use_toon_shader', false],
-            ['use_light_toon_shader', false],
-            ['hue', null],
-            ['color', null],
-            ['controlsEnabled', true],
         ]);
 
         return new Map([...defaults, ...parameters]);
@@ -9129,7 +10867,11 @@ class Viewer3D {
         }
     }
 
-
+    /**
+     * Render a frame. This is the main loop entry point and is called repeatedly
+     * when 'external_loop' is false.
+     * @returns {void}
+     */
     render() {
         // Retrieve the time elapsed since the last frame
         const startTime = this.clock.startTime;
@@ -9160,6 +10902,18 @@ class Viewer3D {
 
         // Update the tween variables
         TWEEN.update();
+
+
+        for (const name in this.robots) {
+            const robot = this.robots[name];
+
+            for (let i = 0; i < robot.tools.length; ++i) {
+                const tool = robot.tools[i];
+
+                if (robot.configuration.tools[i].type == 'gripper')
+                    this.physicsSimulator.setControl(tool.ctrl, tool.actuators);
+            }
+        }
 
 
         if (this.renderingCallback != null)
@@ -9722,19 +11476,29 @@ function initViewer3D() {
     globalThis.OutlinePass = OutlinePass;
     globalThis.LayerRenderPass = LayerRenderPass;
     globalThis.RobotBuilder = RobotBuilder;
+    globalThis.SceneBuilder = SceneBuilder;
+    globalThis.Robots = Robots;
+    globalThis.Tools = Tools;
     globalThis.readFile = readFile;
     globalThis.writeFile = writeFile;
 
     globalThis.configs = {
         RobotConfiguration: RobotConfiguration,
+        ToolConfiguration: ToolConfiguration,
+        GripperConfiguration: GripperConfiguration,
         Panda: PandaConfiguration,
-        PandaNoHand: PandaNoHandConfiguration,
+        FrankaHand: FrankaHandConfiguration,
+        Robotiq2F85: Robotiq2F85Configuration,
+        RobotiqHandE: RobotiqHandEConfiguration,
         G1: G1Configuration,
-        G1UpperBody: G1UpperBodyConfiguration,
-        G1WithHands: G1WithHandsConfiguration,
-        G1WithHandsUpperBody: G1WithHandsUpperBodyConfiguration,
+        G1FixedLegs: G1FixedLegsConfiguration,
+        InspireRightRH56DFXConfiguration: InspireRightRH56DFXConfiguration,
+        InspireLeftRH56DFXConfiguration: InspireLeftRH56DFXConfiguration,
+        UnitreeRightHand: UnitreeRightHandConfiguration,
+        UnitreeLeftHand: UnitreeLeftHandConfiguration,
+        UnitreeRightDex31: UnitreeRightDex31Configuration,
+        UnitreeLeftDex31: UnitreeLeftDex31Configuration,
         UR5: UR5Configuration,
-        UR5WithGripper: UR5WithGripperConfiguration,
     };
 
     globalThis.gaussians = {
@@ -9783,4 +11547,4 @@ cssFiles.forEach(css => {
     document.getElementsByTagName('HEAD')[0].appendChild(link);
 });
 
-export { G1Configuration, G1UpperBodyConfiguration, G1WithHandsConfiguration, G1WithHandsUpperBodyConfiguration, LayerRenderPass, Layers, OutlinePass, PandaConfiguration, PandaNoHandConfiguration, Passes, RobotBuilder, RobotConfiguration, Shapes, UR5Configuration, UR5WithGripperConfiguration, Viewer3D, downloadFiles, downloadG1Robot, downloadPandaRobot, downloadScene, downloadUR5Robot, getURL, initPyScript, initViewer3D, matrixFromSigma, readFile, sigmaFromMatrix3, sigmaFromMatrix4, sigmaFromQuaternionAndScale, writeFile };
+export { FrankaHandConfiguration, G1Configuration, G1FixedLegsConfiguration, GripperConfiguration, InspireLeftRH56DFXConfiguration, InspireRightRH56DFXConfiguration, LayerRenderPass, Layers, OutlinePass, PandaConfiguration, Passes, RobotBuilder, RobotConfiguration, Robotiq2F85Configuration, RobotiqHandEConfiguration, Robots, SceneBuilder, Shapes, ToolConfiguration, Tools, UR5Configuration, UnitreeLeftDex31Configuration, UnitreeLeftHandConfiguration, UnitreeRightDex31Configuration, UnitreeRightHandConfiguration, Viewer3D, downloadFile, downloadFiles, downloadRobot, downloadScene, downloadTool, getURL, initPyScript, initViewer3D, matrixFromSigma, readFile, sigmaFromMatrix3, sigmaFromMatrix4, sigmaFromQuaternionAndScale, writeFile };

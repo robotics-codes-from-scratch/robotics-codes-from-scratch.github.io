@@ -94,6 +94,12 @@
                         <li>
                             <code class="inline_code">logmap_S3(mu,f)</code>: same as  <code class="inline_code">logmap(mu,f)</code>, but it only computes the orientation residual.
                         </li>
+                        <li>
+                            <code class="inline_code">print(message)</code>: prints the specified message in the bottom-left panel
+                        </li>
+                        <li>
+                            <code class="inline_code">clear()</code>: clear the content of the bottom-left panel
+                        </li>
                     </ul>
 
                     <h6>Global variables</h6>
@@ -144,7 +150,7 @@
 
 
 <script id="page_code" type="python">
-    from viewer3d import Viewer3D, configs
+    from viewer3d import Viewer3D, SceneBuilder, Robots, Tools
     from js import document
     from rcfs import configure, getScript, displayError, executePythonCode
 
@@ -189,9 +195,22 @@
         }
     )
 
+    # Setup the scene
+    builder = SceneBuilder('/scenes/empty.xml')
+    builder.camera.azimuth = 150
+    builder.camera.elevation = -20
+
+    builder.addRobot(
+        'panda', Robots.Panda,
+        [0.5, 0.5, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+        Tools.FrankaHand
+    )
+
     # Load the scene and retrieve the robot
-    viewer3D.loadScene('/scenes/ergodic_control.xml')
-    robot = viewer3D.createRobot('panda', configs.Panda.new())
+    viewer3D.loadScene(builder)
+    viewer3D.translateCamera([0.8, 0.2, 0.3])
+    robot = viewer3D.getRobot('panda')
 
     # Disable all robot controls (since the robot is controlled by our code)
     viewer3D.jointsManipulationEnabled = False

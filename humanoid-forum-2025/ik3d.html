@@ -28,7 +28,7 @@
 
 
 <script id="ik3d_page_code" type="python">
-    from viewer3d import Viewer3D, configs, logmap_S3, logmap, q2R, Shapes
+    from viewer3d import Viewer3D, logmap_S3, logmap, q2R, Shapes, Robots, Tools, SceneBuilder
     from js import document
     from rcfs import configure, displayError, setAspectRatio
     import numpy as np
@@ -63,11 +63,19 @@
 
     viewer3D.setRenderingCallback(ikUpdate, 0.01)
 
-    # Load the scene and retrieve the robot
-    viewer3D.loadScene('/scenes/panda.xml')
-    viewer3D.translateCamera([0.0, 0.0, 0.3])
+    # Setup the scene
+    builder = SceneBuilder('/scenes/empty.xml')
+    builder.addRobot(
+        'panda', Robots.Panda,
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+        Tools.FrankaHand
+    )
 
-    robot = viewer3D.createRobot('panda', configs.Panda.new())
+    # Load the scene and retrieve the robot
+    viewer3D.loadScene(builder)
+    viewer3D.translateCamera([0.0, 0.0, 0.3])
+    robot = viewer3D.getRobot('panda')
 
     # Disable the manipulation of the joints
     viewer3D.jointsManipulationEnabled = False
@@ -78,8 +86,6 @@
 
     # Enable the logmap
     viewer3D.enableLogmap(robot, target, position='left', size=element.clientWidth * 0.15)
-
-    viewer3D.physicsSimulatorPaused = False
 
 
     # Placeholder for the function to implement

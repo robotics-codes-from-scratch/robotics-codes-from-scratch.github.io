@@ -41,7 +41,16 @@ SPDX-License-Identifier: MIT
 
     <!-- Create the Viewer3D from JavaScript -->
     <script type="module">
-        import { Viewer3D, Shapes, downloadScene, downloadPandaRobot, PandaConfiguration } from '../../viewer3d/viewer3d.js';
+        import {
+            Viewer3D,
+            downloadScene,
+            downloadRobot,
+            downloadTool,
+            SceneBuilder,
+            Robots,
+            Tools
+        } from '../../viewer3d/viewer3d.js';
+        
         import * as THREE from 'three';
 
         // This function will be called once per frame
@@ -57,19 +66,64 @@ SPDX-License-Identifier: MIT
             }            
 
             greencube.rotateZ(Math.PI / 2.0 * delta);
+            cyancube.quaternion.set(0, 0, Math.sin(time / 2), Math.cos(time / 2));
         }
 
         // Download the assets
-        await downloadPandaRobot();
-        await downloadScene('../scenes/panda_shelf.xml');
+        await downloadRobot(Robots.Panda);
+        await downloadTool(Tools.FrankaHand);
+        await downloadScene('../scenes/empty.xml');
+        await downloadScene('../scenes/parts/shelf.xml', '/scenes/parts/');
+        await downloadScene('../scenes/parts/targetbox.xml', '/scenes/parts/');
 
         // Create the Viewer3D
         const viewer3D = new Viewer3D(document.getElementById('viewer3d'));
         viewer3D.setRenderingCallback(update);
 
-        // Load the scene and retrieve the robot
-        viewer3D.loadScene('/scenes/panda_shelf.xml');
-        const robot = viewer3D.createRobot('panda', new PandaConfiguration());
+        // Setup the scene
+        const builder = new SceneBuilder('/scenes/empty.xml');
+
+        builder.addRobot(
+            'panda', Robots.Panda,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            Tools.FrankaHand
+        );
+
+        builder.addPart(
+            'shelf', '/scenes/parts/shelf.xml',
+            [0.0, 0.5, 0.0],
+            [0.0, 0.0, 0.0, 1.0]
+        );
+
+        builder.addPart(
+            'targetbox', '/scenes/parts/targetbox.xml',
+            [0.0, -0.5, 0.0],
+            [0.0, 0.0, 0.0, 1.0]
+        );
+
+        const cubes = [
+            [ 'redcube',    [0.15, 0.6, 0.42],  [1, 0, 0, 1] ],
+            [ 'greencube',  [0.0, 0.6, 0.42],   [0, 1, 0, 1] ],
+            [ 'bluecube',   [-0.15, 0.6, 0.42], [0, 0, 1, 1] ],
+            [ 'yellowcube', [0.15, 0.4 ,0.32],  [1, 1, 0, 1] ],
+            [ 'cyancube',   [0.0, 0.4, 0.32],   [0, 1, 1, 1] ],
+            [ 'pinkcube',   [-0.15, 0.4, 0.32], [1, 0, 1, 1] ],
+        ];
+
+        for (let infos of cubes) {
+            builder.addBox(
+                infos[0],
+                infos[1],
+                [0.0, 0.0, 0.0, 1.0],
+                [0.02, 0.02, 0.02],
+                infos[2],
+                0.01
+            );
+        }
+
+        // Load the scene
+        viewer3D.loadScene(builder);
 
         // Retrieve the cubes (and add axes to them)
         function getCube(name) {
@@ -81,15 +135,10 @@ SPDX-License-Identifier: MIT
         const redcube = getCube('redcube');
         const greencube = getCube('greencube');
         const bluecube = getCube('bluecube');
-        const yellowcube = getCube('yellowcube');
         const cyancube = getCube('cyancube');
-        const pinkcube = getCube('pinkcube');
 
         redcube.nextActionTime = 1.0;
         bluecube.nextActionTime = 1.0;
-
-        // Start the physics simulation
-        viewer3D.physicsSimulator.paused = false;
     </script>
 </body>
 </html>

@@ -135,7 +135,7 @@ def control(x, dt, time):
 
 
 <script id="humanoid3d_3_page_code" type="python">
-    from viewer3d import Viewer3D, configs, logmap_S3, logmap, readFile, writeFile
+    from viewer3d import Viewer3D, logmap_S3, logmap, Robots, Tools, SceneBuilder
     from js import document, three
     from rcfs import configure, displayError, setAspectRatio
     import numpy as np
@@ -230,10 +230,26 @@ def control(x, dt, time):
         }
     )
 
-    viewer3D.loadScene('/scenes/humanoid3d_3.xml')
+    # Setup the scene
+    builder = SceneBuilder('/scenes/humanoid3d_3.xml')
+    builder.camera.azimuth = 120
+    builder.camera.elevation = -20
+
+    builder.addRobot(
+        'robot', Robots.G1_FixedLegs,
+        [0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 1.0],
+        [
+            Tools.UnitreeRightDex3_1,
+            Tools.UnitreeLeftDex3_1,
+        ]
+    )
+
+    # Load the scene and retrieve the robot
+    viewer3D.loadScene(builder)
     viewer3D.translateCamera([0.0, 0.0, 0.3])
-    
-    robot = viewer3D.createRobot('g1', configs.G1WithHandsUpperBody.new())
+
+    robot = viewer3D.getRobot('robot')
     chain = robot.getKinematicChainForTool(0)
 
     viewer3D.controlsEnabled = False
