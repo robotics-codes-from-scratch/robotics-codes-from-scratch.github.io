@@ -435,6 +435,86 @@
         ]
     },
     {
+        "id": "geometric_algebra",
+        "title": "Geometric Algebra",
+        "requirements": [
+            "pyscript",
+            "pygafro"
+        ],
+        "entries": [
+            {
+                "title": "Multivectors",
+                "hash": "multivectors",
+                "page": "multivectors.html"
+            },
+            {
+                "title": "Geometric primitives",
+                "hash": "geometric_primitives",
+                "page": "geometric_primitives.html"
+            },
+            {
+                "title": "Kinematics and Dynamics",
+                "hash": "kinematics_and_dynamics",
+                "page": "kinematics_and_dynamics.html"
+            },
+            {
+                "title": "Versors: log & exp",
+                "hash": "versors_log_exp_map",
+                "page": "versors_log_exp_map.html"
+            },
+            {
+                "title": "Versors: Transforming geometric primitives",
+                "hash": "versors_transforming_geometric_primitives",
+                "page": "versors_transforming_geometric_primitives.html"
+            },
+            {
+                "title": "Inverse kinematics: Motor",
+                "hash": "inverse_kinematics_motor",
+                "page": "inverse_kinematics_motor.html"
+            },
+            {
+                "title": "Inverse kinematics: Point to Point",
+                "hash": "inverse_kinematics_point_point",
+                "page": "inverse_kinematics_point_point.html"
+            },
+            {
+                "title": "Inverse kinematics: Point to Line",
+                "hash": "inverse_kinematics_point_line",
+                "page": "inverse_kinematics_point_line.html"
+            },
+            {
+                "title": "Inverse kinematics: Point to Circle",
+                "hash": "inverse_kinematics_point_circle",
+                "page": "inverse_kinematics_point_circle.html"
+            },
+            {
+                "title": "Inverse kinematics: Point to Sphere",
+                "hash": "inverse_kinematics_point_sphere",
+                "page": "inverse_kinematics_point_sphere.html"
+            },
+            {
+                "title": "Inverse kinematics: Point to Plane",
+                "hash": "inverse_kinematics_point_plane",
+                "page": "inverse_kinematics_point_plane.html"
+            },
+            {
+                "title": "Inverse kinematics: Point to PointPair",
+                "hash": "inverse_kinematics_point_pointpair",
+                "page": "inverse_kinematics_point_pointpair.html"
+            },
+            {
+                "title": "Inverse kinematics: Line to Point",
+                "hash": "inverse_kinematics_line_point",
+                "page": "inverse_kinematics_line_point.html"
+            },
+            {
+                "title": "Inverse kinematics: Line to Line",
+                "hash": "inverse_kinematics_line_line",
+                "page": "inverse_kinematics_line_line.html"
+            }
+        ]
+    },
+    {
         "id": "slides",
         "title": "Slides",
         "visibility": "rli",
@@ -461,10 +541,6 @@
             {
                 "title": "Viewer3D (Python)",
                 "url": "viewer3d_examples/py"
-            },
-            {
-                "title": "pygafro",
-                "url": "pygafro_examples"
             }
         ]
     },

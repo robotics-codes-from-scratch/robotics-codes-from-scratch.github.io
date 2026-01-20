@@ -1,0 +1,60 @@
+<div class='row'>
+    <div class='col-sm-1'></div>
+
+    <div class='col-sm-7'>
+        <h3>Geometric primitives</h3>
+        <editor id="editor" src="user_code"></editor>
+    </div>
+
+    <div class='col-sm-4' style="padding-top: 90px;">
+        <pre id="errors" class="py-error"></pre>
+        <div id="output" class="py-output"></div>
+    </div>
+</div>
+
+
+<script id="user_code" type="python">
+    from pygafro import Multivector
+    from pygafro import Point
+    from pygafro import Line
+    from pygafro import Plane
+
+
+    # Create different geometric primitives
+    p0 = Point()
+    p1 = Point(1.0, 0.0, 0.0)
+    p2 = Point(0.0, 1.0, 0.0)
+    p3 = Point(0.0, 0.0, 1.0)
+
+    ei = Multivector.create(['ei'], 1.0)
+
+    line = Line(p0, p1)
+    line_alternative = p0 ^ p1 ^ ei  # equivalent to line, but explicitly using the outer product (^)
+
+    plane = Plane(p1, p2, p3)
+    plane_alternative = p1 ^ p2 ^ p3 ^ ei # equivalent to plane
+
+    # Print the values
+    print(f"p0 = {p0}")
+    print(f"p1 = {p1}")
+    print(f"p2 = {p2}")
+    print(f"p3 = {p3}")
+
+    print("------")
+    print(f"line = {line}")
+    print(f"line_alternative = {line_alternative}")
+
+    print("------")
+    print(f"plane = {plane}")
+    print(f"plane_alternative = {plane_alternative}")
+</script>
+
+
+<script id="page_code" type="python">
+    from rcfs import configure
+
+    configure({
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

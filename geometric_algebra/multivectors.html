@@ -1,0 +1,71 @@
+<div class='row'>
+    <div class='col-sm-1'></div>
+
+    <div class='col-sm-7'>
+        <h3>Multivectors</h3>
+        <editor id="editor" src="user_code"></editor>
+    </div>
+
+    <div class='col-sm-4' style="padding-top: 90px;">
+        <pre id="errors" class="py-error"></pre>
+        <div id="output" class="py-output"></div>
+    </div>
+</div>
+
+
+<script id="user_code" type="python">
+    from pygafro import Multivector
+    from pygafro import blades
+    from pygafro import Twist
+    from pygafro import E0123i, E0
+
+    # Create a multivector that corresponds to the scalar part of the algebra
+    scalar = Multivector.create(['scalar'], 2.0)
+
+    # Create a multivector that corresponds to a Euclidean vector
+    vector = Multivector.create(['e1', 'e2', 'e3'], [1.0, 2.0, 3.0])
+
+    # Note: this is equivalent to:
+    #vector = Multivector.create([blades.e1, blades.e2, blades.e3], [1.0, 2.0, 3.0])
+
+    # Expressions are immediately evaluated in Python (not the case in C++)
+    geometric_product = scalar * vector
+    sum = scalar + vector
+
+    print(f'scalar = {scalar}')
+    print(f'vector = {vector}')
+
+    print('--------')
+
+    print(f'geometric product: scalar * vector = {geometric_product}')
+    print(f'outer product: scalar ^ vector = {scalar ^ vector}')
+    print(f'inner product: scalar | vector = {scalar | vector}')
+    print(f'sum: scalar + vector = {sum}')
+
+    print('--------')
+
+    # Access individual blade values
+    e1 = vector['e1']   # equivalent to vector[blades.e1]
+    vector['e1'] = 4.0
+
+    print(f'modified vector = {vector}')
+
+    print('--------')
+
+    # Other examples
+    twist = Twist.Random()
+
+    print(f'twist = {twist}')
+    print(f'E0123i(1.0) * E0(1.0) = {E0123i(1.0) * E0(1.0)}')
+    print(f'twist | (E0123i(1.0) * E0(1.0)) = {twist | (E0123i(1.0) * E0(1.0))}')
+</script>
+
+
+<script id="page_code" type="python">
+    from rcfs import configure
+
+    configure({
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<mujoco model="shelf">
+    <asset>
+        <material name="shelf" rgba="0.51 0.4 0.17 1"/>
+    </asset>
+
+    <worldbody>
+        <body name="root">
+            <body pos="0 0.0 0.15">
+                <geom size="0.2 0.2 0.15" type="box" material="shelf"/>
+            </body>
+            <body pos="0 0.1 0.35">
+                <geom size="0.2 0.1 0.05" type="box" material="shelf"/>
+            </body>
+        </body>
+    </worldbody>
+</mujoco>

@@ -1,0 +1,187 @@
+<!--
+SPDX-FileCopyrightText: 2023 Idiap Research Institute <contact@idiap.ch>
+
+SPDX-FileContributor: Philip Abbet <philip.abbet@idiap.ch>
+
+SPDX-License-Identifier: MIT
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Humanoid example (JavaScript version)</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+</head>
+
+
+<body style="font-family: MONOSPACE;">
+    <h2>Robots example (JavaScript version)</h2>
+
+    <p>This example allows to use all the supported robots and tools (including in combinations not
+        possible in real life).</p>
+
+    <label for="robot">Robot:</label>
+
+    <select id="robot" style="margin-bottom: 20px;">
+      <option value="Panda">Panda</option>
+      <option value="G1">G1</option>
+      <option value="G1_FixedLegs">G1 (fixed legs)</option>
+      <option value="UR5">UR5</option>
+    </select>
+
+    <label for="tool1" style="margin-left: 20px;">Tool #1:</label>
+
+    <select id="tool1" style="margin-bottom: 20px;">
+      <option value="-">-</option>
+      <option value="FrankaHand">Franka Hand</option>
+      <option value="InspireRightRH56DFX">Inspire RH56DFX</option>
+      <option value="Robotiq_2F85">Robotiq 2F85</option>
+      <option value="RobotiqHandE">Robotiq Hand-E</option>
+      <option value="UnitreeRightHand">Unitree hand</option>
+      <option value="UnitreeRightDex3_1">Unitree Dex3-1</option>
+    </select>
+
+    <label for="tool2" style="margin-left: 20px;">Tool #2:</label>
+
+    <select id="tool2" style="margin-bottom: 20px;">
+      <option value="-">-</option>
+      <option value="FrankaHand">Franka Hand</option>
+      <option value="InspireLeftRH56DFX">Inspire RH56DFX</option>
+      <option value="Robotiq_2F85">Robotiq 2F85</option>
+      <option value="RobotiqHandE">Robotiq Hand-E</option>
+      <option value="UnitreeLeftHand">Unitree hand</option>
+      <option value="UnitreeLeftDex3_1">Unitree Dex3-1</option>
+    </select>
+
+    <div id="viewer3d" style="height: 700px"></div>
+
+
+    <!-- Import all the necessary JavaScript dependency modules
+    Sadly, can't be imported from an external file for the moment, this is not supported by Chrome
+    -->
+    <script src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+                "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+                "mujoco": "../../viewer3d/jsm/mujoco_wasm.js",
+                "katex": "https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.mjs",
+                "mathjs": "https://cdn.jsdelivr.net/npm/mathjs@14.1.0/+esm"
+            }
+        }
+    </script>
+
+
+    <!-- Create the Viewer3D from JavaScript -->
+    <script type="module">
+        import { Viewer3D, downloadScene, downloadRobot, downloadTool, SceneBuilder, Robots, Tools } from '../../viewer3d/viewer3d.js';
+        import * as THREE from 'three';
+
+        const robotSelector = document.getElementById('robot');
+        const tool1Selector = document.getElementById('tool1');
+        const tool2Selector = document.getElementById('tool2');
+
+        // Function to load the robot selected by the user
+        function onRobotSelected() {
+            const defaultTools = {
+                'Panda': ['FrankaHand'],
+                'G1': ['UnitreeRightDex3_1', 'UnitreeLeftDex3_1'],
+                'G1_FixedLegs': ['UnitreeRightDex3_1', 'UnitreeLeftDex3_1'],
+                'UR5': ['RobotiqHandE'],
+            };
+
+            tool1Selector.removeEventListener('change', onTool1Selected);
+            tool2Selector.removeEventListener('change', onTool2Selected);
+
+            const toolsConfiguration = defaultTools[robotSelector.value];
+            tool1Selector.value = toolsConfiguration[0];
+
+            if (toolsConfiguration.length == 1) {
+                tool2Selector.disabled = true;
+                tool2Selector.value = '-';
+            } else {
+                tool2Selector.disabled = false;
+                tool2Selector.value = toolsConfiguration[1];
+            }
+
+            loadScene(robotSelector.value, defaultTools[robotSelector.value]);
+
+            tool1Selector.addEventListener('change', onTool1Selected);
+            tool2Selector.addEventListener('change', onTool2Selected);
+        }
+
+        // Function to load the tool #1 selected by the user
+        function onTool1Selected() {
+            const toolsConfiguration = [];
+
+            if (tool1Selector.value != '-')
+                toolsConfiguration.push(tool1Selector.value);
+            else
+                toolsConfiguration.push(null);
+
+            if (!tool2Selector.disabled) {
+                if (tool2Selector.value != '-')
+                    toolsConfiguration.push(tool2Selector.value);
+                else
+                    toolsConfiguration.push(null);
+            }
+
+            loadScene(robotSelector.value, toolsConfiguration);
+        }
+
+        // Function to load the tool #1 selected by the user
+        function onTool2Selected() {
+            const toolsConfiguration = [null, null];
+
+            if (tool1Selector.value != '-')
+                toolsConfiguration[0] = tool1Selector.value;
+
+            if (tool2Selector.value != '-')
+                toolsConfiguration[1] = tool2Selector.value;
+
+            loadScene(robotSelector.value, toolsConfiguration);
+        }
+
+
+        function loadScene(robot, tools) {
+            const builder = new SceneBuilder('/scenes/empty.xml');
+            builder.addRobot(
+                'robot', robot,
+                new THREE.Vector3(0.0, 0.0, 0.0),
+                new THREE.Quaternion(0.0, 0.0, 0.0, 1.0),
+                tools
+            );
+
+            viewer3D.loadScene(builder);
+        }
+
+
+        // Download the assets
+        await downloadRobot(Robots.Panda);
+        await downloadRobot(Robots.G1);
+        await downloadRobot(Robots.UR5);
+        await downloadTool(Tools.FrankaHand);
+        await downloadTool(Tools.InspireRightRH56DFX);
+        await downloadTool(Tools.InspireLeftRH56DFX);
+        await downloadTool(Tools.Robotiq_2F85);
+        await downloadTool(Tools.RobotiqHandE);
+        await downloadTool(Tools.UnitreeRightHand);
+        await downloadTool(Tools.UnitreeLeftHand);
+        await downloadTool(Tools.UnitreeRightDex3_1);
+        await downloadTool(Tools.UnitreeLeftDex3_1);
+        await downloadScene('../scenes/empty.xml');
+
+        // Create the Viewer3D
+        const viewer3D = new Viewer3D(document.getElementById('viewer3d'));
+
+        // Event handling to change the robot and tools when the user selects them
+        robotSelector.addEventListener('change', onRobotSelected);
+        tool1Selector.addEventListener('change', onTool1Selected);
+        tool2Selector.addEventListener('change', onTool2Selected);
+
+        onRobotSelected();
+    </script>
+</body>
+</html>

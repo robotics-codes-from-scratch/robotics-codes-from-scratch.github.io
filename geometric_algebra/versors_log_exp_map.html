@@ -1,0 +1,59 @@
+<div class='row'>
+    <div class='col-sm-1'></div>
+
+    <div class='col-sm-7'>
+        <h3>Versors: log & exp</h3>
+        <editor id="editor" src="user_code"></editor>
+    </div>
+
+    <div class='col-sm-4' style="padding-top: 90px;">
+        <pre id="errors" class="py-error"></pre>
+        <div id="output" class="py-output"></div>
+    </div>
+</div>
+
+
+<script id="user_code" type="python">
+    from pygafro import Motor
+    from pygafro import Rotor
+    from pygafro import RotorGenerator
+    from pygafro import Translator
+    from pygafro import TranslatorGenerator
+
+
+    motor_1 = Motor.Random()
+
+    # This is an expression for the motor logarithm
+    motor_log = motor_1.log()
+
+    # It will evaluate to a motor generator
+    motor_gen = motor_log.evaluate()
+
+    # The generator can be used to obtain a motor via the exponential
+    motor_2 = Motor.exp(motor_gen).evaluate()
+
+    # The different parts of a motor generator correspond to translation and rotation
+    rotor_gen = RotorGenerator(motor_gen.vector()[:3])
+    translator_gen = TranslatorGenerator(motor_gen.vector()[3:])
+
+    rotor = Rotor.exp(rotor_gen)
+    translator = Translator.exp(translator_gen)
+
+    motor_3 = Motor(translator * rotor)
+    motor_4 = Motor(translator, rotor)
+
+    print(motor_1)
+    print(motor_2)
+    print(motor_3)
+    print(motor_4)
+</script>
+
+
+<script id="page_code" type="python">
+    from rcfs import configure
+
+    configure({
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

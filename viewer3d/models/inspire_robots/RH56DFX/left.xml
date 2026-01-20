@@ -1,0 +1,162 @@
+<mujoco model="inspire rh56dfx left">
+    <compiler angle="radian" meshdir="assets"/>
+
+    <default>
+        <site rgba="1 0 0 1" size="0.01" group="5"/>
+
+        <default class="rh56dfx">
+            <joint armature="0.01" frictionloss="0.3"/>
+            <position kp="500" dampratio="1" inheritrange="1"/>
+
+            <default class="visual">
+                <geom group="2" type="mesh" contype="0" conaffinity="0" density="0" material="white"/>
+            </default>
+
+            <default class="collision">
+                <geom group="3" type="mesh"/>
+            </default>
+
+            <default class="collision_shape">
+                <geom group="3"/>
+            </default>
+        </default>
+    </default>
+
+    <asset>
+        <material name="white" rgba="0.7 0.7 0.7 1"/>
+        <material name="black" rgba="0.125 0.125 0.125 1"/>
+
+        <mesh file="left_hand_base.stl"/>
+        <mesh file="left_hand_base_cover.stl"/>
+        <mesh file="left_thumb_proximal_base.stl"/>
+        <mesh file="left_thumb_proximal.stl"/>
+        <mesh file="left_thumb_intermediate.stl"/>
+        <mesh file="left_thumb_distal.stl"/>
+        <mesh file="left_index_proximal.stl"/>
+        <mesh file="left_index_intermediate.stl"/>
+        <mesh file="left_middle_intermediate.stl"/>
+        <mesh file="left_pinky_intermediate.stl"/>
+
+        <mesh name="left_thumb_proximal_base_collision" file="left_thumb_proximal_base.obj"/>
+        <mesh name="left_thumb_proximal_collision" file="left_thumb_proximal.obj"/>
+        <mesh name="left_thumb_intermediate_collision" file="left_thumb_intermediate.obj"/>
+        <mesh name="left_thumb_distal_collision" file="left_thumb_distal.obj"/>
+        <mesh name="left_index_proximal_collision" file="left_index_proximal.obj"/>
+        <mesh name="left_index_intermediate_collision" file="left_index_intermediate.obj"/>
+        <mesh name="left_middle_intermediate_collision" file="left_middle_intermediate.obj"/>
+        <mesh name="left_pinky_intermediate_collision" file="left_pinky_intermediate.obj"/>
+    </asset>
+
+    <worldbody>
+        <body name="hand" quat="0 0.707 -0.707 0" childclass="rh56dfx" gravcomp="1">
+            <geom pos="0 0 0" quat="1 0 0 0" class="visual" mesh="left_hand_base" mass="0.14143"/>
+            <geom pos="0 0 0" quat="1 0 0 0" class="visual" mesh="left_hand_base_cover" material="black"/>
+            <geom pos="0 0 -0.0136" quat="1 0 0 0" class="collision_shape" type="cylinder" size="0.028 0.0139"/>
+            <geom pos="-0.0032 0 -0.038" quat="1 0 0 0" class="collision_shape" type="box" size="0.01905 0.0287 0.0101"/>
+            <geom pos="-0.0032 0 -0.0682" quat="1 0 0 0" class="collision_shape" type="box" size="0.01905 0.0407 0.02"/>
+            <geom pos="0 0 -0.1081" quat="1 0 0 0" class="collision_shape" type="box" size="0.0161 0.0407 0.02"/>
+            <geom pos="-0.0016 0.0309 -0.1340" quat="1 0 0 0" class="collision_shape" type="box" size="0.00625 0.00445 0.00555"/>
+            <geom pos="-0.0016 0.0118 -0.1340" quat="1 0 0 0" class="collision_shape" type="box" size="0.00625 0.00445 0.00555"/>
+            <geom pos="-0.0016 -0.007 -0.1340" quat="1 0 0 0" class="collision_shape" type="box" size="0.00625 0.00445 0.00555"/>
+            <geom pos="-0.0016 -0.0262 -0.1340" quat="1 0 0 0" class="collision_shape" type="box" size="0.00625 0.00445 0.00555"/>
+
+            <site name="tcp" pos="-0.03 -0.001 -0.12" quat="0 0.707 0 -0.707"/>
+
+            <body name="thumb_proximal_base" pos="-0.01696 -0.02045 -0.0691" quat="1 0 0 0" gravcomp="1">
+                <joint name="thumb_proximal_yaw_joint" axis="0 0 -1" range="0 1.308" actuatorfrcrange="-2.6 2.6"/>
+                <geom class="visual" mesh="left_thumb_proximal_base" quat=".5 .5 -.5 -.5" mass="0.0018869"/>
+                <geom class="collision" mesh="left_thumb_proximal_base_collision" quat="0 1 -1 0"/>
+
+                <body name="thumb_proximal" pos="-0.0088099 -0.009251 0.009251" quat="0.095 -0.701 0.095 0.701" gravcomp="1">
+                    <joint name="thumb_proximal_pitch_joint" axis="0 0 -1" range="0 0.6" actuatorfrcrange="-1.2 1.2"/>
+                    <geom class="visual" mesh="left_thumb_proximal" material="black" pos="0 0 0.003" quat="-0.5 0.5 0.5 -0.5" mass="0.0066075"/>
+                    <geom class="collision" mesh="left_thumb_proximal_collision" pos="0 0 0.003" quat="0.707 0 0 0.707"/>
+
+                    <body name="thumb_intermediate" pos="0.0348 0.0438 0" quat="1 0 0 0" gravcomp="1">
+                        <joint name="thumb_intermediate_joint" axis="0 0 -1" range="0 0.8" actuatorfrcrange="-1.6 1.6"/>
+                        <geom class="visual" mesh="left_thumb_intermediate" pos="0 0 0.0015" quat="-0.5 0.5 0.5 -0.5" mass="0.0037847"/>
+                        <geom class="collision" mesh="left_thumb_intermediate_collision" pos="0 0 0.0015" quat="0.707 0 0 0.707"/>
+
+                        <body name="thumb_distal" pos="0.010156 0.020248 0" quat="1 0 0 0" gravcomp="1">
+                            <joint name="thumb_distal_joint" axis="0 0 -1" range="0 0.4" actuatorfrcrange="-0.8 0.8"/>
+                            <geom class="visual" mesh="left_thumb_distal" material="black" pos="0 0 0" quat="-0.5 0.5 0.5 -0.5" mass="0.0033441"/>
+                            <geom class="collision" mesh="left_thumb_distal_collision" pos="0 0 0" quat="0.707 0 0 0.707"/>
+                        </body>
+                    </body>
+                </body>
+            </body>
+
+            <body name="index_proximal" pos="0.00028 -0.032268 -0.13653" quat="0.719 0.695 0 0" gravcomp="1">
+                <joint name="index_proximal_joint" axis="0 0 -1" range="0 1.47" actuatorfrcrange="-3 3"/>
+                <geom class="visual" mesh="left_index_proximal" quat="0.707 -0.707 0 0" mass="0.0042403"/>
+                <geom class="collision" mesh="left_index_proximal_collision" pos="0 0 0" quat="1 0 0 0"/>
+
+                <body name="index_intermediate" pos="-0.0026138 -0.032026 -0.0006" quat="1 0 0 0" gravcomp="1">
+                    <joint name="index_intermediate_joint" axis="0 0 -1" range="-0.04545 1.56" actuatorfrcrange="-3.2 3.2"/>
+                    <geom class="visual" mesh="left_index_intermediate" material="black" quat="0.707 -0.707 0 0" mass="0.0045683"/>
+                    <geom class="collision" mesh="left_index_intermediate_collision" pos="0 0 -0.0003" quat="1 0 0 0"/>
+                </body>
+            </body>
+
+            <body name="middle_proximal" pos="0.00028533 -0.01295 -0.1371" quat="0.707 0.707 0 0" gravcomp="1">
+                <joint name="middle_proximal_joint" axis="0 0 -1" range="0 1.47" actuatorfrcrange="-3 3"/>
+                <geom class="visual" mesh="left_index_proximal" quat="0.707 -0.707 0 0" mass="0.0042403"/>
+                <geom class="collision" mesh="left_index_proximal_collision" pos="0 0 0" quat="1 0 0 0"/>
+
+                <body name="middle_intermediate" pos="-0.0024229 -0.032041 -0.0009" quat="1 0 0 0" gravcomp="1">
+                    <joint name="middle_intermediate_joint" axis="0 0 -1" range="-0.04545 1.56" actuatorfrcrange="-3.2 3.2"/>
+                    <geom class="visual" mesh="left_middle_intermediate" material="black" quat="0.707 -0.707 0 0" mass="0.0045683"/>
+                    <geom class="collision" mesh="left_middle_intermediate_collision" pos="0 0 -0.0003" quat="1 0 0 0"/>
+                </body>
+            </body>
+
+            <body name="ring_proximal" pos="0.00028533 0.0062872 -0.13691" quat="0.688 0.725 0 0" gravcomp="1">
+                <joint name="ring_proximal_joint" axis="0 0 -1" range="0 1.47" actuatorfrcrange="-3 3"/>
+                <geom class="visual" mesh="left_index_proximal" quat="0.707 -0.707 0 0" mass="0.0042403"/>
+                <geom class="collision" mesh="left_index_proximal_collision" pos="0 0 0" quat="1 0 0 0"/>
+
+                <body name="ring_intermediate" pos="-0.0026138 -0.032026 -0.0006" quat="1 0 0 0" gravcomp="1">
+                    <joint name="ring_intermediate_joint" axis="0 0 -1" range="-0.04545 1.56" actuatorfrcrange="-3.2 3.2"/>
+                    <geom class="visual" mesh="left_index_intermediate" material="black" quat="0.707 -0.707 0 0" mass="0.0045683"/>
+                    <geom class="collision" mesh="left_index_intermediate_collision" pos="0 0 -0.0003" quat="1 0 0 0"/>
+                </body>
+            </body>
+
+            <body name="pinky_proximal" pos="0.00028533 0.025488 -0.13571" quat="0.669 0.743 0 0" gravcomp="1">
+                <joint name="pinky_proximal_joint" axis="0 0 -1" range="0 1.47" actuatorfrcrange="-3 3"/>
+                <geom class="visual" mesh="left_index_proximal" quat="0.707 -0.707 0 0" mass="0.0042403"/>
+                <geom class="collision" mesh="left_index_proximal_collision" pos="0 0 0" quat="1 0 0 0"/>
+
+                <body name="pinky_intermediate" pos="-0.0024229 -0.032041 -0.001" quat="1 0 0 0" gravcomp="1">
+                    <joint name="pinky_intermediate_joint" axis="0 0 -1" range="-0.04545 1.56" actuatorfrcrange="-3.2 3.2"/>
+                    <geom class="visual" mesh="left_pinky_intermediate" material="black" quat="0.707 -0.707 0 0" mass="0.0035996"/>
+                    <geom class="collision" mesh="left_pinky_intermediate_collision" pos="0 0 -0.0003" quat="1 0 0 0"/>
+                </body>
+            </body>
+        </body>
+    </worldbody>
+
+    <contact>
+        <exclude body1="hand" body2="thumb_proximal_base"/>
+        <exclude body1="hand" body2="thumb_proximal"/>
+        <exclude body1="hand" body2="index_proximal"/>
+        <exclude body1="hand" body2="middle_proximal"/>
+        <exclude body1="hand" body2="ring_proximal"/>
+        <exclude body1="hand" body2="pinky_proximal"/>
+    </contact>
+
+    <actuator>
+        <position class="rh56dfx" name="thumb_proximal_yaw_joint" joint="thumb_proximal_yaw_joint"/>
+        <position class="rh56dfx" name="thumb_proximal_pitch_joint" joint="thumb_proximal_pitch_joint"/>
+        <position class="rh56dfx" name="thumb_intermediate_joint" joint="thumb_intermediate_joint"/>
+        <position class="rh56dfx" name="thumb_distal_joint" joint="thumb_distal_joint"/>
+        <position class="rh56dfx" name="index_proximal_joint" joint="index_proximal_joint"/>
+        <position class="rh56dfx" name="index_intermediate_joint" joint="index_intermediate_joint"/>
+        <position class="rh56dfx" name="middle_proximal_joint" joint="middle_proximal_joint"/>
+        <position class="rh56dfx" name="middle_intermediate_joint" joint="middle_intermediate_joint"/>
+        <position class="rh56dfx" name="ring_proximal_joint" joint="ring_proximal_joint"/>
+        <position class="rh56dfx" name="ring_intermediate_joint" joint="ring_intermediate_joint"/>
+        <position class="rh56dfx" name="pinky_proximal_joint" joint="pinky_proximal_joint"/>
+        <position class="rh56dfx" name="pinky_intermediate_joint" joint="pinky_intermediate_joint"/>
+    </actuator>
+</mujoco>

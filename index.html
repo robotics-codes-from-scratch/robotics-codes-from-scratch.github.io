@@ -20,6 +20,7 @@
   <link href="https://pyscript.net/releases/2024.8.2/core.css" rel="stylesheet"/>
   <link href="css/main-template.css" rel="stylesheet"/>
   <link href="css/workspace.css" rel="stylesheet"/>
+  <link href="css/loader.css" rel="stylesheet"/>
   <script src="js/jquery-3.6.4.min.js">
   </script>
   <script src="js/jquery-ui-1.14.1.min.js">
@@ -598,16 +599,25 @@
                         requirementsToLoad.push(requirement);
                 });
 
-                if (requirementsToLoad.length > 0)
+                if (requirementsToLoad.indexOf('pyscript') >= 0)
                 {
                     tasks.push(async () => {
                         displaySplashScreen('Initializing PyScript...');
+                        initPyScript();
+                        loadedRequirements['pyscript'] = true;
+                    });
+
+                    requirementsToLoad.splice(requirementsToLoad.indexOf('pyscript'), 1);
+                }
+
+                if (requirementsToLoad.length > 0)
+                {
+                    tasks.push(async () => {
+                        globalThis._requirementsToLoad = [];
 
                         for (let requirement of requirementsToLoad)
                         {
-                            if (requirement == 'pyscript')
-                                initPyScript();
-
+                            globalThis._requirementsToLoad.push(requirement);
                             loadedRequirements[requirement] = true;
                         }
                     });
@@ -1206,6 +1216,7 @@
         from js import _createEditors as _jsCreateEditors
         from js import _setAspectRatio as _jsSetAspectRatio
         from js import _updateOutputScrollPosition as _jsUpdateOutputScrollPosition
+        from js import _requirementsToLoad as _jsRequirementsToLoad
         import types
         import sys
         import traceback
@@ -1388,6 +1399,13 @@
         _rcfs.setAspectRatio = _jsSetAspectRatio
 
         sys.modules['rcfs'] = _rcfs
+
+        if len(_jsRequirementsToLoad) > 0:
+            import micropip
+            for requirement in _jsRequirementsToLoad:
+                if requirement == 'pygafro':
+                    url = document.location.origin + document.location.pathname + 'wasm/pygafro-1.3.0-cp312-cp312-pyodide_2024_0_wasm32.whl'
+                    await micropip.install(url)
 
         _jsCreateEditors()
         _executePythonScript('page_code')

@@ -1,0 +1,65 @@
+<div class='row'>
+    <div class='col-sm-1'></div>
+
+    <div class='col-sm-7'>
+        <h3>Kinematics and Dynamics</h3>
+        <editor id="editor" src="user_code"></editor>
+    </div>
+
+    <div class='col-sm-4' style="padding-top: 90px;">
+        <pre id="errors" class="py-error"></pre>
+        <div id="output" class="py-output"></div>
+    </div>
+</div>
+
+
+<script id="user_code" type="python">
+    from pygafro import FrankaEmikaRobot
+    import numpy as np
+
+
+    panda = FrankaEmikaRobot()
+
+    position = panda.getRandomConfiguration()
+    velocity = np.random.random((7,))
+    acceleration = np.random.random((7,))
+    torque = np.random.random((7,))
+
+    # forward kinematics: compute the motor at the end-effector
+    ee_motor = panda.getEEMotor(position)
+
+    print(f'ee_motor = {ee_motor}')
+
+    # compute jacobians
+    ee_analytic_jacobian = panda.getEEAnalyticJacobian(position)
+    ee_geometric_jacobian = panda.getEEGeometricJacobian(position)
+
+    print('------')
+    print('Analytic Jacobian:')
+    for i, v in enumerate(ee_analytic_jacobian):
+        print(f'{i}: {v}')
+
+    print('------')
+    print('Geometric Jacobian:')
+    for i, v in enumerate(ee_geometric_jacobian):
+        print(f'{i}: {v}')
+
+    # compute dynamics
+    acceleration_computed = panda.getJointAccelerations(position, velocity, torque)
+
+    torque_computed = panda.getJointTorques(position, velocity, acceleration)
+
+    print('------')
+    print(f'acceleration_computed = {acceleration_computed.transpose()}')
+    print(f'torque_computed = {torque_computed.transpose()}')
+</script>
+
+
+<script id="page_code" type="python">
+    from rcfs import configure
+
+    configure({
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

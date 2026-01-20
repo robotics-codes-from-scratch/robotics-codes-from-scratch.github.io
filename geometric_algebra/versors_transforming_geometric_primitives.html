@@ -1,0 +1,64 @@
+<div class='row'>
+    <div class='col-sm-1'></div>
+
+    <div class='col-sm-7'>
+        <h3>Versors: Transforming geometric primitives</h3>
+        <editor id="editor" src="user_code"></editor>
+    </div>
+
+    <div class='col-sm-4' style="padding-top: 90px;">
+        <pre id="errors" class="py-error"></pre>
+        <div id="output" class="py-output"></div>
+    </div>
+</div>
+
+
+<script id="user_code" type="python">
+    from pygafro import Motor
+    from pygafro import Point
+    from pygafro import Line
+    from pygafro import Plane
+
+
+    # Create a random motor to transform the geometric primitives
+    motor = Motor.Random()
+
+    point = Point.Random()
+    line = Line.Random()
+    plane = Plane.Random()
+
+    # Transform the geometric primitives
+    point_transformed = motor.apply(point)
+    line_transformed = motor.apply(line)
+    plane_transformed = motor.apply(plane)
+
+    # Explicit use of the geometric product to transform primitives using a motor
+    point_transformed_alternative = motor * point * motor.reverse()
+    line_transformed_alternative = motor * line * motor.reverse()
+    plane_transformed_alternative = motor * plane * motor.reverse()
+
+    print("Point:")
+    print(f"point = {point}")
+    print(f"point_transformed = {point_transformed}")
+    print(f"point_transformed_alternative = {point_transformed_alternative}")
+    print("------")
+    print("Line:")
+    print(f"line = {line}")
+    print(f"line_transformed = {line_transformed}")
+    print(f"line_transformed_alternative = {line_transformed_alternative}")
+    print("------")
+    print("Plane:")
+    print(f"plane = {plane}")
+    print(f"plane_transformed = {plane_transformed}")
+    print(f"plane_transformed_alternative = {plane_transformed_alternative}")
+</script>
+
+
+<script id="page_code" type="python">
+    from rcfs import configure
+
+    configure({
+        'output': 'output',
+        'errors': 'errors',
+    })
+</script>

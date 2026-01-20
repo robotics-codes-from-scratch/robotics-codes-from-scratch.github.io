@@ -1,0 +1,112 @@
+<mujoco model="unitree dex3-1 left hand">
+  <compiler angle="radian" meshdir="assets"/>
+
+  <default>
+    <site rgba="1 0 0 1" size="0.01" group="5"/>
+
+    <default class="g1">
+      <joint armature="0.01" frictionloss="0.3"/>
+      <position kp="500" dampratio="1" inheritrange="1"/>
+
+      <default class="visual">
+          <geom group="2" type="mesh" contype="0" conaffinity="0" density="0" material="metal"/>
+      </default>
+
+      <default class="collision">
+          <geom group="3" type="mesh"/>
+      </default>
+    </default>
+  </default>
+
+  <asset>
+    <material name="metal" rgba="0.7 0.7 0.7 1"/>
+
+    <mesh file="left_hand_palm_link.STL"/>
+    <mesh file="left_hand_thumb_0_link.STL"/>
+    <mesh file="left_hand_thumb_1_link.STL"/>
+    <mesh file="left_hand_thumb_2_link.STL"/>
+    <mesh file="left_hand_middle_0_link.STL"/>
+    <mesh file="left_hand_middle_1_link.STL"/>
+    <mesh file="left_hand_index_0_link.STL"/>
+    <mesh file="left_hand_index_1_link.STL"/>
+  </asset>
+
+  <worldbody>
+    <body name="hand" quat="0 -0.707 0 -0.707" childclass="g1" gravcomp="1">
+      <geom pos="0.0 0.003 0" quat="1 0 0 0" class="visual" mesh="left_hand_palm_link"/>
+      <geom pos="0.0 0.003 0" quat="1 0 0 0" class="collision" mesh="left_hand_palm_link"/>
+      <site name="tcp" pos="0.0516 -0.04 0" quat="0.707 0.707 0 0"/>
+      <body name="left_hand_thumb_0_link" pos="0.0255 0.003 0" gravcomp="1">
+        <inertial pos="-0.000884246 -0.00863407 0.000944293"
+          quat="0.462991 0.643965 -0.460173 0.398986" mass="0.0862366"
+          diaginertia="1.6546e-05 1.60058e-05 1.43741e-05"/>
+        <joint name="left_hand_thumb_0_joint" axis="0 1 0" range="-1.0472 1.0472"
+          actuatorfrcrange="-2.45 2.45"/>
+        <geom class="visual" mesh="left_hand_thumb_0_link"/>
+        <geom class="collision" mesh="left_hand_thumb_0_link"/>
+        <body name="left_hand_thumb_1_link" pos="-0.0025 -0.0193 0" gravcomp="1">
+          <inertial pos="-0.000827888 -0.0354744 -0.0003809"
+            quat="0.685598 0.705471 -0.15207 0.0956069" mass="0.0588507"
+            diaginertia="1.28514e-05 1.22902e-05 5.9666e-06"/>
+          <joint name="left_hand_thumb_1_joint" axis="0 0 1" range="-0.724312 1.0472"
+            actuatorfrcrange="-1.4 1.4"/>
+          <geom class="visual" mesh="left_hand_thumb_1_link"/>
+          <geom size="0.01 0.015 0.01" pos="-0.001 -0.032 0" type="box" class="collision"/>
+          <body name="left_hand_thumb_2_link" pos="0 -0.0458 0" gravcomp="1">
+            <inertial pos="-0.00171735 -0.0262819 0.000107789"
+              quat="0.703174 0.710977 -0.00017564 -0.00766553" mass="0.0203063"
+              diaginertia="4.61314e-06 3.86645e-06 1.53495e-06"/>
+            <joint name="left_hand_thumb_2_joint" axis="0 0 1" range="0 1.74533"
+              actuatorfrcrange="-1.4 1.4"/>
+            <geom class="visual" mesh="left_hand_thumb_2_link"/>
+            <geom class="collision" mesh="left_hand_thumb_2_link"/>
+          </body>
+        </body>
+      </body>
+      <body name="left_hand_middle_0_link" pos="0.0777 0.0046 -0.0285" gravcomp="1">
+        <inertial pos="0.0354744 0.000827888 0.0003809" quat="0.391313 0.552395 0.417187 0.606373"
+          mass="0.0588507" diaginertia="1.28514e-05 1.22902e-05 5.9666e-06"/>
+        <joint name="left_hand_middle_0_joint" axis="0 0 1" range="-1.5708 0"
+          actuatorfrcrange="-1.4 1.4"/>
+        <geom class="visual" mesh="left_hand_middle_0_link"/>
+        <geom class="collision" mesh="left_hand_middle_0_link"/>
+        <body name="left_hand_middle_1_link" pos="0.0458 0 0" gravcomp="1">
+          <inertial pos="0.0262819 0.00171735 -0.000107789"
+            quat="0.502612 0.491799 0.502639 0.502861" mass="0.0203063"
+            diaginertia="4.61314e-06 3.86645e-06 1.53495e-06"/>
+          <joint name="left_hand_middle_1_joint" axis="0 0 1" range="-1.74533 0"
+            actuatorfrcrange="-1.4 1.4"/>
+          <geom class="visual" mesh="left_hand_middle_1_link"/>
+          <geom class="collision" mesh="left_hand_middle_1_link"/>
+        </body>
+      </body>
+      <body name="left_hand_index_0_link" pos="0.0777 0.0046 0.0285" gravcomp="1">
+        <inertial pos="0.0354744 0.000827888 0.0003809" quat="0.391313 0.552395 0.417187 0.606373"
+          mass="0.0588507" diaginertia="1.28514e-05 1.22902e-05 5.9666e-06"/>
+        <joint name="left_hand_index_0_joint" axis="0 0 1" range="-1.5708 0"
+          actuatorfrcrange="-1.4 1.4"/>
+        <geom class="visual" mesh="left_hand_index_0_link"/>
+        <geom class="collision" mesh="left_hand_index_0_link"/>
+        <body name="left_hand_index_1_link" pos="0.0458 0 0" gravcomp="1">
+          <inertial pos="0.0262819 0.00171735 -0.000107789"
+            quat="0.502612 0.491799 0.502639 0.502861" mass="0.0203063"
+            diaginertia="4.61314e-06 3.86645e-06 1.53495e-06"/>
+          <joint name="left_hand_index_1_joint" axis="0 0 1" range="-1.74533 0"
+            actuatorfrcrange="-1.4 1.4"/>
+          <geom class="visual" mesh="left_hand_index_1_link"/>
+          <geom class="collision" mesh="left_hand_index_1_link"/>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <position class="g1" name="left_hand_thumb_0_joint" joint="left_hand_thumb_0_joint"/>
+    <position class="g1" name="left_hand_thumb_1_joint" joint="left_hand_thumb_1_joint"/>
+    <position class="g1" name="left_hand_thumb_2_joint" joint="left_hand_thumb_2_joint"/>
+    <position class="g1" name="left_hand_middle_0_joint" joint="left_hand_middle_0_joint"/>
+    <position class="g1" name="left_hand_middle_1_joint" joint="left_hand_middle_1_joint"/>
+    <position class="g1" name="left_hand_index_0_joint" joint="left_hand_index_0_joint"/>
+    <position class="g1" name="left_hand_index_1_joint" joint="left_hand_index_1_joint"/>
+  </actuator>
+</mujoco>

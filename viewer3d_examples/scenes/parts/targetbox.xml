@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<mujoco model="targetbox">
+    <default>
+        <default class="wall">
+            <geom type="box" material="wall"/>
+        </default>
+    </default>
+
+    <asset>
+        <material name="wall" rgba="0.74 0.66 0.39 0.6"/>
+    </asset>
+
+    <worldbody>
+        <body name="root">
+            <body pos="0.1 0.0 0.05">
+                <geom size="0.001 0.1 0.05" class="wall"/>
+            </body>
+            <body pos="-0.1 0.0 0.05">
+                <geom size="0.001 0.1 0.05" class="wall"/>
+            </body>
+            <body pos="0.0 0.1 0.05">
+                <geom size="0.1 0.001 0.05" class="wall"/>
+            </body>
+            <body pos="0.0 -0.1 0.05">
+                <geom size="0.1 0.001 0.05" class="wall"/>
+            </body>
+        </body>
+    </worldbody>
+</mujoco>
