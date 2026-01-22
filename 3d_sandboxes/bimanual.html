@@ -263,6 +263,7 @@
     viewer3D.loadScene(builder)
     viewer3D.translateCamera([0.0, 0.0, 0.3])
     robot = viewer3D.getRobot('robot')
+    x = robot.jointPositions
 
     # Disable the manipulation of the joints
     viewer3D.jointsManipulationEnabled = False

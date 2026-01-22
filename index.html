@@ -206,7 +206,6 @@
         const pages = new Map();
 
         const loadedRequirements = {
-            viewer3d: false,
             pyscript: false,
         };
 
@@ -620,6 +619,9 @@
                             globalThis._requirementsToLoad.push(requirement);
                             loadedRequirements[requirement] = true;
                         }
+
+                        if (document._loadRequirements != undefined)
+                            await document._loadRequirements(globalThis._requirementsToLoad);
                     });
                 }
             }
@@ -1056,6 +1058,7 @@
         globalThis._setAspectRatio = setAspectRatio;
         globalThis._createEditors = createEditors;
         globalThis._updateOutputScrollPosition = updateOutputScrollPosition;
+        globalThis._requirementsToLoad = [];
 
 
         function getStorageKey()
@@ -1376,6 +1379,15 @@
                 _displayError(e)
 
 
+        async def _loadRequirements(requirements):
+            if len(requirements) > 0:
+                import micropip
+                for requirement in requirements:
+                    if requirement == 'pygafro':
+                        url = document.location.origin + document.location.pathname + 'wasm/pygafro-1.3.0-cp312-cp312-pyodide_2024_0_wasm32.whl'
+                        await micropip.install(url)
+
+
         # Functions that must be accessible from JS
         document._displayError = _displayError
         document._clearOutputTargets = _clearOutputTargets
@@ -1385,6 +1397,7 @@
         document._executePythonScript = _executePythonScript
         document._executePythonCode = _executePythonCode
         document._getPythonScript = _getPythonScript
+        document._loadRequirements = _loadRequirements
 
 
         # Functions that must be accessible from Python, collected into the 'rcfs' module
@@ -1400,13 +1413,7 @@
 
         sys.modules['rcfs'] = _rcfs
 
-        if len(_jsRequirementsToLoad) > 0:
-            import micropip
-            for requirement in _jsRequirementsToLoad:
-                if requirement == 'pygafro':
-                    url = document.location.origin + document.location.pathname + 'wasm/pygafro-1.3.0-cp312-cp312-pyodide_2024_0_wasm32.whl'
-                    await micropip.install(url)
-
+        await _loadRequirements(_jsRequirementsToLoad)
         _jsCreateEditors()
         _executePythonScript('page_code')
   </script>
