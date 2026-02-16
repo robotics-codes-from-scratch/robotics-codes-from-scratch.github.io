@@ -1,0 +1,353 @@
+﻿<h3>Impedance control in joint space</h3>
+
+<div style="display: inline-block; width: 49%; height: 90%; vertical-align: top;">
+    <editor id="impedance2d_joint_editor" src="impedance2d_joint_user_code"></editor>
+
+    <pre id="impedance2d_joint_errors" class="py-error"></pre>
+    <pre id="impedance2d_joint_output" class="py-output"></pre>
+</div>
+
+<div style="display: inline-block; width: 49%; height: 90%; vertical-align: top;">
+    <canvas id="impedance2d_joint_canvas" width="900px" height="900px" style="width:100%;"></canvas>
+</div>
+
+
+<script id="impedance2d_joint_user_code" type="python">
+    # Initialization
+    # x = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Initial robot pose
+    x_target = np.array([-np.pi/4, -np.pi/2, np.pi/4]) # Target in joint space
+
+    param.damping = 20.0 # Viscous friction
+
+    # kP = 400.0 # Stiffness gain
+    # kV = 10.0 # Damping gain
+
+    KP = np.diag([4E2, 4E2, 4E2]) # Joint space stiffness matrix
+    KV = np.diag([1E1, 1E1, 1E1]) # Joint space damping matrix
+
+    # Control loop definition
+    def control(x, param):
+        # Torques for gravity compensation
+        # ug = inverse_dynamics(np.append(x[:param.nbVarX], np.zeros(param.nbVarX)), np.zeros(param.nbVarX), param) 
+        ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
+        # u = kP * (x_target - x[:param.nbVarX]) - kV * x[param.nbVarX:] + ug # Impedance controller in joint space
+        u = KP @ (x_target - x[:param.nbVarX]) - KV @ x[param.nbVarX:] + ug # Impedance controller in joint space
+        return u
+</script>
+
+
+<script id="impedance2d_joint_page_code" type="python">
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document
+    from rcfs import configure, displayError, executePythonScript
+    import numpy as np
+
+    # Logarithmic map for S^1 manifold
+    def logmap(f, f0):
+        diff = np.imag(np.log(np.exp(f0*1j).conj().T * np.exp(f*1j).T)).conj() # Orientation residual
+        return diff
+
+    # Forward kinematics for end-effector (in robot coordinate system)
+    def fkin(x, param):
+        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+        f = np.stack([
+            param.l @ np.cos(L @ x),
+            param.l @ np.sin(L @ x),
+            np.mod(np.sum(x,0)+np.pi, 2*np.pi) - np.pi
+        ])
+        return f
+
+    # Forward kinematics for all joints (in robot coordinate system)
+    def fkin0(x, param):
+        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+        f = np.vstack([
+            L @ np.diag(param.l) @ np.cos(L @ x),
+            L @ np.diag(param.l) @ np.sin(L @ x)
+        ])
+        f = np.hstack([np.zeros([2,1]), f])
+        return f
+
+    # Jacobian with analytical computation (for single time step)
+    def Jkin(x, param):
+        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+        J = np.vstack([
+            -np.sin(L @ x).T @ np.diag(param.l) @ L,
+             np.cos(L @ x).T @ np.diag(param.l) @ L,
+             np.ones([1,param.nbVarX])
+        ])
+        return J
+
+    def computeGCML(x, param):
+        # Auxiliary matrices
+        l = np.reshape(param.l/param.drawScale, [1, param.nbVarX])
+        L = np.tril(np.ones([param.nbVarX, param.nbVarX]))
+        m = np.reshape(param.m, [1, param.nbVarX])
+        Lm = np.triu(np.ones([m.shape[1], m.shape[1]])) * np.repeat(m, m.shape[1],0)
+
+    #   # Elementwise computation of G, C, and M
+    #    G = np.zeros(param.nbVarX)
+    #    M = np.zeros([param.nbVarX, param.nbVarX])
+    #    C =  np.zeros([param.nbVarX, param.nbVarX])
+    #    for k in range(param.nbVarX):
+    #        G[k] = -sum(m[0,k:]) * param.gravity * l[0,k] * np.cos(L[k,:] @ x[:param.nbVarX])
+    #        for i in range(param.nbVarX):
+    #            S = sum(m[0,k:param.nbVarX] * np.heaviside(np.array(range(k, param.nbVarX)) - i, 1))
+    #            M[k,i] = l[0,k] * l[0,i] * np.cos(L[k,:] @ x[:param.nbVarX] - L[i,:] @ x[:param.nbVarX]) * S
+    #            C[k,i] = -l[0,k] * l[0,i] * np.sin(L[k,:] @ x[:param.nbVarX] - L[i,:] @ x[:param.nbVarX]) * S
+    
+        # Computation in matrix form of G, C, and M
+        G = -np.sum(Lm,1) * param.l * np.cos(L @ x[:param.nbVarX]) * param.gravity
+        C = -(l.T * l) * np.sin(np.reshape(L @ x[:param.nbVarX], [param.nbVarX,1]) - L @ x[:param.nbVarX]) * (Lm**.5 @ ((Lm**.5).T))
+        M = (l.T * l) * np.cos(np.reshape(L @ x[:param.nbVarX], [param.nbVarX,1]) - L @ x[:param.nbVarX]) * (Lm**.5 @ ((Lm**.5).T))
+
+        G = L.T @ G
+        C = L.T @ C
+        M = L.T @ M @ L
+    
+        return G,C,M,L
+
+    def inverse_dynamics(x, ddx, param):
+        G,C,M,L = computeGCML(x, param)
+    #   u = M @ ddx - G - C @ (L @ x[param.nbVarX:])**2 + x[param.nbVarX:] * param.damping # With gravity, Coriolis and viscous friction compensation models
+        u = M @ ddx - G - C @ (L @ x[param.nbVarX:])**2 # With gravity and Coriolis models 
+        return u
+
+    def fdyn(x, u, param):
+        G,C,M,L = computeGCML(x, param)
+        ddx = np.linalg.inv(M) @ (u + G + C @ (L @ x[param.nbVarX:])**2 - x[param.nbVarX:] * param.damping)
+        return ddx
+
+    def control(x, param):
+        u = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
+        return u
+
+    def externalPerturbation(x, param):
+        u = np.zeros(param.nbVarX)
+        if move_joint >= 0:
+            f = fkin(x[:move_joint+1], param2)
+            J = Jkin(x[:move_joint+1], param2)
+            u[:move_joint+1] = J[:2,:].T @ (mouse - f[:2]) * 5E-3 # Torque commands
+        return u
+    
+    ## Parameters
+    # ===============================
+    param = lambda: None # Lazy way to define an empty class in python
+    param.nbVarX = 3 # State space dimension
+    param.drawScale = 200.0
+    param.l = np.ones(param.nbVarX) * param.drawScale # Robot links lengths
+    param.m = np.ones(param.nbVarX) # Robot links masses
+    param.dt = 1E-2 # Time step length
+    param.damping = 20.0 # Viscous friction
+    param.gravity = 9.81 # Gravity
+
+    param2 = lambda: None # Lazy way to define an empty class in python
+
+    #########################################################################################
+
+    # Mouse events
+    mouse0 = np.zeros(2)
+    mouse = np.zeros(2)
+    mousedown = False
+    hover_joint = -1
+    move_joint= -1
+
+    def onMouseMove(event):
+        global mouse, mouse0
+        offset = canvas.getBoundingClientRect()
+        mouse0[0] = (event.clientX - offset.x) * canvas.width / offset.width
+        mouse0[1] = (event.clientY - offset.y) * canvas.height / offset.height
+        mouse[0] = (mouse0[0] - canvas_offset[0])
+        mouse[1] = -(mouse0[1] - canvas_offset[1])
+
+    def onTouchMove(event):
+        global mouse, mouse0
+        offset = event.target.getBoundingClientRect()
+        mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / offset.width
+        mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / offset.height
+        mouse[0] = (mouse0[0] - canvas_offset[0])
+        mouse[1] = -(mouse0[1] - canvas_offset[1])
+
+    def onMouseDown(event):
+        global mousedown, move_joint
+        mousedown = True
+        if hover_joint >= 0:
+            f0 = fkin0(x[:param.nbVarX], param)
+            param2.l = np.append(param.l[:hover_joint], np.linalg.norm(f0[:,hover_joint] - mouse))
+            param2.nbVarX = hover_joint+1
+            move_joint = hover_joint
+            event.preventDefault()
+
+    def onMouseUp(event):
+        global mousedown, move_joint
+        mousedown = False
+        move_joint = -1
+
+    def onWheel(event):
+        global x
+        if hover_joint >= 0:
+            x[hover_joint] -= 0.2 * (event.deltaY/106)
+        event.preventDefault()
+
+
+    onMouseMoveProxy = create_proxy(onMouseMove)
+    onTouchMoveProxy = create_proxy(onTouchMove)
+    onMouseDownProxy = create_proxy(onMouseDown)
+    onMouseUpProxy = create_proxy(onMouseUp)
+    onWheelProxy = create_proxy(onWheel)
+
+
+    #########################################################################################
+
+    canvas = document.getElementById('impedance2d_joint_canvas')
+    ctx = canvas.getContext('2d')
+
+    canvas_offset = (canvas.width / 2, 70)
+
+    def clear_screen(white):
+        ctx.setTransform(1, 0, 0, 1, 0, 0)
+
+        if white:
+            ctx.fillStyle = 'white'
+            ctx.fillRect(0, 0, canvas.width, canvas.height)
+        else:
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    def draw_robot(x, color):
+        global hover_joint
+        ctx.setTransform(1, 0, 0, -1, canvas_offset[0], canvas_offset[1])
+
+        f = fkin0(x, param) 
+
+        # Draw base
+        ctx.translate(f[0,0], f[1,0])
+        ctx.lineWidth = '4'
+        ctx.strokeStyle = 'white'
+        ctx.fillStyle = color
+        ctx.beginPath()
+        ctx.arc(0, 0, 40, 0, np.pi)
+        ctx.rect(-40, 0, 80, -40)
+        ctx.fill()
+        ctx.strokeStyle = color
+        for i in range(5):
+            ctx.beginPath()
+            ctx.moveTo(-30+i*15, -40)
+            ctx.lineTo(-40+i*15, -60)
+            ctx.stroke()
+
+        # Draw links and articulations
+        obj_articulation = Path2D.new()
+        obj_articulation.arc(0, 0, 12, 0, 2*np.pi)
+        ctx.lineCap = 'round'
+        ctx.lineJoin = 'round'
+        for i in range(param.nbVarX):
+            if i < param.nbVarX:
+                # Draw links outlines
+                ctx.lineWidth = '46'
+                ctx.strokeStyle = 'white'
+                ctx.beginPath()
+                ctx.lineTo(f[0,i], f[1,i])
+                ctx.lineTo(f[0,i+1], f[1,i+1])
+                ctx.stroke()
+                # Draw links
+                obj = Path2D.new()
+                obj.lineTo(f[0,i], f[1,i])
+                obj.lineTo(f[0,i+1], f[1,i+1])
+                ctx.lineWidth = '38'
+                ctx.strokeStyle = color
+                ctx.stroke(obj)
+                if ctx.isPointInStroke(obj, mouse0[0], mouse0[1]) and move_joint < 0:
+                    hover_joint = i
+
+            # Draw articulations
+            ctx.lineWidth = '4'
+            ctx.strokeStyle = 'white'
+            ctx.translate(f[0,i], f[1,i])
+            ctx.stroke(obj_articulation)
+            ctx.translate(-f[0,i], -f[1,i])
+
+    def draw_selected_point(f, color):
+        ctx.setTransform(1, 0, 0, -1, canvas_offset[0], canvas_offset[1])
+        # Draw object
+        obj = Path2D.new()
+        obj.arc(0, 0, 6, 0, 2*np.pi)
+        ctx.translate(f[0], f[1])
+        ctx.fillStyle = color
+        ctx.fill(obj)
+
+
+    #########################################################################################
+
+    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+    canvas.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
+    canvas.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+    canvas.addEventListener('wheel', onWheelProxy) #for standard mouse
+
+
+    async def cleanup():
+        document.removeEventListener('mousemove', onMouseMoveProxy)
+        document.removeEventListener('touchmove', onTouchMoveProxy)
+
+        document.removeEventListener('mouseup', onMouseUpProxy)
+        document.removeEventListener('touchend', onMouseUpProxy)
+
+
+    #########################################################################################
+
+    #x = np.zeros(2*param.nbVarX) # Initial robot state (position and velocity)
+    x = np.array([-np.pi/3.7, -np.pi/2.2, np.pi/4.1, 0, 0, 0]) # Initial robot state (position and velocity)
+    x_target = np.array([-np.pi/4, -np.pi/2, np.pi/4, 0, 0, 0]) # Target in joint space
+    KP = np.diag([4E-2, 4E-2, 4E2]) # Joint space stiffness matrix
+    KV = np.diag([1E1, 1E1, 1E1]) # Joint space damping matrix
+
+    dist_target = 20.0 # Targeted distance to maintain
+    f_target = np.array([-200.0, -400.0, 0]) # SDF location in task space 
+
+    sdf_disc_radius = 80.0 # Disc radius
+    sdf_box_size = np.array([160.0, 100.0]) # Box width and height
+    sdf_box_offset = np.array([60.0, -60.0]) # Box position wrt the disc
+    sdf_smoothing_ratio = 10.0 # Smoothing factor for softmax composition of SDF shapes 
+
+    renderer = None
+
+    async def loop(delta, time):
+        global hover_joint, x
+
+        try:
+            u = control(x, param) + externalPerturbation(x, param) # Torque commands
+            ddx = fdyn(x, u, param) # Compute accelerations
+            x += np.append(x[param.nbVarX:] + 0.5 * ddx * param.dt, ddx) * param.dt # Update state
+        except Exception as e:
+            displayError(e)
+
+        # Reinit hovering variables
+        hover_joint = -1
+
+        # Rendering
+        clear_screen(True)
+
+        draw_robot(x_target[:param.nbVarX], '#FF3399')
+
+        draw_robot(x[:param.nbVarX], '#AAAAAA')
+        if move_joint >= 0:
+            f = fkin(x[:move_joint+1], param2)
+            draw_selected_point(f, '#777777')
+
+
+    async def setup():
+        executePythonScript('impedance2d_joint_user_code')
+
+
+    configure({
+        'setup': setup,
+        'loop': loop,
+        'cleanup': cleanup,
+        'output': 'impedance2d_joint_output',
+        'errors': 'impedance2d_joint_errors',
+    })
+</script>

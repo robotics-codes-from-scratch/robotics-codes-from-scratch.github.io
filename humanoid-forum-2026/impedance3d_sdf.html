@@ -1,0 +1,370 @@
+﻿<h3>Impedance control in task space with distance fields</h3>
+
+<div style="display: inline-block; width: 49%; height: 90%; vertical-align: top;">
+    <editor id="impedance3d_sdf_editor" src="impedance3d_sdf_user_code"></editor>
+
+    <pre id="impedance3d_sdf_errors" class="py-error"></pre>
+    <pre id="impedance3d_sdf_output" class="py-output"></pre>
+</div>
+
+<div style="display: inline-block; width: 49%; height: 90%; vertical-align: top;">
+    <div id="impedance3d_sdf_viewer3d" style="width: 100%; height: 400px;"></div>
+</div>
+
+
+<script id="impedance3d_sdf_user_code" type="python">
+    # Initial robot state
+    x = [
+        0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0,    # joint positions
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0       # joint velocities
+    ]
+
+    dist_target = 0.02 # Targeted distance to maintain
+    f_target = np.array([0.3, 0.0, 0.3]) # SDF location in task space 
+    sdf_disc_radius = 0.08 # Disc radius
+    sdf_box_size = np.array([0.24, 0.1, 0.12]) # Box width and height
+    sdf_box_offset = np.array([0.08, 0.06, -0.06]) # Box position wrt the disc
+    sdf_smoothing_ratio = 0.05 # Smoothing factor for softmax composition of SDF shapes 
+
+    KP = np.diag([20000, 20000, 20000, 0, 0, 0])  # Task space stiffness (position and orientation)
+    KP0 = np.copy(KP)
+    KV = np.diag([200, 200, 200, 200, 200, 200])     # Task space damping (position and orientation)
+
+    def control(x):
+        global KP
+        f = fkin(x[:param.nbVarX]) # Forward kinematics
+        J = Jkin(x[:param.nbVarX]) # Corresponding Jacobian matrix
+        df = J @ x[param.nbVarX:] # End-effector velocity
+        dist, orient, grad = sdf(f) # Signed distance function and corresponding gradient
+        R = quaternionToMatrix(orient) # Local coordinate system (rotation matrix)
+        KP[:3,:3] = R @ KP0[:3,:3] @ R.T # Adapt stiffness to local coordinate system
+        grad[:3] = grad[:3] * (dist - dist_target) # Residual vector
+        u = J.T @ (KP @ grad - KV @ df) # Impedance controller in task space
+        return u
+</script>
+
+
+<script id="impedance3d_sdf_page_code" type="python">
+    from viewer3d import Viewer3D, logmap_S3, logmap, Layers, Passes, Robots, Tools, SceneBuilder
+    from js import document, SDFPass, three
+    from rcfs import configure, displayError, setAspectRatio, ImpedancePlanarIKControls
+    from pyodide.ffi import to_js
+    import numpy as np
+
+    param = lambda: None # Lazy way to define an empty class in python
+    param.nbVarX = 7 # State space dimension
+    param.dt = 0.01
+
+    robot = None
+    arrow = None    # for 'task space'
+
+    sdfPass = None
+
+
+    # SDF for circle
+    def sdf_circle(point, center, radius):
+        return np.linalg.norm(center - point) - radius
+
+    # SDF for box
+    def sdf_box(point, center, dimensions):
+        d = abs(center - point) - np.array(dimensions) * 0.5
+        return np.linalg.norm(np.maximum(d, 0.0)) + min(np.max(d), 0.0)
+
+    def smooth_union(d1, d2, k):
+        '''
+        Smooth union (see https://www.shadertoy.com/view/lt3BW2)
+        Note: will only be correct on the outside, see https://iquilezles.org/articles/interiordistance/
+        '''
+        h = np.max([k - np.abs(d1-d2), 0.0])
+        d = np.min([d1, d2]) - (h**2) * 0.25 / k
+        return d
+
+
+    def compute_distance(f):
+        p1 = f_target
+        p2 = f_target + sdf_box_offset
+
+        dist = np.zeros(f.shape[1])
+        for t in range(f.shape[1]):
+            d1 = sdf_circle(f[:3,t], p1, sdf_disc_radius)
+            d2 = sdf_box(f[:3,t], p2, sdf_box_size)
+            dist[t] = smooth_union(d1, d2, sdf_smoothing_ratio) # Smoothing union with softmax composition of SDF shapes
+        return dist
+
+
+    def quaternionFromDirection(direction):
+        vFrom = np.array([1, 0, 0])
+        vTo = np.array(direction) / np.linalg.norm(direction)
+
+        r = np.dot(vFrom, vTo) + 1.0
+
+        q = [0, 0, 0, 0]
+
+        if r < 1e-12:
+            # vFrom and vTo point in opposite directions
+            if abs(vFrom[0]) > abs(vFrom[2]):
+                q[0] = -vFrom[1]
+                q[1] = vFrom[0]
+                q[2] = 0.0
+                q[3] = 0.0
+            else:
+                q[0] = 0.0
+                q[1] = -vFrom[2]
+                q[2] = vFrom[1]
+                q[3] = 0.0
+        else:
+            q[:3] = np.cross(vFrom, vTo)
+            q[3] = r
+
+        return np.array(q) / np.linalg.norm(q)
+
+
+    def quaternionToMatrix(Q):
+        """
+        Convert a quaternion into a full three-dimensional rotation matrix.
+ 
+        Input
+        :param Q: A 4 element array representing the quaternion (qx,qy,qz,qw)
+ 
+        Output
+        :return: A 3x3 element matrix representing the full 3D rotation matrix.
+                 This rotation matrix converts a point in the local reference
+                 frame to a point in the global reference frame.
+        """
+        # Extract the values from Q
+        q0 = Q[3]
+        q1 = Q[0]
+        q2 = Q[1]
+        q3 = Q[2]
+     
+        # First row of the rotation matrix
+        r00 = 2 * (q0 * q0 + q1 * q1) - 1
+        r01 = 2 * (q1 * q2 - q0 * q3)
+        r02 = 2 * (q1 * q3 + q0 * q2)
+     
+        # Second row of the rotation matrix
+        r10 = 2 * (q1 * q2 + q0 * q3)
+        r11 = 2 * (q0 * q0 + q2 * q2) - 1
+        r12 = 2 * (q2 * q3 - q0 * q1)
+     
+        # Third row of the rotation matrix
+        r20 = 2 * (q1 * q3 - q0 * q2)
+        r21 = 2 * (q2 * q3 + q0 * q1)
+        r22 = 2 * (q0 * q0 + q3 * q3) - 1
+     
+        # 3x3 rotation matrix
+        rot_matrix = np.array([[r00, r01, r02],
+                               [r10, r11, r12],
+                               [r20, r21, r22]])
+                            
+        return rot_matrix
+
+
+    def computeNormal(position):
+        # Compute the normal at a given position
+        # See https://iquilezles.org/articles/normalsSDF
+        n = np.array([0.0, 0.0, 0.0])
+        for i in range(4):
+            e = 0.5773 * (2.0 * np.array([((i+3)>>1) & 1, (i>>1) & 1, i & 1]) - 1.0)
+            n += e * compute_distance((position + 0.0005 * e)[:3, None])
+
+        return n / np.linalg.norm(n)
+
+
+    # SDF
+    def sdf(f):
+        '''
+        Compound shape 1
+        '''
+        dist = compute_distance(f[:3, None])
+        #Numerical gradient estimate
+        eps = 1E-6
+        X = np.tile(f[:3].reshape((-1,1)), [1,3])
+        F1 = compute_distance(X)
+        F2 = compute_distance(X+np.eye(3)*eps)
+        grad = np.zeros(6) 
+        grad[:3] = -(F2-F1) / eps
+        grad[:3] = grad[:3] / (np.linalg.norm(grad[:3]) + 1E-8) # Position residual
+
+        orientation = quaternionFromDirection(-computeNormal(f[:3]))
+        # orientation = quaternionFromDirection(grad[:3])
+        grad[3:] = logmap_S3(orientation, f[3:]) # Orientation residual
+        return dist[0], orientation, grad
+
+
+    def update_arrow(pos, direction, length):
+        global arrow
+
+        if arrow is None:
+            arrow = viewer3D.addArrow(
+                'arrow',
+                pos,
+                direction,
+                length,
+                '#3333FF',
+                True,
+                0.04,
+                0.04
+            )
+        else:
+            arrow.origin = pos
+            arrow.direction = direction
+            headLength = max(min(length * 0.2, 0.1), min(length * 0.5, 0.05))
+            arrow.setDimensions(length, headLength=headLength, headWidth=headLength*0.4)
+
+
+    # The function that will be called once per frame
+    x = [0.5, -0.3, 0.0, -1.8, 0.0, 1.5, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+    dist_target = 0.02 # Targeted distance to maintain
+    f_target = np.array([0.3, 0.0, 0.3]) # SDF location in task space 
+    sdf_disc_radius = 0.08 # Disc radius
+    sdf_box_size = np.array([0.24, 0.1, 0.12]) # Box width and height
+    sdf_box_offset = np.array([0.08, 0.06, -0.06]) # Box position wrt the disc
+    sdf_smoothing_ratio = 0.05 # Smoothing factor for softmax composition of SDF shapes 
+
+
+    def update(delta, time):
+        global x, f_target, arrow
+
+        try:
+            if not isinstance(x, np.ndarray):
+                x = np.array(x)
+
+            if (f_target is not None) and (not isinstance(f_target, np.ndarray)):
+                f_target = np.array(f_target)
+
+            x[:param.nbVarX] = robot.jointPositions
+            x[param.nbVarX:] = robot.jointVelocities
+
+
+            f = fkin(x[:param.nbVarX])
+            dist, orient, grad = sdf(f)
+
+            if dist > 1e-2:
+                direction = three.Vector3.new(1, 0, 0)
+                q = three.Quaternion.new(orient[0], orient[1], orient[2], orient[3])
+                direction.applyQuaternion(q)
+                update_arrow(f[:3], [direction.x, direction.y, direction.z], dist)
+            else:
+                viewer3D.removeArrow('arrow')
+                arrow = None
+
+
+            u = control(x)
+
+            if viewer3D.viewer.planarIkControls.u is not None:
+                perturbation = viewer3D.viewer.planarIkControls.u.to_py()
+                u[:len(perturbation)] += perturbation
+
+            ddx = u
+            dx = np.copy(x[param.nbVarX:])
+
+            dx = dx + 0.5 * ddx * param.dt
+
+            x[:param.nbVarX] = x[:param.nbVarX] + dx * param.dt
+
+            x[param.nbVarX:] = dx
+
+            robot.control = x[:param.nbVarX]
+
+            viewer3D.viewer.planarIkControls.u = None
+        except Exception as e:
+            displayError(e)
+
+
+    # Resize the container of the Viewer3D to have a 1:1 aspect ratio
+    setAspectRatio('impedance3d_sdf_viewer3d', 1.0)
+
+    # Create the Viewer3D
+    element = document.getElementById('impedance3d_sdf_viewer3d')
+
+    viewer3D = Viewer3D(
+        element,
+        {
+            'external_loop': True,
+        }
+    )
+
+    viewer3D.viewer.planarIkControls.u = None
+
+
+    # Placeholder for the function to implement
+    def defaultcontrol(x, mu=None):
+        x[param.nbVarX:] = 0
+        return np.zeros(param.nbVarX)
+
+    control = defaultcontrol
+
+
+    # Forward kinematics function (allows to not care about 'robot' in the user code)
+    def fkin(x):
+        return robot.fkin(x)
+
+    # Jacobian function (allows to not care about 'robot' in the user code)
+    def Jkin(x):
+        return robot.Jkin(x)
+
+
+    # Load the scene and retrieve the robot
+    async def setup():
+        global robot, arrow, control, sdfPass
+
+        viewer3D.setRenderingCallback(None)
+        viewer3D.removeArrow('arrow')
+
+        # Setup the scene
+        builder = SceneBuilder('/scenes/empty.xml')
+
+        builder.addRobot(
+            'panda', Robots.Panda,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            Tools.FrankaHand
+        )
+
+        # Load the scene and retrieve the robot
+        viewer3D.loadScene(builder)
+        viewer3D.translateCamera([0.0, 0.0, 0.3])
+        robot = viewer3D.getRobot('panda')
+
+        arrow = None
+
+        if sdfPass is None:
+            sdfPass = SDFPass.new(viewer3D.viewer)
+            viewer3D.addPassBefore(sdfPass, Passes.TopRenderPass)
+
+        # Disable the manipulation of the end-effector
+        viewer3D.endEffectorManipulationEnabled = False
+
+        robot.jointPositions = x[:param.nbVarX]
+
+        viewer3D.setRenderingCallback(update, 0.01)
+
+
+    async def loop(delta, time):
+        viewer3D.render()
+
+
+    async def run():
+        robot.jointPositions = x[:param.nbVarX]
+        sdfPass.setSDF(to_js(f_target[:3]), sdf_disc_radius, to_js(sdf_box_size), to_js(sdf_box_offset), sdf_smoothing_ratio)
+        viewer3D.viewer.planarIkControls = ImpedancePlanarIKControls.new()
+
+
+    async def cleanup():
+        global viewer3D
+        viewer3D.dispose()
+        viewer3D = None
+        document.getElementById('impedance3d_sdf_viewer3d').innerHTML = ''
+
+
+    configure({
+        'setup': setup,
+        'loop': loop,
+        'run': run,
+        'cleanup': cleanup,
+        'output': 'impedance3d_sdf_output',
+        'errors': 'impedance3d_sdf_errors',
+    })
+</script>

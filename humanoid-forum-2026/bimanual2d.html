@@ -1,0 +1,328 @@
+﻿<h3>Bimanual robot</h3>
+
+<div style="display: inline-block; width: 49%; height: 90%; vertical-align: top;">
+    <editor id="bimanual2d_editor" src="bimanual2d_user_code"></editor>
+
+    <pre id="bimanual2d_errors" class="py-error"></pre>
+    <pre id="bimanual2d_output" class="py-output"></pre>
+
+    <br>
+    <div>
+		<img src="images/Jleftright01.png" width="70%">
+	</div>
+</div>
+
+<div style="display: inline-block; width: 49%; height: 90%; vertical-align: top;">
+    <canvas height="700px" id="bimanual2d_canvas" style="width:100%;" width="900px"></canvas>
+</div>
+
+
+<script id="bimanual2d_user_code" type="python">
+    # Initialization
+    x0 = np.array([np.pi/2, np.pi/2, np.pi/4, -np.pi/2, -np.pi/4]) # Initial robot state
+
+    # Control loop definition
+    def control(x, param):
+        f = fkin(x, param)
+        J = Jkin(x, param)
+
+        # u = np.linalg.pinv(J) @ (param.Mu - f) # Control commands
+        # u = np.zeros(param.nbVarX) # Control commands
+
+        pinvJ = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E4) @ J.T # Damped pseudoinverse
+        u = pinvJ @ (param.Mu - f) # Control commands
+
+        return 0.1 * u / param.dt   # Velocity in rad/s
+</script>
+
+
+<script id="bimanual2d_page_code" type="python">
+    from pyodide.ffi import create_proxy
+    from js import Path2D, document
+    from rcfs import configure, displayError
+    import numpy as np
+
+    # Forward kinematics for end-effector (in robot coordinate system)
+    def fkin(x, param):
+        L = np.tril(np.ones(3))
+        f = np.vstack([
+            param.l[0:3].T @ np.cos(L @ x[0:3]),
+            param.l[0:3].T @ np.sin(L @ x[0:3]),
+            param.l[[0,3,4]].T @ np.cos(L @ x[[0,3,4]]),
+            param.l[[0,3,4]].T @ np.sin(L @ x[[0,3,4]])
+        ])  # f1,f2,f3,f4
+        return f.reshape((-1,))
+
+    # Forward kinematics for end-effector (in robot coordinate system)
+    def fkin0(x, param):
+        L = np.tril(np.ones(3))
+        fl = np.vstack([
+            L @ np.diag(param.l[0:3]) @ np.cos(L @ x[0:3]),
+            L @ np.diag(param.l[0:3]) @ np.sin(L @ x[0:3])
+        ])
+        fr = np.vstack([
+            L @ np.diag(param.l[[0,3,4]]) @ np.cos(L @ x[[0,3,4]]),
+            L @ np.diag(param.l[[0,3,4]]) @ np.sin(L @ x[[0,3,4]])
+        ])
+        f = np.hstack([fl[:,::-1], np.zeros([2,1]), fr])
+        return f
+
+    # Jacobian of the end-effector with analytical computation (for single time step)
+    def Jkin(x, param):
+        L = np.tril(np.ones(3))
+        J = np.zeros((param.nbVarF, param.nbVarX))
+        Jl = np.vstack([-np.sin(L @ x[:3]).T @ np.diag(param.l[:3]) @ L,
+                        np.cos(L @ x[:3]).T @ np.diag(param.l[:3]) @ L
+                        ])
+        Jr = np.vstack([-np.sin(L @ x[[0,3,4]]).T @ np.diag(np.array(param.l)[[0,3,4]]) @ L,
+                        np.cos(L @ x[[0,3,4]]).T @ np.diag(np.array(param.l)[[0,3,4]]) @ L
+                        ])
+        J[:Jl.shape[0], :Jl.shape[1]] = Jl
+        J[2:, [0,3,4]] = Jr
+        return J
+
+
+    ## Parameters
+    # ===============================
+
+    param = lambda: None # Lazy way to define an empty class in python
+    param.dt = 1e-2 # Time step length
+    param.nbVarX = 5 # State space dimension
+    param.nbVarF = 4 # Task space dimension ([x1,x2] for left end-effector, [x3,x4] for right end-effector)
+    param.l = np.array([200, 200, 150, 200, 150]) # Robot links lengths
+    param.Mu = np.array([-200, 100, 200, 100]) # Objects position
+
+    #########################################################################################
+
+    # Mouse events
+    mouse0 = np.zeros(2)
+    mouse = np.zeros(2)
+    mousedown = False
+    hover_joint = -1
+    selected_obj = -1
+    move_joint= -1
+    hover0 = np.zeros(2)
+
+    def onMouseMove(event):
+        global mouse, mouse0, hover0, x
+        offset = canvas.getBoundingClientRect()
+        mouse0[0] = (event.clientX - offset.x) * canvas.width / offset.width
+        mouse0[1] = (event.clientY - offset.y) * canvas.height / offset.height
+        mouse[0] = (mouse0[0] - canvas.width * 0.5)
+        mouse[1] = -(mouse0[1] - canvas.height * 0.9)
+        if move_joint >= 0:
+            x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
+            hover0 = np.copy(mouse0)
+
+    def onTouchMove(event):
+        global mouse, mouse0, hover0, x
+        offset = event.target.getBoundingClientRect()
+        mouse0[0] = (event.touches.item(0).clientX - offset.x) * canvas.width / offset.width
+        mouse0[1] = (event.touches.item(0).clientY - offset.y) * canvas.height / offset.height
+        mouse[0] = (mouse0[0] - canvas.width * 0.5)
+        mouse[1] = -(mouse0[1] - canvas.height * 0.9)
+        if move_joint >= 0:
+            x[move_joint] -= 1E-2 * np.sum(hover0 - mouse0)
+            hover0 = np.copy(mouse0)
+
+    def onMouseDown(event):
+        global mousedown, move_joint, hover0, selected_obj
+        mousedown = True
+
+        if hover_joint >= 0:
+            move_joint = hover_joint
+            hover0 = np.copy(mouse0)
+        elif np.linalg.norm(param.Mu[:2] - mouse) < 22.0:
+            selected_obj = 0
+        elif np.linalg.norm(param.Mu[2:] - mouse) < 22.0:
+            selected_obj = 1
+
+        if (selected_obj >= 0) or (hover_joint >= 0):
+            event.preventDefault()
+
+    def onMouseUp(event):
+        global mousedown, selected_obj, move_joint
+        mousedown = False
+        selected_obj = -1
+        move_joint = -1
+
+    def onWheel(event):
+        global hover_joint, x
+        if hover_joint >= 0:
+            x[hover_joint] -= 0.2 * (event.deltaY/106)
+        event.preventDefault()
+
+    onMouseMoveProxy = create_proxy(onMouseMove)
+    onTouchMoveProxy = create_proxy(onTouchMove)
+    onMouseDownProxy = create_proxy(onMouseDown)
+    onMouseUpProxy = create_proxy(onMouseUp)
+    onWheelProxy = create_proxy(onWheel)
+
+
+    #########################################################################################
+
+    canvas = document.getElementById('bimanual2d_canvas')
+    ctx = canvas.getContext('2d')
+
+    def clear_screen():
+        ctx.setTransform(1, 0, 0, 1, 0, 0)
+        ctx.fillStyle = 'white'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+
+    def draw_ground():
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
+        ctx.lineCap = 'round'
+        ctx.lineJoin = 'round'
+        ctx.lineWidth = '5'
+        ctx.strokeStyle = '#CCCCCC'
+        ctx.beginPath()
+        ctx.moveTo(-400, 0)
+        ctx.lineTo(400, 0)
+        ctx.stroke()
+
+
+    def draw_robot(x, color):
+        global hover_joint
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
+
+        f = fkin0(x, param)
+
+        # Draw base
+        ctx.translate(f[0,3], f[1,3])
+        ctx.lineWidth = '4'
+        ctx.strokeStyle = 'white'
+        ctx.fillStyle = color
+        ctx.beginPath()
+        ctx.arc(0, 0, 40, 0, np.pi)
+        ctx.rect(-40, 0, 80, -40)
+        ctx.fill()
+        ctx.strokeStyle = color
+        for i in range(5):
+            ctx.beginPath()
+            ctx.moveTo(-30+i*15, -40)
+            ctx.lineTo(-40+i*15, -60)
+            ctx.stroke()
+
+        # Draw links and articulations
+        obj = Path2D.new()
+        obj.arc(0, 0, 12, 0, 2*np.pi)
+        ctx.lineCap = 'round'
+        ctx.lineJoin = 'round'
+        for i in range(param.nbVarX+2):
+            if i < param.nbVarX+1:
+                # Draw links outlines
+                ctx.lineWidth = '46'
+                ctx.strokeStyle = 'white'
+                ctx.beginPath()
+                ctx.lineTo(f[0,i], f[1,i])
+                ctx.lineTo(f[0,i+1], f[1,i+1])
+                ctx.stroke()
+                # Draw links
+                ctx.lineWidth = '38'
+                ctx.strokeStyle = color
+                ctx.beginPath()
+                ctx.lineTo(f[0,i], f[1,i])
+                ctx.lineTo(f[0,i+1], f[1,i+1])
+                ctx.stroke()
+            # Draw articulations
+            ctx.lineWidth = '4'
+            ctx.strokeStyle = 'white'
+            ctx.translate(f[0,i], f[1,i])
+            ctx.stroke(obj)
+            if ctx.isPointInPath(obj, mouse0[0], mouse0[1]) and i>0:
+                if i<4:
+                    hover_joint = 3-i
+                elif i<6:
+                    hover_joint = i-1
+            ctx.translate(-f[0,i], -f[1,i])
+
+
+    def draw_object(xobj, id, color):
+        ctx.setTransform(1, 0, 0, -1, canvas.width*0.5, canvas.height*0.9)
+        # Draw object
+        obj = Path2D.new()
+        obj.arc(0, 0, 22, 0, 2*np.pi)
+        ctx.translate(xobj[0], xobj[1])
+        ctx.fillStyle = color
+        ctx.fill(obj)
+
+
+    def defaultcontrol(x, param):
+        return np.zeros(param.nbVarX)
+
+    control = defaultcontrol
+
+
+    #########################################################################################
+
+    document.addEventListener('mousemove', onMouseMoveProxy) #for standard mouse
+    document.addEventListener('touchmove', onTouchMoveProxy) #for mobile interfaces
+
+    canvas.addEventListener('mousedown', onMouseDownProxy) #for standard mouse
+    canvas.addEventListener('touchstart', onMouseDownProxy) #for mobile interfaces
+
+    document.addEventListener('mouseup', onMouseUpProxy) #for standard mouse
+    document.addEventListener('touchend', onMouseUpProxy) #for mobile interfaces
+
+    canvas.addEventListener('wheel', onWheelProxy) #for standard mouse
+
+
+    async def cleanup():
+        document.removeEventListener('mousemove', onMouseMoveProxy)
+        document.removeEventListener('touchmove', onTouchMoveProxy)
+
+        document.removeEventListener('mouseup', onMouseUpProxy)
+        document.removeEventListener('touchend', onMouseUpProxy)
+
+
+    #########################################################################################
+
+    x0 = np.array([np.pi/2, np.pi/2, np.pi/4, -np.pi/2, -np.pi/4]) # Initial robot state
+    x = np.copy(x0)
+
+    async def loop(delta, time):
+        global hover_joint, x
+
+        try:
+            u = control(x, param)
+        except Exception as e:
+            displayError(e)
+            u = np.zeros(param.nbVarX)
+
+        x += u * param.dt
+
+        # Reinit hovering variables
+        hover_joint = -1
+
+        # Rendering
+        clear_screen()
+        #draw_ground()
+        draw_robot(x, '#AAAAAA')
+        draw_object(param.Mu[:2], 0, '#FF3399')
+        draw_object(param.Mu[2:], 1, '#FF9933')
+
+        # Object selection
+        if selected_obj==0:
+            param.Mu[:2] = mouse[:2]
+            param.Mu[0] = max(min(param.Mu[0],450), -450)
+            param.Mu[1] = max(min(param.Mu[1],630), -70)
+        if selected_obj==1:
+            param.Mu[2:] = mouse[:2]
+            param.Mu[2] = max(min(param.Mu[2],450), -450)
+            param.Mu[3] = max(min(param.Mu[3],630), -70)
+
+
+    async def run():
+        global x
+        x = np.copy(x0)
+
+
+    configure({
+        'loop': loop,
+        'run': run,
+        'cleanup': cleanup,
+        'output': 'bimanual2d_output',
+        'errors': 'bimanual2d_errors',
+    })
+</script>

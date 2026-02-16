@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<mujoco model="panda scene">
+    <statistic center="0.3 0 0.4" extent="1.5"/>
+
+    <option cone="elliptic" impratio="10" noslip_iterations="20" timestep="0.001" integrator="implicitfast">
+        <flag multiccd="enable"/>
+    </option>
+
+    <default>
+        <default class="cube">
+            <geom size="0.02 0.02 0.06" type="box"/>
+        </default>
+    </default>
+
+    <visual>
+        <headlight diffuse="0 0 0" ambient="1 1 1"/>
+        <rgba fog="1.0 1.0 1.0 1.0"/>
+        <global azimuth="180" elevation="-20"/>
+    </visual>
+
+    <asset>
+        <material name="groundplane" rgba="0.9 0.9 0.9 1"/>
+    </asset>
+
+    <worldbody>
+        <light pos="0 0 3" diffuse="1 1 1" castshadow="false" directional="true" intensity="2"/>
+        <light pos="3 -4 3" dir="-3 4 -3" diffuse="1 1 1" directional="false" intensity="30"/>
+
+        <geom name="floor" size="5 5 0.1" type="plane" material="groundplane"/>
+
+        <body name="box1" pos="0.4 -0.3 0.4">
+            <geom type="box" size=".1 .1 .4" rgba=".98 .59 .17 1" mass="0.1"/>
+        </body>
+
+        <body name="box2" pos="0.4 0.3 0.4">
+            <geom type="box" size=".1 .1 .4" rgba=".59 .98 .17 1" mass="0.1"/>
+        </body>
+
+        <body name="redcube" pos="0.4 -0.3 0.86">
+            <freejoint/>
+            <geom class="cube" rgba="1 0 0 1"/>
+        </body>
+    </worldbody>
+</mujoco>
