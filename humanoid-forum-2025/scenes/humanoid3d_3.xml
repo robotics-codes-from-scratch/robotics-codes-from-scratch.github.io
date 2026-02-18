@@ -7,8 +7,9 @@
     </option>
 
     <default>
+        <geom friction="0.8 0.1 0.1" solimp="0.95 0.99 0.0001" solref="0.005 1"/>
         <default class="cube">
-            <geom size="0.02 0.02 0.06" type="box"/>
+            <geom size="0.02 0.06 0.02" type="box"/>
         </default>
     </default>
 
@@ -28,15 +29,15 @@
 
         <geom name="floor" size="5 5 0.1" type="plane" material="groundplane"/>
 
-        <body name="box1" pos="0.4 -0.3 0.4">
+        <body name="source_base" pos="0.4 -0.3 0.4">
             <geom type="box" size=".1 .1 .4" rgba=".98 .59 .17 1" mass="0.1"/>
         </body>
 
-        <body name="box2" pos="0.4 0.3 0.4">
+        <body name="target_base" pos="0.4 0.3 0.4">
             <geom type="box" size=".1 .1 .4" rgba=".59 .98 .17 1" mass="0.1"/>
         </body>
 
-        <body name="redcube" pos="0.4 -0.3 0.86">
+        <body name="redcube" pos="0.4 -0.3 0.86" quat="0.707 -0.707 0 0">
             <freejoint/>
             <geom class="cube" rgba="1 0 0 1"/>
         </body>

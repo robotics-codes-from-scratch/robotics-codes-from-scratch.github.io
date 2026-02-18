@@ -16,172 +16,266 @@
 
 
 <script id="humanoid3d_3_user_code" type="python">
-STEP_START = 0
-STEP_RAISE_ARM = 1
-STEP_GO_ON_TOP_OF_CUBE = 2
-STEP_GO_DOWN = 3
-STEP_CLOSE_GRIPPER = 4
-STEP_GO_UP = 5
-STEP_GO_ON_TOP_OF_TARGET = 6
-STEP_GO_DOWN_ON_TARGET = 7
-STEP_RELEASE_CUBE = 8
-STEP_GO_UP_AFTER_RELEASE = 9
+# The steps we'll follow to grab the cube and place it on the target
+STEP_RAISE_ARM = 0
+STEP_GO_ON_TOP_OF_CUBE = 1
+STEP_GO_DOWN = 2
+STEP_CLOSE_GRIPPER = 3
+STEP_GO_UP = 4
+STEP_GO_ON_TOP_OF_TARGET = 5
+STEP_GO_DOWN_ON_TARGET = 6
+STEP_RELEASE_CUBE = 7
+STEP_GO_UP_FINAL = 8
 
-step = STEP_START
-dest = None
 
-def ik(x, mu, dt):
-    J = chain.Jkin(x)
-    f = chain.fkin(x)
-    u = np.linalg.pinv(J) @ logmap(mu, f)
-    return u / dt
+class IK:
+    """An helper class to perform Inverse Kinematics to reach a
+    specific destination (position + orientation)
+    """
 
-def adjustPosition(mu):
-    # Add a small offset to 'mu' (to let the hand correctly grab the cube)
-    quaternion = three.Quaternion.new(mu[3], mu[4], mu[5], mu[6])
-    vector = three.Vector3.new(-0.03, 0., -0.02)
-    vector.applyQuaternion(quaternion)
-    mu[:3] += [vector.x, vector.y, vector.z]
+    def __init__(self, chain, destination, weights=None):
+        self.chain = chain
+        self.destination = destination
+        self.weights = weights
+        self.last_errors = []
 
-def isAtDestination(x, mu, tolerance=5e-2, pos=False):
-    f = robot.fkin(x)
-    if not pos:
-        return np.linalg.norm(logmap(mu, f)[:7]) < tolerance
-    else:
-        return np.linalg.norm(logmap(mu, f)[:3]) < tolerance
+    def process(self, x, dt):
+        """Returns the control command to apply to the robot
+        """
+        J = self.chain.Jkin(x)
+        f = self.chain.fkin(x)
 
-# Called once per frame
-def control(x, dt, time):
-    global step, dest
+        # Position & orientation tracking (with weights)
+        if self.weights is not None:
+            Q = np.diag(self.weights)
+            u = np.linalg.pinv(J.T @ Q @ J) @ J.T @ Q @ logmap(self.destination, f)
 
-    u = np.zeros(x.shape)
+        # Position & orientation tracking
+        else:
+            u = np.linalg.pinv(J) @ logmap(self.destination, f)
 
-    # Retrieve the indices of the actuators belonging to the right hand kinematic chain
-    idx = robot.actuatorIndices(chain.actuators)
+        return u / dt  # Velocity in rad/s
 
-    if step == STEP_START:
-        x2 = np.copy(startJointPositions)
-        x2[11] = -1.0
-        dest = robot.fkin(x2)[:7]
-        u[idx] = ik(x[idx], dest, dt)
-        step = STEP_RAISE_ARM
+    def done(self, x):
+        """Indicates if the destination is reached
 
+        We'll consider that if the difference between the
+        position/orientation of the gripper and the destination
+        didn't diminish significantly over 5 updates, then
+        the destination is reached
+        """
+
+        # Compute the difference (by applying weights if needed)
+        f = self.chain.fkin(x)
+        diff = logmap(self.destination, f)
+
+        if self.weights is not None:
+            diff = diff @ self.weights
+
+        error = np.linalg.norm(diff)
+
+        # Memorize the 5 last differences
+        self.last_errors.append(error)
+        if len(self.last_errors) < 5:
+            return False
+
+        self.last_errors = self.last_errors[1:]
+
+        # Use the variance to determine if the diminution is still
+        # significant
+        return np.var(self.last_errors) < 1e-10
+
+
+# The variables we need to keep track of the current step
+step = None
+ik = None
+
+
+def controlCommand(x, dt):
+    global step, ik
+
+    # Only keep the joint positions of the kinematic chain we are
+    # using
+    chain_x = right_chain.sample(x)
+    
+    # If an IK-based movement is in progress, continue it until
+    # the destination is reached
+    if (ik is not None) and not(ik.done(chain_x)):
+        return right_chain.project(ik.process(chain_x, dt))
+
+    ik = None
+
+    # At startup: we need to rise the arm, in order to not collide
+    # with the orange base later
+    if step is None:
+        if right_chain.fkin(chain_x)[2] < 0.9:
+            u = np.zeros(chain_x.shape)
+            u[4] = -0.2 / dt
+            return right_chain.project(u)
+        else:
+            step = STEP_RAISE_ARM
+
+    # Once the arm is raised, we want to go above the cube,
+    # but with a small offset (thus when the hand will go
+    # grab the cube, it doesn't risk to push it with a finger),
+    # with the hand horizontal (= Y-axis pointing down)
     elif step == STEP_RAISE_ARM:
-        if isAtDestination(x, dest, 1e-1):
-            dest = cube_start
-            dest[2] += 0.15
-            adjustPosition(dest)
-            step = STEP_GO_ON_TOP_OF_CUBE
+        step = STEP_GO_ON_TOP_OF_CUBE
 
-        u[idx] = ik(x[idx], dest, dt)
+        destination = np.concatenate((
+            cube_start_position + np.array([-0.1, -0.1, 0.15]),
+            [
+                math.sin(-math.pi / 4.0),
+                0.0,
+                0.0,
+                math.cos(-math.pi / 4.0)
+            ]
+        ))
 
+        ik = IK(right_chain, destination)
+        return right_chain.project(ik.process(chain_x, dt))
+
+    # We are above the cube and correctly oriented, now move the
+    # hand down
     elif step == STEP_GO_ON_TOP_OF_CUBE:
-        if isAtDestination(x, dest, 5e-2):
-            dest[2] -= 0.17
-            step = STEP_GO_DOWN
+        step = STEP_GO_DOWN
+        gripper_pose = right_chain.fkin(chain_x)
+        destination = np.concatenate((
+            cube_start_position,
+            gripper_pose[3:]
+        ))
+        ik = IK(right_chain, destination)
+        return right_chain.project(ik.process(chain_x, dt))
 
-        u[idx] = ik(x[idx], dest, dt)
-
+    # Once at the cube location, close the hand
     elif step == STEP_GO_DOWN:
-        if isAtDestination(x, dest):
-            closeGripper(0)
-            step = STEP_CLOSE_GRIPPER
-        else:
-            u[idx] = ik(x[idx], dest, dt)
-    
-    elif step == STEP_CLOSE_GRIPPER:
-        if isGripperHoldingSomeObject(0):
-            dest[2] += 0.15
-            u[idx] = ik(x[idx], dest, dt)
-            step = STEP_GO_UP
-    
-    elif step == STEP_GO_UP:
-        if isAtDestination(x, dest, 1e-1):
-            dest = target
-            dest[2] += 0.15
-            adjustPosition(dest)
-            step = STEP_GO_ON_TOP_OF_TARGET
-    
-        u[idx] = ik(x[idx], dest, dt)
-    
-    elif step == STEP_GO_ON_TOP_OF_TARGET:
-        if isAtDestination(x, dest, 2e-2, pos=True):
-            dest[2] -= 0.15
-            step = STEP_GO_DOWN_ON_TARGET
-    
-        u[idx] = ik(x[idx], dest, dt)
-    
-    elif step == STEP_GO_DOWN_ON_TARGET:
-        if isAtDestination(x, dest, 1e-2, pos=True):
-            openGripper(0)
-            step = STEP_RELEASE_CUBE
-        else:
-            u[idx] = ik(x[idx], dest, dt)
-    
-    elif step == STEP_RELEASE_CUBE:
-        if isGripperOpen(0):
-            dest[2] += 0.2
-            u[idx] = ik(x[idx], dest, dt)
-            step = STEP_GO_UP_AFTER_RELEASE
-    
-    elif step == STEP_GO_UP_AFTER_RELEASE:
-        if isAtDestination(x, dest, pos=True):
-            step = None
-        else:
-            u[idx] = ik(x[idx], dest, dt)
+        robot.closeGripper(0)
+        step = STEP_CLOSE_GRIPPER
 
-    return u
+    # Wait until the gripper is holding the cube and go up again
+    elif step == STEP_CLOSE_GRIPPER:
+        if robot.isGripperHoldingSomeObject(0):
+            step = STEP_GO_UP
+            destination = right_chain.fkin(chain_x)
+            destination[2] += 0.15
+            ik = IK(right_chain, destination)
+            return right_chain.project(ik.process(chain_x, dt))
+
+    # Once we lifted the cube, move on top of the target
+    # (again using weighted IK)
+    elif step == STEP_GO_UP:
+        step = STEP_GO_ON_TOP_OF_TARGET
+        destination = right_chain.fkin(chain_x)
+        destination[:3] = target_position
+        destination[2] += 0.15
+        ik = IK(right_chain, destination, [1, 1, 1, 1, 1, 0])
+        return right_chain.project(ik.process(chain_x, dt))
+    
+    # Once above the target, go down
+    elif step == STEP_GO_ON_TOP_OF_TARGET:
+        step = STEP_GO_DOWN_ON_TARGET
+        destination = right_chain.fkin(chain_x)
+        destination[:3] = target_position
+        ik = IK(right_chain, destination)
+        return right_chain.project(ik.process(chain_x, dt))
+
+    # Once at the target, open the hand
+    elif step == STEP_GO_DOWN_ON_TARGET:
+        robot.openGripper(0)
+        step = STEP_RELEASE_CUBE
+
+    # Once the cube is released, go up one last time
+    elif step == STEP_RELEASE_CUBE:
+        if robot.isGripperOpen(0):
+            step = STEP_GO_UP_FINAL
+            destination = right_chain.fkin(chain_x)
+            destination[2] += 0.15
+            ik = IK(right_chain, destination)
+            return right_chain.project(ik.process(chain_x, dt))
+
+    # By default: no movement
+    return np.zeros(x.shape)  # Velocity in rad/s
 </script>
 
 
 <script id="humanoid3d_3_page_code" type="python">
-    from viewer3d import Viewer3D, logmap_S3, logmap, Robots, Tools, SceneBuilder
+    from viewer3d import Viewer3D, logmap_S3, logmap, readFile, writeFile, SceneBuilder, Robots, Tools
     from js import document, three
+    from pyodide.ffi import create_proxy
     from rcfs import configure, displayError, setAspectRatio
     import numpy as np
+    from scipy.spatial.transform import Rotation as R
     import math
 
-    # The function that will be called once per frame
+
+    # The elements in the scene
     robot = None
-    chain = None
+    right_chain = None
+    left_chain = None
     cube = None
 
-    startJointPositions = [ 0., 0., 0., 0., 0.2, 0., 1.28, 0., 0., 0., 0., -0.2, 0., 1.28, 0., 0., 0. ]
+    # Initial state of the elements in the scene
+    initial_robot_joint_positions = None
+    initial_cube_position = None
+    initial_cube_orientation = None
+    initial_source_base_position = None
+    initial_target_base_position = None
 
-    cube_start0 = None
-    target0 = None
-
-    cube_start = None
-    target = None
-
+    # Internal state
     targetReached = False
     targetReachedStartTime = None
+    resetting = False
 
+
+    # Variables available to the user
+    cube_start_position = None
+    cube_start_angle = None
+    source_position = None
+    target_position = None
+    bases_width = None
+
+    cube_start_ref = None
+    cube_start_angle_ref = None
+    source_position_ref = None
+    target_position_ref = None
+    bases_width_ref = None
+
+    # The function that will be called once per frame
     def callback(delta, time):
-        global cube_start, target, targetReached, targetReachedStartTime
+        global cube_start_position, cube_start_angle, source_position, target_position, \
+               bases_width, targetReached, targetReachedStartTime, resetting
 
-        cube_start = np.copy(cube_start0)
-        target = np.copy(target0)
+        if resetting:
+            if robot.isGripperOpen(0) and robot.isGripperOpen(1):
+                resetting = False
+            return
+
+        cube_start_position = np.copy(cube_start_ref[:3])
+        cube_start_angle = cube_start_angle_ref
+        source_position = np.copy(source_position_ref)
+        target_position = np.copy(target_position_ref)
+        bases_width = bases_width_ref
 
         try:
             x = robot.jointPositions
-            u = control(x, delta, time)
-            x += u * delta * 0.1
+            u = np.array(controlCommand(x, delta))
+            x += u * delta * 0.2
             robot.control = x
         except Exception as e:
             displayError(e)
 
         pos = cube.position
-        reached = robot.isGripperOpen(0) and \
-                  (pos[0] > target0[0] - 0.1) and (pos[0] < target0[0] + 0.1) and \
-                  (pos[1] > target0[1] - 0.1) and (pos[1] < target0[1] + 0.1) and \
-                  (pos[2] > target0[2] - 0.07) and (pos[2] < target0[2] + 0.07)
+        reached = robot.isGripperOpen(0) and robot.isGripperOpen(1) and \
+                  (pos[0] > target_position_ref[0] - 0.1) and (pos[0] < target_position_ref[0] + 0.1) and \
+                  (pos[1] > target_position_ref[1] - 0.1) and (pos[1] < target_position_ref[1] + 0.1) and \
+                  (pos[2] > target_position_ref[2] - 0.03) and (pos[2] < target_position_ref[2] + 0.02)
 
         if reached:
             if not targetReached:
                 targetReached = True
                 targetReachedStartTime = time
             elif time - targetReachedStartTime > 5.0:
+                viewer3D.physicsSimulatorPaused = False
                 viewer3D.setRenderingCallback(None)
                 document.getElementById('success').style.display = 'block'
         else:
@@ -191,40 +285,59 @@ def control(x, dt, time):
 
     # Load the scene and retrieve the robot
     def reset():
-        global robot, chain, cube, cube_start0, target0, targetReached, targetReachedStartTime
+        global targetReached, targetReachedStartTime, cube_start_ref, cube_start_angle_ref, \
+               source_position_ref, target_position_ref, bases_width_ref, resetting
 
         viewer3D.physicsSimulatorPaused = True
 
         targetReached = False
         targetReachedStartTime = None
+        resetting = True
 
-        cube_start0 = np.array([0.4, -0.3, 0.86, 0.707, 0., 0., -0.707])
-        target0 = np.array([0.4, 0.3, 0.86, 0.66830098,  0.25598009, -0.26776774, -0.64509567])
-
-        robot.jointPositions = startJointPositions
+        # Reset the robot to its initial state
+        robot.jointPositions = initial_robot_joint_positions
+        robot.control = initial_robot_joint_positions
 
         if not robot.isGripperOpen(0):
             robot.openGripper(0)
 
-        cube = viewer3D.getPhysicalBody('redcube')
+        if not robot.isGripperOpen(1):
+            robot.openGripper(1)
 
-        cube.position = cube_start0[:3]
-        cube.orientation = [0., 0., 0., 1.]
+        # Randomly place the cube on its base
+        position = np.copy(initial_cube_position)
 
+        # offset = np.random.rand(2) * 0.16 - 0.08
+        # position[:2] += offset
+
+        # cube_start_angle_ref = np.random.random() * math.pi / 2 - math.pi / 4
+
+        orientation = R.from_quat(initial_cube_orientation)
+        # orientation *= R.from_euler('Y', -cube_start_angle_ref)
+
+        cube.position = position
+        cube.orientation = orientation.as_quat()
+
+        # Store the values we want the user to have access to
+        cube_start_ref = np.concatenate((position, orientation.as_quat()))
+        source_position_ref = np.array(initial_source_base_position) + [0, 0, 0.4]
+        target_position_ref = np.array(initial_target_base_position) + [0, 0, 0.46]
+        bases_width_ref = 0.2
+
+        # Hide the success indicator
+        document.getElementById('success').style.display = 'none'
+
+        # Starts the physics simulation
         viewer3D.physicsSimulatorPaused = False
         viewer3D.setRenderingCallback(callback)
-
-        document.getElementById('success').style.display = 'none'
 
 
     # Resize the container of the Viewer3D to have a 1:1 aspect ratio
     setAspectRatio('humanoid3d_3_viewer3d', 1.0)
 
     # Create the Viewer3D
-    element = document.getElementById('humanoid3d_3_viewer3d')
-
     viewer3D = Viewer3D(
-        element,
+        document.getElementById('humanoid3d_3_viewer3d'),
         {
             'external_loop': True,
         }
@@ -232,8 +345,6 @@ def control(x, dt, time):
 
     # Setup the scene
     builder = SceneBuilder('/scenes/humanoid3d_3.xml')
-    builder.camera.azimuth = 120
-    builder.camera.elevation = -20
 
     builder.addRobot(
         'robot', Robots.G1_FixedLegs,
@@ -245,21 +356,61 @@ def control(x, dt, time):
         ]
     )
 
-    # Load the scene and retrieve the robot
+    # Load the scene
     viewer3D.loadScene(builder)
     viewer3D.translateCamera([0.0, 0.0, 0.3])
 
+    # Retrieve the robot, the kinematic chains and the initial joint positions
     robot = viewer3D.getRobot('robot')
-    chain = robot.getKinematicChainForTool(0)
+    right_chain = robot.getKinematicChainForTool(0)
+    left_chain = robot.getKinematicChainForTool(1)
+    initial_robot_joint_positions = [ 0., 0., 0., 0., 0.2, 0., 1.28, 0., 0., 0., 0., -0.2, 0., 1.28, 0., 0., 0. ]
 
+    # Retrieve the cube and its initial transforms
+    cube = viewer3D.getPhysicalBody('redcube')
+    initial_cube_position = cube.position
+    initial_cube_orientation = cube.orientation
+
+    # Retrieve the bases and their initial position
+    def getBasePosition(name):
+        body_id = viewer3D.viewer.physicsSimulator.getBodyId(name)
+        position = viewer3D.viewer.physicsSimulator.getBodyPosition(body_id)
+        return np.array([position.x, position.y, position.z])
+
+    initial_source_base_position = getBasePosition('source_base')
+    initial_target_base_position = getBasePosition('target_base')
+
+    # Add some axes
+    right_hand_axes = viewer3D.addAxes('right_hand_axes')
+    robot.toolControlPoint(0).add(right_hand_axes)
+
+    left_hand_axes = viewer3D.addAxes('left_hand_axes')
+    robot.toolControlPoint(1).add(left_hand_axes)
+
+    cube_axes = viewer3D.addAxes('cube_axes')
+    cube_axes.object.lines[1].scale.set(0, 0, 0)
+    cube_axes.object.lines[2].scale.set(0, 0, 0)
+    cube.add(cube_axes)
+
+    scene_axes = viewer3D.addAxes('scene_axes', length=1.0)
+
+    # Disable the manipulations
     viewer3D.controlsEnabled = False
 
     reset()
 
 
     # Placeholder for the function to implement
-    def control(x, dt, time):
+    def controlCommand(x, dt):
         return np.zeros(x.shape)
+
+    # Forward kinematics function (allows to not care about 'robot' in the user code)
+    def fkin(x):
+        return robot.fkin(x)
+
+    # Jacobian function (allows to not care about 'robot' in the user code)
+    def Jkin(x):
+        return robot.Jkin(x)
 
     # Function to open the gripper (allows to not care about 'robot' in the user code)
     def openGripper(index):
