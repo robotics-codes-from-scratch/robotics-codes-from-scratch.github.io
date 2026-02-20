@@ -24,8 +24,8 @@
 
     # Control loop definition
     def control(x, param):
-        f = fkin(x, param)
-        J = Jkin(x, param)
+        f = fkin(x, param) # Residual vector
+        J = Jkin(x, param) # Jacobian matrix
 
         # # Prioritized tracking with motion of first joint as secondary task
         # u1 = np.linalg.pinv(J[:2,:]) @ (param.Mu[:2] - f[:2]) # Position tracking

@@ -32,10 +32,11 @@
 
     # Control loop definition (impedance control in joint space)
     def control(x, param):
-        # Torques for gravity compensation
+        # # Torques for gravity compensation
         # ug = inverse_dynamics(np.append(x[:param.nbVarX], 
         #                       np.zeros(param.nbVarX)), 
-        #                       np.zeros(param.nbVarX), param) 
+        #                       np.zeros(param.nbVarX), param)
+         
         # Torques for gravity and Coriolis force compensation
         ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) 
         # u = kP * (x_target - x[:param.nbVarX]) - kV * x[param.nbVarX:] + ug 
