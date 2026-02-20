@@ -22,7 +22,8 @@
 
     # Control loop definition
     def control(x, param):
-        ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
+        # Torques for gravity and Coriolis force compensation
+        ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) 
         f = fkin(x[:param.nbVarX], param) # Forward kinematics
         J = Jkin(x[:param.nbVarX], param) # Corresponding Jacobian matrix
         df = J @ x[param.nbVarX:] # End-effector velocity

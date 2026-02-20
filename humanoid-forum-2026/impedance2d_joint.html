@@ -5,6 +5,11 @@
 
     <pre id="impedance2d_joint_errors" class="py-error"></pre>
     <pre id="impedance2d_joint_output" class="py-output"></pre>
+    
+    <br>
+    <div>
+		<img src="images/springdamper01.jpg" width="70%">
+	</div>
 </div>
 
 <div style="display: inline-block; width: 49%; height: 90%; vertical-align: top;">
@@ -25,13 +30,16 @@
     KP = np.diag([4E2, 4E2, 4E2]) # Joint space stiffness matrix
     KV = np.diag([1E1, 1E1, 1E1]) # Joint space damping matrix
 
-    # Control loop definition
+    # Control loop definition (impedance control in joint space)
     def control(x, param):
         # Torques for gravity compensation
-        # ug = inverse_dynamics(np.append(x[:param.nbVarX], np.zeros(param.nbVarX)), np.zeros(param.nbVarX), param) 
-        ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) # Torques for gravity and Coriolis force compensation
-        # u = kP * (x_target - x[:param.nbVarX]) - kV * x[param.nbVarX:] + ug # Impedance controller in joint space
-        u = KP @ (x_target - x[:param.nbVarX]) - KV @ x[param.nbVarX:] + ug # Impedance controller in joint space
+        # ug = inverse_dynamics(np.append(x[:param.nbVarX], 
+        #                       np.zeros(param.nbVarX)), 
+        #                       np.zeros(param.nbVarX), param) 
+        # Torques for gravity and Coriolis force compensation
+        ug = inverse_dynamics(x, np.zeros(param.nbVarX), param) 
+        # u = kP * (x_target - x[:param.nbVarX]) - kV * x[param.nbVarX:] + ug 
+        u = KP @ (x_target - x[:param.nbVarX]) - KV @ x[param.nbVarX:] + ug 
         return u
 </script>
 

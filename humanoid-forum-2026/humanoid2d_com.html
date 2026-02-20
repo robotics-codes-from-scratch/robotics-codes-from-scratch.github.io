@@ -33,12 +33,13 @@
             J2 = Jkin(x[:move_joint+1], param2)
             J2 = np.hstack((J2, np.zeros([2,param.nbVarX-move_joint-1]))) # Augmented form
             # Prioritized control
-            pinvJ1 = np.linalg.inv(J1.T @ J1 + np.eye(J1.shape[1]) * 1e-1) @ J1.T # Damped pseudoinverse
+            pinvJ1 = np.linalg.inv(J1.T @ J1 + np.eye(J1.shape[1]) * 1e-1) @ J1.T 
             N1 = np.eye(param.nbVarX) - pinvJ1 @ J1 # Nullspace projection operator
             u1 = pinvJ1 @ df1 # Command for position tracking
             J2N1 = J2 @ N1
-            pinvJ2N1 = np.linalg.inv(J2N1.T @ J2N1 + np.eye(J2N1.shape[1]) * 1e5) @ J2N1.T # Damped pseudoinverse
-            u2 = pinvJ2N1 @ (df2 - J2 @ u1) # Command for orientation tracking (with position tracking prioritized)
+            pinvJ2N1 = np.linalg.inv(J2N1.T @ J2N1 + np.eye(J2N1.shape[1]) * 1e5) @ J2N1.T
+            # Command for orientation tracking (with position tracking prioritized)
+            u2 = pinvJ2N1 @ (df2 - J2 @ u1) 
             u = u1 + N1 @ u2 # Control commands
 
         return 0.1 * u / param.dt   # Velocity in rad/s
