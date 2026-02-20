@@ -23,16 +23,16 @@
 
     # Control loop definition
     def control(x, param):
-        f = fkin(x, param)
-        J = Jkin(x, param)
-
+        f = fkin(x, param) # Forward kinematics
+        J = Jkin(x, param) # Jacobian matrix
+        
         # u = np.linalg.pinv(J) @ (param.Mu - f) # Control commands
         # u = np.zeros(param.nbVarX) # Control commands
-
+        
         pinvJ = np.linalg.inv(J.T @ J + np.eye(param.nbVarX) * 1E4) @ J.T # Damped pseudoinverse
         u = pinvJ @ (param.Mu - f) # Control commands
-
-        return 0.1 * u / param.dt   # Velocity in rad/s
+        
+        return 0.1 * u / param.dt # Velocity in rad/s
 </script>
 
 

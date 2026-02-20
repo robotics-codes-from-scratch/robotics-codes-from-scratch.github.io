@@ -18,7 +18,7 @@
 
     # Control loop definition
     def control(x, mu, dt):
-        f = fkin(x) # Residual vector
+        f = fkin(x) # Forward kinematics
         J = Jkin(x) # Jacobian matrix
         u = np.linalg.pinv(J[:3,:]) @ (mu[:3] - f[:3])  # Position tracking
         # u = np.linalg.pinv(J) @ logmap(mu, f)  # Position & orientation tracking

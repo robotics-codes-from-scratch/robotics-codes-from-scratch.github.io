@@ -24,19 +24,19 @@
 
     # Control loop definition
     def control(x, param):
-        f = fkin(x, param) # Residual vector
+        f = fkin(x, param) # Forward kinematics
         J = Jkin(x, param) # Jacobian matrix
-
+        
         # # Prioritized tracking with motion of first joint as secondary task
         # u1 = np.linalg.pinv(J[:2,:]) @ (param.Mu[:2] - f[:2]) # Position tracking
         # N = np.eye(param.nbVarX) - np.linalg.pinv(J[:2,:]) @ J[:2,:] # Nullspace projection matrix
         # u = u1 + N @ [1, 0, 0] # Control commands
-
+        
         # Prioritized tracking with preferred pose maintenance as secondary task
         u1 = np.linalg.pinv(J[:2,:]) @ (param.Mu[:2] - f[:2]) # Position tracking
         N = np.eye(param.nbVarX) - np.linalg.pinv(J[:2,:]) @ J[:2,:] # Nullspace projection matrix
         u = u1 + N @ (xh - x) # Control commands
-
+        
         # # Prioritized control (position tracking prioritized over orientation tracking)
         # dfp = (param.Mu[:2] - f[:2]) * 10 # Position correction
         # dfo = (param.Mu[2:] - f[2:]) * 10 # Orientation correction
@@ -50,7 +50,7 @@
         # # Command for orientation tracking (with position tracking prioritized)
         # uo = pinvJoNp @ (dfo - Jo @ up) 
         # u = up + Np @ uo # Control commands
-
+        
         return 0.1 * u / param.dt   # Velocity in rad/s
 </script>
 
