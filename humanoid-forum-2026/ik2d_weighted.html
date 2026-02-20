@@ -28,12 +28,14 @@
 
         # Weights in task space
         Wf = np.diag([1, 1, 0])
-        pinvWJ = np.linalg.inv(J.T @ Wf @ J + np.eye(param.nbVarX) * 1E-2) @ J.T @ Wf # Weighted pseudoinverse
+        # Weighted pseudoinverse
+        pinvWJ = np.linalg.inv(J.T @ Wf @ J + np.eye(param.nbVarX) * 1E-2) @ J.T @ Wf 
         u = pinvWJ @ logmap(param.Mu, f) # Position & orientation tracking
 
         # # Weights in configuration space
         # Wx = np.diag([0.01, 1, 1])
-        # pinvWJ =  Wx @ J[:2,:].T @ np.linalg.inv(J[:2,:] @ Wx @ J[:2,:].T + np.eye(2) * 1E-2) # Weighted pseudoinverse
+        # # Weighted pseudoinverse
+        # pinvWJ =  Wx @ J[:2,:].T @ np.linalg.inv(J[:2,:] @ Wx @ J[:2,:].T + np.eye(2) * 1E-2)
         # u = pinvWJ @ (param.Mu[:2] - f[:2]) # Position tracking
 
         return 0.1 * u / param.dt   # Velocity in rad/s

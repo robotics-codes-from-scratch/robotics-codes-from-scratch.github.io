@@ -47,7 +47,8 @@
         # up = pinvJp @ dfp # Command for position tracking
         # JoNp = Jo @ Np
         # pinvJoNp = JoNp.T @ np.linalg.inv(JoNp @ JoNp.T + np.eye(1) * 1E1) # Damped pseudoinverse
-        # uo = pinvJoNp @ (dfo - Jo @ up) # Command for orientation tracking (with position tracking prioritized)
+        # # Command for orientation tracking (with position tracking prioritized)
+        # uo = pinvJoNp @ (dfo - Jo @ up) 
         # u = up + Np @ uo # Control commands
 
         return 0.1 * u / param.dt   # Velocity in rad/s

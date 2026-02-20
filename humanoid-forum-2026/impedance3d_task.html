@@ -20,9 +20,11 @@
     ]
 
     f_target = fkin([0.5, 0.3, 0.0, -1.8, 0.0, 1.5, 1.0]) # Target in task space
-
-    KP = np.diag([20000, 20000, 20000, 20000, 20000, 20000])  # Task space stiffness (position and orientation)
-    KV = np.diag([2000, 2000, 2000, 1000, 1000, 1000])     # Task space damping (position and orientation)
+    
+    # Task space stiffness (position and orientation)
+    KP = np.diag([20000, 20000, 20000, 20000, 20000, 20000])
+    # Task space damping (position and orientation) 
+    KV = np.diag([2000, 2000, 2000, 1000, 1000, 1000]) 
 
     # Control loop definition
     def control(x, mu):
